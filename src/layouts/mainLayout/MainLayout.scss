@@ -1,17 +1,17 @@
 .header {
   height: 53px;
+  max-height: 53px;
   flex-shrink: 0;
   background: var(--white-color);
 }
 .wrapContent {
   display: flex;
-  .content {
+  .navbar {
     width: 260px;
-    height: 971px;
     flex-shrink: 0;
   }
-  .navbar {
-    height: 1024px;
+  .content {
+    flex: 1;
     background: var(--white-color);
   }
 }
