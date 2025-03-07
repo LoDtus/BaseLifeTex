@@ -1,5 +1,6 @@
 .header {
   height: 53px;
+  max-height: 53px;
   flex-shrink: 0;
   background: var(--white-color);
 }
@@ -7,9 +8,10 @@
   display: flex;
   .navbar {
     width: 260px;
-    height: 971px;
     flex-shrink: 0;
   }
+  .content {
+    flex: 1;
   .content {
     flex: 1;
     height: 1024px;
