@@ -8,10 +8,10 @@ export default function MainLayout({ children }) {
         <Header />
       </div>
       <div className="wrapContent">
-        <div className="content">{children}</div>
         <div className="navbar">
           <Navbar />
         </div>
+        <div className="content">{children}</div>
       </div>
     </div>
   );

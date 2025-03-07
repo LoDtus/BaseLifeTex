@@ -5,12 +5,13 @@
 }
 .wrapContent {
   display: flex;
-  .content {
+  .navbar {
     width: 260px;
     height: 971px;
     flex-shrink: 0;
   }
-  .navbar {
+  .content {
+    flex: 1;
     height: 1024px;
     background: var(--white-color);
   }
