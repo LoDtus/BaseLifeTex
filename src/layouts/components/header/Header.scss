@@ -1,56 +1,55 @@
 .kanban-header {
-   display: flex;
-   justify-content: space-between;
-   align-items: center;
-   background-color: #ffffff;
-   padding: 10px 20px;
-   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
- }
- 
- .logo {
-   display: flex;
-   align-items: center;
- }
- 
- .logo-img {
-   height: 40px;
-   margin-right: 10px;
- }
- 
- .logo-text {
-   font-size: 18px;
-   font-weight: bold;
-   color: #059bee;
- }
- 
- .search-bar {
-   flex-grow: 1;
-   margin: 0 20px;
-   display: flex;
-   justify-content: center;
- }
- 
- .search-input {
-   width: 100%;
-   max-width: 400px;
-   padding: 8px 12px;
-   border: 1px solid #ddd;
-   border-radius: 20px;
-   outline: none;
-   font-size: 14px;
- }
- 
- .user-profile {
-   display: flex;
-   align-items: center;
- }
- 
- .user-icon {
-   margin-right: 8px;
-   font-size: 20px;
- }
- 
- .user-name {
-   font-weight: bold;
-   color: #333;
- }
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #ffffff;
+  padding: 10px 20px;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+}
+
+.logo-img {
+  height: 40px;
+  margin-right: 10px;
+}
+
+.logo-text {
+  font-size: 18px;
+  font-weight: bold;
+  color: #059bee;
+}
+
+.search-bar {
+  flex-grow: 1;
+  margin: 0 20px;
+  display: flex;
+  justify-content: center;
+}
+
+.search-input {
+  width: 100%;
+  max-width: 400px;
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 20px;
+  outline: none;
+  font-size: 14px;
+}
+
+.user-profile {
+  display: flex;
+  align-items: center;
+}
+
+.user-icon {
+  margin-right: 8px;
+  font-size: 20px;
+}
+
+.user-name {
+  font-weight: bold;
+  color: #333;
+}

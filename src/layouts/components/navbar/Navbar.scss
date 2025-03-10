@@ -1,0 +1,25 @@
+.header-navbar {
+  display: flex;
+  justify-content: space-evenly;
+  padding: 26px 14px;
+  align-items: center;
+  .icon {
+    fill: #579ad7;
+    width: 27px;
+    height: 30px;
+    flex-shrink: 0;
+  }
+  span {
+    display: flex;
+    width: 142px;
+    height: 30px;
+    flex-direction: column;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+}
+.body-navbar {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
