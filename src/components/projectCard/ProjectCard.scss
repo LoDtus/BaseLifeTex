@@ -1,0 +1,85 @@
+.project-card {
+  padding: 0 14px;
+  font-style: normal;
+  background: #f5f5f5;
+
+  .project-header {
+    padding-top: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+  }
+
+  .name-project {
+    color: #000;
+    font-family: Inter;
+    font-size: 18px;
+    font-style: normal;
+    font-weight: 600;
+    line-height: normal;
+  }
+
+  .project-dates {
+    color: #000;
+    font-family: Inter;
+    font-size: 12px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: normal;
+    p {
+      display: flex;
+      width: 78px;
+      height: 18px;
+      flex-direction: column;
+      justify-content: center;
+      flex-shrink: 0;
+      margin-top: 8px;
+    }
+  }
+
+  .project-id {
+    color: #000;
+    font-family: Inter;
+    font-size: 12px;
+    font-style: normal;
+    font-weight: 700;
+    line-height: normal;
+    margin-top: 14px;
+  }
+
+  .project-responsible {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 26px;
+    .avatar {
+      width: 36px;
+      border-radius: 225px;
+    }
+
+    .responsible-info {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+  }
+
+  .project-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 15px;
+    img {
+      width: 36px;
+      border-radius: 225px;
+      cursor: pointer;
+    }
+
+    .status-btn {
+      background: #e63946;
+      color: white;
+      border: none;
+      padding: 5px 10px;
+      border-radius: 5px;
+    }
+  }
+}
