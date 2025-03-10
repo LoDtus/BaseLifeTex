@@ -1,0 +1,121 @@
+.task-table-container {
+   width: 100%;
+   overflow-x: auto;
+ }
+ 
+.task-table {
+   width: 100%;
+   margin-top: 20px;
+   border-collapse: collapse;
+   font-size: 14px;
+   background: #fff;
+   border-radius: 8px;
+   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+ 
+   th, td {
+     padding: 10px;
+     text-align: left;
+     border-bottom: 1px solid #ddd;
+   }
+ 
+   th {
+     background: #f9fafb;
+     font-weight: bold;
+   }
+ 
+   tr:hover {
+     background: #f3f4f6;
+   }
+
+   input[type="checkbox"] {
+     width: 16px;
+     height: 16px;
+     cursor: pointer;
+   }
+ 
+   .assignees {
+     display: flex;
+     align-items: center;
+     margin-left: 25px;
+     gap: 10px;
+ 
+     .avatar {
+       width: 24px;
+       height: 24px;
+       border-radius: 50%;
+       border: 2px solid #fff;
+       box-shadow: 0 0 2px rgba(0, 0, 0, 0.2);
+     }
+ 
+     .add-user {
+       width: 24px;
+       height: 24px;
+       border-radius: 50%;
+       border: 1px solid #d1d5db;
+       background: #f3f4f6;
+       color: #4b5563;
+       font-size: 16px;
+       cursor: pointer;
+       display: flex;
+       align-items: center;
+       justify-content: center;
+ 
+       &:hover {
+         background: #e5e7eb;
+       }
+     }
+   }
+ 
+   .comment-icon,
+   .calendar-icon {
+     width: 16px;
+     height: 18px;
+     margin-left: 20px;
+   }
+ 
+   a {
+     text-decoration: none;
+     font-size: 16px;
+   }
+ }
+ .task-header1 {
+   display: flex;
+   align-items: center;
+   justify-content: space-between; // Đẩy p về trái, images về phải
+   gap: 16px;
+   padding: 10px 0 0px 0;
+ 
+   .task-add1 {
+     display: flex;
+     align-items: center;
+     gap: 6px;
+     color: #6b7280; // Màu chữ xám nhạt
+     font-size: 14px;
+ 
+     img {
+       width: 24px;
+       height: 24px;
+       border-radius: 4px;
+       padding: 4px;
+       background-color: #f3f4f6; // Màu nền nhạt
+       border: 1px solid #d1d5db; // Viền nhạt
+     }
+   }
+ 
+   .task-icons1 {
+     display: flex;
+     align-items: center;
+ 
+     img {
+       width: 30px;
+       height: 30px;
+       margin-right: 10px;
+       border-radius: 50%; // Bo tròn ảnh
+       object-fit: cover; // Hiển thị ảnh đẹp hơn
+       &:hover {
+         background-color: #d1d5db;
+       }
+     }
+   }
+ }
+ 

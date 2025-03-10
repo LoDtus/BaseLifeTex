@@ -3,12 +3,17 @@
   max-height: 53px;
   flex-shrink: 0;
   background: var(--white-color);
+  position: fixed;
+    top: 0;
+    width: 100vw;
+  z-index: 99;
   margin-bottom: 14px;
   background-color: #f8f9fa;
   padding: 10px;
 }
 .wrapContent {
   display: flex;
+  margin-top: 50px;
   .navbar {
     width: 260px;
     flex-shrink: 0;
@@ -18,6 +23,8 @@
   }
   .content {
     flex: 1;
+    height: 1024px;
+    background: var(--white-color);
     .content {
       flex: 1;
       height: 1024px;
