@@ -1,7 +1,15 @@
-import React from "react";
+import { useState } from "react";
 import "./ProjectCard.scss";
+import { Popper } from "@mui/base/Popper";
 
 const ProjectCard = () => {
+  const [anchorEl, setAnchorEl] = useState(null);
+
+  const handleClick = (event) => {
+    setAnchorEl(anchorEl ? null : event.currentTarget);
+  };
+  const open = Boolean(anchorEl);
+  const id = open ? "simple-popper" : undefined;
   return (
     <div className="project-card">
       <div className="project-header">
@@ -37,11 +45,16 @@ const ProjectCard = () => {
       </div>
       <div className="project-footer">
         <img
+          onClick={handleClick}
           src="src\assets\image\e10ebdc6f22af020d1cdd58a063bf347.png"
           alt=""
         />
+
         <button className="status-btn">Chưa hoàn thành</button>
       </div>
+      <Popper id={id} open={open} anchorEl={anchorEl}>
+        <div>The content of the Popper.</div>
+      </Popper>
     </div>
   );
 };
