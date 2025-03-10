@@ -27,7 +27,7 @@
    flex-grow: 1;
    margin: 0 20px;
    display: flex;
-   justify-content: center;
+   justify-content: right;
  }
  
  .search-input {
@@ -42,6 +42,7 @@
  
  .user-profile {
    display: flex;
+   margin-right: 20px;
    align-items: center;
  }
  

@@ -3,9 +3,14 @@
   max-height: 53px;
   flex-shrink: 0;
   background: var(--white-color);
+  position: fixed;
+    top: 0;
+    width: 100vw;
+  z-index: 99;
 }
 .wrapContent {
   display: flex;
+  margin-top: 50px;
   .navbar {
     width: 260px;
     flex-shrink: 0;
