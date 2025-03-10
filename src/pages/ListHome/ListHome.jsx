@@ -34,6 +34,36 @@ const tasks = [
       status: "Hoàn thành",
       link: "https://",
     },
+    {
+      id: 4,
+      name: "fix header",
+      assignees: ["image_4.png"],
+      comments: "",
+      startDate: "01/01/2029",
+      endDate: "01/01/2029",
+      status: "Hoàn thành",
+      link: "https://",
+    },
+    {
+      id: 5,
+      name: "fix header",
+      assignees: ["image_4.png"],
+      comments: "",
+      startDate: "01/01/2029",
+      endDate: "01/01/2029",
+      status: "Hoàn thành",
+      link: "https://",
+    },
+    {
+      id: 6,
+      name: "fix header",
+      assignees: ["image_4.png"],
+      comments: "",
+      startDate: "01/01/2029",
+      endDate: "01/01/2029",
+      status: "Hoàn thành",
+      link: "https://",
+    },
 ];
 
 const TaskTable = () => {
