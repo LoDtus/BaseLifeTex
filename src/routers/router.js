@@ -3,7 +3,7 @@ import LoginLayout from "../layouts/loginLayout/LoginLayout";
 import Home from "../pages/Home/Home";
 import Login from "../pages/Login/Login";
 import Register from "../pages/Register/Register";
-import IssueForm from "../components/IssueFrom/IssueForm";
+
 const publicRoutes = [
   {
     path: "/",
