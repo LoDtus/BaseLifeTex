@@ -1,16 +1,16 @@
-.project-card {
+.projectCard {
   padding: 0 14px;
   font-style: normal;
   background: #f5f5f5;
 
-  .project-header {
+  .projectHeader {
     padding-top: 10px;
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
   }
 
-  .name-project {
+  .nameProject {
     color: #000;
     font-family: Inter;
     font-size: 18px;
@@ -19,7 +19,7 @@
     line-height: normal;
   }
 
-  .project-dates {
+  .projectDates {
     color: #000;
     font-family: Inter;
     font-size: 12px;
@@ -37,7 +37,7 @@
     }
   }
 
-  .project-id {
+  .projectId {
     color: #000;
     font-family: Inter;
     font-size: 12px;
@@ -47,7 +47,8 @@
     margin-top: 14px;
   }
 
-  .project-responsible {
+  .projectResponsible {
+    color: #000;
     display: flex;
     justify-content: space-between;
     margin-top: 26px;
@@ -56,14 +57,14 @@
       border-radius: 225px;
     }
 
-    .responsible-info {
+    .responsibleInfo {
       display: flex;
       align-items: center;
       gap: 5px;
     }
   }
 
-  .project-footer {
+  .projectFooter {
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -74,7 +75,7 @@
       cursor: pointer;
     }
 
-    .status-btn {
+    .statusBtn {
       background: #e63946;
       color: white;
       border: none;

@@ -8,6 +8,8 @@
     width: 100vw;
   z-index: 99;
   margin-bottom: 14px;
+  background-color: #f8f9fa;
+  padding: 10px;
 }
 .wrapContent {
   display: flex;
@@ -15,6 +17,9 @@
   .navbar {
     width: 260px;
     flex-shrink: 0;
+    border-right: 1px solid #000;
+    width: 250px;
+    color: white;
   }
   .content {
     flex: 1;
@@ -24,6 +29,8 @@
       flex: 1;
       height: 1024px;
       background: var(--white-color);
+      padding: 20px;
+      background-color: #ffffff;
     }
   }
 }
