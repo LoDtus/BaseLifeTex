@@ -160,7 +160,7 @@ const TaskTable = () => {
         </div>
         
         <div className="task-header1">
-          <div className="task-add1">
+          <div onClick={openModal} className="task-add1">
             <img src="src/assets/image/Problem.png" alt="Add Task" />
             <p>Thêm vấn đề</p>
           </div>
@@ -193,7 +193,7 @@ const TaskTable = () => {
               </td>
               <td>{index + 1}</td>
               <td className="task-name">
-                <img src="src/assets/image/Pen.png" alt="edit" className="edit-icon" onClick={openModal}/>
+                <img src="src/assets/image/Pen.png" alt="edit" className="edit-icon"/>
                 {task.name}
               </td>
               <td className="assignees">
