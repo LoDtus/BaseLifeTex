@@ -212,20 +212,23 @@ export default function Home() {
 
         </div>
 
-    {/* Bảng Kanban */}
-      <DndContext collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-        <div className="kanban-container">
-          {columns.map((column) => (
-            <Column
-              key={column.id}
-              columnId={column.id}
-              column={column}
-              checkedTasks={checkedTasks}
-              handleCheckboxChange={handleCheckboxChange}
-            />
-          ))}
-        </div>
-      </DndContext>
+    {/* Bọc bảng Kanban trong một container cuộn ngang */}
+    <div className="kanban-wrapper">
+        {/* Bảng Kanban */}
+        <DndContext collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+          <div className="kanban-container">
+            {columns.map((column) => (
+              <Column
+                key={column.id}
+                columnId={column.id}
+                column={column}
+                checkedTasks={checkedTasks}
+                handleCheckboxChange={handleCheckboxChange}
+              />
+            ))}
+          </div>
+        </DndContext>
+      </div>
     </div>
   );
 }

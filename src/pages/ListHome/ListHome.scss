@@ -3,6 +3,33 @@
    overflow-x: auto;
  }
  
+ .header-container1 {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 40px 0 0 0px;
+  margin-right: 23px;
+  margin-left: 80px;
+
+  p {
+    color: #6b7280;
+    font-size: 30px;
+  }
+
+  .image-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    img {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      object-fit: cover;
+    }
+  }
+}
+ 
 .task-table {
    width: 100%;
    margin-top: 20px;
@@ -37,7 +64,8 @@
    .assignees {
      display: flex;
      align-items: center;
-     margin-left: 25px;
+     padding-top: 22px;
+     padding-left: 25px;
      gap: 10px;
  
      .avatar {
@@ -84,8 +112,10 @@
    align-items: center;
    justify-content: space-between; // Đẩy p về trái, images về phải
    gap: 16px;
-   padding: 40px 0 0px 80px;
- 
+   padding: 10px 0 0; 
+   margin-right: 23px;
+   margin-left: 80px;
+   margin-top: 10px;
    .task-add1 {
      display: flex;
      align-items: center;

@@ -34,17 +34,45 @@ const initialTasks = [
     status: "Hoàn thành",
     link: "https://",
   },
+  {
+    id: 4,
+    name: "fix header",
+    assignees: ["image_4.png"],
+    comments: "",
+    startDate: "01/01/2029",
+    endDate: "01/01/2029",
+    status: "Hoàn thành",
+    link: "https://",
+  },
+  {
+    id: 5,
+    name: "fix header",
+    assignees: ["image_4.png"],
+    comments: "",
+    startDate: "01/01/2029",
+    endDate: "01/01/2029",
+    status: "Hoàn thành",
+    link: "https://",
+  },
 ];
+
 const TaskTable = () => {
   const navigate = useNavigate();
 
-  // Khởi tạo tasks từ localStorage nếu có, nếu không thì dùng initialTasks
+  // Khởi tạo tasks, hợp nhất initialTasks với localStorage
   const [tasks, setTasks] = useState(() => {
     const savedTasks = localStorage.getItem("taskList");
-    return savedTasks ? JSON.parse(savedTasks) : initialTasks;
+    const parsedTasks = savedTasks ? JSON.parse(savedTasks) : [];
+    const mergedTasks = [
+      ...initialTasks,
+      ...parsedTasks.filter((task) =>
+        !initialTasks.some((initial) => initial.id === task.id)
+      ),
+    ];
+    return mergedTasks;
   });
 
-  // Lưu tasks vào localStorage mỗi khi nó thay đổi (tùy chọn)
+  // Lưu tasks vào localStorage mỗi khi nó thay đổi
   useEffect(() => {
     localStorage.setItem("taskList", JSON.stringify(tasks));
   }, [tasks]);
@@ -63,7 +91,7 @@ const TaskTable = () => {
        {/* Header Section */}
        <div className="header-section flex items-center justify-between p-4 border-b">
         {/* Logo */}
-        <div className="header-container flex items-center gap-4">
+        <div className="header-container1 flex items-center gap-4">
           <p className="text-gray-500 text-sm">Dự án / Phần mềm đánh giá</p>
           <div className="flex items-center gap-2">
             <img onClick={() => navigate("/")} src='src/assets/image/Column.png' alt="LIFETEK" className="logo-img" />

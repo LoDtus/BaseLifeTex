@@ -3,29 +3,37 @@
   height: 100vh;
   display: flex;
   flex-direction: column;
-} 
+  overflow: hidden; // Ngăn cuộn ở cấp cao nhất
+}
+.home-container {
+  width: calc(100% - 250px); // Giới hạn chiều rộng (có thể dành cho sidebar)
+  height: 100vh; // Đảm bảo chiếm toàn bộ chiều cao viewport
+  display: flex;
+  flex-direction: column;
+  overflow: hidden; // Ngăn cuộn toàn trang
+}
 
 .header-container {
   display: flex;
   align-items: center;
-  justify-content: space-between; // Đẩy p về trái, images về phải
+  justify-content: space-between;
   padding: 40px 0 0 80px;
 
   p {
-    color: #6b7280; // Màu xám
-    font-size: 30px; // Kích thước chữ
+    color: #6b7280;
+    font-size: 30px;
   }
 
   .image-group {
     display: flex;
     align-items: center;
-    gap: 8px; // Khoảng cách giữa hai ảnh
+    gap: 8px;
 
     img {
       width: 30px;
       height: 30px;
-      border-radius: 50%; // Bo tròn ảnh
-      object-fit: cover; // Hiển thị ảnh đẹp hơn
+      border-radius: 50%;
+      object-fit: cover;
     }
   }
 }
@@ -38,7 +46,7 @@
   margin-top: 40px;
   input {
     width: 243px;
-    padding: 10px 10px 10px 40px; // Tạo khoảng trống bên trái cho icon
+    padding: 10px 10px 10px 40px;
     margin-right: 20px;
     border: 1px solid #ccc;
     border-radius: 5px;
@@ -67,14 +75,21 @@
   margin-right: 10px;
 }
 
+// Container bọc Kanban
+.kanban-wrapper {
+  flex: 1; // Chiếm toàn bộ không gian còn lại
+  overflow-x: auto; // Cho phép cuộn ngang
+  overflow-y: auto; // Ngăn cuộn dọc trong wrapper
+  padding: 45px 0 0 20px;
+}
+
 .kanban-container {
   display: flex;
   gap: 40px;
   align-items: flex-start;
-  padding: 45px 0 0 80px;
   background-color: #ffffff;
-  min-height: 100vh;
-  overflow-x: auto;
+  min-width: fit-content; // Đảm bảo container đủ rộng để chứa tất cả cột
+  height: 100%; // Đảm bảo chiều cao đầy đủ trong wrapper
 }
 
 .kanban-column {
@@ -131,7 +146,7 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    gap: 10px; // Khoảng cách giữa checkbox và tiêu đề
+    gap: 10px;
 
     input[type="checkbox"] {
       width: 18px;
@@ -158,15 +173,16 @@
 .task-header {
   display: flex;
   align-items: center;
-  justify-content: end; // Đẩy p về trái, images về phải
+  justify-content: end;
   gap: 16px;
   padding: 10px 0 0px 0;
+  margin-top: 10px;
 
   .task-add {
     display: flex;
     align-items: center;
     gap: 6px;
-    color: #6b7280; // Màu chữ xám nhạt
+    color: #6b7280;
     font-size: 14px;
 
     img {
@@ -174,8 +190,8 @@
       height: 24px;
       border-radius: 4px;
       padding: 4px;
-      background-color: #f3f4f6; // Màu nền nhạt
-      border: 1px solid #d1d5db; // Viền nhạt
+      background-color: #f3f8f6;
+      border: 1px solid #d1d5db;
     }
   }
 
@@ -187,8 +203,8 @@
       width: 30px;
       height: 30px;
       margin-right: 10px;
-      border-radius: 50%; // Bo tròn ảnh
-      object-fit: cover; // Hiển thị ảnh đẹp hơn
+      border-radius: 50%;
+      object-fit: cover;
       &:hover {
         background-color: #d1d5db;
       }
