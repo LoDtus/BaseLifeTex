@@ -25,7 +25,7 @@ export default function Column({
       <h3>
         {column.title}: {column.tasks.length}
       </h3>
-      <button className="add-task">➕ Thêm vấn đề</button>
+      <button onClick={onOpen} className="add-task">➕ Thêm vấn đề</button>
       <SortableContext
         id={String(columnId)}
         items={column.tasks.map((task) => String(task.id))}
@@ -37,7 +37,7 @@ export default function Column({
             task={task}
             checkedTasks={checkedTasks}
             handleCheckboxChange={handleCheckboxChange}
-            onOpen={onOpen}
+            
           />
         ))}
       </SortableContext>
