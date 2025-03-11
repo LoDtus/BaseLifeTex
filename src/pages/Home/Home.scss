@@ -9,7 +9,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between; // Đẩy p về trái, images về phải
-  padding: 20px 0;
+  padding: 40px 0 0 80px;
 
   p {
     color: #6b7280; // Màu xám
@@ -34,7 +34,8 @@
   position: relative;
   display: flex;
   align-items: center;
-
+  margin-left: 80px;
+  margin-top: 40px;
   input {
     width: 243px;
     padding: 10px 10px 10px 40px; // Tạo khoảng trống bên trái cho icon
@@ -70,9 +71,10 @@
   display: flex;
   gap: 40px;
   align-items: flex-start;
-  padding: 25px 0 ;
+  padding: 45px 0 0 80px;
   background-color: #ffffff;
   min-height: 100vh;
+  overflow-x: auto;
 }
 
 .kanban-column {
@@ -110,6 +112,11 @@
   margin-bottom: 15px;
   border-radius: 8px;
   box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+  cursor: grab;
+
+  &.dragging {
+    opacity: 0.5;
+  }
 
   p {
     margin: 0;

@@ -1,44 +1,62 @@
+import { useState, useEffect } from "react"; // Thêm useEffect nếu muốn lưu vào localStorage
 import "./ListHome.scss";
 import "../Home/Home.scss";
 import { useNavigate } from "react-router-dom";
 
-
-const tasks = [
-   {
-      id: 1,
-      name: "fix header",
-      assignees: ["image_4.png"],
-      comments: "",
-      startDate: "01/01/2029",
-      endDate: "01/01/2029",
-      status: "Hoàn thành",
-      link: "https://",
-    },
-    {
-      id: 2,
-      name: "fix header",
-      assignees: ["image_4.png"],
-      comments: "",
-      startDate: "01/01/2029",
-      endDate: "01/01/2029",
-      status: "Hoàn thành",
-      link: "https://",
-    },
-    {
-      id: 3,
-      name: "fix header",
-      assignees: ["image_4.png"],
-      comments: "",
-      startDate: "01/01/2029",
-      endDate: "01/01/2029",
-      status: "Hoàn thành",
-      link: "https://",
-    },
+const initialTasks = [
+  {
+    id: 1,
+    name: "fix header",
+    assignees: ["image_4.png"],
+    comments: "",
+    startDate: "01/01/2029",
+    endDate: "01/01/2029",
+    status: "Hoàn thành",
+    link: "https://",
+  },
+  {
+    id: 2,
+    name: "fix header",
+    assignees: ["image_4.png"],
+    comments: "",
+    startDate: "01/01/2029",
+    endDate: "01/01/2029",
+    status: "Hoàn thành",
+    link: "https://",
+  },
+  {
+    id: 3,
+    name: "fix header",
+    assignees: ["image_4.png"],
+    comments: "",
+    startDate: "01/01/2029",
+    endDate: "01/01/2029",
+    status: "Hoàn thành",
+    link: "https://",
+  },
 ];
-
 const TaskTable = () => {
-   const navigate = useNavigate();
+  const navigate = useNavigate();
 
+  // Khởi tạo tasks từ localStorage nếu có, nếu không thì dùng initialTasks
+  const [tasks, setTasks] = useState(() => {
+    const savedTasks = localStorage.getItem("taskList");
+    return savedTasks ? JSON.parse(savedTasks) : initialTasks;
+  });
+
+  // Lưu tasks vào localStorage mỗi khi nó thay đổi (tùy chọn)
+  useEffect(() => {
+    localStorage.setItem("taskList", JSON.stringify(tasks));
+  }, [tasks]);
+
+  // Hàm xử lý thay đổi trạng thái
+  const handleStatusChange = (taskId, newStatus) => {
+    setTasks((prevTasks) =>
+      prevTasks.map((task) =>
+        task.id === taskId ? { ...task, status: newStatus } : task
+      )
+    );
+  };
   return (
     <div className="task-table-container">
 
@@ -114,7 +132,7 @@ const TaskTable = () => {
       <table className="task-table">
         <thead>
           <tr>
-            <th></th> {/* Thêm cột trống để giữ vị trí checkbox */}
+            <th></th> {/* Checkbox */}
             <th>STT</th>
             <th>Tên công việc</th>
             <th>Người nhận việc</th>
@@ -128,31 +146,51 @@ const TaskTable = () => {
         <tbody>
           {tasks.map((task, index) => (
             <tr key={task.id}>
-              <td><input type="checkbox" /></td>
+              <td>
+                <input type="checkbox" />
+              </td>
               <td>{index + 1}</td>
               <td className="task-name">
                 <img src="src/assets/image/Pen.png" alt="edit" className="edit-icon" />
                 {task.name}
               </td>
               <td className="assignees">
-               {task.assignees?.map((avatar, i) => (
-                  <img key={i} src={`src/assets/image/${avatar}`} alt="user" className="avatar" />
-               ))}
-               <button className="add-user">+</button>
-               </td>
+                {task.assignees?.map((avatar, i) => (
+                  <img
+                    key={i}
+                    src={`src/assets/image/${avatar}`}
+                    alt="user"
+                    className="avatar"
+                  />
+                ))}
+                <button className="add-user">+</button>
+              </td>
               <td className="comment-cell">
                 <img src="src/assets/image/Chat_.png" alt="comments" className="comment-icon" />
               </td>
               <td className="date-cell">
-              {task.startDate}
+                {task.startDate}
                 <img src="src/assets/image/Vector.png" alt="start-date" className="calendar-icon" />
               </td>
               <td className="date-cell">
-              {task.endDate}
+                {task.endDate}
                 <img src="src/assets/image/Vector.png" alt="end-date" className="calendar-icon" />
               </td>
-              <td className="status-cell">{task.status}</td>
-              <td><a href={task.link} target="_blank" rel="noopener noreferrer">🔗</a></td>
+              <td className="status-cell">
+                <select
+                  value={task.status}
+                  onChange={(e) => handleStatusChange(task.id, e.target.value)}
+                  className="status-select"
+                >
+                  <option value="Hoàn thành">Hoàn thành</option>
+                  <option value="Chưa hoàn thành">Chưa hoàn thành</option>
+                </select>
+              </td>
+              <td>
+                <a href={task.link} target="_blank" rel="noopener noreferrer">
+                  🔗
+                </a>
+              </td>
             </tr>
           ))}
         </tbody>
@@ -160,5 +198,27 @@ const TaskTable = () => {
     </div>
   );
 };
+
+// Thêm CSS cho select
+const styles = `
+  .status-select {
+    padding: 4px 8px;
+    border: 1px solid #d1d5db;
+    border-radius: 4px;
+    background: #fff;
+    font-size: 14px;
+    cursor: pointer;
+    outline: none;
+  }
+  .status-select:hover {
+    border-color: #9ca3af;
+  }
+`;
+
+// Inject styles vào file SCSS hoặc thêm trực tiếp vào JSX nếu cần
+const styleSheet = document.createElement("style");
+styleSheet.type = "text/css";
+styleSheet.innerText = styles;
+document.head.appendChild(styleSheet);
 
 export default TaskTable;

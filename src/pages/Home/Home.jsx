@@ -1,43 +1,149 @@
-import { useState } from "react";
+import { useState,useEffect } from "react";
 import "./Home.scss";
 import { useNavigate } from "react-router-dom";
+import { DndContext, closestCenter } from "@dnd-kit/core";
+import { arrayMove } from "@dnd-kit/sortable";
+import Column from "../DraggableTask/Column";
 
-const columns = [
-  { id: 1, title: "Công việc mới", tasks: [
+// Dữ liệu ban đầu
+const initialColumns = [
+  {
+    id: 1,
+    title: "Công việc mới",
+    tasks: [
       { id: 1, title: "fix header", project: "Kan-1", assignee: "TuanPM" },
       { id: 2, title: "fix header", project: "Kan-2", assignee: "TuanPM" },
-      { id: 3, title: "fix header", project: "Kan-3", assignee: "TuanPM" }
-    ]
+      { id: 3, title: "fix header", project: "Kan-3", assignee: "TuanPM" },
+      { id: 4, title: "fix header", project: "Kan-3", assignee: "TuanPM" },
+    ],
   },
-  { id: 2, title: "Đang thực hiện", tasks: [
-      { id: 4, title: "fix sidebar", project: "Kan-1", assignee: "HuyNQ" }
-    ]
+  {
+    id: 2,
+    title: "Đang thực hiện",
+    tasks: [{ id: 4, title: "fix sidebar", project: "Kan-1", assignee: "HuyNQ" }],
   },
-  { id: 3, title: "Hoàn thành", tasks: [
+  {
+    id: 3,
+    title: "Hoàn thành",
+    tasks: [
       { id: 5, title: "test", project: "Kan-1", assignee: "HuyNQ" },
       { id: 6, title: "test", project: "Kan-1", assignee: "HuyNQ" },
       { id: 7, title: "test", project: "Kan-1", assignee: "HuyNQ" },
-      { id: 8, title: "test", project: "Kan-1", assignee: "HuyNQ" }
-    ]
+      { id: 8, title: "test", project: "Kan-1", assignee: "HuyNQ" },
+    ],
   },
-  { id: 4, title: "Kết thúc", tasks: [
-      { id: 9, title: "note", project: "Kan-1", assignee: "HuyNQ" }
-    ]
+  {
+    id: 4,
+    title: "Kết thúc",
+    tasks: [{ id: 9, title: "note", project: "Kan-1", assignee: "HuyNQ" }],
+  },
+  {
+    id: 5,
+    title: "Kết thúc",
+    tasks: [{ id: 10, title: "note", project: "Kan-1", assignee: "HuyNQ" }],
   },
 ];
 
 export default function Home() {
   const navigate = useNavigate();
+
+  // Khởi tạo columns từ localStorage nếu có, nếu không thì dùng initialColumns
+  const [columns, setColumns] = useState(() => {
+    const savedColumns = localStorage.getItem("kanbanColumns");
+    return savedColumns ? JSON.parse(savedColumns) : initialColumns;
+  });
   const [checkedTasks, setCheckedTasks] = useState({});
 
-  // Hàm xử lý khi checkbox thay đổi
-  const handleCheckboxChange = (taskId) => {
-    setCheckedTasks(prev => ({
-      ...prev,
-      [taskId]: !prev[taskId], // Toggle trạng thái checked
-    }));
+  // Lưu columns vào localStorage mỗi khi nó thay đổi
+  useEffect(() => {
+    localStorage.setItem("kanbanColumns", JSON.stringify(columns));
+  }, [columns]);
+
+  const handleDragEnd = (event) => {
+    const { active, over } = event;
+
+    if (!over) return;
+
+    const activeId = active.id;
+    const overId = over.id;
+
+    console.log("Dragged Task ID:", activeId);
+    console.log("Over ID:", overId);
+
+    const activeColumn = columns.find((col) =>
+      col.tasks.some((task) => String(task.id) === String(activeId))
+    );
+    if (!activeColumn) {
+      console.error("Không tìm thấy cột nguồn!");
+      return;
+    }
+
+    const activeTask = activeColumn.tasks.find((task) => String(task.id) === String(activeId));
+    if (!activeTask) {
+      console.error("Không tìm thấy task được kéo!");
+      return;
+    }
+
+    let overColumn = columns.find((col) => String(col.id) === String(overId));
+    let isOverTask = false;
+
+    if (!overColumn) {
+      overColumn = columns.find((col) =>
+        col.tasks.some((task) => String(task.id) === String(overId))
+      );
+      isOverTask = true;
+    }
+
+    if (!overColumn) {
+      console.error("Không tìm thấy cột đích!");
+      return;
+    }
+
+    if (activeColumn.id === overColumn.id) {
+      if (isOverTask) {
+        const oldIndex = activeColumn.tasks.findIndex((task) => String(task.id) === String(activeId));
+        const newIndex = activeColumn.tasks.findIndex((task) => String(task.id) === String(overId));
+        if (oldIndex !== newIndex) {
+          const newTasks = arrayMove(activeColumn.tasks, oldIndex, newIndex);
+          setColumns(
+            columns.map((col) =>
+              col.id === activeColumn.id ? { ...col, tasks: newTasks } : col
+            )
+          );
+          console.log("Đã sắp xếp lại trong cùng cột:", newTasks);
+        }
+      }
+      return;
+    }
+
+    const newActiveTasks = activeColumn.tasks.filter((task) => String(task.id) !== String(activeId));
+    let newOverTasks = [...overColumn.tasks];
+
+    if (isOverTask) {
+      const overTaskIndex = overColumn.tasks.findIndex((task) => String(task.id) === String(overId));
+      newOverTasks.splice(overTaskIndex, 0, activeTask);
+    } else {
+      newOverTasks.push(activeTask);
+    }
+
+    setColumns(
+      columns.map((col) =>
+        col.id === activeColumn.id
+          ? { ...col, tasks: newActiveTasks }
+          : col.id === overColumn.id
+          ? { ...col, tasks: newOverTasks }
+          : col
+      )
+    );
+    console.log("Đã chuyển task sang cột khác:", { newActiveTasks, newOverTasks });
   };
 
+  const handleCheckboxChange = (taskId) => {
+    setCheckedTasks((prev) => ({
+      ...prev,
+      [taskId]: !prev[taskId],
+    }));
+  };
   return (
     <div className="home-container">
       {/* Header Section */}
@@ -106,31 +212,20 @@ export default function Home() {
 
         </div>
 
-      {/* Kanban Board */}
-      <div className="kanban-container">
-        {columns.map(column => (
-          <div key={column.id} className="kanban-column">
-            <h3>{column.title}: {column.tasks.length}</h3>
-            <button className="add-task">➕ Thêm vấn đề</button>
-            {column.tasks.map(task => (
-              <div key={task.id} className="kanban-card">
-                <div className="task-content">
-                  <p>{task.title} ✏️</p>
-                  <input
-                    type="checkbox"
-                    checked={checkedTasks[task.id] || false}
-                    onChange={() => handleCheckboxChange(task.id)}
-                  />
-                </div>
-                <div className="card-footer">
-                  <span className="project-label">📅 {task.project}</span>
-                  <strong>{task.assignee}</strong>
-                </div>
-              </div>
-            ))}
-          </div>
-        ))}
-      </div>
+    {/* Bảng Kanban */}
+      <DndContext collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+        <div className="kanban-container">
+          {columns.map((column) => (
+            <Column
+              key={column.id}
+              columnId={column.id}
+              column={column}
+              checkedTasks={checkedTasks}
+              handleCheckboxChange={handleCheckboxChange}
+            />
+          ))}
+        </div>
+      </DndContext>
     </div>
   );
 }
