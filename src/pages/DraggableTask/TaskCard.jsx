@@ -1,6 +1,11 @@
 import { useDraggable } from "@dnd-kit/core";
 
-export default function TaskCard({ task, checkedTasks = {}, handleCheckboxChange }) {
+export default function TaskCard({
+  task,
+  checkedTasks = {},
+  handleCheckboxChange,
+  onOpen,
+}) {
   const { attributes, listeners, setNodeRef, transform } = useDraggable({
     id: String(task?.id || ""),
   });
@@ -24,7 +29,9 @@ export default function TaskCard({ task, checkedTasks = {}, handleCheckboxChange
       className="kanban-card"
     >
       <div className="task-content">
-        <p>{task.title} ✏️</p>
+        <p>
+          {task.title} <span onClick={onOpen}>✏️</span>
+        </p>
         <input
           type="checkbox"
           checked={checkedTasks[task.id] || false}
