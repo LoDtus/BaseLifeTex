@@ -1,6 +1,7 @@
 import { useState } from "react";
-import "./ProjectCard.scss";
+import styles from "./ProjectCard.module.scss";
 import { Popper } from "@mui/base/Popper";
+import ContactCard from "../contactCard/ContactCard";
 
 const ProjectCard = () => {
   const [anchorEl, setAnchorEl] = useState(null);
@@ -8,18 +9,21 @@ const ProjectCard = () => {
   const handleClick = (event) => {
     setAnchorEl(anchorEl ? null : event.currentTarget);
   };
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
   const open = Boolean(anchorEl);
   const id = open ? "simple-popper" : undefined;
   return (
-    <div className="project-card">
-      <div className="project-header">
-        <div className="right">
-          <h1 className="name-project">Dự án Internal</h1>
-          <p className="project-id">
+    <div className={styles.projectCard}>
+      <div className={styles.projectHeader}>
+        <div className={styles.right}>
+          <h1 className={styles.nameProject}>Dự án Internal</h1>
+          <p className={styles.projectId}>
             <strong>Mã dự án:</strong> 1234
           </p>
         </div>
-        <div className="project-dates">
+        <div className={styles.projectDates}>
           <p>
             <strong>Ngày bắt đầu:</strong> 04/03/2025
           </p>
@@ -28,32 +32,33 @@ const ProjectCard = () => {
           </p>
         </div>
       </div>
-      <div className="project-responsible">
+      <div className={styles.projectResponsible}>
         <div>
           <p>
             <strong>Người phụ trách</strong>
           </p>
-          <div className="responsible-info">
+          <div className={styles.responsibleInfo}>
             <span>Nguyễn Đình Minh</span>
           </div>
         </div>
         <img
-          className="avatar"
+          className={styles.avatar}
           src="src/assets/image/f8ad738c648cb0c7cc815d6ceda805b0.png"
           alt=""
         />
       </div>
-      <div className="project-footer">
+      <div className={styles.projectFooter}>
         <img
           onClick={handleClick}
-          src="src\assets\image\e10ebdc6f22af020d1cdd58a063bf347.png"
+          src="src/assets/image/e10ebdc6f22af020d1cdd58a063bf347.png"
           alt=""
         />
-
-        <button className="status-btn">Chưa hoàn thành</button>
+        <button className={styles.statusBtn}>Chưa hoàn thành</button>
       </div>
-      <Popper id={id} open={open} anchorEl={anchorEl}>
-        <div>The content of the Popper.</div>
+      <Popper id={id} open={open} anchorEl={anchorEl} placement="bottom-start">
+        <div>
+          <ContactCard onClose={handleClose} />
+        </div>
       </Popper>
     </div>
   );

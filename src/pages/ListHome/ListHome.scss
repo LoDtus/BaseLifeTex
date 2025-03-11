@@ -6,7 +6,7 @@
 .task-table {
    width: 100%;
    margin-top: 20px;
-   margin-left: 20px;
+   margin-bottom: 10px;
    border-collapse: collapse;
    font-size: 14px;
    background: #fff;
@@ -84,7 +84,7 @@
    align-items: center;
    justify-content: space-between; // Đẩy p về trái, images về phải
    gap: 16px;
-   padding: 10px 0 0px 20px;
+   padding: 40px 0 0px 80px;
  
    .task-add1 {
      display: flex;
@@ -119,4 +119,6 @@
      }
    }
  }
+
+ 
  

@@ -4,6 +4,7 @@ import Home from "../pages/Home/Home";
 import Login from "../pages/Login/Login";
 import Register from "../pages/Register/Register";
 import TaskTable from "../pages/ListHome/ListHome";
+import KabanDetail from "../components/kabanDetail/KabanDetail";
 const publicRoutes = [
   {
     path: "/",
@@ -24,6 +25,11 @@ const publicRoutes = [
     path: "/ListHome",
     component: TaskTable,
     layout: MainLayout,
+  },
+  {
+    path: "/KabanDetail",
+    component: KabanDetail,
+    layout: LoginLayout,
   },
 ];
 
