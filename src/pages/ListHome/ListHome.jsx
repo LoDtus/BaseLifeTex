@@ -1,7 +1,10 @@
+
 import { useState, useEffect } from "react"; // Thêm useEffect nếu muốn lưu vào localStorage
 import "./ListHome.scss";
 import "../Home/Home.scss";
 import { useNavigate } from "react-router-dom";
+import IssueForm from "../../components/IssueFrom/IssueForm";
+
 
 const initialTasks = [
   {
@@ -58,6 +61,17 @@ const initialTasks = [
 
 const TaskTable = () => {
   const navigate = useNavigate();
+
+  const [open, setOpen] = useState(false);
+
+  const onClose = () => {
+    setOpen(false);
+  };
+
+  const openModal = () => {
+    setOpen(true);
+  };
+
 
   // Khởi tạo tasks, hợp nhất initialTasks với localStorage
   const [tasks, setTasks] = useState(() => {
@@ -179,7 +193,7 @@ const TaskTable = () => {
               </td>
               <td>{index + 1}</td>
               <td className="task-name">
-                <img src="src/assets/image/Pen.png" alt="edit" className="edit-icon" />
+                <img src="src/assets/image/Pen.png" alt="edit" className="edit-icon" onClick={openModal}/>
                 {task.name}
               </td>
               <td className="assignees">
@@ -223,6 +237,7 @@ const TaskTable = () => {
           ))}
         </tbody>
       </table>
+      <IssueForm isOpen={open} onClose={onClose} />
     </div>
   );
 };

@@ -4,6 +4,8 @@ import { useNavigate } from "react-router-dom";
 import { DndContext, closestCenter } from "@dnd-kit/core";
 import { arrayMove } from "@dnd-kit/sortable";
 import Column from "../DraggableTask/Column";
+import IssueForm from "../../components/IssueFrom/IssueForm";
+
 
 // Dữ liệu ban đầu
 const initialColumns = [
@@ -45,6 +47,16 @@ const initialColumns = [
 ];
 
 export default function Home() {
+  const [open, setOpen] = useState(false);
+
+  const onClose = () => {
+    setOpen(false);
+  };
+
+  const openModal = () => {
+    setOpen(true);
+  };
+
   const navigate = useNavigate();
 
   // Khởi tạo columns từ localStorage nếu có, nếu không thì dùng initialColumns
@@ -224,11 +236,13 @@ export default function Home() {
                 column={column}
                 checkedTasks={checkedTasks}
                 handleCheckboxChange={handleCheckboxChange}
+                onOpen={openModal}
               />
             ))}
           </div>
         </DndContext>
       </div>
+      <IssueForm isOpen={open} onClose={onClose} />
     </div>
   );
 }

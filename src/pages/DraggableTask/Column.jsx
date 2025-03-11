@@ -1,8 +1,17 @@
 import { useDroppable } from "@dnd-kit/core";
-import { SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
+import {
+  SortableContext,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
 import TaskCard from "../DraggableTask/TaskCard";
 
-export default function Column({ columnId, column, checkedTasks, handleCheckboxChange }) {
+export default function Column({
+  columnId,
+  column,
+  checkedTasks,
+  handleCheckboxChange,
+  onOpen,
+}) {
   const { setNodeRef } = useDroppable({
     id: String(columnId), // Đảm bảo ID khớp với handleDragEnd
   });
@@ -28,6 +37,7 @@ export default function Column({ columnId, column, checkedTasks, handleCheckboxC
             task={task}
             checkedTasks={checkedTasks}
             handleCheckboxChange={handleCheckboxChange}
+            onOpen={onOpen}
           />
         ))}
       </SortableContext>
