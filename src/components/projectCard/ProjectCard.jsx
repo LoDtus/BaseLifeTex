@@ -43,14 +43,14 @@ const ProjectCard = () => {
         </div>
         <img
           className={styles.avatar}
-          src="src/assets/image/f8ad738c648cb0c7cc815d6ceda805b0.png"
+          src="image/f8ad738c648cb0c7cc815d6ceda805b0.png"
           alt=""
         />
       </div>
       <div className={styles.projectFooter}>
         <img
           onClick={handleClick}
-          src="src/assets/image/e10ebdc6f22af020d1cdd58a063bf347.png"
+          src="image/e10ebdc6f22af020d1cdd58a063bf347.png"
           alt=""
         />
         <button className={styles.statusBtn}>Chưa hoàn thành</button>

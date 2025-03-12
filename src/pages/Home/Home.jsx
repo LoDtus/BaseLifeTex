@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import "./Home.scss";
 import { useNavigate } from "react-router-dom";
 import { DndContext, closestCenter } from "@dnd-kit/core";
@@ -23,6 +24,9 @@ const initialColumns = [
   {
     id: 2,
     title: "Đang thực hiện",
+    tasks: [
+      { id: 4, title: "fix sidebar", project: "Kan-1", assignee: "HuyNQ" },
+    ],
     tasks: [
       { id: 4, title: "fix sidebar", project: "Kan-1", assignee: "HuyNQ" },
     ],
@@ -105,6 +109,9 @@ export default function Home() {
     const activeTask = activeColumn.tasks.find(
       (task) => String(task.id) === String(activeId)
     );
+    const activeTask = activeColumn.tasks.find(
+      (task) => String(task.id) === String(activeId)
+    );
     if (!activeTask) {
       console.error("Không tìm thấy task được kéo!");
       return;
@@ -133,6 +140,12 @@ export default function Home() {
         const newIndex = activeColumn.tasks.findIndex(
           (task) => String(task.id) === String(overId)
         );
+        const oldIndex = activeColumn.tasks.findIndex(
+          (task) => String(task.id) === String(activeId)
+        );
+        const newIndex = activeColumn.tasks.findIndex(
+          (task) => String(task.id) === String(overId)
+        );
         if (oldIndex !== newIndex) {
           const newTasks = arrayMove(activeColumn.tasks, oldIndex, newIndex);
           setColumns(
@@ -149,9 +162,15 @@ export default function Home() {
     const newActiveTasks = activeColumn.tasks.filter(
       (task) => String(task.id) !== String(activeId)
     );
+    const newActiveTasks = activeColumn.tasks.filter(
+      (task) => String(task.id) !== String(activeId)
+    );
     let newOverTasks = [...overColumn.tasks];
 
     if (isOverTask) {
+      const overTaskIndex = overColumn.tasks.findIndex(
+        (task) => String(task.id) === String(overId)
+      );
       const overTaskIndex = overColumn.tasks.findIndex(
         (task) => String(task.id) === String(overId)
       );
@@ -169,6 +188,10 @@ export default function Home() {
           : col
       )
     );
+    console.log("Đã chuyển task sang cột khác:", {
+      newActiveTasks,
+      newOverTasks,
+    });
     console.log("Đã chuyển task sang cột khác:", {
       newActiveTasks,
       newOverTasks,
@@ -227,8 +250,32 @@ export default function Home() {
             placeholder="Tìm kiếm..."
             className="pl-10 pr-4 py-2 border rounded-md w-64"
           />
+      {/* Tìm kiếm & Avatars */}
+      <div className="flex items-center gap-4">
+        {/* Ô tìm kiếm */}
+        <div className="search-container relative flex items-center">
+          <svg
+            className="search-icon absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-500"
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M21 21l-4.35-4.35m2.6-5.15a7 7 0 11-14 0 7 7 0 0114 0z"
+            />
+          </svg>
+          <input
+            type="text"
+            placeholder="Tìm kiếm..."
+            className="pl-10 pr-4 py-2 border rounded-md w-64"
+          />
 
           {/* Danh sách avatar */}
+          {/* Danh sách avatar với hình ảnh */}
           {/* Danh sách avatar với hình ảnh */}
           <div className="flex -space-x-2 overflow-hidden">
             {[
@@ -248,6 +295,9 @@ export default function Home() {
               />
             ))}
           </div>
+        </div>
+
+        <div className="task-header">
           <Popover
             open={Boolean(anchorEl)}
             anchorEl={anchorEl}
@@ -269,7 +319,13 @@ export default function Home() {
 
       {/* Bọc bảng Kanban trong một container cuộn ngang */}
       <div className="kanban-wrapper">
+      {/* Bọc bảng Kanban trong một container cuộn ngang */}
+      <div className="kanban-wrapper">
         {/* Bảng Kanban */}
+        <DndContext
+          collisionDetection={closestCenter}
+          onDragEnd={handleDragEnd}
+        >
         <DndContext
           collisionDetection={closestCenter}
           onDragEnd={handleDragEnd}
@@ -292,3 +348,4 @@ export default function Home() {
     </div>
   );
 }
+

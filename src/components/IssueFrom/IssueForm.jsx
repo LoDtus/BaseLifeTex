@@ -8,8 +8,6 @@ import MenuItem from "@mui/material/MenuItem";
 import FormControl from "@mui/material/FormControl";
 import Select from "@mui/material/Select";
 import Box from "@mui/material/Box";
-import Button from "@mui/material/Button";
-import Typography from "@mui/material/Typography";
 import Modal from "@mui/material/Modal";
 import { DemoContainer } from "@mui/x-date-pickers/internals/demo";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
@@ -24,11 +22,6 @@ export default function IssueForm({ isOpen, onClose }) {
     "April Tucker",
     "Ralph Hubbard",
     "Omar Alexander",
-    "Carlos Abbott",
-    "Miriam Wagner",
-    "Bradley Wilkerson",
-    "Virginia Andrews",
-    "Kelly Snyder",
   ];
 
   const [personName, setPersonName] = useState([]);
@@ -178,7 +171,7 @@ export default function IssueForm({ isOpen, onClose }) {
                               <div className={style.wrapItemSlc}>
                                 <img
                                   className={style.avatar}
-                                  src="src/assets/image/f8ad738c648cb0c7cc815d6ceda805b0.png"
+                                  src="image/f8ad738c648cb0c7cc815d6ceda805b0.png"
                                   alt=""
                                 />
                                 <div className={style.name}>{name}</div>

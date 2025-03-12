@@ -3,8 +3,11 @@ import "./ListHome.scss";
 import "../Home/Home.scss";
 import { useNavigate } from "react-router-dom";
 import IssueForm from "../../components/IssueFrom/IssueForm";
+<<<<<<< HEAD
 import { Popover } from "@mui/material";
 import MemberListContent from "../../components/memberList/MemberList";
+=======
+>>>>>>> master
 
 const initialTasks = [
   {
@@ -117,6 +120,7 @@ const TaskTable = () => {
           <div className="flex items-center gap-2">
             <img
               onClick={() => navigate("/")}
+<<<<<<< HEAD
               src="src/assets/image/Column.png"
               alt="LIFETEK"
               className="logo-img"
@@ -126,6 +130,13 @@ const TaskTable = () => {
               alt="LIFETEK"
               className="logo-img"
             />
+=======
+              src="image/Column.png"
+              alt="LIFETEK"
+              className="logo-img"
+            />
+            <img src="image/List.png" alt="LIFETEK" className="logo-img" />
+>>>>>>> master
           </div>
         </div>
 
@@ -157,6 +168,7 @@ const TaskTable = () => {
             {/* Danh sách avatar với hình ảnh */}
             <div className="flex -space-x-2 overflow-hidden">
               {[
+<<<<<<< HEAD
                 "src/assets/image/image_4.png",
                 "src/assets/image/image_5.png",
                 "src/assets/image/image_6.png",
@@ -166,6 +178,16 @@ const TaskTable = () => {
               ].map((avatar, index) => (
                 <img
                   onClick={handleClick}
+=======
+                "image/image_4.png",
+                "image/image_5.png",
+                "image/image_6.png",
+                "image/image_7.png",
+                "image/image_8.png",
+                "image/dot.png",
+              ].map((avatar, index) => (
+                <img
+>>>>>>> master
                   key={index}
                   src={avatar}
                   alt={`Avatar ${index + 1}`}
@@ -173,6 +195,7 @@ const TaskTable = () => {
                 />
               ))}
             </div>
+<<<<<<< HEAD
             <Popover
               open={Boolean(anchorEl)}
               anchorEl={anchorEl}
@@ -183,17 +206,19 @@ const TaskTable = () => {
             >
               <MemberListContent onClose={handleClose} />
             </Popover>
+=======
+>>>>>>> master
           </div>
         </div>
 
         <div className="task-header1">
           <div onClick={openModal} className="task-add1">
-            <img src="src/assets/image/Problem.png" alt="Add Task" />
+            <img src="image/Problem.png" alt="Add Task" />
             <p>Thêm vấn đề</p>
           </div>
           <div className="task-icons1">
-            <img src="src/assets/image/Trash.png" alt="List" />
-            <img src="src/assets/image/Filter.png" alt="Columns" />
+            <img src="image/Trash.png" alt="List" />
+            <img src="image/Filter.png" alt="Columns" />
           </div>
         </div>
       </div>
@@ -220,18 +245,22 @@ const TaskTable = () => {
               </td>
               <td>{index + 1}</td>
               <td className="task-name">
+<<<<<<< HEAD
                 <img
                   src="src/assets/image/Pen.png"
                   alt="edit"
                   className="edit-icon"
                 />
+=======
+                <img src="image/Pen.png" alt="edit" className="edit-icon" />
+>>>>>>> master
                 {task.name}
               </td>
               <td className="assignees">
                 {task.assignees?.map((avatar, i) => (
                   <img
                     key={i}
-                    src={`src/assets/image/${avatar}`}
+                    src={`image/${avatar}`}
                     alt="user"
                     className="avatar"
                   />
@@ -240,7 +269,11 @@ const TaskTable = () => {
               </td>
               <td className="comment-cell">
                 <img
+<<<<<<< HEAD
                   src="src/assets/image/Chat_.png"
+=======
+                  src="image/Chat_.png"
+>>>>>>> master
                   alt="comments"
                   className="comment-icon"
                 />
@@ -248,7 +281,11 @@ const TaskTable = () => {
               <td className="date-cell">
                 {task.startDate}
                 <img
+<<<<<<< HEAD
                   src="src/assets/image/Vector.png"
+=======
+                  src="image/Vector.png"
+>>>>>>> master
                   alt="start-date"
                   className="calendar-icon"
                 />
@@ -256,7 +293,11 @@ const TaskTable = () => {
               <td className="date-cell">
                 {task.endDate}
                 <img
+<<<<<<< HEAD
                   src="src/assets/image/Vector.png"
+=======
+                  src="image/Vector.png"
+>>>>>>> master
                   alt="end-date"
                   className="calendar-icon"
                 />
