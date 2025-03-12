@@ -73,15 +73,13 @@ export default function Home() {
 
   const handleDragEnd = (event) => {
     const { active, over } = event;
-
+  
     if (!over) return;
-
-    const activeId = active.id;
-    const overId = over.id;
-
-    console.log("Dragged Task ID:", activeId);
-    console.log("Over ID:", overId);
-
+  
+    const activeId = active.id; // ID của task được kéo
+    const overId = over.id; // ID của đích (có thể là task hoặc column)
+  
+    // Tìm cột chứa task đang được kéo
     const activeColumn = columns.find((col) =>
       col.tasks.some((task) => String(task.id) === String(activeId))
     );
@@ -89,28 +87,32 @@ export default function Home() {
       console.error("Không tìm thấy cột nguồn!");
       return;
     }
-
+  
+    // Tìm task đang được kéo
     const activeTask = activeColumn.tasks.find((task) => String(task.id) === String(activeId));
     if (!activeTask) {
       console.error("Không tìm thấy task được kéo!");
       return;
     }
-
+  
+    // Tìm cột đích (nơi thả)
     let overColumn = columns.find((col) => String(col.id) === String(overId));
     let isOverTask = false;
-
+  
     if (!overColumn) {
+      // Nếu overId không phải là ID của cột, kiểm tra xem nó có phải là ID của task không
       overColumn = columns.find((col) =>
         col.tasks.some((task) => String(task.id) === String(overId))
       );
       isOverTask = true;
     }
-
+  
     if (!overColumn) {
       console.error("Không tìm thấy cột đích!");
       return;
     }
-
+  
+    // Nếu kéo trong cùng cột
     if (activeColumn.id === overColumn.id) {
       if (isOverTask) {
         const oldIndex = activeColumn.tasks.findIndex((task) => String(task.id) === String(activeId));
@@ -127,17 +129,21 @@ export default function Home() {
       }
       return;
     }
-
+  
+    // Nếu kéo sang cột khác
     const newActiveTasks = activeColumn.tasks.filter((task) => String(task.id) !== String(activeId));
-    let newOverTasks = [...overColumn.tasks];
-
+    const newOverTasks = [...overColumn.tasks];
+  
     if (isOverTask) {
+      // Chèn task vào vị trí của task đích
       const overTaskIndex = overColumn.tasks.findIndex((task) => String(task.id) === String(overId));
       newOverTasks.splice(overTaskIndex, 0, activeTask);
     } else {
+      // Thêm task vào cuối cột đích
       newOverTasks.push(activeTask);
     }
-
+  
+    // Cập nhật state với các cột đã chỉnh sửa
     setColumns(
       columns.map((col) =>
         col.id === activeColumn.id
