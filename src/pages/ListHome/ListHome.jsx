@@ -3,6 +3,8 @@ import "./ListHome.scss";
 import "../Home/Home.scss";
 import { useNavigate } from "react-router-dom";
 import IssueForm from "../../components/IssueFrom/IssueForm";
+import { Popover } from "@mui/material";
+import MemberListContent from "../../components/memberList/MemberList";
 
 const initialTasks = [
   {
@@ -59,6 +61,15 @@ const initialTasks = [
 
 const TaskTable = () => {
   const navigate = useNavigate();
+  const [anchorEl, setAnchorEl] = useState(null);
+
+  const handleClick = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
 
   const [open, setOpen] = useState(false);
 
@@ -106,11 +117,15 @@ const TaskTable = () => {
           <div className="flex items-center gap-2">
             <img
               onClick={() => navigate("/")}
-              src="image/Column.png"
+              src="src/assets/image/Column.png"
               alt="LIFETEK"
               className="logo-img"
             />
-            <img src="image/List.png" alt="LIFETEK" className="logo-img" />
+            <img
+              src="src/assets/image/List.png"
+              alt="LIFETEK"
+              className="logo-img"
+            />
           </div>
         </div>
 
@@ -142,14 +157,15 @@ const TaskTable = () => {
             {/* Danh sách avatar với hình ảnh */}
             <div className="flex -space-x-2 overflow-hidden">
               {[
-                "image/image_4.png",
-                "image/image_5.png",
-                "image/image_6.png",
-                "image/image_7.png",
-                "image/image_8.png",
-                "image/dot.png",
+                "src/assets/image/image_4.png",
+                "src/assets/image/image_5.png",
+                "src/assets/image/image_6.png",
+                "src/assets/image/image_7.png",
+                "src/assets/image/image_8.png",
+                "src/assets/image/dot.png",
               ].map((avatar, index) => (
                 <img
+                  onClick={handleClick}
                   key={index}
                   src={avatar}
                   alt={`Avatar ${index + 1}`}
@@ -157,6 +173,16 @@ const TaskTable = () => {
                 />
               ))}
             </div>
+            <Popover
+              open={Boolean(anchorEl)}
+              anchorEl={anchorEl}
+              onClose={handleClose}
+              anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
+              transformOrigin={{ vertical: "top", horizontal: "left" }}
+              sx={{ mt: 1 }}
+            >
+              <MemberListContent onClose={handleClose} />
+            </Popover>
           </div>
         </div>
 
@@ -194,7 +220,11 @@ const TaskTable = () => {
               </td>
               <td>{index + 1}</td>
               <td className="task-name">
-                <img src="image/Pen.png" alt="edit" className="edit-icon" />
+                <img
+                  src="src/assets/image/Pen.png"
+                  alt="edit"
+                  className="edit-icon"
+                />
                 {task.name}
               </td>
               <td className="assignees">

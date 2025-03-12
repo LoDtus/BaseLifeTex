@@ -5,6 +5,8 @@ import { DndContext, closestCenter } from "@dnd-kit/core";
 import { arrayMove } from "@dnd-kit/sortable";
 import Column from "../DraggableTask/Column";
 import IssueForm from "../../components/IssueFrom/IssueForm";
+import { Popover } from "@mui/material";
+import MemberListContent from "../../components/memberList/MemberList";
 
 // Dữ liệu ban đầu
 const initialColumns = [
@@ -49,6 +51,15 @@ const initialColumns = [
 
 export default function Home() {
   const [open, setOpen] = useState(false);
+  const [anchorEl, setAnchorEl] = useState(null);
+
+  const handleClick = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
 
   const onClose = () => {
     setOpen(false);
@@ -225,6 +236,7 @@ export default function Home() {
               "image/dot.png",
             ].map((avatar, index) => (
               <img
+                onClick={handleClick}
                 key={index}
                 src={avatar}
                 alt={`Avatar ${index + 1}`}
@@ -233,6 +245,16 @@ export default function Home() {
             ))}
           </div>
         </div>
+        <Popover
+          open={Boolean(anchorEl)}
+          anchorEl={anchorEl}
+          onClose={handleClose}
+          anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
+          transformOrigin={{ vertical: "top", horizontal: "left" }}
+          sx={{ mt: 1 }}
+        >
+          <MemberListContent onClose={handleClose} />
+        </Popover>
 
         <div className="task-header">
           <div className="task-icons">
