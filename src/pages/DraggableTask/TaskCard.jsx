@@ -4,7 +4,6 @@ export default function TaskCard({
   task,
   checkedTasks = {},
   handleCheckboxChange,
-  onOpen,
 }) {
   const { attributes, listeners, setNodeRef, transform } = useDraggable({
     id: String(task?.id || ""),
@@ -30,7 +29,7 @@ export default function TaskCard({
     >
       <div className="task-content">
         <p>
-          {task.title} <span onClick={onOpen}>✏️</span>
+          {task.title} <span>✏️</span>
         </p>
         <input
           type="checkbox"
