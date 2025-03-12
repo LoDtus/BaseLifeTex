@@ -1,13 +1,12 @@
 import { useState, useEffect } from "react";
-import { useState, useEffect } from "react";
 import "./Home.scss";
 import { useNavigate } from "react-router-dom";
 import { DndContext, closestCenter } from "@dnd-kit/core";
 import { arrayMove } from "@dnd-kit/sortable";
 import Column from "../DraggableTask/Column";
 import IssueForm from "../../components/IssueFrom/IssueForm";
-import MemberListContent from "../../components/memberList/MemberList";
 import { Popover } from "@mui/material";
+import MemberListContent from "../../components/memberList/MemberList";
 
 // Dữ liệu ban đầu
 const initialColumns = [
@@ -24,9 +23,6 @@ const initialColumns = [
   {
     id: 2,
     title: "Đang thực hiện",
-    tasks: [
-      { id: 4, title: "fix sidebar", project: "Kan-1", assignee: "HuyNQ" },
-    ],
     tasks: [
       { id: 4, title: "fix sidebar", project: "Kan-1", assignee: "HuyNQ" },
     ],
@@ -109,9 +105,6 @@ export default function Home() {
     const activeTask = activeColumn.tasks.find(
       (task) => String(task.id) === String(activeId)
     );
-    const activeTask = activeColumn.tasks.find(
-      (task) => String(task.id) === String(activeId)
-    );
     if (!activeTask) {
       console.error("Không tìm thấy task được kéo!");
       return;
@@ -140,12 +133,6 @@ export default function Home() {
         const newIndex = activeColumn.tasks.findIndex(
           (task) => String(task.id) === String(overId)
         );
-        const oldIndex = activeColumn.tasks.findIndex(
-          (task) => String(task.id) === String(activeId)
-        );
-        const newIndex = activeColumn.tasks.findIndex(
-          (task) => String(task.id) === String(overId)
-        );
         if (oldIndex !== newIndex) {
           const newTasks = arrayMove(activeColumn.tasks, oldIndex, newIndex);
           setColumns(
@@ -162,15 +149,9 @@ export default function Home() {
     const newActiveTasks = activeColumn.tasks.filter(
       (task) => String(task.id) !== String(activeId)
     );
-    const newActiveTasks = activeColumn.tasks.filter(
-      (task) => String(task.id) !== String(activeId)
-    );
     let newOverTasks = [...overColumn.tasks];
 
     if (isOverTask) {
-      const overTaskIndex = overColumn.tasks.findIndex(
-        (task) => String(task.id) === String(overId)
-      );
       const overTaskIndex = overColumn.tasks.findIndex(
         (task) => String(task.id) === String(overId)
       );
@@ -192,10 +173,6 @@ export default function Home() {
       newActiveTasks,
       newOverTasks,
     });
-    console.log("Đã chuyển task sang cột khác:", {
-      newActiveTasks,
-      newOverTasks,
-    });
   };
 
   const handleCheckboxChange = (taskId) => {
@@ -212,14 +189,10 @@ export default function Home() {
         <div className="header-container flex items-center gap-4">
           <p className="text-gray-500 text-sm">Dự án / Phần mềm đánh giá</p>
           <div className="flex items-center gap-2">
-            <img
-              src="src/assets/image/Column.png"
-              alt="LIFETEK"
-              className="logo-img"
-            />
+            <img src="image/Column.png" alt="LIFETEK" className="logo-img" />
             <img
               onClick={() => navigate("/ListHome")}
-              src="src/assets/image/List.png"
+              src="image/List.png"
               alt="LIFETEK"
               className="logo-img"
             />
@@ -227,29 +200,6 @@ export default function Home() {
         </div>
       </div>
 
-      {/* Tìm kiếm & Avatars */}
-      <div className="flex items-center gap-4">
-        {/* Ô tìm kiếm */}
-        <div className="search-container relative flex items-center">
-          <svg
-            className="search-icon absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-500"
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M21 21l-4.35-4.35m2.6-5.15a7 7 0 11-14 0 7 7 0 0114 0z"
-            />
-          </svg>
-          <input
-            type="text"
-            placeholder="Tìm kiếm..."
-            className="pl-10 pr-4 py-2 border rounded-md w-64"
-          />
       {/* Tìm kiếm & Avatars */}
       <div className="flex items-center gap-4">
         {/* Ô tìm kiếm */}
@@ -276,15 +226,14 @@ export default function Home() {
 
           {/* Danh sách avatar */}
           {/* Danh sách avatar với hình ảnh */}
-          {/* Danh sách avatar với hình ảnh */}
           <div className="flex -space-x-2 overflow-hidden">
             {[
-              "src/assets/image/image_4.png",
-              "src/assets/image/image_5.png",
-              "src/assets/image/image_6.png",
-              "src/assets/image/image_7.png",
-              "src/assets/image/image_8.png",
-              "src/assets/image/dot.png",
+              "image/image_4.png",
+              "image/image_5.png",
+              "image/image_6.png",
+              "image/image_7.png",
+              "image/image_8.png",
+              "image/dot.png",
             ].map((avatar, index) => (
               <img
                 onClick={handleClick}
@@ -296,36 +245,28 @@ export default function Home() {
             ))}
           </div>
         </div>
+        <Popover
+          open={Boolean(anchorEl)}
+          anchorEl={anchorEl}
+          onClose={handleClose}
+          anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
+          transformOrigin={{ vertical: "top", horizontal: "left" }}
+          sx={{ mt: 1 }}
+        >
+          <MemberListContent onClose={handleClose} />
+        </Popover>
 
         <div className="task-header">
-          <Popover
-            open={Boolean(anchorEl)}
-            anchorEl={anchorEl}
-            onClose={handleClose}
-            anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
-            transformOrigin={{ vertical: "top", horizontal: "left" }}
-            sx={{ mt: 1 }}
-          >
-            <MemberListContent onClose={handleClose} />
-          </Popover>
-        </div>
-        <div className="task-header">
           <div className="task-icons">
-            <img src="src/assets/image/Trash.png" alt="List" />
-            <img src="src/assets/image/Filter.png" alt="Columns" />
+            <img src="image/Trash.png" alt="List" />
+            <img src="image/Filter.png" alt="Columns" />
           </div>
         </div>
       </div>
 
       {/* Bọc bảng Kanban trong một container cuộn ngang */}
       <div className="kanban-wrapper">
-      {/* Bọc bảng Kanban trong một container cuộn ngang */}
-      <div className="kanban-wrapper">
         {/* Bảng Kanban */}
-        <DndContext
-          collisionDetection={closestCenter}
-          onDragEnd={handleDragEnd}
-        >
         <DndContext
           collisionDetection={closestCenter}
           onDragEnd={handleDragEnd}
@@ -348,4 +289,3 @@ export default function Home() {
     </div>
   );
 }
-
