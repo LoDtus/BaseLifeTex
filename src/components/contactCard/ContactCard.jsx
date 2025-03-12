@@ -9,7 +9,7 @@ const ContactCard = ({ onClose }) => {
       </div>
       <div className={styles.contactItem}>
         <img
-          src="src\assets\image\f8ad738c648cb0c7cc815d6ceda805b0.png"
+          src="image\f8ad738c648cb0c7cc815d6ceda805b0.png"
           alt="avatar"
           className={styles.icon}
         />
@@ -17,20 +17,12 @@ const ContactCard = ({ onClose }) => {
       </div>
 
       <div className={styles.contactItem}>
-        <img
-          src="src\assets\image\phone.png"
-          alt="phone"
-          className={styles.icon}
-        />
+        <img src="image\phone.png" alt="phone" className={styles.icon} />
         <span className={styles.text}>0913310193</span>
       </div>
 
       <div className={styles.contactItem}>
-        <img
-          src="src\assets\image\Email.png"
-          alt="email"
-          className={styles.icon}
-        />
+        <img src="image\Email.png" alt="email" className={styles.icon} />
         <span className={styles.text}>minhnd@lifetek.vn</span>
       </div>
     </div>

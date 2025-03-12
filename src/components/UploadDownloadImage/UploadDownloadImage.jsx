@@ -26,7 +26,7 @@ const UploadImageButton = () => {
       {/* Hình ảnh thay thế cho button chọn ảnh */}
       <label htmlFor="fileInput">
         <img
-          src="src/assets/image/downLoad.png" // Thay bằng icon của bạn
+          src="image/downLoad.png" // Thay bằng icon của bạn
           alt="Chọn ảnh"
           className={styles.uploadButton}
         />

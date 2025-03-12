@@ -1,10 +1,8 @@
-
 import { useState, useEffect } from "react"; // Thêm useEffect nếu muốn lưu vào localStorage
 import "./ListHome.scss";
 import "../Home/Home.scss";
 import { useNavigate } from "react-router-dom";
 import IssueForm from "../../components/IssueFrom/IssueForm";
-
 
 const initialTasks = [
   {
@@ -72,15 +70,14 @@ const TaskTable = () => {
     setOpen(true);
   };
 
-
   // Khởi tạo tasks, hợp nhất initialTasks với localStorage
   const [tasks, setTasks] = useState(() => {
     const savedTasks = localStorage.getItem("taskList");
     const parsedTasks = savedTasks ? JSON.parse(savedTasks) : [];
     const mergedTasks = [
       ...initialTasks,
-      ...parsedTasks.filter((task) =>
-        !initialTasks.some((initial) => initial.id === task.id)
+      ...parsedTasks.filter(
+        (task) => !initialTasks.some((initial) => initial.id === task.id)
       ),
     ];
     return mergedTasks;
@@ -101,15 +98,19 @@ const TaskTable = () => {
   };
   return (
     <div className="task-table-container">
-
-       {/* Header Section */}
-       <div className="header-section flex items-center justify-between p-4 border-b">
+      {/* Header Section */}
+      <div className="header-section flex items-center justify-between p-4 border-b">
         {/* Logo */}
         <div className="header-container1 flex items-center gap-4">
           <p className="text-gray-500 text-sm">Dự án / Phần mềm đánh giá</p>
           <div className="flex items-center gap-2">
-            <img onClick={() => navigate("/")} src='src/assets/image/Column.png' alt="LIFETEK" className="logo-img" />
-            <img src='src/assets/image/List.png' alt="LIFETEK" className="logo-img" />
+            <img
+              onClick={() => navigate("/")}
+              src="image/Column.png"
+              alt="LIFETEK"
+              className="logo-img"
+            />
+            <img src="image/List.png" alt="LIFETEK" className="logo-img" />
           </div>
         </div>
 
@@ -137,38 +138,38 @@ const TaskTable = () => {
               className="pl-10 pr-4 py-2 border rounded-md w-64"
             />
 
-          {/* Danh sách avatar */}
-         {/* Danh sách avatar với hình ảnh */}
-          <div className="flex -space-x-2 overflow-hidden">
-            {[
-              "src/assets/image/image_4.png",
-              "src/assets/image/image_5.png",
-              "src/assets/image/image_6.png",
-              "src/assets/image/image_7.png",
-              "src/assets/image/image_8.png",
-              "src/assets/image/dot.png"
-            ].map((avatar, index) => (
-              <img
-                key={index}
-                src={avatar}
-                alt={`Avatar ${index + 1}`}
-                className="w-8 h-8 rounded-full border border-white shadow"
-              />
-            ))}
-          </div>
+            {/* Danh sách avatar */}
+            {/* Danh sách avatar với hình ảnh */}
+            <div className="flex -space-x-2 overflow-hidden">
+              {[
+                "image/image_4.png",
+                "image/image_5.png",
+                "image/image_6.png",
+                "image/image_7.png",
+                "image/image_8.png",
+                "image/dot.png",
+              ].map((avatar, index) => (
+                <img
+                  key={index}
+                  src={avatar}
+                  alt={`Avatar ${index + 1}`}
+                  className="w-8 h-8 rounded-full border border-white shadow"
+                />
+              ))}
+            </div>
           </div>
         </div>
-        
+
         <div className="task-header1">
           <div onClick={openModal} className="task-add1">
-            <img src="src/assets/image/Problem.png" alt="Add Task" />
+            <img src="image/Problem.png" alt="Add Task" />
             <p>Thêm vấn đề</p>
           </div>
           <div className="task-icons1">
-            <img src="src/assets/image/Trash.png" alt="List" />
-            <img src="src/assets/image/Filter.png" alt="Columns" />
+            <img src="image/Trash.png" alt="List" />
+            <img src="image/Filter.png" alt="Columns" />
           </div>
-      </div>
+        </div>
       </div>
 
       <table className="task-table">
@@ -193,14 +194,14 @@ const TaskTable = () => {
               </td>
               <td>{index + 1}</td>
               <td className="task-name">
-                <img src="src/assets/image/Pen.png" alt="edit" className="edit-icon"/>
+                <img src="image/Pen.png" alt="edit" className="edit-icon" />
                 {task.name}
               </td>
               <td className="assignees">
                 {task.assignees?.map((avatar, i) => (
                   <img
                     key={i}
-                    src={`src/assets/image/${avatar}`}
+                    src={`image/${avatar}`}
                     alt="user"
                     className="avatar"
                   />
@@ -208,15 +209,27 @@ const TaskTable = () => {
                 <button className="add-user">+</button>
               </td>
               <td className="comment-cell">
-                <img src="src/assets/image/Chat_.png" alt="comments" className="comment-icon" />
+                <img
+                  src="image/Chat_.png"
+                  alt="comments"
+                  className="comment-icon"
+                />
               </td>
               <td className="date-cell">
                 {task.startDate}
-                <img src="src/assets/image/Vector.png" alt="start-date" className="calendar-icon" />
+                <img
+                  src="image/Vector.png"
+                  alt="start-date"
+                  className="calendar-icon"
+                />
               </td>
               <td className="date-cell">
                 {task.endDate}
-                <img src="src/assets/image/Vector.png" alt="end-date" className="calendar-icon" />
+                <img
+                  src="image/Vector.png"
+                  alt="end-date"
+                  className="calendar-icon"
+                />
               </td>
               <td className="status-cell">
                 <select
