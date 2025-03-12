@@ -9,7 +9,7 @@ const ContactCard = ({ onClose }) => {
       </div>
       <div className={styles.contactItem}>
         <img
-          src="src\assets\image\f8ad738c648cb0c7cc815d6ceda805b0.png"
+          src="image\f8ad738c648cb0c7cc815d6ceda805b0.png"
           alt="avatar"
           className={styles.icon}
         />
@@ -18,7 +18,7 @@ const ContactCard = ({ onClose }) => {
 
       <div className={styles.contactItem}>
         <img
-          src="src\assets\image\phone.png"
+          src="image\phone.png"
           alt="phone"
           className={styles.icon}
         />
@@ -27,7 +27,7 @@ const ContactCard = ({ onClose }) => {
 
       <div className={styles.contactItem}>
         <img
-          src="src\assets\image\Email.png"
+          src="image\Email.png"
           alt="email"
           className={styles.icon}
         />

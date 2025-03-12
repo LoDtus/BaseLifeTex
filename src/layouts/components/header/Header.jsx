@@ -6,7 +6,7 @@ export default function Header() {
       <header className="kanban-header">
         <div className="logo">
           <img
-            src="src/assets/image/image.png"
+            src="image/image.png"
             alt="LIFETEK"
             className="logo-img"
           />

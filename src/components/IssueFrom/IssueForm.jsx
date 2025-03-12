@@ -24,11 +24,6 @@ export default function IssueForm({ isOpen, onClose }) {
     "April Tucker",
     "Ralph Hubbard",
     "Omar Alexander",
-    "Carlos Abbott",
-    "Miriam Wagner",
-    "Bradley Wilkerson",
-    "Virginia Andrews",
-    "Kelly Snyder",
   ];
 
   const [personName, setPersonName] = useState([]);
@@ -178,7 +173,7 @@ export default function IssueForm({ isOpen, onClose }) {
                               <div className={style.wrapItemSlc}>
                                 <img
                                   className={style.avatar}
-                                  src="src/assets/image/f8ad738c648cb0c7cc815d6ceda805b0.png"
+                                  src="image/f8ad738c648cb0c7cc815d6ceda805b0.png"
                                   alt=""
                                 />
                                 <div className={style.name}>{name}</div>

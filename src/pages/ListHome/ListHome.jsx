@@ -108,8 +108,8 @@ const TaskTable = () => {
         <div className="header-container1 flex items-center gap-4">
           <p className="text-gray-500 text-sm">Dự án / Phần mềm đánh giá</p>
           <div className="flex items-center gap-2">
-            <img onClick={() => navigate("/")} src='src/assets/image/Column.png' alt="LIFETEK" className="logo-img" />
-            <img src='src/assets/image/List.png' alt="LIFETEK" className="logo-img" />
+            <img onClick={() => navigate("/")} src='image/Column.png' alt="LIFETEK" className="logo-img" />
+            <img src='image/List.png' alt="LIFETEK" className="logo-img" />
           </div>
         </div>
 
@@ -141,12 +141,12 @@ const TaskTable = () => {
          {/* Danh sách avatar với hình ảnh */}
           <div className="flex -space-x-2 overflow-hidden">
             {[
-              "src/assets/image/image_4.png",
-              "src/assets/image/image_5.png",
-              "src/assets/image/image_6.png",
-              "src/assets/image/image_7.png",
-              "src/assets/image/image_8.png",
-              "src/assets/image/dot.png"
+              "image/image_4.png",
+              "image/image_5.png",
+              "image/image_6.png",
+              "image/image_7.png",
+              "image/image_8.png",
+              "image/dot.png"
             ].map((avatar, index) => (
               <img
                 key={index}
@@ -161,12 +161,12 @@ const TaskTable = () => {
         
         <div className="task-header1">
           <div onClick={openModal} className="task-add1">
-            <img src="src/assets/image/Problem.png" alt="Add Task" />
+            <img src="image/Problem.png" alt="Add Task" />
             <p>Thêm vấn đề</p>
           </div>
           <div className="task-icons1">
-            <img src="src/assets/image/Trash.png" alt="List" />
-            <img src="src/assets/image/Filter.png" alt="Columns" />
+            <img src="image/Trash.png" alt="List" />
+            <img src="image/Filter.png" alt="Columns" />
           </div>
       </div>
       </div>
@@ -193,14 +193,14 @@ const TaskTable = () => {
               </td>
               <td>{index + 1}</td>
               <td className="task-name">
-                <img src="src/assets/image/Pen.png" alt="edit" className="edit-icon"/>
+                <img src="image/Pen.png" alt="edit" className="edit-icon"/>
                 {task.name}
               </td>
               <td className="assignees">
                 {task.assignees?.map((avatar, i) => (
                   <img
                     key={i}
-                    src={`src/assets/image/${avatar}`}
+                    src={`image/${avatar}`}
                     alt="user"
                     className="avatar"
                   />
@@ -208,15 +208,15 @@ const TaskTable = () => {
                 <button className="add-user">+</button>
               </td>
               <td className="comment-cell">
-                <img src="src/assets/image/Chat_.png" alt="comments" className="comment-icon" />
+                <img src="image/Chat_.png" alt="comments" className="comment-icon" />
               </td>
               <td className="date-cell">
                 {task.startDate}
-                <img src="src/assets/image/Vector.png" alt="start-date" className="calendar-icon" />
+                <img src="image/Vector.png" alt="start-date" className="calendar-icon" />
               </td>
               <td className="date-cell">
                 {task.endDate}
-                <img src="src/assets/image/Vector.png" alt="end-date" className="calendar-icon" />
+                <img src="image/Vector.png" alt="end-date" className="calendar-icon" />
               </td>
               <td className="status-cell">
                 <select

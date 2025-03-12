@@ -155,7 +155,6 @@ export default function Home() {
     );
     console.log("Đã chuyển task sang cột khác:", { newActiveTasks, newOverTasks });
   };
-
   const handleCheckboxChange = (taskId) => {
     setCheckedTasks((prev) => ({
       ...prev,
@@ -170,8 +169,8 @@ export default function Home() {
         <div className="header-container flex items-center gap-4">
           <p className="text-gray-500 text-sm">Dự án / Phần mềm đánh giá</p>
           <div className="flex items-center gap-2">
-            <img src='src/assets/image/Column.png' alt="LIFETEK" className="logo-img" />
-            <img onClick={() => navigate("/ListHome")} src='src/assets/image/List.png' alt="LIFETEK" className="logo-img" />
+            <img src='image/Column.png' alt="LIFETEK" className="logo-img" />
+            <img onClick={() => navigate("/ListHome")} src='image/List.png' alt="LIFETEK" className="logo-img" />
           </div>
         </div>
       </div>
@@ -204,12 +203,12 @@ export default function Home() {
          {/* Danh sách avatar với hình ảnh */}
           <div className="flex -space-x-2 overflow-hidden">
             {[
-              "src/assets/image/image_4.png",
-              "src/assets/image/image_5.png",
-              "src/assets/image/image_6.png",
-              "src/assets/image/image_7.png",
-              "src/assets/image/image_8.png",
-              "src/assets/image/dot.png"
+              "image/image_4.png",
+              "image/image_5.png",
+              "image/image_6.png",
+              "image/image_7.png",
+              "image/image_8.png",
+              "image/dot.png"
             ].map((avatar, index) => (
               <img
                 key={index}
@@ -223,8 +222,8 @@ export default function Home() {
 
           <div className="task-header">
           <div className="task-icons">
-            <img src="src/assets/image/Trash.png" alt="List" />
-            <img src="src/assets/image/Filter.png" alt="Columns" />
+            <img src="image/Trash.png" alt="List" />
+            <img src="image/Filter.png" alt="Columns" />
           </div>
       </div>
 
