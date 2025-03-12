@@ -1,17 +1,18 @@
 import Header from "../components/header/Header";
 import Navbar from "../components/navbar/Navbar";
-import "./MainLayout.scss";
+import styles from "./MainLayout.module.scss";
+
 export default function MainLayout({ children }) {
   return (
     <div>
-      <div className="header">
+      <div className={styles.header}>
         <Header />
       </div>
-      <div className="wrapContent">
-        <div className="navbar">
+      <div className={styles.wrapContent}>
+        <div className={styles.navbar}>
           <Navbar />
         </div>
-        <div className="content">{children}</div>
+        <div className={styles.content}>{children}</div>
       </div>
     </div>
   );

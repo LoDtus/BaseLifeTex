@@ -3,6 +3,8 @@ import LoginLayout from "../layouts/loginLayout/LoginLayout";
 import Home from "../pages/Home/Home";
 import Login from "../pages/Login/Login";
 import Register from "../pages/Register/Register";
+import TaskTable from "../pages/ListHome/ListHome";
+import KabanDetail from "../components/kabanDetail/KabanDetail";
 const publicRoutes = [
   {
     path: "/",
@@ -17,6 +19,16 @@ const publicRoutes = [
   {
     path: "/register",
     component: Register,
+    layout: LoginLayout,
+  },
+  {
+    path: "/ListHome",
+    component: TaskTable,
+    layout: MainLayout,
+  },
+  {
+    path: "/KabanDetail",
+    component: KabanDetail,
     layout: LoginLayout,
   },
 ];

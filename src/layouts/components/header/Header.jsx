@@ -10,7 +10,7 @@ export default function Header() {
             alt="LIFETEK"
             className="logo-img"
           />
-          <span className="logo-text">LIFETEK</span>
+          <span className="logo-text">LIFETEX</span>
         </div>
         <div className="search-bar">
           <input
