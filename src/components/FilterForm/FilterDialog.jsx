@@ -9,11 +9,11 @@ import {
   MenuItem,
   IconButton,
 } from "@mui/material";
-import { Close, CalendarToday } from "@mui/icons-material";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { DemoContainer } from "@mui/x-date-pickers/internals/demo";
+import "./FilterDialog.scss";
 
 const users = [
   { id: 1, name: "Nguyễn Văn A" },
@@ -34,6 +34,7 @@ export default function FilterDialog() {
 
   return (
     <Box display="flex" flexDirection="column" gap={2} mt={1} padding={2}>
+      <h2 className="title-filter">Lọc Công Việc</h2>
       {/* Người được giao */}
       <TextField
         select

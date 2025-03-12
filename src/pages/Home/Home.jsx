@@ -6,7 +6,6 @@ import { arrayMove } from "@dnd-kit/sortable";
 import Column from "../DraggableTask/Column";
 import IssueForm from "../../components/IssueFrom/IssueForm";
 import Popover from "@mui/material/Popover";
-import Typography from "@mui/material/Typography";
 import FilterDialog from "../../components/FilterForm/FilterDialog";
 
 // Dữ liệu ban đầu
@@ -266,17 +265,6 @@ export default function Home() {
               aria-describedby={id}
             />
           </div>
-          {/* <FilterDialog
-            open={openFilter}
-            onClose={() => setOpenFilter(false)}
-          /> */}
-          {/* <Button
-            aria-describedby={id}
-            variant="contained"
-            onClick={handleClick}
-          >
-            Open Popover
-          </Button> */}
           <Popover
             id={id}
             open={openFiter}
