@@ -1,14 +1,26 @@
+.navbar {
+  display: flex;
+  flex-direction: column;
+  height: 100vh; // Đặt chiều cao của navbar là 100% chiều cao của viewport
+}
+
 .headerNavbar {
   display: flex;
   justify-content: space-evenly;
   padding: 26px 14px;
   align-items: center;
+  position: sticky;
+  top: 0;
+  background-color: white; // Thêm màu nền để tránh bị chồng lên nội dung khác
+  z-index: 1;
+
   .icon {
     fill: #579ad7;
     width: 27px;
     height: 30px;
     flex-shrink: 0;
   }
+
   .projectListTitle {
     color: #000;
     display: flex;
@@ -18,8 +30,16 @@
     flex-shrink: 0;
   }
 }
+
 .bodyNavbar {
   display: flex;
   flex-direction: column;
+  padding-bottom: 80px;
   gap: 14px;
+  overflow-y: auto; // Thêm dòng này để hiển thị thanh cuộn dọc
+  flex-grow: 1; // Đảm bảo bodyNavbar chiếm không gian còn lại
+
+  /* Đảm bảo thanh cuộn luôn hiển thị */
+  scrollbar-width: thin; /* Firefox */
+  scrollbar-color: #888 #f1f1f1; /* Firefox */
 }
