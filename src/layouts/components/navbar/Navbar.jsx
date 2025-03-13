@@ -1,7 +1,22 @@
+import { useState, useEffect } from "react";
+
 import styles from "./Navbar.module.scss";
 import ProjectCard from "../../../components/projectCard/ProjectCard";
-
+import { dataProject } from "../../../data/dataProject";
+import { getLstProject } from "../../../apis/project";
 export default function Navbar() {
+  const [lstProject, setLstProject] = useState([]);
+  const fetchProjects = async () => {
+    try {
+      const response = await getLstProject();
+      setLstProject(response);
+    } catch (err) {
+      console.error("Failed to fetch projects:", err);
+    }
+  };
+  useEffect(() => {
+    fetchProjects();
+  }, []);
   return (
     <div className={styles.navbar}>
       <div className={styles.headerNavbar}>
@@ -41,8 +56,9 @@ export default function Navbar() {
         <div className={styles.projectListTitle}>Danh sách dự án tham gia</div>
       </div>
       <div className={styles.bodyNavbar}>
-        <ProjectCard />
-        <ProjectCard />
+        {lstProject?.map((project, index) => (
+          <ProjectCard key={index} project={project} />
+        ))}
       </div>
     </div>
   );
