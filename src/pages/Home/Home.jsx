@@ -163,8 +163,9 @@ export default function Home() {
   };
   return (
     <div className="home-container">
-      {/* Header Section */}
-      <div className="header-section flex items-center justify-between p-4 border-b">
+
+       {/* Header Section */}
+       <div className="header-section flex items-center justify-between p-4 border-b">
         {/* Logo */}
         <div className="header-container flex items-center gap-4">
           <p className="text-gray-500 text-sm">Dự án / Phần mềm đánh giá</p>
@@ -173,7 +174,6 @@ export default function Home() {
             <img onClick={() => navigate("/ListHome")} src='image/List.png' alt="LIFETEK" className="logo-img" />
           </div>
         </div>
-      </div>
 
         {/* Tìm kiếm & Avatars */}
         <div className="flex items-center gap-4">
@@ -229,6 +229,7 @@ export default function Home() {
 
         </div>
 
+     </div>
     {/* Bọc bảng Kanban trong một container cuộn ngang */}
     <div className="kanban-wrapper">
         {/* Bảng Kanban */}

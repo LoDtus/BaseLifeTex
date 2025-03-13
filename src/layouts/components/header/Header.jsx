@@ -5,11 +5,7 @@ export default function Header() {
       {/* Header */}
       <header className="kanban-header">
         <div className="logo">
-          <img
-            src="image/image.png"
-            alt="LIFETEK"
-            className="logo-img"
-          />
+          <img src="image/image.png" alt="LIFETEK" className="logo-img" />
           <span className="logo-text">LIFETEX</span>
         </div>
         <div className="search-bar">
