@@ -7,13 +7,15 @@ export const postIssueData = async (data, token) => {
     const response = await axios.post(
       `${backendUrl}/issue`,
       {
-        personName: data.personName,
-        issueName: data.issueName,
+        assigneeId: data.personName,
+        title: data.issueName,
         link: data.link,
         description: data.description,
         startDate: data.startDate,
         endDate: data.endDate,
-        imageFile: data.imageFile,
+        images: data.imageFile,
+        status: data.status,
+        projectId: data.projectId,
       },
       {
         headers: {

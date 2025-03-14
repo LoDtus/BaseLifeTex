@@ -10,3 +10,17 @@ export const toolCvStatus = (staus) => {
       return "Chưa hoàn thành"; // Default to "Chưa hoàn thành"
   }
 };
+export const toolTaskStatus = (task) => {
+  switch (task) {
+    case "Công việc mới":
+      return "pending";
+    case "Đang thực hiện":
+      return "in progress";
+    case "completed":
+      return "Hoàn thành";
+    case "Kết thúc":
+      return "done";
+    default:
+      return "pending";
+  }
+};

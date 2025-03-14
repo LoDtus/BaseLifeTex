@@ -1,15 +1,12 @@
 import React, { useState } from "react";
 import styles from "./UploadDownloadImage.module.scss";
 
-const UploadImageButton = ({ onImageSelect }) => {
-  const [image, setImage] = useState(null);
-
+const UploadImageButton = ({ image, setImage }) => {
   const handleUpload = (event) => {
     const file = event.target.files[0];
     if (file) {
       const imageUrl = URL.createObjectURL(file);
       setImage(imageUrl);
-      onImageSelect(imageUrl); // Truyền file ảnh lên component cha
     }
   };
 
