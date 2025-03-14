@@ -36,8 +36,6 @@ export default function Register() {
     }
     if (!email.match(/^\S+@\S+\.\S+$/)) {
       newErrors.email = "Email không hợp lệ.";
-    } else {
-      newErrors.email = " ";
     }
     if (password.length < 6)
       newErrors.password = "Mật khẩu phải có ít nhất 6 ký tự.";
@@ -54,6 +52,7 @@ export default function Register() {
       });
       return;
     }
+    setError({});
     const newUser = {
       email: email,
       userName: userName,
