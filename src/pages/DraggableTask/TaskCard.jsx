@@ -12,17 +12,15 @@ export default function TaskCard({
   });
 
   const [title, setTitle] = useState(task.title || "");
-
   const [isEditing, setIsEditing] = useState(false);
   const inputRef = useRef(null);
 
   const handleEditClick = (e) => {
     e.stopPropagation();
     setIsEditing(true);
-    setTimeout(() => inputRef.current?.focus(), 0); // Tự động focus vào input
+    setTimeout(() => inputRef.current?.focus(), 0);
   };
 
-  // Khi người dùng nhấn Enter hoặc click ra ngoài thì lưu giá trị mới
   const handleBlurOrEnter = (event) => {
     if (event.type === "keydown" && event.key !== "Enter") return;
     setIsEditing(false);
@@ -42,7 +40,7 @@ export default function TaskCard({
     <div
       ref={setNodeRef}
       style={style}
-      {...listeners}
+      {...(isEditing ? {} : listeners)} // Ngăn kéo khi đang chỉnh sửa
       {...attributes}
       className="kanban-card"
     >
@@ -64,7 +62,10 @@ export default function TaskCard({
               <span
                 style={{ cursor: "pointer" }}
                 onPointerDown={(e) => e.stopPropagation()}
-                onMouseDown={handleEditClick} // Dùng onMouseDown thay vì onClick
+                onMouseDown={(e) => {
+                  e.stopPropagation();
+                  handleEditClick(e);
+                }}
               >
                 ✏️
               </span>
