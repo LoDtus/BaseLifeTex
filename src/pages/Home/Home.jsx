@@ -7,6 +7,7 @@ import Column from "../DraggableTask/Column";
 import IssueForm from "../../components/IssueFrom/IssueForm";
 import { Popover } from "@mui/material";
 import MemberListContent from "../../components/memberList/MemberList";
+import FilterDialog from "../../components/FilterForm/FilterDialog";
 
 // Dữ liệu ban đầu
 const initialColumns = [
@@ -40,9 +41,7 @@ const initialColumns = [
   {
     id: 4,
     title: "Kết thúc",
-    tasks: [
-      { id: 9, title: "test", project: "Kan-1", assignee: "HuyNQ" },
-    ],
+    tasks: [{ id: 9, title: "test", project: "Kan-1", assignee: "HuyNQ" }],
   },
 ];
 
@@ -64,10 +63,24 @@ export default function Home() {
     setIssueStatus(""); // Reset trạng thái khi đóng form
   };
 
-  const openModal = (status) => { // Sửa hàm để nhận status
+  const openModal = (status) => {
+    // Sửa hàm để nhận status
     setIssueStatus(status); // Lưu trạng thái của cột
     setOpen(true);
   };
+
+  const [anchorElFilter, setAnchorElFilter] = useState(null);
+
+  const handleClickFilter = (event) => {
+    setAnchorElFilter(event.currentTarget);
+  };
+
+  const handleCloseFilter = () => {
+    setAnchorElFilter(null);
+  };
+
+  const openFiter = Boolean(anchorElFilter);
+  const id = openFiter ? "simple-popover" : undefined;
 
   const navigate = useNavigate();
 
@@ -259,16 +272,34 @@ export default function Home() {
           <div className="task-header">
             <div className="task-icons">
               <img src="image/Trash.png" alt="List" />
-              <img src="image/Filter.png" alt="Columns" />
+              <img
+                src="image/Filter.png"
+                alt="Columns"
+                onClick={handleClickFilter}
+              />
+              <Popover
+                id={id}
+                open={openFiter}
+                anchorEl={anchorElFilter}
+                onClose={handleCloseFilter}
+                anchorOrigin={{
+                  vertical: "bottom",
+                  horizontal: "left",
+                }}
+              >
+                <FilterDialog />
+              </Popover>
             </div>
           </div>
         </div>
       </div>
-
       {/* Bọc bảng Kanban trong một container cuộn ngang */}
       <div className="kanban-wrapper">
         {/* Bảng Kanban */}
-        <DndContext collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+        <DndContext
+          collisionDetection={closestCenter}
+          onDragEnd={handleDragEnd}
+        >
           <div className="kanban-container">
             {columns.map((column) => (
               <Column
@@ -283,7 +314,8 @@ export default function Home() {
           </div>
         </DndContext>
       </div>
-      <IssueForm isOpen={open} onClose={onClose} status={issueStatus} /> {/* Truyền status */}
+      <IssueForm isOpen={open} onClose={onClose} status={issueStatus} />{" "}
+      {/* Truyền status */}
     </div>
   );
 }
