@@ -2,11 +2,15 @@ import React, { useState } from "react";
 import { Modal, Box, TextField, Button } from "@mui/material";
 import MenuItem from "@mui/material/MenuItem";
 import FormControl from "@mui/material/FormControl";
-import OutlinedInput from "@mui/material/OutlinedInput";
 import Select from "@mui/material/Select";
 import "./KabanDetail.scss";
 import style from "../IssueFrom/IssueForm.module.scss";
-import InputLabel from "@mui/material/InputLabel";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+import EventAvailableIcon from "@mui/icons-material/EventAvailable";
+import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
+import { toast, ToastContainer } from "react-toastify";
 
 const KabanDetail = ({ open, handleClose }) => {
   const listUser = [
@@ -50,91 +54,79 @@ const KabanDetail = ({ open, handleClose }) => {
   ];
 
   const dataDefault = {
-    header: "",
-    content: "",
-    link: "",
+    issueName: "Bug Header",
+    description: "Text is not visible",
+    link: "LifeTex.com.vn",
+    imageFile: "",
+    personName: [],
+    report: {
+      name: 'Tucker',
+      avatar: 'https://w7.pngwing.com/pngs/922/214/png-transparent-computer-icons-avatar-businessperson-interior-design-services-corporae-building-company-heroes-thumbnail.png',
+    },
+    startDate: null,
+    endDate: null,
+    status: "",
   };
 
-  const names = [
-    "Oliver Hansen",
-    "Van Henry",
-    "April Tucker",
-    "Ralph Hubbard",
-    "Omar Alexander",
-    "Carlos Abbott",
-    "Miriam Wagner",
-    "Bradley Wilkerson",
-    "Virginia Andrews",
-    "Kelly Snyder",
-  ];
-
-  const editCheckDefault = {
-    editHeader: false,
-    editContent: false,
-    editLink: false,
-  };
-
-  const onCheckEdit = (type) => {
-    switch (type) {
-      case "editHeader":
-        setEditCheck({ ...editCheck, editHeader: true });
-        break;
-      case "editContent":
-        setEditCheck({ ...editCheck, editContent: true });
-        break;
-      case "editLink":
-        setEditCheck({ ...editCheck, editLink: true });
-        break;
-    }
-  };
-
-  const handleChangeInput = (type, value) => {
-    setData((prev) => ({
-      ...prev,
-      [type]: value,
-    }));
-  };
-
-  const handleBlurChange = (type) => {
-    switch (type) {
-      case "editHeader":
-        setEditCheck({ ...editCheck, editHeader: false });
-        break;
-      case "editContent":
-        setEditCheck({ ...editCheck, editContent: false });
-        break;
-      case "editLink":
-        setEditCheck({ ...editCheck, editLink: false });
-        break;
-    }
-  };
-
-  const handleAddComment = () => {
-    if (comment.trim()) {
-      const newComment = {
-        id: Math.random().toString(36).substr(2, 9),
-        commentBy: "Nguyen Van A",
-        text: comment,
-      };
-      setComments((prev) => [...prev, newComment]);
-      setComment("");
-    }
-  };
-
-  const handleChange = (event) => {
-    setStatus(event.target.value);
+  const errorsDefault = {
+    issueName: false,
+    description: false,
+    link: false,
+    personName: false,
+    startDate: false,
+    endDate: false,
+    status: false,
   };
 
   const [data, setData] = useState(dataDefault);
   const [comment, setComment] = useState("");
   const [comments, setComments] = useState(listComment);
   const [user, setUsers] = useState(listUser);
-  const [editCheck, setEditCheck] = useState(editCheckDefault);
-  const [status, setStatus] = useState("");
-  const [personName, setPersonName] = useState([]);
-  const [errors, setErrors] = useState({});
+  const [errorData, setErrorData] = useState(errorsDefault);
+
+  const handleChangeInput = (type, value) => {
+    setData((prev) => ({
+      ...prev,
+      [type]: value,
+    }));
+    setErrorData({...errorData,[type]:false});
+  };
+
+  const handleChangeSelect = (value) => {
+    const uniqueArr = value.filter(
+      (num) => value.indexOf(num) === value.lastIndexOf(num)
+    );
+    setData({ ...data, personName: uniqueArr });
+  };
+
+  const handleBlurChange = (type,value) => {
+    if(type) {
+      if(value) {
+        console.log(data);
+        setErrorData({...errorData,[type]:false});
+      }
+      else {
+        setErrorData({...errorData,[type]:true});
+        toast.error(`${type} không được để trống!`);
+      }
+    }
+  };
+
+  const handleAddComment = () => {
+    // if (comment.trim()) {
+    //   const newComment = {
+    //     id: Math.random().toString(36).substr(2, 9),
+    //     commentBy: "Tucker",
+    //     text: comment,
+    //   };
+    //   setComments((prev) => [...prev, newComment]);
+    //   setComment("");
+    // }
+    console.log(data)
+  };
 
   return (
+    <>
     <Modal
       open={true}
       style={{ border: "none", outline: "none" }}
@@ -143,7 +135,9 @@ const KabanDetail = ({ open, handleClose }) => {
     >
       <Box className="kaban-detail">
         <div className="kaban-detail-header">
-          <p>kan-1</p>
+          <p>
+            <EventAvailableIcon /> kan-1
+          </p>
           <button className="close-btn" onClick={handleClose}>
             ✖
           </button>
@@ -151,40 +145,35 @@ const KabanDetail = ({ open, handleClose }) => {
         <div className="content">
           <div className="kaban-content">
             <div className="kaban-content-text">
-              {editCheck.editHeader === true ? (
-                <input
-                  value={data.header}
-                  onFocus={() => handleChangeInput("Editheader")}
-                  onBlur={() => handleBlurChange("editHeader")}
-                  onChange={(e) => handleChangeInput("header", e.target.value)}
-                  className="kaban-header-text-edit"
-                />
-              ) : (
-                <h3 onClick={() => onCheckEdit("editHeader")}>
-                  {" "}
-                  {data.header || "Fix Header"}
-                </h3>
-              )}
-              {editCheck.editContent === true ? (
-                <TextField
-                  variant="outlined"
-                  size="small"
-                  fullWidth
-                  multiline
-                  minRows={3}
-                  maxRows={4}
-                  placeholder="Nhập nội dung..."
-                  value={data.content}
-                  onFocus={() => handleChangeInput("EditContent")}
-                  onBlur={() => handleBlurChange("editContent")}
-                  onChange={(e) => handleChangeInput("content", e.target.value)}
-                  className="kaban-content-text-edit"
-                />
-              ) : (
-                <p onClick={() => onCheckEdit("editContent")}>
-                  {data.content || "Bug header"}
-                </p>
-              )}
+              <TextField
+                variant="outlined"
+                size="small"
+                fullWidth
+                multiline
+                error={errorData.issueName}
+                placeholder="Nhập vấn đề..."
+                value={data.issueName}
+                onBlur={(e)=>handleBlurChange('issueName',e.target.value)}
+                onChange={(e) => handleChangeInput("issueName", e.target.value)}
+                className="kaban-content-text-edit"
+              />
+              <TextField
+                variant="outlined"
+                size="small"
+                fullWidth
+                multiline
+                minRows={6}
+                maxRows={10}
+                sx={{ marginTop: "8px" }}
+                placeholder="Nhập nội dung..."
+                value={data.description}
+                error={errorData.description}
+                onBlur={(e)=>handleBlurChange('description',e.target.value)}
+                onChange={(e) =>
+                  handleChangeInput("description", e.target.value)
+                }
+                className="kaban-content-text-edit"
+              />
             </div>
             <div className="comment-section">
               <h4>Bình luận</h4>
@@ -239,55 +228,107 @@ const KabanDetail = ({ open, handleClose }) => {
             <h4>Thông tin chi tiết</h4>
             <div className="kaban-description">
               <p>Người nhận việc:</p>
-              <span>
-                <FormControl
-                  sx={{ m: 1, width: 200 }}
-                  error={!!errors.personName}
-                >
+              <div className="kaban-description-personName-edit">
+                <FormControl sx={{ width: "100%", overflow: "hidden" }}>
                   <Select
+                    size="small"
                     labelId="demo-multiple-name-label"
                     id="demo-multiple-name"
                     multiple
-                    value={personName}
-                    onChange={handleChange}
-                    size="small"
+                    value={data.personName}
+                    error={errorData.personName}
+                    onChange={(e) => handleChangeSelect(e.target.value)}
+                    renderValue={(selected) => {
+                      const maxVisible = 4; 
+                      return (
+                        <div
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: "5px",
+                          }}
+                        >
+                          {selected.slice(0, maxVisible).map((name, index) => (
+                            <img
+                              key={index}
+                              src={name.avatar}
+                              alt=""
+                              style={{
+                                width: "23px",
+                                height: "23px",
+                                borderRadius: "50%",
+                              }}
+                            />
+                          ))}
+                          {selected.length > maxVisible && (
+                            <span
+                            style={{
+                              overflow: "hidden",
+                              backgroundColor: "transparent",
+                              borderRadius: "50%",
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "center",
+                              color: "#333",
+                              border: "2px solid #333",
+                              textAlign: "center",
+                              width: "23px",
+                              height: "23px",
+                            }}
+                            >
+                              <MoreHorizIcon/>
+                            </span>
+                          )}
+                        </div>
+                      );
+                    }}
+                    MenuProps={{
+                      PaperProps: {
+                        style: {
+                          maxHeight: 200,
+                          overflowY: "auto",
+                        },
+                      },
+                    }}
                   >
-                    {names.map((name) => (
-                      <MenuItem key={name} value={name}>
+                    {user.map((item) => (
+                      <MenuItem key={item.id} value={item}>
                         <div className={style.wrapItemSlc}>
                           <img
+                            style={{
+                              width: "25px",
+                              height: "25px",
+                              borderRadius: "50%",
+                            }}
                             className={style.avatar}
-                            src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRIpV5CA8mgHMPImfa2IWGky1_7N6zcesgnaA&s"
-                            alt=""
+                            src={item.avatar}
+                            alt="avatar"
                           />
-                          <div className={style.name}>{name}</div>
+                          <div className={style.name}>{item.name}</div>
                         </div>
                       </MenuItem>
                     ))}
                   </Select>
-                  {errors.personName && (
-                    <p className={style.errorText}>{errors.personName}</p>
-                  )}
                 </FormControl>
-              </span>
+              </div>
             </div>
             <div className="kaban-description">
               <p>Link:</p>
-              {editCheck.editLink ? (
-                <input
+              <div className="kaban-description-link-edit">
+                <TextField
+                  sx={{
+                    width: "100%",
+                  }}
+                  variant="outlined"
+                  size="small"
+                  fullWidth
+                  multiline
+                  error={errorData.link}
+                  placeholder="Nhập link..."
                   value={data.link}
-                  onBlur={() => handleBlurChange("editLink")}
                   onChange={(e) => handleChangeInput("link", e.target.value)}
-                  className="kaban-description-edit"
                 />
-              ) : (
-                <p
-                  onClick={() => onCheckEdit("editLink")}
-                  className="kaban-description-link"
-                >
-                  {data.link || "Lifetex.com.vn"}
-                </p>
-              )}
+              </div>
             </div>
             <div className="kaban-description image">
               <p>Hình ảnh:</p>
@@ -301,18 +342,17 @@ const KabanDetail = ({ open, handleClose }) => {
             <div className="kaban-description">
               <p>Trạng thái:</p>
               <div className="kaban-single-info">
-                <FormControl sx={{ m: 1, minWidth: 120 }} size="small">
+                <FormControl>
                   <Select
-                    value={status}
-                    onChange={handleChange}
+                    size="small"
+                    error={errorData.status}
+                    value={data.status}
+                    onChange={(e) =>
+                      handleChangeInput("status", e.target.value)
+                    }
                     sx={{
-                      "& .MuiOutlinedInput-notchedOutline": { border: "none" },
-                      "&:hover .MuiOutlinedInput-notchedOutline": {
-                        border: "none",
-                      },
-                      "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
-                        border: "none",
-                      },
+                      width: "100%",
+                      height: 40,
                     }}
                     displayEmpty
                   >
@@ -330,22 +370,60 @@ const KabanDetail = ({ open, handleClose }) => {
             </div>
             <div className="kaban-description">
               <p>Ngày bắt đầu:</p>
-              <p className="kaban-description-date">
-                <input type="date" />
-              </p>
+              <div className="kaban-description-date">
+                <LocalizationProvider dateAdapter={AdapterDayjs}>
+                  <DatePicker
+                    name="startDate"
+                    error={errorData.startDate}
+                    slotProps={{
+                      textField: {
+                        size: "small",
+                        sx: {
+                          height: "40px",
+                          "& .MuiInputBase-root": { height: "40px" },
+                        },
+                      },
+                    }}
+                    value={data.startDate}
+                    onChange={(value) =>
+                      handleChangeInput("startDate", value)
+                    }
+                    size="small"
+                  />
+                </LocalizationProvider>
+              </div>
             </div>
             <div className="kaban-description">
               <p>Ngày kết thúc:</p>
-              <p className="kaban-description-date">
-                <input type="date" />
-              </p>
+              <div className="kaban-description-date">
+                <LocalizationProvider dateAdapter={AdapterDayjs}>
+                  <DatePicker
+                    name="endDate"
+                    error={errorData.endDate}
+                    slotProps={{
+                      textField: {
+                        size: "small",
+                        sx: {
+                          height: "40px",
+                          "& .MuiInputBase-root": { height: "40px" },
+                        },
+                      },
+                    }}
+                    value={data.endDate}
+                    onChange={(value) =>
+                      handleChangeInput("endDate",value)
+                    }
+                    size="small"
+                  />
+                </LocalizationProvider>
+              </div>
             </div>
             <div className="kaban-description">
               <p>Người báo cáo:</p>
               <div className="kaban-single-info">
-                <img src={user[0].avatar} alt="" />
+                <img src={data.report.avatar} alt="" />
                 <p>
-                  {user[0].name} <span>icon</span>
+                  {data.report.name}
                 </p>
               </div>
             </div>
@@ -353,6 +431,19 @@ const KabanDetail = ({ open, handleClose }) => {
         </div>
       </Box>
     </Modal>
+    <ToastContainer
+        position="top-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="light"
+      />
+    </>
   );
 };
 
