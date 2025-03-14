@@ -1,4 +1,5 @@
-#root, .app-container {
+#root,
+.app-container {
   width: 100%;
   height: 100vh;
   display: flex;
@@ -47,6 +48,7 @@
   align-items: center;
   margin-left: 80px;
   margin-top: 40px;
+
   input {
     width: 243px;
     padding: 10px 10px 10px 40px;
@@ -123,7 +125,7 @@
 }
 
 .kanban-card {
-  height: 107px;
+  height: fit-content;
   display: flex;
   flex-direction: column;
   background: #eef4fc;
@@ -210,6 +212,7 @@
       margin-right: 10px;
       border-radius: 50%;
       object-fit: cover;
+
       &:hover {
         background-color: #d1d5db;
       }

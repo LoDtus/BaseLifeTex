@@ -1,9 +1,11 @@
-import { useState, useEffect } from "react"; // Thêm useEffect nếu muốn lưu vào localStorage
+import { useState, useEffect, useRef } from "react"; // Thêm useEffect nếu muốn lưu vào localStorage
 import "./ListHome.scss";
 import "../Home/Home.scss";
 import { useNavigate } from "react-router-dom";
 import IssueForm from "../../components/IssueFrom/IssueForm";
-import { Popover } from "@mui/material";
+import Popover from "@mui/material/Popover";
+import FilterDialog from "../../components/FilterForm/FilterDialog";
+import { Input } from "@mui/material";
 import MemberListContent from "../../components/memberList/MemberList";
 
 const initialTasks = [
@@ -62,6 +64,7 @@ const initialTasks = [
 const TaskTable = () => {
   const navigate = useNavigate();
   const [anchorEl, setAnchorEl] = useState(null);
+  const [anchorElMember, setAnchorElMember] = useState(null);
 
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
@@ -69,6 +72,14 @@ const TaskTable = () => {
 
   const handleClose = () => {
     setAnchorEl(null);
+  };
+
+  const handleClickMember = (event) => {
+    setAnchorElMember(event.currentTarget);
+  };
+
+  const handleCloseMember = () => {
+    setAnchorElMember(null);
   };
 
   const [open, setOpen] = useState(false);
@@ -81,6 +92,9 @@ const TaskTable = () => {
     setOpen(true);
   };
 
+  const openFiter = Boolean(anchorEl);
+  const id = openFiter ? "simple-popover" : undefined;
+
   // Khởi tạo tasks, hợp nhất initialTasks với localStorage
   const [tasks, setTasks] = useState(() => {
     const savedTasks = localStorage.getItem("taskList");
@@ -88,7 +102,10 @@ const TaskTable = () => {
     const mergedTasks = [
       ...initialTasks,
       ...parsedTasks.filter(
-        (task) => !initialTasks.some((initial) => initial.id === task.id)
+        (task) => !initialTasks.some((initial) => initial.id === task.id),
+        ...parsedTasks.filter(
+          (task) => !initialTasks.some((initial) => initial.id === task.id)
+        )
       ),
     ];
     return mergedTasks;
@@ -99,185 +116,254 @@ const TaskTable = () => {
     localStorage.setItem("taskList", JSON.stringify(tasks));
   }, [tasks]);
 
-  // Hàm xử lý thay đổi trạng thái
-  const handleStatusChange = (taskId, newStatus) => {
+  const [editingTaskId, setEditingTaskId] = useState(null);
+  const [editedTaskName, setEditedTaskName] = useState(""); // Lưu giá trị nhập vào
+  const inputRef = useRef(null);
+
+  const handleEditClick = (taskId, currentName) => {
+    setEditingTaskId(taskId);
+    setEditedTaskName(currentName);
+  };
+
+  const handleBlurOrEnter = (event, taskId) => {
+    if (event.type === "keydown" && event.key !== "Enter") return;
     setTasks((prevTasks) =>
       prevTasks.map((task) =>
-        task.id === taskId ? { ...task, status: newStatus } : task
+        task.id === taskId ? { ...task, name: editedTaskName } : task
       )
     );
+    localStorage.setItem("taskList", JSON.stringify(tasks));
+    setEditingTaskId(null);
   };
   return (
     <div className="task-table-container">
-    {/* Header Section */}
-    <div className="header-section">
-      {/* Logo */}
-      <div className="header-container flex items-center gap-4">
-        <p className="text-gray-500 text-sm">Dự án / Phần mềm đánh giá</p>
-        <div className="flex items-center gap-2">
-          <img
-            onClick={() => navigate("/")}
-            src="image/Column.png"
-            alt="LIFETEK"
-            className="logo-img"
-          />
-          <img src="image/List.png" alt="LIFETEK" className="logo-img" />
-        </div>
-      </div>
-
-      {/* Tìm kiếm & Avatars */}
-      <div className="flex items-center gap-4">
-        {/* Ô tìm kiếm */}
-        <div className="search-container relative flex items-center">
-          <svg
-            className="search-icon absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-500"
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M21 21l-4.35-4.35m2.6-5.15a7 7 0 11-14 0 7 7 0 0114 0z"
-            />
-          </svg>
-          <input
-            type="text"
-            placeholder="Tìm kiếm..."
-            className="pl-10 pr-4 py-2 border rounded-md w-64"
-          />
-
-          {/* Danh sách avatar */}
-          <div className="flex -space-x-2 overflow-hidden">
-            {[
-              "image/image_4.png",
-              "image/image_5.png",
-              "image/image_6.png",
-              "image/image_7.png",
-              "image/image_8.png",
-              "image/dot.png",
-            ].map((avatar, index) => (
+      {/* Header Section */}
+      <div className="header-section flex items-center justify-between p-4 border-b">
+        {/* Header Section */}
+        <div className="header-section flex items-center justify-between p-4 border-b">
+          {/* Logo */}
+          <div className="header-container1 flex items-center gap-4">
+            <p className="text-gray-500 text-sm">Dự án / Phần mềm đánh giá</p>
+            <div className="flex items-center gap-2">
               <img
-                onClick={handleClick}
-                key={index}
-                src={avatar}
-                alt={`Avatar ${index + 1}`}
-                className="w-8 h-8 rounded-full border border-white shadow"
+                onClick={() => navigate("/")}
+                src="src/assets/image/Column.png"
+                alt="LIFETEK"
+                className="logo-img"
               />
-            ))}
+              <img
+                src="src/assets/image/List.png"
+                alt="LIFETEK"
+                className="logo-img"
+              />
+              <img
+                onClick={() => navigate("/")}
+                src="src/assets/image/Column.png"
+                alt="LIFETEK"
+                className="logo-img"
+              />
+              <img
+                src="src/assets/image/List.png"
+                alt="LIFETEK"
+                className="logo-img"
+              />
+            </div>
+          </div>
+
+          {/* Tìm kiếm & Avatars */}
+          <div className="flex items-center gap-4">
+            {/* Ô tìm kiếm */}
+            <div className="search-container relative flex items-center">
+              <svg
+                className="search-icon absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-500"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M21 21l-4.35-4.35m2.6-5.15a7 7 0 11-14 0 7 7 0 0114 0z"
+                />
+              </svg>
+              <input
+                type="text"
+                placeholder="Tìm kiếm..."
+                className="pl-10 pr-4 py-2 border rounded-md w-64"
+              />
+
+              {/* Danh sách avatar */}
+              {/* Danh sách avatar với hình ảnh */}
+              <div className="flex -space-x-2 overflow-hidden">
+                {[
+                  "src/assets/image/image_4.png",
+                  "src/assets/image/image_5.png",
+                  "src/assets/image/image_6.png",
+                  "src/assets/image/image_7.png",
+                  "src/assets/image/image_8.png",
+                  "src/assets/image/dot.png",
+                ].map((avatar, index) => (
+                  <img
+                    key={index}
+                    src={avatar}
+                    alt={`Avatar ${index + 1}`}
+                    className="w-8 h-8 rounded-full border border-white shadow"
+                  />
+                ))}
+              </div>
+            </div>
+          </div>
+
+          <div className="task-header1">
+            <div onClick={openModal} className="task-add1">
+              <img src="image/Problem.png" alt="Add Task" />
+              <p>Thêm vấn đề</p>
+            </div>
+            <div className="task-icons1">
+              <div className="task-icons">
+                <img src="src/assets/image/Trash.png" alt="List" />
+                <img
+                  src="src/assets/image/Filter.png"
+                  alt="Columns"
+                  onClick={handleClick}
+                  aria-describedby={id}
+                />
+              </div>
+              <Popover
+                id={id}
+                open={openFiter}
+                anchorEl={anchorEl}
+                onClose={handleClose}
+                anchorOrigin={{
+                  vertical: "bottom",
+                  horizontal: "left",
+                }}
+              >
+                <FilterDialog />
+              </Popover>
+            </div>
           </div>
         </div>
       </div>
-      
-      <Popover
-          open={Boolean(anchorEl)}
-          anchorEl={anchorEl}
-          onClose={handleClose}
-          anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
-          transformOrigin={{ vertical: "top", horizontal: "left" }}
-          sx={{ mt: 1 }}
-        >
-          <MemberListContent onClose={handleClose} />
-        </Popover>
 
-      <div className="task-header1">
-        <div onClick={openModal} className="task-add1">
-          <img src="image/Problem.png" alt="Add Task" />
-          <p>Thêm vấn đề</p>
-        </div>
-        <div className="task-icons1">
-          <img src="image/Trash.png" alt="List" />
-          <img src="image/Filter.png" alt="Columns" />
-        </div>
-      </div>
-    </div>
-
-    {/* Bọc table trong wrapper để cuộn ngang */}
-    <div className="table-wrapper">
-      <table className="task-table">
-        <thead>
-          <tr>
-            <th></th> {/* Checkbox */}
-            <th>STT</th>
-            <th>Tên công việc</th>
-            <th>Người nhận việc</th>
-            <th>Bình luận</th>
-            <th>Ngày bắt đầu</th>
-            <th>Ngày kết thúc</th>
-            <th>Trạng thái</th>
-            <th>Link</th>
-          </tr>
-        </thead>
-        <tbody>
-          {tasks.map((task, index) => (
-            <tr key={task.id}>
-              <td>
-                <input type="checkbox" />
-              </td>
-              <td>{index + 1}</td>
-              <td className="task-name">
-                <img src="image/Pen.png" alt="edit" className="edit-icon" />
-                {task.name}
-              </td>
-              <td className="assignees">
-                {task.assignees?.map((avatar, i) => (
-                  <img
-                    key={i}
-                    src={`image/${avatar}`}
-                    alt="user"
-                    className="avatar"
-                  />
-                ))}
-                <button className="add-user">+</button>
-              </td>
-              <td className="comment-cell">
-                <img
-                  src="image/Chat_.png"
-                  alt="comments"
-                  className="comment-icon"
-                />
-              </td>
-              <td className="date-cell">
-                {task.startDate}
-                <img
-                  src="image/Vector.png"
-                  alt="start-date"
-                  className="calendar-icon"
-                />
-              </td>
-              <td className="date-cell">
-                {task.endDate}
-                <img
-                  src="image/Vector.png"
-                  alt="end-date"
-                  className="calendar-icon"
-                />
-              </td>
-              <td className="status-cell">
-                <select
-                  value={task.status}
-                  onChange={(e) => handleStatusChange(task.id, e.target.value)}
-                  className="status-select"
-                >
-                  <option value="Hoàn thành">Hoàn thành</option>
-                  <option value="Chưa hoàn thành">Chưa hoàn thành</option>
-                </select>
-              </td>
-              <td>
-                <a href={task.link} target="_blank" rel="noopener noreferrer">
-                  🔗
-                </a>
-              </td>
+      {/* Bọc table trong wrapper để cuộn ngang */}
+      <div className="table-wrapper">
+        <table className="task-table">
+          <thead>
+            <tr>
+              <th></th> {/* Checkbox */}
+              <th>STT</th>
+              <th>Tên công việc</th>
+              <th>Người nhận việc</th>
+              <th>Bình luận</th>
+              <th>Ngày bắt đầu</th>
+              <th>Ngày kết thúc</th>
+              <th>Trạng thái</th>
+              <th>Link</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {tasks.map((task, index) => (
+              <tr key={task.id}>
+                <td>
+                  <input type="checkbox" />
+                </td>
+                <td>{index + 1}</td>
+                <td className="task-name">
+                  {editingTaskId === task.id ? (
+                    <Input
+                      ref={inputRef}
+                      type="text"
+                      value={editedTaskName}
+                      onChange={(e) => setEditedTaskName(e.target.value)}
+                      onBlur={(e) => handleBlurOrEnter(e, task.id)}
+                      onKeyDown={(e) => handleBlurOrEnter(e, task.id)}
+                    />
+                  ) : (
+                    <>
+                      <img
+                        src="src/assets/image/Pen.png"
+                        alt="edit"
+                        className="edit-icon"
+                        onClick={() => handleEditClick(task.id, task.name)}
+                      />
+                      {task.name}
+                    </>
+                  )}
+                </td>
+                <td className="assignees">
+                  {task.assignees?.map((avatar, i) => (
+                    <img
+                      key={i}
+                      src={`image/${avatar}`}
+                      alt="user"
+                      className="avatar"
+                    />
+                  ))}
+                  <button className="add-user" onClick={handleClickMember}>
+                    +
+                  </button>
+                  <Popover
+                    open={Boolean(anchorElMember)}
+                    anchorEl={anchorElMember}
+                    onClose={handleCloseMember}
+                    anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
+                    transformOrigin={{ vertical: "top", horizontal: "left" }}
+                    sx={{ mt: 1 }}
+                  >
+                    <MemberListContent onClose={handleClose} />
+                  </Popover>
+                </td>
+                <td className="comment-cell">
+                  <img
+                    src="src/assets/image/Chat_.png"
+                    alt="comments"
+                    className="comment-icon"
+                  />
+                </td>
+                <td className="date-cell">
+                  {task.startDate}
+                  <img
+                    src="src/assets/image/Vector.png"
+                    alt="start-date"
+                    className="calendar-icon"
+                  />
+                </td>
+                <td className="date-cell">
+                  {task.endDate}
+                  <img
+                    src="src/assets/image/Vector.png"
+                    alt="end-date"
+                    className="calendar-icon"
+                  />
+                </td>
+                <td className="status-cell">
+                  <select
+                    value={task.status}
+                    onChange={(e) =>
+                      handleStatusChange(task.id, e.target.value)
+                    }
+                    className="status-select"
+                  >
+                    <option value="Hoàn thành">Hoàn thành</option>
+                    <option value="Chưa hoàn thành">Chưa hoàn thành</option>
+                  </select>
+                </td>
+                <td>
+                  <a href={task.link} target="_blank" rel="noopener noreferrer">
+                    🔗
+                  </a>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <IssueForm isOpen={open} onClose={onClose} />
     </div>
-    <IssueForm isOpen={open} onClose={onClose} />
-  </div>
-);
+  );
 };
 
 // Thêm CSS cho select
