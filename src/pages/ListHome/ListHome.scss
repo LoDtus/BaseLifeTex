@@ -1,39 +1,32 @@
-.task-table-container {
+
+#root, .app-container {
   width: 100%;
-  overflow-x: auto;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden; // Ngăn cuộn ở cấp cao nhất
 }
 
-.header-container1 {
- display: flex;
- align-items: center;
- justify-content: space-between;
- padding: 40px 0 0 0px;
- margin-right: 23px;
- margin-left: 80px;
+.task-table-container {
+  max-width: 1280px; // Giữ nguyên để dành chỗ cho sidebar
+  width: 100%;
+  height: 100%; // Đảm bảo chiếm toàn bộ chiều cao viewport
+  display: flex;
+  flex-direction: column;
+  overflow: hidden; // Ngăn cuộn toàn trang
+}
 
- p {
-   color: #6b7280;
-   font-size: 30px;
- }
-
- .image-group {
-   display: flex;
-   align-items: center;
-   gap: 8px;
-
-   img {
-     width: 30px;
-     height: 30px;
-     border-radius: 50%;
-     object-fit: cover;
-   }
- }
+.table-wrapper {
+  flex: 1; // Chiếm không gian còn lại
+  overflow-x: auto; // Cho phép cuộn ngang
+  overflow-y: auto; // Cho phép cuộn dọc nếu cần
+  padding: 45px 0 0 20px; // Đồng bộ padding với Home để loại bỏ khoảng trắng bên trái
 }
 
 .task-table {
   width: 100%;
-  margin-top: 20px;
-  margin-bottom: 10px;
+  min-width: 1200px; // Đảm bảo table đủ rộng để cần cuộn ngang
+  margin: 0; // Loại bỏ margin để nội dung tràn đầy
   border-collapse: collapse;
   font-size: 14px;
   background: #fff;
@@ -107,15 +100,16 @@
     font-size: 16px;
   }
 }
+
 .task-header1 {
   display: flex;
   align-items: center;
   justify-content: space-between; // Đẩy p về trái, images về phải
   gap: 16px;
   padding: 10px 0 0; 
-  margin-right: 23px;
-  margin-left: 80px;
-  margin-top: 10px;
+  margin-top: 20px;
+  margin-left: 80px; // Loại bỏ margin-left để không tạo khoảng trắng
+
   .task-add1 {
     display: flex;
     align-items: center;
@@ -128,7 +122,7 @@
       height: 24px;
       border-radius: 4px;
       padding: 4px;
-      background-color: #f3f4f6; // Màu nền nhạt
+      background-color: #f3f8f6; // Màu nền nhạt
       border: 1px solid #d1d5db; // Viền nhạt
     }
   }
@@ -150,4 +144,17 @@
   }
 }
 
+// Thêm style cho select (nếu không dùng inline style)
+.status-select {
+  padding: 4px 8px;
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+  background: #fff;
+  font-size: 14px;
+  cursor: pointer;
+  outline: none;
 
+  &:hover {
+    border-color: #9ca3af;
+  }
+}
