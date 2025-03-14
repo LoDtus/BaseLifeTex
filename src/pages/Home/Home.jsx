@@ -185,14 +185,14 @@ export default function Home() {
     }));
   };
 
-  const addNewColumn = () => {
-    const newColumn = {
-      id: columns.length + 1,
-      title: "Cột mới",
-      tasks: [],
-    };
-    setColumns([...columns, newColumn]);
-  };
+  // const addNewColumn = () => {
+  //   const newColumn = {
+  //     id: columns.length + 1,
+  //     title: "Cột mới",
+  //     tasks: [],
+  //   };
+  //   setColumns([...columns, newColumn]);
+  // };
 
   return (
     <div className="home-container">
