@@ -1,9 +1,9 @@
 import axios from "axios";
-const backendUrl = import.meta.env.VITE_BACKEND_URL_KHOA;
+const backendUrl = import.meta.env.VITE_BACKEND_URL;
 
 export const getLstProject = async (token) => {
   try {
-    const response = await axios.get(`${backendUrl}/project`, {
+    const response = await axios.get(`${backendUrl}/projects`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -15,5 +15,6 @@ export const getLstProject = async (token) => {
       "Error retrieving data:",
       error.response ? error.response.data : error.message
     );
+    throw error;
   }
 };
