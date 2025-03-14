@@ -7,6 +7,7 @@ import Popover from "@mui/material/Popover";
 import FilterDialog from "../../components/FilterForm/FilterDialog";
 import { Input } from "@mui/material";
 import MemberListContent from "../../components/memberList/MemberList";
+import MemberListContentAdd from "../../components/memberListAdd/MemberListAdd";
 
 const initialTasks = [
   {
@@ -65,6 +66,7 @@ const TaskTable = () => {
   const navigate = useNavigate();
   const [anchorEl, setAnchorEl] = useState(null);
   const [anchorElMember, setAnchorElMember] = useState(null);
+  const [anchorElMemberAdd, setAnchorElMemberAdd] = useState(null);
 
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
@@ -80,6 +82,14 @@ const TaskTable = () => {
 
   const handleCloseMember = () => {
     setAnchorElMember(null);
+  };
+
+  const handleClickMemberAdd = (event) => {
+    setAnchorElMemberAdd(event.currentTarget);
+  };
+
+  const handleCloseMemberAdd = () => {
+    setAnchorElMemberAdd(null);
   };
 
   const [open, setOpen] = useState(false);
@@ -156,17 +166,6 @@ const TaskTable = () => {
                 alt="LIFETEK"
                 className="logo-img"
               />
-              <img
-                onClick={() => navigate("/")}
-                src="src/assets/image/Column.png"
-                alt="LIFETEK"
-                className="logo-img"
-              />
-              <img
-                src="src/assets/image/List.png"
-                alt="LIFETEK"
-                className="logo-img"
-              />
             </div>
           </div>
 
@@ -210,8 +209,19 @@ const TaskTable = () => {
                     src={avatar}
                     alt={`Avatar ${index + 1}`}
                     className="w-8 h-8 rounded-full border border-white shadow"
+                    onClick={handleClickMember}
                   />
                 ))}
+                <Popover
+                  open={Boolean(anchorElMember)}
+                  anchorEl={anchorElMember}
+                  onClose={handleCloseMember}
+                  anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
+                  transformOrigin={{ vertical: "top", horizontal: "left" }}
+                  sx={{ mt: 1 }}
+                >
+                  <MemberListContent onClose={handleCloseMember} />
+                </Popover>
               </div>
             </div>
           </div>
@@ -302,18 +312,18 @@ const TaskTable = () => {
                       className="avatar"
                     />
                   ))}
-                  <button className="add-user" onClick={handleClickMember}>
+                  <button className="add-user" onClick={handleClickMemberAdd}>
                     +
                   </button>
                   <Popover
-                    open={Boolean(anchorElMember)}
-                    anchorEl={anchorElMember}
-                    onClose={handleCloseMember}
+                    open={Boolean(anchorElMemberAdd)}
+                    anchorEl={anchorElMemberAdd}
+                    onClose={handleCloseMemberAdd}
                     anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
                     transformOrigin={{ vertical: "top", horizontal: "left" }}
                     sx={{ mt: 1 }}
                   >
-                    <MemberListContent onClose={handleClose} />
+                    <MemberListContentAdd onClose={handleCloseMemberAdd} />
                   </Popover>
                 </td>
                 <td className="comment-cell">
