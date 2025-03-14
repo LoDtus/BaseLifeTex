@@ -30,7 +30,7 @@ export const postIssueData = async (data, token) => {
 export const updateIssueData = async (data, token) => {
   try {
     const response = await axios.put(
-      `${backendUrl}/issue`,
+      `${backendUrl}/task/edit-tash/${data.id}`,
       {
         personName: data.personName,
         issueName: data.issueName,
