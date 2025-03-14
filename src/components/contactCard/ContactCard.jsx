@@ -1,7 +1,7 @@
 import React from "react";
 import styles from "./ContactCard.module.scss";
 
-const ContactCard = ({ onClose }) => {
+const ContactCard = ({ onClose, contact }) => {
   return (
     <div className={styles.container}>
       <div className={styles.closeIcon} onClick={onClose}>
@@ -9,29 +9,21 @@ const ContactCard = ({ onClose }) => {
       </div>
       <div className={styles.contactItem}>
         <img
-          src="src\assets\image\f8ad738c648cb0c7cc815d6ceda805b0.png"
+          src="image\f8ad738c648cb0c7cc815d6ceda805b0.png"
           alt="avatar"
           className={styles.icon}
         />
-        <span className={styles.text}>Nguyễn Đình Minh</span>
+        <span className={styles.text}>{contact.userName}</span>
       </div>
 
       <div className={styles.contactItem}>
-        <img
-          src="src\assets\image\phone.png"
-          alt="phone"
-          className={styles.icon}
-        />
-        <span className={styles.text}>0913310193</span>
+        <img src="image\phone.png" alt="phone" className={styles.icon} />
+        <span className={styles.text}>{contact.phone}</span>
       </div>
 
       <div className={styles.contactItem}>
-        <img
-          src="src\assets\image\Email.png"
-          alt="email"
-          className={styles.icon}
-        />
-        <span className={styles.text}>minhnd@lifetek.vn</span>
+        <img src="image\Email.png" alt="email" className={styles.icon} />
+        <span className={styles.text}>{contact.email}</span>
       </div>
     </div>
   );

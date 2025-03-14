@@ -8,27 +8,21 @@ import MenuItem from "@mui/material/MenuItem";
 import FormControl from "@mui/material/FormControl";
 import Select from "@mui/material/Select";
 import Box from "@mui/material/Box";
-import Button from "@mui/material/Button";
-import Typography from "@mui/material/Typography";
 import Modal from "@mui/material/Modal";
 import { DemoContainer } from "@mui/x-date-pickers/internals/demo";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import UploadDownloadImage from "../UploadDownloadImage/UploadDownloadImage";
+import { postIssueData } from "../../apis/Issue";
 
 export default function IssueForm({ isOpen, onClose }) {
   const names = [
-    "Oliver Hansen",
-    "Van Henry",
-    "April Tucker",
-    "Ralph Hubbard",
-    "Omar Alexander",
-    "Carlos Abbott",
-    "Miriam Wagner",
-    "Bradley Wilkerson",
-    "Virginia Andrews",
-    "Kelly Snyder",
+    { id: 1, name: "Oliver Hansen" },
+    { id: 2, name: "Van Henry" },
+    { id: 3, name: "April Tucker" },
+    { id: 4, name: "Ralph Hubbard" },
+    { id: 5, name: "Omar Alexander" },
   ];
 
   const [personName, setPersonName] = useState([]);
@@ -37,20 +31,17 @@ export default function IssueForm({ isOpen, onClose }) {
   const [description, setDescription] = useState("");
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
+  const [imageFile, setImageFile] = useState(null); // Thêm state để lưu trữ file ảnh
   const [errors, setErrors] = useState({});
 
   const handleChange = (event) => {
     const {
       target: { value },
     } = event;
-    console.log(value);
-    setPersonName(
-      // On autofill we get a stringified value.
-      typeof value === "string" ? value.split(",") : value
-    );
+    setPersonName((prevPersonName) => [...prevPersonName, ...value]);
   };
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
     const newErrors = {};
 
@@ -66,16 +57,20 @@ export default function IssueForm({ isOpen, onClose }) {
     setErrors(newErrors);
 
     if (Object.keys(newErrors).length === 0) {
-      // Submit the form
-      console.log({
-        personName: personName.join(","),
-        issueName,
-        link,
-        description,
-        startDate,
-        endDate,
-      });
-      console.log("Form submitted");
+      const token = "jhgshddabjsbbdak";
+
+      await postIssueData(
+        {
+          personName,
+          issueName,
+          link,
+          description,
+          startDate,
+          endDate,
+          imageFile,
+        },
+        token
+      );
     }
   };
 
@@ -86,10 +81,6 @@ export default function IssueForm({ isOpen, onClose }) {
     transform: "translate(-50%, -50%)",
     border: "none",
   };
-
-  //  const [open, setOpen] = React.useState(false);
-  // const handleOpen = () => setOpen(true);
-  // const handleClose = () => setOpen(false);
 
   return (
     <Modal
@@ -174,15 +165,15 @@ export default function IssueForm({ isOpen, onClose }) {
                           onChange={handleChange}
                           input={<OutlinedInput label="Name" />}
                         >
-                          {names.map((name) => (
-                            <MenuItem key={name} value={name}>
+                          {names.map((person) => (
+                            <MenuItem key={person.id} value={person.id}>
                               <div className={style.wrapItemSlc}>
                                 <img
                                   className={style.avatar}
-                                  src="src/assets/image/f8ad738c648cb0c7cc815d6ceda805b0.png"
+                                  src="image/f8ad738c648cb0c7cc815d6ceda805b0.png"
                                   alt=""
                                 />
-                                <div className={style.name}>{name}</div>
+                                <div className={style.name}>{person.name}</div>
                               </div>
                             </MenuItem>
                           ))}
@@ -196,7 +187,7 @@ export default function IssueForm({ isOpen, onClose }) {
                   <Grid size={12}>
                     <div className={style.box}>
                       <span>Hình ảnh: </span>
-                      <UploadDownloadImage />
+                      <UploadDownloadImage onImageSelect={setImageFile} />
                     </div>
                   </Grid>
                 </Grid>

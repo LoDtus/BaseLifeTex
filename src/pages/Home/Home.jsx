@@ -5,8 +5,8 @@ import { DndContext, closestCenter } from "@dnd-kit/core";
 import { arrayMove } from "@dnd-kit/sortable";
 import Column from "../DraggableTask/Column";
 import IssueForm from "../../components/IssueFrom/IssueForm";
-import Popover from "@mui/material/Popover";
-import FilterDialog from "../../components/FilterForm/FilterDialog";
+import { Popover } from "@mui/material";
+import MemberListContent from "../../components/memberList/MemberList";
 
 // Dữ liệu ban đầu
 const initialColumns = [
@@ -50,6 +50,7 @@ const initialColumns = [
 ];
 
 export default function Home() {
+  const [open, setOpen] = useState(false);
   const [anchorEl, setAnchorEl] = useState(null);
 
   const handleClick = (event) => {
@@ -59,13 +60,6 @@ export default function Home() {
   const handleClose = () => {
     setAnchorEl(null);
   };
-
-  const openFiter = Boolean(anchorEl);
-  const id = openFiter ? "simple-popover" : undefined;
-
-  // const [openFilter, setOpenFilter] = useState(false);
-
-  const [open, setOpen] = useState(false);
 
   const onClose = () => {
     setOpen(false);
@@ -195,14 +189,10 @@ export default function Home() {
         <div className="header-container flex items-center gap-4">
           <p className="text-gray-500 text-sm">Dự án / Phần mềm đánh giá</p>
           <div className="flex items-center gap-2">
-            <img
-              src="src/assets/image/Column.png"
-              alt="LIFETEK"
-              className="logo-img"
-            />
+            <img src="image/Column.png" alt="LIFETEK" className="logo-img" />
             <img
               onClick={() => navigate("/ListHome")}
-              src="src/assets/image/List.png"
+              src="image/List.png"
               alt="LIFETEK"
               className="logo-img"
             />
@@ -238,14 +228,15 @@ export default function Home() {
           {/* Danh sách avatar với hình ảnh */}
           <div className="flex -space-x-2 overflow-hidden">
             {[
-              "src/assets/image/image_4.png",
-              "src/assets/image/image_5.png",
-              "src/assets/image/image_6.png",
-              "src/assets/image/image_7.png",
-              "src/assets/image/image_8.png",
-              "src/assets/image/dot.png",
+              "image/image_4.png",
+              "image/image_5.png",
+              "image/image_6.png",
+              "image/image_7.png",
+              "image/image_8.png",
+              "image/dot.png",
             ].map((avatar, index) => (
               <img
+                onClick={handleClick}
                 key={index}
                 src={avatar}
                 alt={`Avatar ${index + 1}`}
@@ -254,29 +245,22 @@ export default function Home() {
             ))}
           </div>
         </div>
+        <Popover
+          open={Boolean(anchorEl)}
+          anchorEl={anchorEl}
+          onClose={handleClose}
+          anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
+          transformOrigin={{ vertical: "top", horizontal: "left" }}
+          sx={{ mt: 1 }}
+        >
+          <MemberListContent onClose={handleClose} />
+        </Popover>
 
         <div className="task-header">
           <div className="task-icons">
-            <img src="src/assets/image/Trash.png" alt="List" />
-            <img
-              src="src/assets/image/Filter.png"
-              alt="Columns"
-              onClick={handleClick}
-              aria-describedby={id}
-            />
+            <img src="image/Trash.png" alt="List" />
+            <img src="image/Filter.png" alt="Columns" />
           </div>
-          <Popover
-            id={id}
-            open={openFiter}
-            anchorEl={anchorEl}
-            onClose={handleClose}
-            anchorOrigin={{
-              vertical: "bottom",
-              horizontal: "left",
-            }}
-          >
-            <FilterDialog />
-          </Popover>
         </div>
       </div>
 

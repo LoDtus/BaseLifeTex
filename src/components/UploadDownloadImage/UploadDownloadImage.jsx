@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import styles from "./UploadDownloadImage.module.scss";
 
-const UploadImageButton = () => {
+const UploadImageButton = ({ onImageSelect }) => {
   const [image, setImage] = useState(null);
 
   const handleUpload = (event) => {
@@ -9,6 +9,7 @@ const UploadImageButton = () => {
     if (file) {
       const imageUrl = URL.createObjectURL(file);
       setImage(imageUrl);
+      onImageSelect(imageUrl); // Truyền file ảnh lên component cha
     }
   };
 
@@ -26,7 +27,7 @@ const UploadImageButton = () => {
       {/* Hình ảnh thay thế cho button chọn ảnh */}
       <label htmlFor="fileInput">
         <img
-          src="src/assets/image/downLoad.png" // Thay bằng icon của bạn
+          src="image/downLoad.png" // Thay bằng icon của bạn
           alt="Chọn ảnh"
           className={styles.uploadButton}
         />

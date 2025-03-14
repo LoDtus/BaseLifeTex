@@ -17,6 +17,7 @@
     font-style: normal;
     font-weight: 600;
     line-height: normal;
+    margin-right: 8px;
   }
 
   .projectDates {
@@ -33,7 +34,7 @@
       flex-direction: column;
       justify-content: center;
       flex-shrink: 0;
-      margin-top: 8px;
+      margin-top: 12px;
     }
   }
 
@@ -75,8 +76,24 @@
       cursor: pointer;
     }
 
-    .statusBtn {
-      background: #e63946;
+    .statusBtnInProgress {
+      background: #f4a261; // Example color for "Đang thực hiện"
+      color: white;
+      border: none;
+      padding: 5px 10px;
+      border-radius: 5px;
+    }
+
+    .statusBtnNotCompleted {
+      background: #e63946; // Example color for "Chưa hoàn thành"
+      color: white;
+      border: none;
+      padding: 5px 10px;
+      border-radius: 5px;
+    }
+
+    .statusBtnCompleted {
+      background: #2a9d8f; // Example color for "Hoàn thành"
       color: white;
       border: none;
       padding: 5px 10px;
