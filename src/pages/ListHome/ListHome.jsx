@@ -6,6 +6,7 @@ import IssueForm from "../../components/IssueFrom/IssueForm";
 import { Popover } from "@mui/material";
 import MemberListContent from "../../components/memberList/MemberList";
 import FilterDialog from "../../components/FilterForm/FilterDialog";
+import MemberListContentAdd from "../../components/memberListAdd/MemberListAdd";
 
 const initialTasks = [
   {
@@ -64,6 +65,8 @@ const TaskTable = () => {
   const navigate = useNavigate();
   const [anchorElFilter, setAnchorElFilter] = useState(null); // Anchor cho Filter
   const [anchorElMember, setAnchorElMember] = useState(null); // Anchor cho Member
+  const [anchorElMemberAdd, setAnchorElMemberAdd] = useState(null);
+
   const inputRef = useRef(null);
 
   const handleClickFilter = (event) => {
@@ -326,7 +329,19 @@ const TaskTable = () => {
                       className="avatar"
                     />
                   ))}
-                  <button className="add-user">+</button>
+                  <button className="add-user" onClick={handleClickMemberAdd}>
+                    +
+                  </button>
+                  <Popover
+                    open={Boolean(anchorElMemberAdd)}
+                    anchorEl={anchorElMemberAdd}
+                    onClose={handleCloseMemberAdd}
+                    anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
+                    transformOrigin={{ vertical: "top", horizontal: "left" }}
+                    sx={{ mt: 1 }}
+                  >
+                    <MemberListContentAdd onClose={handleCloseMemberAdd} />
+                  </Popover>
                 </td>
                 <td className="comment-cell">
                   <img
@@ -354,7 +369,9 @@ const TaskTable = () => {
                 <td className="status-cell">
                   <select
                     value={task.status}
-                    onChange={(e) => handleStatusChange(task.id, e.target.value)}
+                    onChange={(e) =>
+                      handleStatusChange(task.id, e.target.value)
+                    }
                     className="status-select"
                   >
                     <option value="Công việc mới">Công việc mới</option>

@@ -41,16 +41,13 @@ const initialColumns = [
   {
     id: 4,
     title: "Kết thúc",
-    tasks: [
-      { id: 9, title: "test", project: "Kan-1", assignee: "HuyNQ" },
-    ],
+    tasks: [{ id: 9, title: "test", project: "Kan-1", assignee: "HuyNQ" }],
   },
 ];
 
 export default function Home() {
   const [open, setOpen] = useState(false);
   const [anchorElMember, setAnchorElMember] = useState(null); // Anchor cho Member Popover
-  const [anchorElFilter, setAnchorElFilter] = useState(null); // Anchor cho Filter Popover
   const [issueStatus, setIssueStatus] = useState(""); // Trạng thái của cột
 
   const handleClickMember = (event) => {
@@ -59,14 +56,6 @@ export default function Home() {
 
   const handleCloseMember = () => {
     setAnchorElMember(null); // Đóng Popover danh sách nhân viên
-  };
-
-  const handleClickFilter = (event) => {
-    setAnchorElFilter(event.currentTarget); // Mở Popover lọc công việc
-  };
-
-  const handleCloseFilter = () => {
-    setAnchorElFilter(null); // Đóng Popover lọc công việc
   };
 
   const onClose = () => {
@@ -319,7 +308,10 @@ export default function Home() {
       {/* Bọc bảng Kanban trong một container cuộn ngang */}
       <div className="kanban-wrapper">
         {/* Bảng Kanban */}
-        <DndContext collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+        <DndContext
+          collisionDetection={closestCenter}
+          onDragEnd={handleDragEnd}
+        >
           <div className="kanban-container">
             {columns.map((column) => (
               <Column
