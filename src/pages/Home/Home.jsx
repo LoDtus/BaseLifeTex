@@ -7,6 +7,7 @@ import Column from "../DraggableTask/Column";
 import IssueForm from "../../components/IssueFrom/IssueForm";
 import { Popover } from "@mui/material";
 import MemberListContent from "../../components/memberList/MemberList";
+import FilterDialog from "../../components/FilterForm/FilterDialog"; // Thêm import FilterDialog
 
 // Dữ liệu ban đầu
 const initialColumns = [
@@ -40,21 +41,32 @@ const initialColumns = [
   {
     id: 4,
     title: "Kết thúc",
-    tasks: [{ id: 9, title: "test", project: "Kan-1", assignee: "HuyNQ" }],
+    tasks: [
+      { id: 9, title: "test", project: "Kan-1", assignee: "HuyNQ" },
+    ],
   },
 ];
 
 export default function Home() {
   const [open, setOpen] = useState(false);
-  const [anchorEl, setAnchorEl] = useState(null);
+  const [anchorElMember, setAnchorElMember] = useState(null); // Anchor cho Member Popover
+  const [anchorElFilter, setAnchorElFilter] = useState(null); // Anchor cho Filter Popover
   const [issueStatus, setIssueStatus] = useState(""); // Trạng thái của cột
 
-  const handleClick = (event) => {
-    setAnchorEl(event.currentTarget);
+  const handleClickMember = (event) => {
+    setAnchorElMember(event.currentTarget); // Mở Popover danh sách nhân viên
   };
 
-  const handleClose = () => {
-    setAnchorEl(null);
+  const handleCloseMember = () => {
+    setAnchorElMember(null); // Đóng Popover danh sách nhân viên
+  };
+
+  const handleClickFilter = (event) => {
+    setAnchorElFilter(event.currentTarget); // Mở Popover lọc công việc
+  };
+
+  const handleCloseFilter = () => {
+    setAnchorElFilter(null); // Đóng Popover lọc công việc
   };
 
   const onClose = () => {
@@ -63,7 +75,6 @@ export default function Home() {
   };
 
   const openModal = (status) => {
-    // Sửa hàm để nhận status
     setIssueStatus(status); // Lưu trạng thái của cột
     setOpen(true);
   };
@@ -234,7 +245,7 @@ export default function Home() {
                 "image/dot.png",
               ].map((avatar, index) => (
                 <img
-                  onClick={handleClick}
+                  onClick={handleClickMember} // Gắn sự kiện mở danh sách nhân viên
                   key={index}
                   src={avatar}
                   alt={`Avatar ${index + 1}`}
@@ -244,32 +255,46 @@ export default function Home() {
             </div>
           </div>
 
+          {/* Popover cho danh sách nhân viên */}
           <Popover
-            open={Boolean(anchorEl)}
-            anchorEl={anchorEl}
-            onClose={handleClose}
+            open={Boolean(anchorElMember)}
+            anchorEl={anchorElMember}
+            onClose={handleCloseMember}
             anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
             transformOrigin={{ vertical: "top", horizontal: "left" }}
             sx={{ mt: 1 }}
           >
-            <MemberListContent onClose={handleClose} />
+            <MemberListContent onClose={handleCloseMember} />
           </Popover>
 
           <div className="task-header">
             <div className="task-icons">
               <img src="image/Trash.png" alt="List" />
-              <img src="image/Filter.png" alt="Columns" />
+              <img
+                src="src/assets/image/Filter.png" // Cập nhật đường dẫn nếu cần
+                alt="Columns"
+                onClick={handleClickFilter} // Gắn sự kiện mở Popover Filter
+              />
             </div>
+            {/* Popover cho lọc công việc */}
+            <Popover
+              open={Boolean(anchorElFilter)}
+              anchorEl={anchorElFilter}
+              onClose={handleCloseFilter}
+              anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
+              transformOrigin={{ vertical: "top", horizontal: "left" }}
+              sx={{ mt: 1 }}
+            >
+              <FilterDialog />
+            </Popover>
           </div>
         </div>
       </div>
+
       {/* Bọc bảng Kanban trong một container cuộn ngang */}
       <div className="kanban-wrapper">
         {/* Bảng Kanban */}
-        <DndContext
-          collisionDetection={closestCenter}
-          onDragEnd={handleDragEnd}
-        >
+        <DndContext collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
           <div className="kanban-container">
             {columns.map((column) => (
               <Column
@@ -284,8 +309,9 @@ export default function Home() {
           </div>
         </DndContext>
       </div>
-      <IssueForm isOpen={open} onClose={onClose} status={issueStatus} />{" "}
-      {/* Truyền status */}
+      {open && (
+        <IssueForm isOpen={open} onClose={onClose} status={issueStatus} />
+      )}
     </div>
   );
 }
