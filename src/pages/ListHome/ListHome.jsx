@@ -3,9 +3,14 @@ import "./ListHome.scss";
 import "../Home/Home.scss";
 import { useNavigate } from "react-router-dom";
 import IssueForm from "../../components/IssueFrom/IssueForm";
-import { Popover } from "@mui/material";
+import { Input, Popover } from "@mui/material";
 import MemberListContent from "../../components/memberList/MemberList";
 import FilterDialog from "../../components/FilterForm/FilterDialog";
+import MemberListContentAdd from "../../components/memberListAdd/MemberListAdd";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+import { DemoContainer } from "@mui/x-date-pickers/internals/demo";
 
 const initialTasks = [
   {
@@ -64,6 +69,8 @@ const TaskTable = () => {
   const navigate = useNavigate();
   const [anchorElFilter, setAnchorElFilter] = useState(null); // Anchor cho Filter
   const [anchorElMember, setAnchorElMember] = useState(null); // Anchor cho Member
+  const [anchorElMemberAdd, setAnchorElMemberAdd] = useState(null);
+
   const inputRef = useRef(null);
 
   const handleClickFilter = (event) => {
@@ -126,12 +133,28 @@ const TaskTable = () => {
   }, [tasks]);
 
   const [editingTaskId, setEditingTaskId] = useState(null);
+  const [editingDateTaskId, setEditingDateTaskId] = useState(null);
+  const [editingDateEndTaskId, setEditingDateEndTaskId] = useState(null);
   const [editedTaskName, setEditedTaskName] = useState("");
+  const [editStartDate, setEditStartDate] = useState();
+  const [editEndDate, setEditEndDate] = useState();
 
   const handleEditClick = (taskId, currentName) => {
     setEditingTaskId(taskId);
     setEditedTaskName(currentName);
     setTimeout(() => inputRef.current?.focus(), 0);
+  };
+
+  const handleEditStartDate = (taskId, startDate) => {
+    setEditingDateTaskId(taskId);
+    setEditStartDate(startDate);
+    // setTimeout(() => inputRef.current?.focus(), 0);
+  };
+
+  const handleEditEndDate = (taskId, end) => {
+    setEditingDateEndTaskId(taskId);
+    setEditEndDate(end);
+    // setTimeout(() => inputRef.current?.focus(), 0);
   };
 
   const handleBlurOrEnter = (event, taskId) => {
@@ -297,7 +320,7 @@ const TaskTable = () => {
                 <td>{index + 1}</td>
                 <td className="task-name">
                   {editingTaskId === task.id ? (
-                    <input
+                    <Input
                       ref={inputRef}
                       type="text"
                       value={editedTaskName}
@@ -326,7 +349,19 @@ const TaskTable = () => {
                       className="avatar"
                     />
                   ))}
-                  <button className="add-user">+</button>
+                  <button className="add-user" onClick={handleClickMemberAdd}>
+                    +
+                  </button>
+                  <Popover
+                    open={Boolean(anchorElMemberAdd)}
+                    anchorEl={anchorElMemberAdd}
+                    onClose={handleCloseMemberAdd}
+                    anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
+                    transformOrigin={{ vertical: "top", horizontal: "left" }}
+                    sx={{ mt: 1 }}
+                  >
+                    <MemberListContentAdd onClose={handleCloseMemberAdd} />
+                  </Popover>
                 </td>
                 <td className="comment-cell">
                   <img
@@ -335,26 +370,67 @@ const TaskTable = () => {
                     className="comment-icon"
                   />
                 </td>
-                <td className="date-cell">
-                  {task.startDate}
-                  <img
-                    src="image/Vector.png"
-                    alt="start-date"
-                    className="calendar-icon"
-                  />
+                <td className="comment-cell">
+                  {editingDateTaskId === task.id ? (
+                    <LocalizationProvider dateAdapter={AdapterDayjs}>
+                      <DemoContainer components={["DatePicker"]}>
+                        <DatePicker
+                          // value={task.startDate}
+                          onChange={(newValue) => {
+                            setEditStartDate("startDate", newValue);
+                            setEditingDateTaskId(false);
+                          }}
+                          format="DD/MM/YYYY"
+                        />
+                      </DemoContainer>
+                    </LocalizationProvider>
+                  ) : (
+                    <>
+                      {task.startDate}
+                      <img
+                        src="image/Vector.png"
+                        alt="start-date"
+                        className="calendar-icon"
+                        onClick={() =>
+                          handleEditStartDate(task.id, task.startDate)
+                        }
+                      />
+                    </>
+                  )}
                 </td>
-                <td className="date-cell">
-                  {task.endDate}
-                  <img
-                    src="image/Vector.png"
-                    alt="end-date"
-                    className="calendar-icon"
-                  />
+
+                <td className="comment-cell">
+                  {editingDateEndTaskId === task.id ? (
+                    <LocalizationProvider dateAdapter={AdapterDayjs}>
+                      <DemoContainer components={["DatePicker"]}>
+                        <DatePicker
+                          // value={task.startDate}
+                          onChange={(newValue) => {
+                            setEditEndDate("startDate", newValue);
+                            setEditingDateEndTaskId(false);
+                          }}
+                          format="DD/MM/YYYY"
+                        />
+                      </DemoContainer>
+                    </LocalizationProvider>
+                  ) : (
+                    <>
+                      {task.endDate}
+                      <img
+                        src="image/Vector.png"
+                        alt="start-date"
+                        className="calendar-icon"
+                        onClick={() => handleEditEndDate(task.id, task.endDate)}
+                      />
+                    </>
+                  )}
                 </td>
                 <td className="status-cell">
                   <select
                     value={task.status}
-                    onChange={(e) => handleStatusChange(task.id, e.target.value)}
+                    onChange={(e) =>
+                      handleStatusChange(task.id, e.target.value)
+                    }
                     className="status-select"
                   >
                     <option value="Công việc mới">Công việc mới</option>

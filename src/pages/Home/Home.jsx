@@ -48,7 +48,6 @@ const initialColumns = [
 export default function Home() {
   const [open, setOpen] = useState(false);
   const [anchorElMember, setAnchorElMember] = useState(null); // Anchor cho Member Popover
-  const [anchorElFilter, setAnchorElFilter] = useState(null); // Anchor cho Filter Popover
   const [issueStatus, setIssueStatus] = useState(""); // Trạng thái của cột
 
   const handleClickMember = (event) => {
@@ -57,14 +56,6 @@ export default function Home() {
 
   const handleCloseMember = () => {
     setAnchorElMember(null); // Đóng Popover danh sách nhân viên
-  };
-
-  const handleClickFilter = (event) => {
-    setAnchorElFilter(event.currentTarget); // Mở Popover lọc công việc
-  };
-
-  const handleCloseFilter = () => {
-    setAnchorElFilter(null); // Đóng Popover lọc công việc
   };
 
   const onClose = () => {
@@ -184,14 +175,14 @@ export default function Home() {
     }));
   };
 
-  const addNewColumn = () => {
-    const newColumn = {
-      id: columns.length + 1,
-      title: "Cột mới",
-      tasks: [],
-    };
-    setColumns([...columns, newColumn]);
-  };
+  // const addNewColumn = () => {
+  //   const newColumn = {
+  //     id: columns.length + 1,
+  //     title: "Cột mới",
+  //     tasks: [],
+  //   };
+  //   setColumns([...columns, newColumn]);
+  // };
 
   return (
     <div className="home-container">
