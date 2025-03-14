@@ -34,8 +34,10 @@ export const postIssueData = async (data, token) => {
         },
       }
     );
+
     return response;
   } catch (error) {
+    console.log(error);
     throw error;
   }
 };
