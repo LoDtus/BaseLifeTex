@@ -248,114 +248,119 @@ const TaskTable = () => {
         </div>
       </div>
 
-      <table className="task-table">
-        <thead>
-          <tr>
-            <th></th> {/* Checkbox */}
-            <th>STT</th>
-            <th>Tên công việc</th>
-            <th>Người nhận việc</th>
-            <th>Bình luận</th>
-            <th>Ngày bắt đầu</th>
-            <th>Ngày kết thúc</th>
-            <th>Trạng thái</th>
-            <th>Link</th>
-          </tr>
-        </thead>
-        <tbody>
-          {tasks.map((task, index) => (
-            <tr key={task.id}>
-              <td>
-                <input type="checkbox" />
-              </td>
-              <td>{index + 1}</td>
-              <td className="task-name">
-                {editingTaskId === task.id ? (
-                  <Input
-                    ref={inputRef}
-                    type="text"
-                    value={editedTaskName}
-                    onChange={(e) => setEditedTaskName(e.target.value)}
-                    onBlur={(e) => handleBlurOrEnter(e, task.id)}
-                    onKeyDown={(e) => handleBlurOrEnter(e, task.id)}
-                  />
-                ) : (
-                  <>
-                    <img
-                      src="src/assets/image/Pen.png"
-                      alt="edit"
-                      className="edit-icon"
-                      onClick={() => handleEditClick(task.id, task.name)}
-                    />
-                    {task.name}
-                  </>
-                )}
-              </td>
-              <td className="assignees">
-                {task.assignees?.map((avatar, i) => (
-                  <img
-                    key={i}
-                    src={`image/${avatar}`}
-                    alt="user"
-                    className="avatar"
-                  />
-                ))}
-                <button className="add-user" onClick={handleClickMember}>
-                  +
-                </button>
-                <Popover
-                  open={Boolean(anchorElMember)}
-                  anchorEl={anchorElMember}
-                  onClose={handleCloseMember}
-                  anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
-                  transformOrigin={{ vertical: "top", horizontal: "left" }}
-                  sx={{ mt: 1 }}
-                >
-                  <MemberListContent onClose={handleClose} />
-                </Popover>
-              </td>
-              <td className="comment-cell">
-                <img
-                  src="src/assets/image/Chat_.png"
-                  alt="comments"
-                  className="comment-icon"
-                />
-              </td>
-              <td className="date-cell">
-                {task.startDate}
-                <img
-                  src="src/assets/image/Vector.png"
-                  alt="start-date"
-                  className="calendar-icon"
-                />
-              </td>
-              <td className="date-cell">
-                {task.endDate}
-                <img
-                  src="src/assets/image/Vector.png"
-                  alt="end-date"
-                  className="calendar-icon"
-                />
-              </td>
-              <td className="status-cell">
-                <select
-                  value={task.status}
-                  onChange={(e) => handleStatusChange(task.id, e.target.value)}
-                  className="status-select"
-                >
-                  <option value="Hoàn thành">Hoàn thành</option>
-                  <option value="Chưa hoàn thành">Chưa hoàn thành</option>
-                </select>
-              </td>
-              <td>
-                <a href={task.link} target="_blank" rel="noopener noreferrer">
-                  🔗
-                </a>
-              </td>
+      {/* Bọc table trong wrapper để cuộn ngang */}
+      <div className="table-wrapper">
+        <table className="task-table">
+          <thead>
+            <tr>
+              <th></th> {/* Checkbox */}
+              <th>STT</th>
+              <th>Tên công việc</th>
+              <th>Người nhận việc</th>
+              <th>Bình luận</th>
+              <th>Ngày bắt đầu</th>
+              <th>Ngày kết thúc</th>
+              <th>Trạng thái</th>
+              <th>Link</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {tasks.map((task, index) => (
+              <tr key={task.id}>
+                <td>
+                  <input type="checkbox" />
+                </td>
+                <td>{index + 1}</td>
+                <td className="task-name">
+                  {editingTaskId === task.id ? (
+                    <Input
+                      ref={inputRef}
+                      type="text"
+                      value={editedTaskName}
+                      onChange={(e) => setEditedTaskName(e.target.value)}
+                      onBlur={(e) => handleBlurOrEnter(e, task.id)}
+                      onKeyDown={(e) => handleBlurOrEnter(e, task.id)}
+                    />
+                  ) : (
+                    <>
+                      <img
+                        src="src/assets/image/Pen.png"
+                        alt="edit"
+                        className="edit-icon"
+                        onClick={() => handleEditClick(task.id, task.name)}
+                      />
+                      {task.name}
+                    </>
+                  )}
+                </td>
+                <td className="assignees">
+                  {task.assignees?.map((avatar, i) => (
+                    <img
+                      key={i}
+                      src={`image/${avatar}`}
+                      alt="user"
+                      className="avatar"
+                    />
+                  ))}
+                  <button className="add-user" onClick={handleClickMember}>
+                    +
+                  </button>
+                  <Popover
+                    open={Boolean(anchorElMember)}
+                    anchorEl={anchorElMember}
+                    onClose={handleCloseMember}
+                    anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
+                    transformOrigin={{ vertical: "top", horizontal: "left" }}
+                    sx={{ mt: 1 }}
+                  >
+                    <MemberListContent onClose={handleClose} />
+                  </Popover>
+                </td>
+                <td className="comment-cell">
+                  <img
+                    src="src/assets/image/Chat_.png"
+                    alt="comments"
+                    className="comment-icon"
+                  />
+                </td>
+                <td className="date-cell">
+                  {task.startDate}
+                  <img
+                    src="src/assets/image/Vector.png"
+                    alt="start-date"
+                    className="calendar-icon"
+                  />
+                </td>
+                <td className="date-cell">
+                  {task.endDate}
+                  <img
+                    src="src/assets/image/Vector.png"
+                    alt="end-date"
+                    className="calendar-icon"
+                  />
+                </td>
+                <td className="status-cell">
+                  <select
+                    value={task.status}
+                    onChange={(e) =>
+                      handleStatusChange(task.id, e.target.value)
+                    }
+                    className="status-select"
+                  >
+                    <option value="Hoàn thành">Hoàn thành</option>
+                    <option value="Chưa hoàn thành">Chưa hoàn thành</option>
+                  </select>
+                </td>
+                <td>
+                  <a href={task.link} target="_blank" rel="noopener noreferrer">
+                    🔗
+                  </a>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
       <IssueForm isOpen={open} onClose={onClose} />
     </div>
   );

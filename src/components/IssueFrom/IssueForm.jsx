@@ -16,7 +16,7 @@ import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import UploadDownloadImage from "../UploadDownloadImage/UploadDownloadImage";
 import { postIssueData } from "../../apis/Issue";
 
-export default function IssueForm({ isOpen, onClose }) {
+export default function IssueForm({ isOpen, onClose, status }) {
   const names = [
     { id: 1, name: "Oliver Hansen" },
     { id: 2, name: "Van Henry" },
@@ -31,7 +31,7 @@ export default function IssueForm({ isOpen, onClose }) {
   const [description, setDescription] = useState("");
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
-  const [imageFile, setImageFile] = useState(null); // Thêm state để lưu trữ file ảnh
+  const [imageFile, setImageFile] = useState(null);
   const [errors, setErrors] = useState({});
 
   const handleChange = (event) => {
@@ -59,18 +59,19 @@ export default function IssueForm({ isOpen, onClose }) {
     if (Object.keys(newErrors).length === 0) {
       const token = "jhgshddabjsbbdak";
 
-      await postIssueData(
-        {
-          personName,
-          issueName,
-          link,
-          description,
-          startDate,
-          endDate,
-          imageFile,
-        },
-        token
-      );
+      const issueData = {
+        personName,
+        issueName,
+        link,
+        description,
+        startDate,
+        endDate,
+        imageFile,
+        status, // Thêm status vào dữ liệu gửi đi
+      };
+
+      await postIssueData(issueData, token);
+      onClose(); // Đóng form sau khi submit thành công
     }
   };
 

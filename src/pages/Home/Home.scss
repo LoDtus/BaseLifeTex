@@ -8,7 +8,8 @@
 }
 
 .home-container {
-  width: calc(100% - 250px); // Giới hạn chiều rộng (có thể dành cho sidebar)
+  max-width: 1280px; // Giữ nguyên để dành chỗ cho sidebar
+  width: 100%;
   height: 100vh; // Đảm bảo chiếm toàn bộ chiều cao viewport
   display: flex;
   flex-direction: column;
@@ -19,9 +20,8 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 40px 0 0 0;
-  margin-right: 15px;
-  margin-left: 80px;
+  padding-top: 40px;
+  padding-left: 80px;
 
   p {
     color: #6b7280;
@@ -85,7 +85,8 @@
   flex: 1; // Chiếm toàn bộ không gian còn lại
   overflow-x: auto; // Cho phép cuộn ngang
   overflow-y: auto; // Ngăn cuộn dọc trong wrapper
-  padding: 45px 0 0 20px;
+  padding: 45px 0 0 40px;
+  margin-bottom: 50px;
 }
 
 .kanban-container {
@@ -181,9 +182,8 @@
   align-items: center;
   justify-content: end;
   gap: 16px;
-  padding: 10px 0 0px 0;
-  margin-top: 10px;
-  margin-right: 15px;
+  padding: 10px 0 0 0;
+  margin-top: 20px;
 
   .task-add {
     display: flex;
