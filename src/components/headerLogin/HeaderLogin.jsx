@@ -20,7 +20,12 @@ export default function HeaderLogin() {
         }}
       >
         <Link
-          sx={{ textDecoration: "none", fontSize: "18px", color: "white" }}
+          sx={{
+            textDecoration: "none",
+            fontSize: "18px",
+            color: "white",
+            fontFamily: "sans-serif",
+          }}
           href="#"
         >
           Lifetek Corp

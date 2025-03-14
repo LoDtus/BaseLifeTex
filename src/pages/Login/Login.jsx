@@ -19,10 +19,10 @@ import { loginUser } from "../../redux/apiRequest";
 import { useDispatch } from "react-redux";
 
 export default function Login() {
-  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
-  const [usernameError, setUsernameError] = useState("");
+  const [emailError, setEmailError] = useState("");
   const [passwordError, setPasswordError] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
@@ -30,30 +30,41 @@ export default function Login() {
 
   const handleLogin = async () => {
     setError("");
-    setUsernameError("");
+    setEmailError("");
     setPasswordError("");
 
     let hasError = false;
-    if (!username) {
-      setUsernameError("Vui lòng nhập tên đăng nhập!");
+    if (!email) {
+      setEmailError("Vui lòng nhập tên đăng nhập!");
       hasError = true;
+    } else if (!email.match(/^\S+@\S+\.\S+$/)) {
+      setEmailError("Email không hợp lệ.");
+      hasError = true;
+    } else {
+      setEmailError("");
     }
+
     if (!password) {
       setPasswordError("Vui lòng nhập mật khẩu!");
       hasError = true;
+    } else if (password.length < 6) {
+      setPasswordError("Mật khẩu phải có ít nhất 6 ký tự.");
+      hasError = true;
+    } else {
+      setPasswordError("");
     }
 
-    if (hasError) return;
-
     setLoading(true);
-
-    const newUser = { username, password };
+    const newUser = { email, password };
     const response = await loginUser(newUser, dispatch, navigate);
-
-    setLoading(false);
+    setTimeout(() => {
+      setLoading(false);
+    }, 2000);
 
     if (!response.success) {
-      setError(response.error);
+      setTimeout(() => {
+        setError(response.error);
+      }, 2000);
     }
   };
 
@@ -96,7 +107,7 @@ export default function Login() {
               <Box
                 sx={{
                   background: "linear-gradient(60deg, #26c6da, #00acc1)",
-                  margin: "15px",
+                  margin: "0 0 15px 0",
                   borderRadius: "3px",
                   padding: "15px",
                   boxShadow:
@@ -118,22 +129,40 @@ export default function Login() {
                 </Box>
               </Box>
 
-              <Box sx={{ padding: "0 20px", marginBottom: "10px" }}>
+              <Box
+                sx={{
+                  padding: "0 20px",
+                  marginBottom: "10px",
+                  position: "relative",
+                }}
+              >
                 <TextField
                   label="Tên đăng nhập"
                   variant="standard"
                   fullWidth
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}
-                  error={!!usernameError}
-                  helperText={usernameError}
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  error={!!emailError}
+                  helperText={emailError}
+                  inputProps={{ style: { width: "85%" } }}
                 />
                 <EmailIcon
-                  sx={{ fontSize: "27px", position: "absolute", right: "30px" }}
+                  sx={{
+                    fontSize: "27px",
+                    position: "absolute",
+                    right: "20px",
+                    top: "17px",
+                  }}
                 />
               </Box>
 
-              <Box sx={{ padding: "0 20px", marginBottom: "10px" }}>
+              <Box
+                sx={{
+                  padding: "0 20px",
+                  marginBottom: "10px",
+                  position: "relative",
+                }}
+              >
                 <TextField
                   label="Mật Khẩu"
                   type="password"
@@ -143,9 +172,15 @@ export default function Login() {
                   onChange={(e) => setPassword(e.target.value)}
                   error={!!passwordError}
                   helperText={passwordError}
+                  inputProps={{ style: { width: "85%" } }}
                 />
                 <LockIcon
-                  sx={{ fontSize: "27px", position: "absolute", right: "30px" }}
+                  sx={{
+                    fontSize: "27px",
+                    position: "absolute",
+                    right: "20px",
+                    top: "17px",
+                  }}
                 />
               </Box>
 
