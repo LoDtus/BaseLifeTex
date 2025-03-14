@@ -1,22 +1,48 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom"; // Import useNavigate for navigation
 
 import styles from "./Navbar.module.scss";
 import ProjectCard from "../../../components/projectCard/ProjectCard";
-import { dataProject } from "../../../data/dataProject";
 import { getLstProject } from "../../../apis/project";
+import Loading from "../../../components/Loading/Loading";
+
 export default function Navbar() {
   const [lstProject, setLstProject] = useState([]);
+  const [loading, setLoading] = useState(true); // State for loading
+  const navigate = useNavigate(); // Initialize navigate
+
   const fetchProjects = async () => {
+    setLoading(true); // Start loading
     try {
       const response = await getLstProject();
-      setLstProject(response);
+      if (Array.isArray(response)) {
+        setLstProject(response);
+
+        // Set default idProject to the first project's _id
+        if (response.length > 0) {
+          const firstProjectId = response[0]._id;
+          const currentUrl = new URL(window.location.href);
+          currentUrl.searchParams.set("idProject", firstProjectId);
+          navigate(`${currentUrl.pathname}${currentUrl.search}`);
+        }
+      }
     } catch (err) {
       console.error("Failed to fetch projects:", err);
+    } finally {
+      setLoading(false); // End loading
     }
   };
+
+  const handleProjectClick = (projectId) => {
+    const currentUrl = new URL(window.location.href);
+    currentUrl.searchParams.set("idProject", projectId); // Add or update idProject in URL
+    navigate(`${currentUrl.pathname}${currentUrl.search}`); // Navigate to the updated URL
+  };
+
   useEffect(() => {
     fetchProjects();
   }, []);
+
   return (
     <div className={styles.navbar}>
       <div className={styles.headerNavbar}>
@@ -56,9 +82,18 @@ export default function Navbar() {
         <div className={styles.projectListTitle}>Danh sách dự án tham gia</div>
       </div>
       <div className={styles.bodyNavbar}>
-        {lstProject?.map((project, index) => (
-          <ProjectCard key={index} project={project} />
-        ))}
+        {loading ? (
+          <Loading />
+        ) : (
+          lstProject.map((project, index) => (
+            <div
+              key={index}
+              onClick={() => handleProjectClick(project._id)} // Add onClick handler
+            >
+              <ProjectCard project={project} />
+            </div>
+          ))
+        )}
       </div>
     </div>
   );
