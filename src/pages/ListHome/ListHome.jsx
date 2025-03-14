@@ -1,10 +1,12 @@
-import { useState, useEffect } from "react"; // Thêm useEffect nếu muốn lưu vào localStorage
+import { useState, useEffect, useRef } from "react"; // Thêm useEffect nếu muốn lưu vào localStorage
 import "./ListHome.scss";
 import "../Home/Home.scss";
 import { useNavigate } from "react-router-dom";
 import IssueForm from "../../components/IssueFrom/IssueForm";
 import Popover from "@mui/material/Popover";
 import FilterDialog from "../../components/FilterForm/FilterDialog";
+import { Input } from "@mui/material";
+import MemberListContent from "../../components/memberList/MemberList";
 
 const initialTasks = [
   {
@@ -62,6 +64,7 @@ const initialTasks = [
 const TaskTable = () => {
   const navigate = useNavigate();
   const [anchorEl, setAnchorEl] = useState(null);
+  const [anchorElMember, setAnchorElMember] = useState(null);
 
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
@@ -69,6 +72,14 @@ const TaskTable = () => {
 
   const handleClose = () => {
     setAnchorEl(null);
+  };
+
+  const handleClickMember = (event) => {
+    setAnchorElMember(event.currentTarget);
+  };
+
+  const handleCloseMember = () => {
+    setAnchorElMember(null);
   };
 
   const [open, setOpen] = useState(false);
@@ -105,13 +116,24 @@ const TaskTable = () => {
     localStorage.setItem("taskList", JSON.stringify(tasks));
   }, [tasks]);
 
-  // Hàm xử lý thay đổi trạng thái
-  const handleStatusChange = (taskId, newStatus) => {
+  const [editingTaskId, setEditingTaskId] = useState(null);
+  const [editedTaskName, setEditedTaskName] = useState(""); // Lưu giá trị nhập vào
+  const inputRef = useRef(null);
+
+  const handleEditClick = (taskId, currentName) => {
+    setEditingTaskId(taskId);
+    setEditedTaskName(currentName);
+  };
+
+  const handleBlurOrEnter = (event, taskId) => {
+    if (event.type === "keydown" && event.key !== "Enter") return;
     setTasks((prevTasks) =>
       prevTasks.map((task) =>
-        task.id === taskId ? { ...task, status: newStatus } : task
+        task.id === taskId ? { ...task, name: editedTaskName } : task
       )
     );
+    localStorage.setItem("taskList", JSON.stringify(tasks));
+    setEditingTaskId(null);
   };
   return (
     <div className="task-table-container">
@@ -248,17 +270,26 @@ const TaskTable = () => {
               </td>
               <td>{index + 1}</td>
               <td className="task-name">
-                <img
-                  src="src/assets/image/Pen.png"
-                  alt="edit"
-                  className="edit-icon"
-                />
-                <img
-                  src="src/assets/image/Pen.png"
-                  alt="edit"
-                  className="edit-icon"
-                />
-                {task.name}
+                {editingTaskId === task.id ? (
+                  <Input
+                    ref={inputRef}
+                    type="text"
+                    value={editedTaskName}
+                    onChange={(e) => setEditedTaskName(e.target.value)}
+                    onBlur={(e) => handleBlurOrEnter(e, task.id)}
+                    onKeyDown={(e) => handleBlurOrEnter(e, task.id)}
+                  />
+                ) : (
+                  <>
+                    <img
+                      src="src/assets/image/Pen.png"
+                      alt="edit"
+                      className="edit-icon"
+                      onClick={() => handleEditClick(task.id, task.name)}
+                    />
+                    {task.name}
+                  </>
+                )}
               </td>
               <td className="assignees">
                 {task.assignees?.map((avatar, i) => (
@@ -269,7 +300,19 @@ const TaskTable = () => {
                     className="avatar"
                   />
                 ))}
-                <button className="add-user">+</button>
+                <button className="add-user" onClick={handleClickMember}>
+                  +
+                </button>
+                <Popover
+                  open={Boolean(anchorElMember)}
+                  anchorEl={anchorElMember}
+                  onClose={handleCloseMember}
+                  anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
+                  transformOrigin={{ vertical: "top", horizontal: "left" }}
+                  sx={{ mt: 1 }}
+                >
+                  <MemberListContent onClose={handleClose} />
+                </Popover>
               </td>
               <td className="comment-cell">
                 <img

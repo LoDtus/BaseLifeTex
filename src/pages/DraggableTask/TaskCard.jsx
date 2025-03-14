@@ -1,4 +1,6 @@
 import { useDraggable } from "@dnd-kit/core";
+import { Input } from "@mui/material";
+import React, { useRef, useState } from "react";
 
 export default function TaskCard({
   task,
@@ -8,6 +10,23 @@ export default function TaskCard({
   const { attributes, listeners, setNodeRef, transform } = useDraggable({
     id: String(task?.id || ""),
   });
+
+  const [title, setTitle] = useState(task.title || "");
+
+  const [isEditing, setIsEditing] = useState(false);
+  const inputRef = useRef(null);
+
+  const handleEditClick = (e) => {
+    e.stopPropagation();
+    setIsEditing(true);
+    setTimeout(() => inputRef.current?.focus(), 0); // Tự động focus vào input
+  };
+
+  // Khi người dùng nhấn Enter hoặc click ra ngoài thì lưu giá trị mới
+  const handleBlurOrEnter = (event) => {
+    if (event.type === "keydown" && event.key !== "Enter") return;
+    setIsEditing(false);
+  };
 
   const style = transform
     ? {
@@ -28,9 +47,31 @@ export default function TaskCard({
       className="kanban-card"
     >
       <div className="task-content">
-        <p>
-          {task.title} <span>✏️</span>
-        </p>
+        <div>
+          {isEditing ? (
+            <Input
+              ref={inputRef}
+              type="text"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              onBlur={handleBlurOrEnter}
+              onKeyDown={handleBlurOrEnter}
+              onPointerDown={(e) => e.stopPropagation()}
+            />
+          ) : (
+            <p>
+              {title}
+              <span
+                style={{ cursor: "pointer" }}
+                onPointerDown={(e) => e.stopPropagation()}
+                onMouseDown={handleEditClick} // Dùng onMouseDown thay vì onClick
+              >
+                ✏️
+              </span>
+            </p>
+          )}
+        </div>
+
         <input
           type="checkbox"
           checked={checkedTasks[task.id] || false}
