@@ -13,19 +13,25 @@ export default function Column({
   onOpen,
 }) {
   const { setNodeRef } = useDroppable({
-    id: String(columnId), // Đảm bảo ID khớp với handleDragEnd
+    id: String(columnId),
   });
 
   if (!column || !column.tasks) {
     return <div>Lỗi: Column không hợp lệ</div>;
   }
 
+  const handleAddIssue = () => {
+    onOpen(column.title); // Truyền title của cột khi nhấn nút
+  };
+
   return (
     <div ref={setNodeRef} className="kanban-column">
       <h3>
         {column.title}: {column.tasks.length}
       </h3>
-      <button onClick={onOpen} className="add-task">➕ Thêm vấn đề</button>
+      <button onClick={handleAddIssue} className="add-task">
+        ➕ Thêm vấn đề
+      </button>
       <SortableContext
         id={String(columnId)}
         items={column.tasks.map((task) => String(task.id))}
@@ -37,7 +43,6 @@ export default function Column({
             task={task}
             checkedTasks={checkedTasks}
             handleCheckboxChange={handleCheckboxChange}
-            
           />
         ))}
       </SortableContext>

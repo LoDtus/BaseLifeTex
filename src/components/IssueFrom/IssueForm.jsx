@@ -35,7 +35,7 @@ export default function IssueForm({ isOpen, onClose, status }) {
   const [description, setDescription] = useState("");
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
-  const [imageFile, setImageFile] = useState(null); // Thêm state để lưu trữ file ảnh
+  const [imageFile, setImageFile] = useState(null);
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
   const idProject = params.get("idProject");
