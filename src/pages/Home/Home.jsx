@@ -41,9 +41,7 @@ const initialColumns = [
   {
     id: 4,
     title: "Kết thúc",
-    tasks: [
-      { id: 9, title: "test", project: "Kan-1", assignee: "HuyNQ" },
-    ],
+    tasks: [{ id: 9, title: "test", project: "Kan-1", assignee: "HuyNQ" }],
   },
 ];
 
@@ -77,16 +75,6 @@ export default function Home() {
   const openModal = (status) => {
     setIssueStatus(status); // Lưu trạng thái của cột
     setOpen(true);
-  };
-
-  const [anchorElFilter, setAnchorElFilter] = useState(null);
-
-  const handleClickFilter = (event) => {
-    setAnchorElFilter(event.currentTarget);
-  };
-
-  const handleCloseFilter = () => {
-    setAnchorElFilter(null);
   };
 
   const openFiter = Boolean(anchorElFilter);
@@ -319,7 +307,10 @@ export default function Home() {
       {/* Bọc bảng Kanban trong một container cuộn ngang */}
       <div className="kanban-wrapper">
         {/* Bảng Kanban */}
-        <DndContext collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+        <DndContext
+          collisionDetection={closestCenter}
+          onDragEnd={handleDragEnd}
+        >
           <div className="kanban-container">
             {columns.map((column) => (
               <Column

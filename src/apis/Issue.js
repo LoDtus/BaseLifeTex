@@ -1,11 +1,11 @@
 import axios from "axios";
 
-const backendUrl = import.meta.env.VITE_BACKEND_URL_KHOA;
+const backendUrl = import.meta.env.VITE_BACKEND_URL;
 
 export const postIssueData = async (data, token) => {
   try {
     const response = await axios.post(
-      `${backendUrl}/issues`,
+      `${backendUrl}/tasks/create-task`,
       {
         assigneeId: data.personName,
         title: data.issueName,
@@ -16,6 +16,7 @@ export const postIssueData = async (data, token) => {
         images: data.imageFile,
         status: data.status,
         projectId: data.projectId,
+        assignerId: "65f0b8d0fbd3a6e9f8e2c9d4",
       },
       {
         headers: {
