@@ -82,6 +82,14 @@ const TaskTable = () => {
     setAnchorElMember(null); // Đóng Popover Member
   };
 
+  const handleClickMemberAdd = (event) => {
+    setAnchorElMemberAdd(event.currentTarget);
+  };
+
+  const handleCloseMemberAdd = () => {
+    setAnchorElMemberAdd(null);
+  };
+
   const [open, setOpen] = useState(false);
   const [issueStatus, setIssueStatus] = useState("");
 
@@ -199,7 +207,6 @@ const TaskTable = () => {
               placeholder="Tìm kiếm..."
               className="pl-10 pr-4 py-2 border rounded-md w-64"
             />
-
             {/* Danh sách avatar */}
             <div className="flex -space-x-2 overflow-hidden">
               {[

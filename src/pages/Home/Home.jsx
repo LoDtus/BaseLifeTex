@@ -7,7 +7,7 @@ import Column from "../DraggableTask/Column";
 import IssueForm from "../../components/IssueFrom/IssueForm";
 import { Popover } from "@mui/material";
 import MemberListContent from "../../components/memberList/MemberList";
-import FilterDialog from "../../components/FilterForm/FilterDialog"; // Thêm import FilterDialog
+import FilterDialog from "../../components/FilterForm/FilterDialog";
 
 // Dữ liệu ban đầu
 const initialColumns = [
@@ -78,6 +78,19 @@ export default function Home() {
     setIssueStatus(status); // Lưu trạng thái của cột
     setOpen(true);
   };
+
+  const [anchorElFilter, setAnchorElFilter] = useState(null);
+
+  const handleClickFilter = (event) => {
+    setAnchorElFilter(event.currentTarget);
+  };
+
+  const handleCloseFilter = () => {
+    setAnchorElFilter(null);
+  };
+
+  const openFiter = Boolean(anchorElFilter);
+  const id = openFiter ? "simple-popover" : undefined;
 
   const navigate = useNavigate();
 
@@ -271,10 +284,22 @@ export default function Home() {
             <div className="task-icons">
               <img src="image/Trash.png" alt="List" />
               <img
-                src="src/assets/image/Filter.png" // Cập nhật đường dẫn nếu cần
+                src="image/Filter.png"
                 alt="Columns"
-                onClick={handleClickFilter} // Gắn sự kiện mở Popover Filter
+                onClick={handleClickFilter}
               />
+              <Popover
+                id={id}
+                open={openFiter}
+                anchorEl={anchorElFilter}
+                onClose={handleCloseFilter}
+                anchorOrigin={{
+                  vertical: "bottom",
+                  horizontal: "left",
+                }}
+              >
+                <FilterDialog />
+              </Popover>
             </div>
             {/* Popover cho lọc công việc */}
             <Popover
