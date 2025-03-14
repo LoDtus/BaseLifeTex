@@ -1,11 +1,12 @@
-import { useState,useEffect } from "react";
+import { useState } from "react";
 import "./Home.scss";
 import { useNavigate } from "react-router-dom";
 import { DndContext, closestCenter } from "@dnd-kit/core";
 import { arrayMove } from "@dnd-kit/sortable";
 import Column from "../DraggableTask/Column";
 import IssueForm from "../../components/IssueFrom/IssueForm";
-
+import { Popover } from "@mui/material";
+import MemberListContent from "../../components/memberList/MemberList";
 
 // Dữ liệu ban đầu
 const initialColumns = [
@@ -22,7 +23,9 @@ const initialColumns = [
   {
     id: 2,
     title: "Đang thực hiện",
-    tasks: [{ id: 4, title: "fix sidebar", project: "Kan-1", assignee: "HuyNQ" }],
+    tasks: [
+      { id: 4, title: "fix sidebar", project: "Kan-1", assignee: "HuyNQ" },
+    ],
   },
   {
     id: 3,
@@ -37,49 +40,51 @@ const initialColumns = [
   {
     id: 4,
     title: "Kết thúc",
-    tasks: [{ id: 9, title: "note", project: "Kan-1", assignee: "HuyNQ" }],
-  },
-  {
-    id: 5,
-    title: "Kết thúc",
-    tasks: [{ id: 10, title: "note", project: "Kan-1", assignee: "HuyNQ" }],
+    tasks: [
+      { id: 9, title: "test", project: "Kan-1", assignee: "HuyNQ" },
+    ],
   },
 ];
 
 export default function Home() {
   const [open, setOpen] = useState(false);
+  const [anchorEl, setAnchorEl] = useState(null);
+  const [issueStatus, setIssueStatus] = useState(""); // Trạng thái của cột
+
+  const handleClick = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
 
   const onClose = () => {
     setOpen(false);
+    setIssueStatus(""); // Reset trạng thái khi đóng form
   };
 
-  const openModal = () => {
+  const openModal = (status) => { // Sửa hàm để nhận status
+    setIssueStatus(status); // Lưu trạng thái của cột
     setOpen(true);
   };
 
   const navigate = useNavigate();
 
-  // Khởi tạo columns từ localStorage nếu có, nếu không thì dùng initialColumns
-  const [columns, setColumns] = useState(() => {
-    const savedColumns = localStorage.getItem("kanbanColumns");
-    return savedColumns ? JSON.parse(savedColumns) : initialColumns;
-  });
+  const [columns, setColumns] = useState(initialColumns);
   const [checkedTasks, setCheckedTasks] = useState({});
-
-  // Lưu columns vào localStorage mỗi khi nó thay đổi
-  useEffect(() => {
-    localStorage.setItem("kanbanColumns", JSON.stringify(columns));
-  }, [columns]);
 
   const handleDragEnd = (event) => {
     const { active, over } = event;
-  
+
     if (!over) return;
-  
-    const activeId = active.id; // ID của task được kéo
-    const overId = over.id; // ID của đích (có thể là task hoặc column)
-  
-    // Tìm cột chứa task đang được kéo
+
+    const activeId = active.id;
+    const overId = over.id;
+
+    console.log("Dragged Task ID:", activeId);
+    console.log("Over ID:", overId);
+
     const activeColumn = columns.find((col) =>
       col.tasks.some((task) => String(task.id) === String(activeId))
     );
@@ -87,36 +92,38 @@ export default function Home() {
       console.error("Không tìm thấy cột nguồn!");
       return;
     }
-  
-    // Tìm task đang được kéo
-    const activeTask = activeColumn.tasks.find((task) => String(task.id) === String(activeId));
+
+    const activeTask = activeColumn.tasks.find(
+      (task) => String(task.id) === String(activeId)
+    );
     if (!activeTask) {
       console.error("Không tìm thấy task được kéo!");
       return;
     }
-  
-    // Tìm cột đích (nơi thả)
+
     let overColumn = columns.find((col) => String(col.id) === String(overId));
     let isOverTask = false;
-  
+
     if (!overColumn) {
-      // Nếu overId không phải là ID của cột, kiểm tra xem nó có phải là ID của task không
       overColumn = columns.find((col) =>
         col.tasks.some((task) => String(task.id) === String(overId))
       );
       isOverTask = true;
     }
-  
+
     if (!overColumn) {
       console.error("Không tìm thấy cột đích!");
       return;
     }
-  
-    // Nếu kéo trong cùng cột
+
     if (activeColumn.id === overColumn.id) {
       if (isOverTask) {
-        const oldIndex = activeColumn.tasks.findIndex((task) => String(task.id) === String(activeId));
-        const newIndex = activeColumn.tasks.findIndex((task) => String(task.id) === String(overId));
+        const oldIndex = activeColumn.tasks.findIndex(
+          (task) => String(task.id) === String(activeId)
+        );
+        const newIndex = activeColumn.tasks.findIndex(
+          (task) => String(task.id) === String(overId)
+        );
         if (oldIndex !== newIndex) {
           const newTasks = arrayMove(activeColumn.tasks, oldIndex, newIndex);
           setColumns(
@@ -129,21 +136,21 @@ export default function Home() {
       }
       return;
     }
-  
-    // Nếu kéo sang cột khác
-    const newActiveTasks = activeColumn.tasks.filter((task) => String(task.id) !== String(activeId));
-    const newOverTasks = [...overColumn.tasks];
-  
+
+    const newActiveTasks = activeColumn.tasks.filter(
+      (task) => String(task.id) !== String(activeId)
+    );
+    let newOverTasks = [...overColumn.tasks];
+
     if (isOverTask) {
-      // Chèn task vào vị trí của task đích
-      const overTaskIndex = overColumn.tasks.findIndex((task) => String(task.id) === String(overId));
+      const overTaskIndex = overColumn.tasks.findIndex(
+        (task) => String(task.id) === String(overId)
+      );
       newOverTasks.splice(overTaskIndex, 0, activeTask);
     } else {
-      // Thêm task vào cuối cột đích
       newOverTasks.push(activeTask);
     }
-  
-    // Cập nhật state với các cột đã chỉnh sửa
+
     setColumns(
       columns.map((col) =>
         col.id === activeColumn.id
@@ -153,25 +160,43 @@ export default function Home() {
           : col
       )
     );
-    console.log("Đã chuyển task sang cột khác:", { newActiveTasks, newOverTasks });
+    console.log("Đã chuyển task sang cột khác:", {
+      newActiveTasks,
+      newOverTasks,
+    });
   };
+
   const handleCheckboxChange = (taskId) => {
     setCheckedTasks((prev) => ({
       ...prev,
       [taskId]: !prev[taskId],
     }));
   };
+
+  const addNewColumn = () => {
+    const newColumn = {
+      id: columns.length + 1,
+      title: "Cột mới",
+      tasks: [],
+    };
+    setColumns([...columns, newColumn]);
+  };
+
   return (
     <div className="home-container">
-
-       {/* Header Section */}
-       <div className="header-section flex items-center justify-between p-4 border-b">
+      {/* Header Section */}
+      <div className="header-section flex items-center justify-between p-4 border-b">
         {/* Logo */}
         <div className="header-container flex items-center gap-4">
           <p className="text-gray-500 text-sm">Dự án / Phần mềm đánh giá</p>
           <div className="flex items-center gap-2">
-            <img src='image/Column.png' alt="LIFETEK" className="logo-img" />
-            <img onClick={() => navigate("/ListHome")} src='image/List.png' alt="LIFETEK" className="logo-img" />
+            <img src="image/Column.png" alt="LIFETEK" className="logo-img" />
+            <img
+              onClick={() => navigate("/ListHome")}
+              src="image/List.png"
+              alt="LIFETEK"
+              className="logo-img"
+            />
           </div>
         </div>
 
@@ -199,39 +224,49 @@ export default function Home() {
               className="pl-10 pr-4 py-2 border rounded-md w-64"
             />
 
-          {/* Danh sách avatar */}
-         {/* Danh sách avatar với hình ảnh */}
-          <div className="flex -space-x-2 overflow-hidden">
-            {[
-              "image/image_4.png",
-              "image/image_5.png",
-              "image/image_6.png",
-              "image/image_7.png",
-              "image/image_8.png",
-              "image/dot.png"
-            ].map((avatar, index) => (
-              <img
-                key={index}
-                src={avatar}
-                alt={`Avatar ${index + 1}`}
-                className="w-8 h-8 rounded-full border border-white shadow"
-              />
-            ))}
+            {/* Danh sách avatar */}
+            <div className="flex -space-x-2 overflow-hidden">
+              {[
+                "image/image_4.png",
+                "image/image_5.png",
+                "image/image_6.png",
+                "image/image_7.png",
+                "image/image_8.png",
+                "image/dot.png",
+              ].map((avatar, index) => (
+                <img
+                  onClick={handleClick}
+                  key={index}
+                  src={avatar}
+                  alt={`Avatar ${index + 1}`}
+                  className="w-8 h-8 rounded-full border border-white shadow"
+                />
+              ))}
+            </div>
           </div>
-          </div>
+
+          <Popover
+            open={Boolean(anchorEl)}
+            anchorEl={anchorEl}
+            onClose={handleClose}
+            anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
+            transformOrigin={{ vertical: "top", horizontal: "left" }}
+            sx={{ mt: 1 }}
+          >
+            <MemberListContent onClose={handleClose} />
+          </Popover>
 
           <div className="task-header">
-          <div className="task-icons">
-            <img src="image/Trash.png" alt="List" />
-            <img src="image/Filter.png" alt="Columns" />
+            <div className="task-icons">
+              <img src="image/Trash.png" alt="List" />
+              <img src="image/Filter.png" alt="Columns" />
+            </div>
           </div>
+        </div>
       </div>
 
-        </div>
-
-     </div>
-    {/* Bọc bảng Kanban trong một container cuộn ngang */}
-    <div className="kanban-wrapper">
+      {/* Bọc bảng Kanban trong một container cuộn ngang */}
+      <div className="kanban-wrapper">
         {/* Bảng Kanban */}
         <DndContext collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
           <div className="kanban-container">
@@ -242,13 +277,13 @@ export default function Home() {
                 column={column}
                 checkedTasks={checkedTasks}
                 handleCheckboxChange={handleCheckboxChange}
-                onOpen={openModal}
+                onOpen={openModal} // Truyền hàm openModal
               />
             ))}
           </div>
         </DndContext>
       </div>
-      <IssueForm isOpen={open} onClose={onClose} />
+      <IssueForm isOpen={open} onClose={onClose} status={issueStatus} /> {/* Truyền status */}
     </div>
   );
 }

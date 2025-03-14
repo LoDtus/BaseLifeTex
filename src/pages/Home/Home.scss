@@ -9,7 +9,7 @@
 .home-container {
   max-width: 1280px; // Giữ nguyên để dành chỗ cho sidebar
   width: 100%;
-  height: 100%; // Đảm bảo chiếm toàn bộ chiều cao viewport
+  height: 100vh; // Đảm bảo chiếm toàn bộ chiều cao viewport
   display: flex;
   flex-direction: column;
   overflow: hidden; // Ngăn cuộn toàn trang
@@ -82,8 +82,9 @@
 .kanban-wrapper {
   flex: 1; // Chiếm toàn bộ không gian còn lại
   overflow-x: auto; // Cho phép cuộn ngang
-  overflow-y: hidden; // Ngăn cuộn dọc trong wrapper
-  padding: 45px 0 0 20px;
+  overflow-y: auto; // Ngăn cuộn dọc trong wrapper
+  padding: 45px 0 0 40px;
+  margin-bottom: 50px;
 }
 
 .kanban-container {
