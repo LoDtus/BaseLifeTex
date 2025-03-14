@@ -13,27 +13,69 @@ import bgImage from "../../assets/image/bg_login.jpg";
 import FaceIcon from "@mui/icons-material/Face";
 import EmailIcon from "@mui/icons-material/Email";
 import LockIcon from "@mui/icons-material/Lock";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { registerUser } from "../../redux/apiRequest";
 
 export default function Register() {
   const [email, setEmail] = useState("");
-  const [username, setUsername] = useState("");
+  const [userName, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [error, setError] = useState({});
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const handleResigter = () => {
+  const validateInputs = () => {
+    let newErrors = {};
+    if (!userName) {
+      newErrors.userName = "Tên đăng nhập không được để trống.";
+    } else if (userName.length < 6) {
+      newErrors.userName = "Tên đăng nhập phải có ít nhất 6 ký tự.";
+    }
+    if (!email.match(/^\S+@\S+\.\S+$/)) {
+      newErrors.email = "Email không hợp lệ.";
+    } else {
+      newErrors.email = " ";
+    }
+    if (password.length < 6)
+      newErrors.password = "Mật khẩu phải có ít nhất 6 ký tự.";
+    if (password !== confirmPassword)
+      newErrors.confirmPassword = "Mật khẩu xác nhận không trùng khớp.";
+    return newErrors;
+  };
+  const handleRegister = () => {
+    const validationErrors = validateInputs();
+    if (Object.keys(validationErrors).length > 0) {
+      setError(validationErrors);
+      toast.error("Vui lòng kiểm tra lại thông tin đăng ký!", {
+        autoClose: 3000,
+      });
+      return;
+    }
     const newUser = {
       email: email,
-      username: username,
+      userName: userName,
       password: password,
+      confirmPassword: confirmPassword,
     };
-    registerUser(newUser, dispatch, navigate);
+    console.log("Dữ liệu gửi lên API:", newUser);
+    registerUser(newUser, dispatch, navigate)
+      .then(() => {
+        toast.success(
+          "Đăng ký thành công! Vui lòng check Email để xác thực. ",
+          { autoClose: 3000 }
+        );
+      })
+      .catch(() => {
+        toast.error("Đăng ký thất bại, vui lòng thử lại!", { autoClose: 3000 });
+      });
   };
 
   return (
     <>
+      <ToastContainer />
       <Box
         sx={{
           backgroundImage: `url(${bgImage})`,
@@ -55,14 +97,14 @@ export default function Register() {
             sx={{
               maxWidth: "930px",
               width: "100%",
-              height: "555px",
+              height: "600px",
               backgroundColor: "white",
               margin: "0 auto",
               borderRadius: "6px",
             }}
           >
             <Typography
-              sx={{ textAlign: "center", fontSize: "32px", padding: "40px 0" }}
+              sx={{ textAlign: "center", fontSize: "32px", padding: "25px 0" }}
             >
               Resigter
             </Typography>
@@ -194,55 +236,162 @@ export default function Register() {
                   >
                     or be classical
                   </Typography>
+                  <Box sx={{ position: "relative" }}>
+                    <FaceIcon
+                      sx={{
+                        marginRight: "20px",
+                        position: "absolute",
+                        right: "27px",
+                        top: "26px",
+                      }}
+                    />
+                    <Box sx={{ display: "flex", justifyContent: "center" }}>
+                      <Input
+                        sx={{
+                          paddingTop: "15px",
+                          paddingBottom: "10px",
+                          width: "75%",
+                        }}
+                        placeholder="UserName"
+                        onChange={(e) => setUsername(e.target.value)}
+                      />
+                    </Box>
+
+                    {error.userName && (
+                      <Typography
+                        sx={{
+                          textAlign: "center",
+                          fontSize: "12px",
+                          marginTop: "5px",
+                        }}
+                        color="error"
+                      >
+                        {error.userName}
+                      </Typography>
+                    )}
+                  </Box>
+
                   <Box
                     sx={{
-                      display: "flex",
-                      justifyContent: "center",
-                      alignItems: "end",
+                      position: "relative",
                     }}
                   >
-                    <FaceIcon sx={{ marginRight: "20px" }} />
-                    <Input
-                      sx={{ paddingTop: "18px", paddingBottom: "10px" }}
-                      placeholder="UserName"
-                      onChange={(e) => setUsername(e.target.value)}
+                    <EmailIcon
+                      sx={{
+                        marginRight: "20px",
+                        position: "absolute",
+                        right: "27px",
+                        top: "26px",
+                      }}
                     />
+                    <Box sx={{ display: "flex", justifyContent: "center" }}>
+                      <Input
+                        sx={{
+                          paddingTop: "15px",
+                          paddingBottom: "10px",
+                          width: "75%",
+                        }}
+                        placeholder="Email"
+                        onChange={(e) => setEmail(e.target.value)}
+                      />
+                    </Box>
+
+                    {error.email && (
+                      <Typography
+                        sx={{
+                          fontSize: "12px",
+                          marginTop: "5px",
+                          textAlign: "center",
+                        }}
+                        color="error"
+                      >
+                        {error.email}
+                      </Typography>
+                    )}
                   </Box>
+
                   <Box
                     sx={{
-                      display: "flex",
-                      justifyContent: "center",
-                      alignItems: "end",
+                      position: "relative",
                     }}
                   >
-                    <EmailIcon sx={{ marginRight: "20px" }} />
-                    <Input
-                      sx={{ paddingTop: "18px", paddingBottom: "10px" }}
-                      placeholder="Email"
-                      onChange={(e) => setEmail(e.target.value)}
+                    <LockIcon
+                      sx={{
+                        marginRight: "20px",
+                        position: "absolute",
+                        right: "27px",
+                        top: "26px",
+                      }}
                     />
+                    <Box sx={{ display: "flex", justifyContent: "center" }}>
+                      <Input
+                        sx={{
+                          paddingTop: "15px",
+                          paddingBottom: "10px",
+                          width: "75%",
+                        }}
+                        placeholder="PassWord"
+                        type="password"
+                        onChange={(e) => setPassword(e.target.value)}
+                      />
+                    </Box>
                   </Box>
+                  {error.password && (
+                    <Typography
+                      sx={{
+                        fontSize: "12px",
+                        marginTop: "5px",
+                        textAlign: "center",
+                      }}
+                      color="error"
+                    >
+                      {error.password}
+                    </Typography>
+                  )}
                   <Box
                     sx={{
-                      display: "flex",
-                      justifyContent: "center",
-                      alignItems: "end",
-                      width: "100%",
+                      position: "relative",
                     }}
                   >
-                    <LockIcon sx={{ marginRight: "20px" }} />
-                    <Input
-                      sx={{ paddingTop: "18px", paddingBottom: "10px" }}
-                      placeholder="PassWord"
-                      type="password"
-                      onChange={(e) => setPassword(e.target.value)}
+                    <LockIcon
+                      sx={{
+                        marginRight: "20px",
+                        position: "absolute",
+                        right: "27px",
+                        top: "26px",
+                      }}
                     />
+                    <Box sx={{ display: "flex", justifyContent: "center" }}>
+                      <Input
+                        sx={{
+                          paddingTop: "15px",
+                          paddingBottom: "10px",
+                          width: "75%",
+                        }}
+                        placeholder="Confirm Password"
+                        type="password"
+                        onChange={(e) => setConfirmPassword(e.target.value)}
+                      />
+                    </Box>
+                    {error.confirmPassword && (
+                      <Typography
+                        sx={{
+                          fontSize: "12px",
+                          marginTop: "5px",
+                          textAlign: "center",
+                        }}
+                        color="error"
+                      >
+                        {error.confirmPassword}
+                      </Typography>
+                    )}
                   </Box>
+
                   <Box sx={{ display: "flex", justifyContent: "center" }}>
                     <Button
-                      sx={{ borderRadius: "20px", margin: "10px 0" }}
+                      sx={{ borderRadius: "20px", margin: "15px 0" }}
                       variant="contained"
-                      onClick={handleResigter()}
+                      onClick={handleRegister}
                     >
                       Get Started
                     </Button>
