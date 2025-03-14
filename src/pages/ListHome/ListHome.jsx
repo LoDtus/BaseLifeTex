@@ -109,95 +109,93 @@ const TaskTable = () => {
   };
   return (
     <div className="task-table-container">
-      {/* Header Section */}
-      <div className="header-section flex items-center justify-between p-4 border-b">
-        {/* Logo */}
-        <div className="header-container1 flex items-center gap-4">
-          <p className="text-gray-500 text-sm">Dự án / Phần mềm đánh giá</p>
-          <div className="flex items-center gap-2">
-            <img
-              onClick={() => navigate("/")}
-              src="src/assets/image/Column.png"
-              alt="LIFETEK"
-              className="logo-img"
-            />
-            <img
-              src="src/assets/image/List.png"
-              alt="LIFETEK"
-              className="logo-img"
-            />
-          </div>
-        </div>
-
-        {/* Tìm kiếm & Avatars */}
-        <div className="flex items-center gap-4">
-          {/* Ô tìm kiếm */}
-          <div className="search-container relative flex items-center">
-            <svg
-              className="search-icon absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-500"
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M21 21l-4.35-4.35m2.6-5.15a7 7 0 11-14 0 7 7 0 0114 0z"
-              />
-            </svg>
-            <input
-              type="text"
-              placeholder="Tìm kiếm..."
-              className="pl-10 pr-4 py-2 border rounded-md w-64"
-            />
-
-            {/* Danh sách avatar */}
-            {/* Danh sách avatar với hình ảnh */}
-            <div className="flex -space-x-2 overflow-hidden">
-              {[
-                "src/assets/image/image_4.png",
-                "src/assets/image/image_5.png",
-                "src/assets/image/image_6.png",
-                "src/assets/image/image_7.png",
-                "src/assets/image/image_8.png",
-                "src/assets/image/dot.png",
-              ].map((avatar, index) => (
-                <img
-                  onClick={handleClick}
-                  key={index}
-                  src={avatar}
-                  alt={`Avatar ${index + 1}`}
-                  className="w-8 h-8 rounded-full border border-white shadow"
-                />
-              ))}
-            </div>
-            <Popover
-              open={Boolean(anchorEl)}
-              anchorEl={anchorEl}
-              onClose={handleClose}
-              anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
-              transformOrigin={{ vertical: "top", horizontal: "left" }}
-              sx={{ mt: 1 }}
-            >
-              <MemberListContent onClose={handleClose} />
-            </Popover>
-          </div>
-        </div>
-
-        <div className="task-header1">
-          <div onClick={openModal} className="task-add1">
-            <img src="image/Problem.png" alt="Add Task" />
-            <p>Thêm vấn đề</p>
-          </div>
-          <div className="task-icons1">
-            <img src="image/Trash.png" alt="List" />
-            <img src="image/Filter.png" alt="Columns" />
-          </div>
+    {/* Header Section */}
+    <div className="header-section">
+      {/* Logo */}
+      <div className="header-container flex items-center gap-4">
+        <p className="text-gray-500 text-sm">Dự án / Phần mềm đánh giá</p>
+        <div className="flex items-center gap-2">
+          <img
+            onClick={() => navigate("/")}
+            src="image/Column.png"
+            alt="LIFETEK"
+            className="logo-img"
+          />
+          <img src="image/List.png" alt="LIFETEK" className="logo-img" />
         </div>
       </div>
 
+      {/* Tìm kiếm & Avatars */}
+      <div className="flex items-center gap-4">
+        {/* Ô tìm kiếm */}
+        <div className="search-container relative flex items-center">
+          <svg
+            className="search-icon absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-500"
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M21 21l-4.35-4.35m2.6-5.15a7 7 0 11-14 0 7 7 0 0114 0z"
+            />
+          </svg>
+          <input
+            type="text"
+            placeholder="Tìm kiếm..."
+            className="pl-10 pr-4 py-2 border rounded-md w-64"
+          />
+
+          {/* Danh sách avatar */}
+          <div className="flex -space-x-2 overflow-hidden">
+            {[
+              "image/image_4.png",
+              "image/image_5.png",
+              "image/image_6.png",
+              "image/image_7.png",
+              "image/image_8.png",
+              "image/dot.png",
+            ].map((avatar, index) => (
+              <img
+                onClick={handleClick}
+                key={index}
+                src={avatar}
+                alt={`Avatar ${index + 1}`}
+                className="w-8 h-8 rounded-full border border-white shadow"
+              />
+            ))}
+          </div>
+        </div>
+      </div>
+      
+      <Popover
+          open={Boolean(anchorEl)}
+          anchorEl={anchorEl}
+          onClose={handleClose}
+          anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
+          transformOrigin={{ vertical: "top", horizontal: "left" }}
+          sx={{ mt: 1 }}
+        >
+          <MemberListContent onClose={handleClose} />
+        </Popover>
+
+      <div className="task-header1">
+        <div onClick={openModal} className="task-add1">
+          <img src="image/Problem.png" alt="Add Task" />
+          <p>Thêm vấn đề</p>
+        </div>
+        <div className="task-icons1">
+          <img src="image/Trash.png" alt="List" />
+          <img src="image/Filter.png" alt="Columns" />
+        </div>
+      </div>
+    </div>
+
+    {/* Bọc table trong wrapper để cuộn ngang */}
+    <div className="table-wrapper">
       <table className="task-table">
         <thead>
           <tr>
@@ -220,11 +218,7 @@ const TaskTable = () => {
               </td>
               <td>{index + 1}</td>
               <td className="task-name">
-                <img
-                  src="src/assets/image/Pen.png"
-                  alt="edit"
-                  className="edit-icon"
-                />
+                <img src="image/Pen.png" alt="edit" className="edit-icon" />
                 {task.name}
               </td>
               <td className="assignees">
@@ -280,9 +274,10 @@ const TaskTable = () => {
           ))}
         </tbody>
       </table>
-      <IssueForm isOpen={open} onClose={onClose} />
     </div>
-  );
+    <IssueForm isOpen={open} onClose={onClose} />
+  </div>
+);
 };
 
 // Thêm CSS cho select
