@@ -23,6 +23,7 @@ export default function FooterLogin() {
                 textDecoration: "none",
                 cursor: "pointer",
                 fontSize: "15px",
+                fontFamily: "sans-serif",
               }}
             >
               Trang chủ
@@ -34,6 +35,7 @@ export default function FooterLogin() {
                 textDecoration: "none",
                 cursor: "pointer",
                 fontSize: "15px",
+                fontFamily: "sans-serif",
               }}
             >
               Giới thiệu
@@ -45,6 +47,7 @@ export default function FooterLogin() {
                 textDecoration: "none",
                 cursor: "pointer",
                 fontSize: "15px",
+                fontFamily: "sans-serif",
               }}
             >
               Hỗ trợ
