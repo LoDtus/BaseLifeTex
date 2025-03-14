@@ -146,7 +146,13 @@ export default function IssueForm({ isOpen, onClose, status }) {
             <div className={style.issueForm}>
               <div className={style.header}>
                 <h2>Tạo vấn đề</h2>
-                <div className={style.close} onClick={onClose}>
+                <div
+                  className={style.close}
+                  onClick={() => {
+                    onClose();
+                    handleReset();
+                  }}
+                >
                   X
                 </div>
               </div>
