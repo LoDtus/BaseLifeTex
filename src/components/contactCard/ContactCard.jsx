@@ -13,17 +13,17 @@ const ContactCard = ({ onClose, contact }) => {
           alt="avatar"
           className={styles.icon}
         />
-        <span className={styles.text}>{contact.userName}</span>
+        <span className={styles.text}>{contact?.userName}</span>
       </div>
 
       <div className={styles.contactItem}>
         <img src="image\phone.png" alt="phone" className={styles.icon} />
-        <span className={styles.text}>{contact.phone}</span>
+        <span className={styles.text}>{contact?.phone}</span>
       </div>
 
       <div className={styles.contactItem}>
         <img src="image\Email.png" alt="email" className={styles.icon} />
-        <span className={styles.text}>{contact.email}</span>
+        <span className={styles.text}>{contact?.email}</span>
       </div>
     </div>
   );

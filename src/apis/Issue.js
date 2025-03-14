@@ -5,7 +5,7 @@ const backendUrl = import.meta.env.VITE_BACKEND_URL_KHOA;
 export const postIssueData = async (data, token) => {
   try {
     const response = await axios.post(
-      `${backendUrl}/issue`,
+      `${backendUrl}/issues`,
       {
         assigneeId: data.personName,
         title: data.issueName,
@@ -23,8 +23,8 @@ export const postIssueData = async (data, token) => {
         },
       }
     );
-    console.log("Data posted successfully:", response.data);
+    return response;
   } catch (error) {
-    console.error("Error posting data:", error);
+    throw error;
   }
 };
