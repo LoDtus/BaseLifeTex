@@ -284,7 +284,9 @@ export default function Home() {
           </div>
         </DndContext>
       </div>
-      <IssueForm isOpen={open} onClose={onClose} status={issueStatus} />{" "}
+      {open && (
+        <IssueForm isOpen={open} onClose={onClose} status={issueStatus} />
+      )}
       {/* Truyền status */}
     </div>
   );

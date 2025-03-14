@@ -19,19 +19,14 @@ import UploadDownloadImage from "../UploadDownloadImage/UploadDownloadImage";
 import { postIssueData } from "../../apis/Issue";
 import { toolTaskStatus } from "../../tools/toolsCvStatus";
 import Loading from "../Loading/Loading";
+import { getlistUser } from "../../apis/use";
 
 export default function IssueForm({ isOpen, onClose, status }) {
   const params = new URLSearchParams(window.location.search);
   const idProject = params.get("idProject");
+  const token = "jhgshddabjsbbdak";
 
-  const names = [
-    { id: 1, name: "Oliver Hansen" },
-    { id: 2, name: "Van Henry" },
-    { id: 3, name: "April Tucker" },
-    { id: 4, name: "Ralph Hubbard" },
-    { id: 5, name: "Omar Alexander" },
-  ];
-
+  const [names, setNames] = useState([]);
   const [personName, setPersonName] = useState([]);
   const [issueName, setIssueName] = useState("");
   const [link, setLink] = useState("");
@@ -84,7 +79,6 @@ export default function IssueForm({ isOpen, onClose, status }) {
     setErrors(newErrors);
 
     if (Object.keys(newErrors).length === 0) {
-      const token = "jhgshddabjsbbdak";
       try {
         setLoading(true); // Start loading
         const response = await postIssueData(
@@ -124,6 +118,19 @@ export default function IssueForm({ isOpen, onClose, status }) {
   const handleCloseSnackbar = () => {
     setSnackbar({ ...snackbar, open: false });
   };
+
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        const response = await getlistUser(token, idProject);
+        setNames(response.members);
+      } catch (error) {
+        console.error("Failed to fetch user:", error);
+      }
+    };
+
+    fetchUsers();
+  }, []);
 
   const styleBox = {
     position: "absolute",
@@ -227,16 +234,19 @@ export default function IssueForm({ isOpen, onClose, status }) {
                                 onChange={handleChange}
                                 input={<OutlinedInput label="Name" />}
                               >
-                                {names.map((person) => (
-                                  <MenuItem key={person.id} value={person.id}>
+                                {names?.map((person) => (
+                                  <MenuItem
+                                    key={person?._id}
+                                    value={person?._id}
+                                  >
                                     <div className={style.wrapItemSlc}>
                                       <img
-                                        className={style.avatar}
+                                        className={style?.avatar}
                                         src="image/f8ad738c648cb0c7cc815d6ceda805b0.png"
                                         alt=""
                                       />
                                       <div className={style.name}>
-                                        {person.name}
+                                        {person?.userName}
                                       </div>
                                     </div>
                                   </MenuItem>
@@ -272,7 +282,12 @@ export default function IssueForm({ isOpen, onClose, status }) {
                                   onChange={(newValue) =>
                                     setStartDate(newValue)
                                   }
-                                  renderInput={(params) => params}
+                                  slotProps={{
+                                    textField: {
+                                      error: !!errors.startDate,
+                                      helperText: errors.startDate,
+                                    },
+                                  }}
                                 />
                                 {errors.startDate && (
                                   <p className={style.errorText}>
@@ -294,7 +309,12 @@ export default function IssueForm({ isOpen, onClose, status }) {
                                   label="Ngày kết thúc"
                                   value={endDate}
                                   onChange={(newValue) => setEndDate(newValue)}
-                                  renderInput={(params) => params}
+                                  slotProps={{
+                                    textField: {
+                                      error: !!errors.endDate,
+                                      helperText: errors.endDate,
+                                    },
+                                  }}
                                 />
                                 {errors.endDate && (
                                   <p className={style.errorText}>
