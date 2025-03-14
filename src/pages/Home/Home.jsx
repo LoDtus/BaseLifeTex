@@ -77,16 +77,6 @@ export default function Home() {
     setOpen(true);
   };
 
-  const [anchorElFilter, setAnchorElFilter] = useState(null);
-
-  const handleClickFilter = (event) => {
-    setAnchorElFilter(event.currentTarget);
-  };
-
-  const handleCloseFilter = () => {
-    setAnchorElFilter(null);
-  };
-
   const openFiter = Boolean(anchorElFilter);
   const id = openFiter ? "simple-popover" : undefined;
 

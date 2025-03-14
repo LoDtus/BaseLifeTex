@@ -3,20 +3,9 @@ import axios from "axios";
 const backendUrl = import.meta.env.VITE_BACKEND_URL;
 
 export const postIssueData = async (data, token) => {
-  console.log("Request payload:", {
-    assigneeId: data.personName,
-    title: data.issueName,
-    link: data.link,
-    description: data.description,
-    startDate: data.startDate,
-    endDate: data.endDate,
-    images: data.imageFile,
-    status: data.status,
-    projectId: data.projectId,
-  });
   try {
     const response = await axios.post(
-      `${backendUrl}/task/create-task`,
+      `${backendUrl}/tasks/create-task`,
       {
         assigneeId: data.personName,
         title: data.issueName,
@@ -27,6 +16,7 @@ export const postIssueData = async (data, token) => {
         images: data.imageFile,
         status: data.status,
         projectId: data.projectId,
+        assignerId: "65f0b8d0fbd3a6e9f8e2c9d4",
       },
       {
         headers: {
