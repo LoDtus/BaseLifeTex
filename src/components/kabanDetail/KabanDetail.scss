@@ -6,6 +6,7 @@
     transform: translate(-50%, -50%);
     width: calc(100% - 32px);
     height: calc(100% - 32px);
+    overflow: hidden;
     background: white;
     border-radius: 8px;
     padding: 8px 16px;
@@ -17,12 +18,14 @@
       align-items: center;
       position: relative;
       p {
+        display: flex;
+        align-items: center;
         color: #4361ee;
       }
       .close-btn {
         position: absolute;
         right: -8px;
-        top: -10px;
+        top: -8px;
         cursor: pointer;
         font-size: 20px;
         background-color: transparent;
@@ -41,30 +44,6 @@
       .kaban-content {
         flex: 4;
         padding-right: 16px;
-        .kaban-content-text {
-          min-height: 100px;
-          h3 {
-            margin: 8px 0;
-          }
-          .kaban-content-text-edit {
-            width: 100%;
-            border: none !important;
-            outline: none !important;
-            background-color: transparent;
-          }          
-          .kaban-header-text-edit {
-            width: 100%;
-            margin-top: 8px;
-            border-color: #f1f1f1;
-            background-color: transparent;
-            padding: 4px;
-            outline: none;
-          }
-          p {
-            font-weight: 600;
-            margin: 0 0 8px;
-          }
-        }
         .comment-section {
           padding-top: 10px;
   
@@ -97,11 +76,10 @@
               color: #fff;
             }
           }
-  
           .comment-list {
             margin-top: 8px;
-            max-height: 250px;
             overflow: auto;
+            max-height: 136px;
             &::-webkit-scrollbar {
               display: none;
             }
@@ -142,6 +120,19 @@
           padding: 4px 0;
           align-items: center;
           justify-content: flex-start;
+          .kaban-description-personName-edit,
+          .kaban-description-link-edit {
+            flex: 2;
+          }
+          .kaban-description-personName-edit {
+            .MuiSelect-multiple {
+              display: flex;
+              flex-direction: column;
+              align-items: flex-start;
+              height: inherit !important;
+              overflow-y: auto;
+            }
+          } 
           .kaban-description-edit {
             flex: 2;
             width: inherit;
@@ -165,14 +156,6 @@
           .kaban-description-date {
             flex: 2;
             margin: 0;
-            input {
-              color: #626f85;
-              padding: 8px 0;
-              border: none;
-              font-size: 16px;
-              outline: none;
-              background-color: #f8f9fa;
-            }
           }
           p {
             flex: 1;
