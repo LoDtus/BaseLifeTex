@@ -9,7 +9,7 @@ export const getLstProject = async (token) => {
       },
     });
     console.log("Data retrieved successfully:", response.data);
-    return response.data;
+    return response.data.data;
   } catch (error) {
     console.error(
       "Error retrieving data:",
