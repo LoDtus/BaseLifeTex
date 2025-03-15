@@ -33,7 +33,7 @@ export const registerUser = async (user, dispatch, navigate) => {
     await axios.post(`${Api_Register}`, user);
     dispatch(registerSuccess());
     setTimeout(() => {
-      navigate("/login");
+      navigate("/");
     }, 4000);
   } catch (error) {
     dispatch(registerFail());
