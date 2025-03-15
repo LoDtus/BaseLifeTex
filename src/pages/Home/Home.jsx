@@ -67,10 +67,17 @@ export default function Home() {
     setIssueStatus(status); // Lưu trạng thái của cột
     setOpen(true);
   };
+  const [anchorElFilter, setAnchorElFilter] = useState(null); // Anchor cho Filter
 
   const openFiter = Boolean(anchorElFilter);
   const id = openFiter ? "simple-popover" : undefined;
+  const handleClickFilter = (event) => {
+    setAnchorElFilter(event.currentTarget); // Mở Popover Filter
+  };
 
+  const handleCloseFilter = () => {
+    setAnchorElFilter(null); // Đóng Popover Filter
+  };
   const navigate = useNavigate();
 
   const [columns, setColumns] = useState(initialColumns);
@@ -267,18 +274,6 @@ export default function Home() {
                 alt="Columns"
                 onClick={handleClickFilter}
               />
-              <Popover
-                id={id}
-                open={openFiter}
-                anchorEl={anchorElFilter}
-                onClose={handleCloseFilter}
-                anchorOrigin={{
-                  vertical: "bottom",
-                  horizontal: "left",
-                }}
-              >
-                <FilterDialog />
-              </Popover>
             </div>
             {/* Popover cho lọc công việc */}
             <Popover
