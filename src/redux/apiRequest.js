@@ -37,6 +37,6 @@ export const registerUser = async (user, dispatch, navigate) => {
     }, 4000);
   } catch (error) {
     dispatch(registerFail());
-    alert(error.response?.data?.message || "Có lỗi xảy ra khi đăng ký.");
+    alert(error.response?.data?.message);
   }
 };
