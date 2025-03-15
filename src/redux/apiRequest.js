@@ -17,7 +17,7 @@ export const loginUser = async (user, dispatch, navigate) => {
     dispatch(loginSuccess(res.data));
 
     setTimeout(() => {
-      navigate("/");
+      navigate("/home");
     }, 2000);
 
     return { success: true };
