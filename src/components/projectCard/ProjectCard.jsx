@@ -40,11 +40,11 @@ const ProjectCard = ({ project }) => {
         </div>
         <div className={styles.projectDates}>
           <p>
-            <strong>Ngày bắt đầu:</strong>
+            <span>Ngày bắt đầu:</span>
             <span>{toolsCvDateYMD(project.createdAt)}</span>
           </p>
           <p className={styles.endDate}>
-            <strong>Ngày kết thúc:</strong>
+            <span>Ngày kết thúc:</span>
             <span>{toolsCvDateYMD(project.updatedAt)}</span>
           </p>
         </div>
