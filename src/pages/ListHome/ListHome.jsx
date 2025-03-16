@@ -11,6 +11,8 @@ import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { DemoContainer } from "@mui/x-date-pickers/internals/demo";
+import { useSearchParams } from "react-router-dom";
+import { getLisTaskById, updateIssueData } from "../../apis/Issue";
 
 const initialTasks = [
   {
@@ -70,6 +72,20 @@ const TaskTable = () => {
   const [anchorElFilter, setAnchorElFilter] = useState(null); // Anchor cho Filter
   const [anchorElMember, setAnchorElMember] = useState(null); // Anchor cho Member
   const [anchorElMemberAdd, setAnchorElMemberAdd] = useState(null);
+  const [searchParams] = useSearchParams();
+  const idProject = searchParams.get("idProject");
+  const [listTask, setListTask] = useState([]);
+  console.log(idProject);
+
+  const fetchApi = async (id) => {
+    const res = await getLisTaskById(id);
+    // console.log(res);
+    setListTask(res.data);
+  };
+
+  useEffect(() => {
+    fetchApi(idProject);
+  }, [idProject]);
 
   const inputRef = useRef(null);
 
@@ -157,13 +173,19 @@ const TaskTable = () => {
     // setTimeout(() => inputRef.current?.focus(), 0);
   };
 
-  const handleBlurOrEnter = (event, taskId) => {
+  const handleBlurOrEnter = async (event, task) => {
     if (event.type === "keydown" && event.key !== "Enter") return;
-    setTasks((prevTasks) =>
-      prevTasks.map((task) =>
-        task.id === taskId ? { ...task, name: editedTaskName } : task
-      )
-    );
+    const { _id, ...taskWithoutId } = task;
+    const response = await updateIssueData(task._id, {
+      ...taskWithoutId,
+      assigneeId: task.assigneeId.map((i) => i._id),
+      assignerId: task.assignerId._id,
+      title: editedTaskName,
+    });
+    console.log(response);
+
+    fetchApi(idProject);
+    console.log("1234");
     setEditingTaskId(null);
   };
 
@@ -312,21 +334,21 @@ const TaskTable = () => {
             </tr>
           </thead>
           <tbody>
-            {tasks.map((task, index) => (
-              <tr key={task.id}>
+            {listTask.map((task, index) => (
+              <tr key={task._id}>
                 <td>
                   <input type="checkbox" />
                 </td>
                 <td>{index + 1}</td>
                 <td className="task-name">
-                  {editingTaskId === task.id ? (
+                  {editingTaskId === task._id ? (
                     <Input
                       ref={inputRef}
                       type="text"
                       value={editedTaskName}
                       onChange={(e) => setEditedTaskName(e.target.value)}
-                      onBlur={(e) => handleBlurOrEnter(e, task.id)}
-                      onKeyDown={(e) => handleBlurOrEnter(e, task.id)}
+                      onBlur={(e) => handleBlurOrEnter(e, task)}
+                      onKeyDown={(e) => handleBlurOrEnter(e, task)}
                     />
                   ) : (
                     <>
@@ -334,14 +356,14 @@ const TaskTable = () => {
                         src="image/Pen.png"
                         alt="edit"
                         className="edit-icon"
-                        onClick={() => handleEditClick(task.id, task.name)}
+                        onClick={() => handleEditClick(task._id, task.title)}
                       />
-                      {task.name}
+                      {task.title}
                     </>
                   )}
                 </td>
                 <td className="assignees">
-                  {task.assignees?.map((avatar, i) => (
+                  {task.assigneeId?.map((avatar, i) => (
                     <img
                       key={i}
                       src={`image/${avatar}`}
@@ -415,12 +437,14 @@ const TaskTable = () => {
                     </LocalizationProvider>
                   ) : (
                     <>
-                      {task.endDate}
+                      {task.deadlineDate}
                       <img
                         src="image/Vector.png"
                         alt="start-date"
                         className="calendar-icon"
-                        onClick={() => handleEditEndDate(task.id, task.endDate)}
+                        onClick={() =>
+                          handleEditEndDate(task.id, task.deadlineDate)
+                        }
                       />
                     </>
                   )}
