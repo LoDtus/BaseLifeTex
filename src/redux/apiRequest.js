@@ -17,7 +17,7 @@ export const loginUser = async (user, dispatch, navigate) => {
     dispatch(loginSuccess(res.data));
 
     setTimeout(() => {
-      navigate("/");
+      navigate("/home");
     }, 2000);
 
     return { success: true };
@@ -33,10 +33,10 @@ export const registerUser = async (user, dispatch, navigate) => {
     await axios.post(`${Api_Register}`, user);
     dispatch(registerSuccess());
     setTimeout(() => {
-      navigate("/login");
+      navigate("/");
     }, 4000);
   } catch (error) {
     dispatch(registerFail());
-    alert(error.response?.data?.message || "Có lỗi xảy ra khi đăng ký.");
+    alert(error.response?.data?.message);
   }
 };
