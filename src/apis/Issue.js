@@ -38,7 +38,7 @@ export const updateIssueData = async (id, data) => {
       `${backendUrl}/tasks/edit-task/${id}`,
       data
     );
-    console.log("Data posted successfully:", response.data);
+    return response.data;
   } catch (error) {
     console.error("Error posting data:", error);
   }
@@ -51,5 +51,26 @@ export const getLisTaskById = async (id) => {
     return response.data;
   } catch (error) {
     console.log(error);
+  }
+};
+
+export const updateIssueDataStatus = async (id, data) => {
+  try {
+    const response = await axios.put(`${backendUrl}/tasks/${id}/status`, data);
+    return response.data;
+  } catch (error) {
+    console.error("Error posting data:", error);
+  }
+};
+
+export const addMemberTask = async (id, data) => {
+  try {
+    const response = await axios.post(
+      `${backendUrl}/tasks/${id}/add-user`,
+      data
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error posting data:", error);
   }
 };
