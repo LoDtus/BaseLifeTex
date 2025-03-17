@@ -12,60 +12,15 @@ import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { DemoContainer } from "@mui/x-date-pickers/internals/demo";
 import { useSearchParams } from "react-router-dom";
-import { getLisTaskById, updateIssueData } from "../../apis/Issue";
-
-const initialTasks = [
-  {
-    id: 1,
-    name: "fix header",
-    assignees: ["image_4.png"],
-    comments: "",
-    startDate: "01/01/2029",
-    endDate: "01/01/2029",
-    status: "Hoàn thành",
-    link: "https://",
-  },
-  {
-    id: 2,
-    name: "fix header",
-    assignees: ["image_4.png"],
-    comments: "",
-    startDate: "01/01/2029",
-    endDate: "01/01/2029",
-    status: "Hoàn thành",
-    link: "https://",
-  },
-  {
-    id: 3,
-    name: "fix header",
-    assignees: ["image_4.png"],
-    comments: "",
-    startDate: "01/01/2029",
-    endDate: "01/01/2029",
-    status: "Hoàn thành",
-    link: "https://",
-  },
-  {
-    id: 4,
-    name: "fix header",
-    assignees: ["image_4.png"],
-    comments: "",
-    startDate: "01/01/2029",
-    endDate: "01/01/2029",
-    status: "Hoàn thành",
-    link: "https://",
-  },
-  {
-    id: 5,
-    name: "fix header",
-    assignees: ["image_4.png"],
-    comments: "",
-    startDate: "01/01/2029",
-    endDate: "01/01/2029",
-    status: "Hoàn thành",
-    link: "https://",
-  },
-];
+import {
+  getLisTaskById,
+  updateIssueData,
+  updateIssueDataStatus,
+} from "../../apis/Issue";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import dayjs from "dayjs";
+import LinkIcon from "@mui/icons-material/Link";
 
 const TaskTable = () => {
   const navigate = useNavigate();
@@ -75,7 +30,6 @@ const TaskTable = () => {
   const [searchParams] = useSearchParams();
   const idProject = searchParams.get("idProject");
   const [listTask, setListTask] = useState([]);
-  console.log(idProject);
 
   const fetchApi = async (id) => {
     const res = await getLisTaskById(id);
@@ -98,19 +52,24 @@ const TaskTable = () => {
   };
 
   const handleClickMember = (event) => {
-    setAnchorElMember(event.currentTarget); // Mở Popover Member
+    setAnchorElMember(event.currentTarget);
   };
 
   const handleCloseMember = () => {
     setAnchorElMember(null); // Đóng Popover Member
   };
 
-  const handleClickMemberAdd = (event) => {
+  const [selectedTaskId, setSelectedTaskId] = useState(null);
+
+  const handleClickMemberAdd = (event, taskId) => {
+    event.stopPropagation();
+    setSelectedTaskId(taskId); // Lưu lại task được click
     setAnchorElMemberAdd(event.currentTarget);
   };
 
   const handleCloseMemberAdd = () => {
     setAnchorElMemberAdd(null);
+    setSelectedTaskId(null);
   };
 
   const [open, setOpen] = useState(false);
@@ -132,32 +91,27 @@ const TaskTable = () => {
   const memberId = openMember ? "member-popover" : undefined;
 
   // Khởi tạo tasks, hợp nhất initialTasks với localStorage
-  const [tasks, setTasks] = useState(() => {
-    const savedTasks = localStorage.getItem("taskList");
-    const parsedTasks = savedTasks ? JSON.parse(savedTasks) : [];
-    return [
-      ...initialTasks,
-      ...parsedTasks.filter(
-        (task) => !initialTasks.some((initial) => initial.id === task.id)
-      ),
-    ];
-  });
 
   // Lưu tasks vào localStorage mỗi khi nó thay đổi
-  useEffect(() => {
-    localStorage.setItem("taskList", JSON.stringify(tasks));
-  }, [tasks]);
 
   const [editingTaskId, setEditingTaskId] = useState(null);
+  const [editingLinkTaskId, setEditingLinkTaskId] = useState(null);
   const [editingDateTaskId, setEditingDateTaskId] = useState(null);
   const [editingDateEndTaskId, setEditingDateEndTaskId] = useState(null);
   const [editedTaskName, setEditedTaskName] = useState("");
+  const [editedTaskLink, setEditedTaskLink] = useState("");
   const [editStartDate, setEditStartDate] = useState();
   const [editEndDate, setEditEndDate] = useState();
 
   const handleEditClick = (taskId, currentName) => {
     setEditingTaskId(taskId);
     setEditedTaskName(currentName);
+    setTimeout(() => inputRef.current?.focus(), 0);
+  };
+
+  const handleEditClickLink = (taskId, currentName) => {
+    setEditingLinkTaskId(taskId);
+    setEditedTaskLink(currentName);
     setTimeout(() => inputRef.current?.focus(), 0);
   };
 
@@ -176,43 +130,72 @@ const TaskTable = () => {
   const handleBlurOrEnter = async (event, task) => {
     if (event.type === "keydown" && event.key !== "Enter") return;
     const { _id, ...taskWithoutId } = task;
-    const response = await updateIssueData(task._id, {
-      ...taskWithoutId,
-      assigneeId: task.assigneeId.map((i) => i._id),
-      assignerId: task.assignerId._id,
-      title: editedTaskName,
-    });
-    console.log(response);
-
-    fetchApi(idProject);
-    console.log("1234");
-    setEditingTaskId(null);
+    try {
+      const response = await updateIssueData(task._id, {
+        ...taskWithoutId,
+        assigneeId: task.assigneeId?.map((i) => i._id),
+        assignerId: task.assignerId?._id,
+        title: editedTaskName,
+      });
+      if (response.message === "Nhiệm vụ cập nhật thành công") {
+        fetchApi(idProject);
+        toast.success(response.message, { autoClose: 3000 });
+      } else {
+        toast.error(response.message, { autoClose: 3000 });
+      }
+      setEditedTaskName("");
+      setEditingTaskId(null);
+    } catch (error) {
+      console.error("Lỗi khi cập nhật task:", error);
+    }
   };
 
-  const handleStatusChange = (taskId, newStatus) => {
-    setTasks((prevTasks) =>
-      prevTasks.map((task) =>
-        task.id === taskId ? { ...task, status: newStatus } : task
-      )
-    );
+  const handleBlurOrEnterLink = async (event, task) => {
+    if (event.type === "keydown" && event.key !== "Enter") return;
+    const { _id, ...taskWithoutId } = task;
+    try {
+      const response = await updateIssueData(task._id, {
+        ...taskWithoutId,
+        assigneeId: task.assigneeId?.map((i) => i._id),
+        assignerId: task.assignerId?._id,
+        link: editedTaskLink,
+      });
+      if (response.message === "Nhiệm vụ cập nhật thành công") {
+        fetchApi(idProject);
+        toast.success(response.message, { autoClose: 3000 });
+      } else {
+        toast.error(response.message, { autoClose: 3000 });
+      }
+      setEditedTaskLink("");
+      setEditingLinkTaskId(null);
+    } catch (error) {
+      console.error("Lỗi khi cập nhật task:", error);
+    }
+  };
+
+  const handleStatusChange = async (taskId, newStatus) => {
+    try {
+      const response = await updateIssueDataStatus(taskId, {
+        status: newStatus,
+      });
+      if (response.message === "Thay đổi trạng thái task thành công") {
+        fetchApi(idProject);
+        toast.success(response.message, { autoClose: 3000 });
+      } else {
+        toast.error(response.message, { autoClose: 3000 });
+      }
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   const handleIssueSubmit = (newIssue) => {
-    const newTask = {
-      id: tasks.length + 1,
-      name: newIssue.issueName,
-      assignees: newIssue.personName.map((id) => `image_${id}.png`),
-      comments: "",
-      startDate: newIssue.startDate.format("DD/MM/YYYY"),
-      endDate: newIssue.endDate.format("DD/MM/YYYY"),
-      status: newIssue.status,
-      link: newIssue.link,
-    };
-    setTasks((prevTasks) => [...prevTasks, newTask]);
+    console.log(newIssue);
   };
 
   return (
     <div className="task-table-container">
+      <ToastContainer />
       {/* Header Section */}
       <div className="header-section">
         {/* Logo */}
@@ -371,19 +354,30 @@ const TaskTable = () => {
                       className="avatar"
                     />
                   ))}
-                  <button className="add-user" onClick={handleClickMemberAdd}>
+                  <button
+                    className="add-user"
+                    onClick={(e) => handleClickMemberAdd(e, task._id)}
+                  >
                     +
                   </button>
-                  <Popover
-                    open={Boolean(anchorElMemberAdd)}
-                    anchorEl={anchorElMemberAdd}
-                    onClose={handleCloseMemberAdd}
-                    anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
-                    transformOrigin={{ vertical: "top", horizontal: "left" }}
-                    sx={{ mt: 1 }}
-                  >
-                    <MemberListContentAdd onClose={handleCloseMemberAdd} />
-                  </Popover>
+                  {selectedTaskId === task._id && (
+                    <Popover
+                      open={Boolean(anchorElMemberAdd)}
+                      anchorEl={anchorElMemberAdd}
+                      onClose={handleCloseMemberAdd}
+                      anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
+                      transformOrigin={{ vertical: "top", horizontal: "left" }}
+                      sx={{ mt: 1 }}
+                    >
+                      <MemberListContentAdd
+                        onClose={handleCloseMemberAdd}
+                        idProject={idProject}
+                        task={task}
+                        fetchApi={fetchApi}
+                        toast={toast}
+                      />
+                    </Popover>
+                  )}
                 </td>
                 <td className="comment-cell">
                   <img
@@ -393,12 +387,33 @@ const TaskTable = () => {
                   />
                 </td>
                 <td className="comment-cell">
-                  {editingDateTaskId === task.id ? (
+                  {editingDateTaskId === task._id ? (
                     <LocalizationProvider dateAdapter={AdapterDayjs}>
                       <DemoContainer components={["DatePicker"]}>
                         <DatePicker
                           // value={task.startDate}
-                          onChange={(newValue) => {
+                          onChange={async (newValue) => {
+                            try {
+                              const response = await updateIssueData(task._id, {
+                                ...task,
+                                startDate: newValue,
+                              });
+                              if (
+                                response.message ===
+                                "Nhiệm vụ cập nhật thành công"
+                              ) {
+                                fetchApi(idProject);
+                                toast.success(response.message, {
+                                  autoClose: 3000,
+                                });
+                              } else {
+                                toast.error(response.message, {
+                                  autoClose: 3000,
+                                });
+                              }
+                            } catch (error) {
+                              console.error("Lỗi khi cập nhật task:", error);
+                            }
                             setEditStartDate("startDate", newValue);
                             setEditingDateTaskId(false);
                           }}
@@ -408,13 +423,13 @@ const TaskTable = () => {
                     </LocalizationProvider>
                   ) : (
                     <>
-                      {task.startDate}
+                      {dayjs(task.startDate).format("DD-MM-YYYY")}
                       <img
                         src="image/Vector.png"
                         alt="start-date"
                         className="calendar-icon"
                         onClick={() =>
-                          handleEditStartDate(task.id, task.startDate)
+                          handleEditStartDate(task._id, task.startDate)
                         }
                       />
                     </>
@@ -422,13 +437,34 @@ const TaskTable = () => {
                 </td>
 
                 <td className="comment-cell">
-                  {editingDateEndTaskId === task.id ? (
+                  {editingDateEndTaskId === task._id ? (
                     <LocalizationProvider dateAdapter={AdapterDayjs}>
                       <DemoContainer components={["DatePicker"]}>
                         <DatePicker
                           // value={task.startDate}
-                          onChange={(newValue) => {
-                            setEditEndDate("startDate", newValue);
+                          onChange={async (newValue) => {
+                            try {
+                              const response = await updateIssueData(task._id, {
+                                ...task,
+                                endDate: newValue,
+                              });
+                              if (
+                                response.message ===
+                                "Nhiệm vụ cập nhật thành công"
+                              ) {
+                                fetchApi(idProject);
+                                toast.success(response.message, {
+                                  autoClose: 3000,
+                                });
+                              } else {
+                                toast.error(response.message, {
+                                  autoClose: 3000,
+                                });
+                              }
+                            } catch (error) {
+                              console.error("Lỗi khi cập nhật task:", error);
+                            }
+                            setEditEndDate("endDate", newValue);
                             setEditingDateEndTaskId(false);
                           }}
                           format="DD/MM/YYYY"
@@ -437,13 +473,13 @@ const TaskTable = () => {
                     </LocalizationProvider>
                   ) : (
                     <>
-                      {task.deadlineDate}
+                      {dayjs(task.endDate).format("DD-MM-YYYY")}
                       <img
                         src="image/Vector.png"
                         alt="start-date"
                         className="calendar-icon"
                         onClick={() =>
-                          handleEditEndDate(task.id, task.deadlineDate)
+                          handleEditEndDate(task._id, task.endDate)
                         }
                       />
                     </>
@@ -453,20 +489,40 @@ const TaskTable = () => {
                   <select
                     value={task.status}
                     onChange={(e) =>
-                      handleStatusChange(task.id, e.target.value)
+                      handleStatusChange(task._id, e.target.value)
                     }
                     className="status-select"
                   >
-                    <option value="Công việc mới">Công việc mới</option>
-                    <option value="Đang thực hiện">Đang thực hiện</option>
-                    <option value="Hoàn thành">Hoàn thành</option>
-                    <option value="Kết thúc">Kết thúc</option>
+                    <option value="pending">Công việc mới</option>
+                    <option value="in progress">Đang thực hiện</option>
+                    <option value="completed">Hoàn thành</option>
+                    <option value="done">Kết thúc</option>
                   </select>
                 </td>
                 <td>
-                  <a href={task.link} target="_blank" rel="noopener noreferrer">
-                    🔗
-                  </a>
+                  {editingLinkTaskId === task._id ? (
+                    <Input
+                      ref={inputRef}
+                      type="text"
+                      value={editedTaskLink}
+                      onChange={(e) => setEditedTaskLink(e.target.value)}
+                      onBlur={(e) => handleBlurOrEnterLink(e, task)}
+                      onKeyDown={(e) => handleBlurOrEnterLink(e, task)}
+                    />
+                  ) : (
+                    <>
+                      <a
+                        href={task.link}
+                        target="_blank"
+                        style={{ color: "#000", marginRight: "5px" }}
+                      >
+                        {task.link}
+                      </a>
+                      <LinkIcon
+                        onClick={() => handleEditClickLink(task._id, task.link)}
+                      />
+                    </>
+                  )}
                 </td>
               </tr>
             ))}

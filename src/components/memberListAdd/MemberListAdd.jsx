@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Avatar,
   Box,
@@ -11,25 +11,50 @@ import {
 } from "@mui/material";
 import "./MemberListAdd.scss";
 import CloseIcon from "@mui/icons-material/Close";
+import { getlistUser } from "../../apis/use";
+import { addMemberTask } from "../../apis/Issue";
 
-const MemberListContentAdd = ({ onClose }) => {
-  const members = [
-    { name: "Nguyễn Đình Minh", avatar: "https://i.pravatar.cc/150?img=10" },
-    { name: "Trần Văn A", avatar: "https://i.pravatar.cc/150?img=11" },
-    { name: "Lê Thị B", avatar: "https://i.pravatar.cc/150?img=12" },
-    { name: "Phạm Văn C", avatar: "https://i.pravatar.cc/150?img=13" },
-    { name: "Hoàng Minh D", avatar: "https://i.pravatar.cc/150?img=14" },
-  ];
+const MemberListContentAdd = ({
+  onClose,
+  idProject,
+  task,
+  fetchApi,
+  toast,
+}) => {
+  const token = "jhgshddabjsbbdak";
+  const [listMember, setListMember] = useState([]);
 
+  const getMemberByProject = async () => {
+    const response = await getlistUser(token, idProject);
+    if (response.members) {
+      setListMember(response.members);
+    }
+  };
   const [checkedItems, setCheckedItems] = useState([]);
 
+  useEffect(() => {
+    getMemberByProject();
+    setCheckedItems(task?.assigneeId.map((i) => i._id));
+  }, [idProject]);
   const handleCheckboxChange = (item) => {
     setCheckedItems((prev) =>
       prev.includes(item) ? prev.filter((i) => i !== item) : [...prev, item]
     );
   };
 
-  console.log(checkedItems);
+  const addMember = async () => {
+    const respone = await addMemberTask(task._id, {
+      userId: checkedItems,
+    });
+    // console.log(respone);
+    if (respone.message === "Thêm người dùng vào task thành công") {
+      fetchApi(idProject);
+      toast.success(respone.message, { autoClose: 3000 });
+    } else {
+      toast.error(respone.message, { autoClose: 3000 });
+    }
+    onClose();
+  };
 
   return (
     <Box
@@ -58,24 +83,26 @@ const MemberListContentAdd = ({ onClose }) => {
       </Typography>
       {/* Danh sách thành viên */}
       <FormGroup>
-        {members.map((member, index) => (
+        {listMember?.map((member, index) => (
           <FormControlLabel
             key={index}
             control={
               <Checkbox
-                checked={checkedItems.includes(member.name)}
-                onChange={() => handleCheckboxChange(member.name)}
+                checked={checkedItems.includes(member._id)}
+                onChange={() => handleCheckboxChange(member._id)}
               />
             }
             label={
               <>
-                <Avatar src={member.avatar} />
-                <Typography sx={{ ml: 1 }}>{member.name}</Typography>
+                <Avatar src={member?.avatar} />
+                <Typography sx={{ ml: 1 }}>{member.userName}</Typography>
               </>
             }
           />
         ))}
-        <Button variant="contained">Chọn</Button>
+        <Button variant="contained" onClick={addMember}>
+          Chọn
+        </Button>
       </FormGroup>
     </Box>
   );
