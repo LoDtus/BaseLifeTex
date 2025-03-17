@@ -132,21 +132,32 @@
     }
   }
 
-  .task-icons1 {
-    display: flex;
-    align-items: center;
 
-    img {
-      width: 30px;
-      height: 30px;
-      margin-right: 10px;
-      border-radius: 50%; // Bo tròn ảnh
-      object-fit: cover; // Hiển thị ảnh đẹp hơn
+}
 
-      &:hover {
-        background-color: #d1d5db;
-      }
+.task-icons1 {
+  display: flex;
+  align-items: center;
+
+  img {
+    width: 30px;
+    height: 30px;
+    margin-right: 10px;
+    border-radius: 50%; // Bo tròn ảnh
+    object-fit: cover; // Hiển thị ảnh đẹp hơn
+
+    &:hover {
+      background-color: #d1d5db;
     }
+  }
+
+  button {
+    width: 16px;
+    height: 20px;
+    background: none;
+    border: 0.5px solid;
+    margin-left: 24px;
+    cursor: pointer;
   }
 }
 
@@ -163,4 +174,34 @@
   &:hover {
     border-color: #9ca3af;
   }
+}
+
+.task-name {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.text-truncate {
+  width: 150px;
+  /* Điều chỉnh độ rộng mong muốn */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.date-cell {
+  display: flex;
+  gap: 15px;
+  align-items: center;
+}
+
+
+.css-fa111x-MuiPaper-root {
+  box-shadow: none !important;
+}
+
+.css-qp8h8a-MuiTableContainer-root::-webkit-scrollbar {
+  display: none;
+  /* Ẩn scrollbar trên Chrome, Edge, Safari */
 }
