@@ -19,6 +19,11 @@ import {
 import CloseIcon from "@mui/icons-material/Close";
 import { useForm, Controller } from "react-hook-form";
 import UploadImageButton from "../UploadDownloadImage/UploadDownloadImage";
+import { getlistUser } from "../../apis/use";
+import { postIssueData } from "../../apis/Issue";
+import { useSearchParams } from "react-router-dom";
+import { useSelector } from "react-redux";
+import { toast } from "react-toastify";
 
 const ITEM_HEIGHT = 48;
 const ITEM_PADDING_TOP = 8;
@@ -45,7 +50,15 @@ const names = [
   { _id: 10, name: "Kelly Snyder" },
 ];
 const IssueForm = ({ isOpen, onClose, status }) => {
-  const [selectedPerson, setSelectedPerson] = useState(names);
+  console.log("status", status);
+  const token = "hjshdjhdjsasas";
+
+  const [searchParams] = useSearchParams();
+  const idProject = searchParams.get("idProject");
+
+  const user = useSelector((state) => state.auth.login.currentUser);
+
+  const [selectedPerson, setSelectedPerson] = useState([]);
 
   const {
     register,
@@ -56,7 +69,42 @@ const IssueForm = ({ isOpen, onClose, status }) => {
   } = useForm();
   const [image, setImage] = useState();
 
-  const onSubmit = (data) => console.log({ ...data, image });
+  const onSubmit = async (data) => {
+    try {
+      const issueData = await postIssueData(
+        {
+          ...data,
+          image,
+          status,
+          idProject,
+          assignerId: user.data._id,
+        },
+        token
+      );
+      if (issueData) {
+        toast.success("Tạo nhiệm vụ thành công");
+        onClose();
+      } else {
+        toast.error("Tạo nhiệm vụ thất bại");
+        onClose();
+      }
+    } catch (error) {
+      toast.error("Tạo nhiệm vụ thất bại");
+      return;
+    }
+    console.log("Issue submitted:", issueData);
+  };
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const data = await getlistUser(token, idProject);
+        setSelectedPerson(data.members);
+      } catch (error) {
+        console.error("Error fetching user list:", error);
+      }
+    };
+    fetchData();
+  }, [searchParams]);
 
   return (
     <Dialog
@@ -228,11 +276,7 @@ const IssueForm = ({ isOpen, onClose, status }) => {
                   >
                     Người nhận việc:
                   </Typography>
-                  <FormControl
-                    fullWidth
-                    size="small"
-                    error={!!errors.personName}
-                  >
+                  <FormControl fullWidth size="small">
                     <Controller
                       name="personName"
                       control={control}
@@ -251,11 +295,11 @@ const IssueForm = ({ isOpen, onClose, status }) => {
                           }
                           renderValue={(selected) =>
                             selected
-                              .map(
+                              ?.map(
                                 (id) =>
                                   selectedPerson.find(
                                     (person) => person._id === id
-                                  )?.name
+                                  )?.userName
                               )
                               .join(", ")
                           }
@@ -264,7 +308,7 @@ const IssueForm = ({ isOpen, onClose, status }) => {
                             mb: 1,
                           }}
                         >
-                          {selectedPerson.map((person) => (
+                          {selectedPerson?.map((person) => (
                             <MenuItem key={person._id} value={person._id}>
                               <Checkbox
                                 checked={
@@ -285,7 +329,10 @@ const IssueForm = ({ isOpen, onClose, status }) => {
                                     height: 40,
                                     marginRight: 2,
                                   }}
-                                  src="image\\f8ad738c648cb0c7cc815d6ceda805b0.png"
+                                  src={
+                                    person.avatar ||
+                                    "image\\f8ad738c648cb0c7cc815d6ceda805b0.png"
+                                  }
                                 ></Avatar>
                                 <Typography
                                   sx={{
@@ -296,7 +343,7 @@ const IssueForm = ({ isOpen, onClose, status }) => {
                                     textOverflow: "ellipsis",
                                   }}
                                 >
-                                  {person.name}
+                                  {person.userName}
                                 </Typography>
                               </Box>
                             </MenuItem>

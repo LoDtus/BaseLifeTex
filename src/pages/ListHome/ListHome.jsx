@@ -45,6 +45,7 @@ const TaskTable = () => {
   const [listTask, setListTask] = useState([]);
   const [openComment, setOpenComment] = useState(false);
 
+
   const fetchApi = async (id) => {
     const res = await getLisTaskById(id);
     // console.log(res);
@@ -284,7 +285,7 @@ const TaskTable = () => {
 
           <div className="flex items-center gap-2">
             <img
-              onClick={() => navigate("/home")}
+              onClick={() => navigate(`/home?idProject=${idProject}`)}
               src="image/Column.png"
               alt="LIFETEK"
               className="logo-img"
@@ -398,7 +399,7 @@ const TaskTable = () => {
           }}
         >
           <Table
-            // className="task-table"
+            className="task-table"
             aria-label="sticky table"
           >
             <TableHead>

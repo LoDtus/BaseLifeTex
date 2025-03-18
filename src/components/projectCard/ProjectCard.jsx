@@ -24,7 +24,7 @@ const ProjectCard = ({ project }) => {
         return styles.statusBtnInProgress;
       case "Chưa hoàn thành":
         return styles.statusBtnNotCompleted;
-      case "Hoàn thành":
+      case "Đã Hoàn thành":
         return styles.statusBtnCompleted;
       default:
         return styles.statusBtnNotCompleted; // Default to "Chưa hoàn thành"
