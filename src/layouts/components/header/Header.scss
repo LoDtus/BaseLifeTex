@@ -1,59 +1,63 @@
 .kanban-header {
-   display: flex;
-   justify-content: space-between;
-   align-items: center;
-   background-color: #ffffff;
-   padding-bottom: 10px;
-   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
- }
- 
- .logo {
-   display: flex;
-   align-items: center;
- }
- 
- .logo-img {
-   height: 40px;
-   margin-right: 10px;
- }
- 
- .logo-text {
-   font-size: 18px;
-   font-weight: bold;
-   color: #059bee;
- }
- 
- .search-bar {
-   flex-grow: 1;
-   margin: 0 20px;
-   display: flex;
-   justify-content: right;
- }
- 
- .search-input {
-   width: 100%;
-   max-width: 400px;
-   padding: 8px 12px;
-   margin-top: 8px;
-   border: 1px solid #ddd;
-   border-radius: 20px;
-   outline: none;
-   font-size: 14px;
- }
- 
- .user-profile {
-   display: flex;
-   margin-right: 20px;
-   align-items: center;
- }
- 
- .user-icon {
-   margin-right: 8px;
-   font-size: 20px;
- }
- 
- .user-name {
-   font-weight: bold;
-   color: #333;
- }
-  
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #ffffff;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  height: 52px;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+}
+
+.logo-img {
+  height: 40px;
+}
+
+.logo-text {
+  font-size: 18px;
+  font-weight: bold;
+  color: #059bee;
+}
+
+.search-bar {
+  flex-grow: 1;
+  margin-right: 17px;
+  display: flex;
+  justify-content: right;
+  position: relative;
+}
+
+.search-input {
+  width: 100%;
+  max-width: 218px;
+  padding: 8px 16px 8px 28px;
+  border: 1px solid black;
+  border-radius: 10px;
+  outline: none;
+  font-size: 14px;
+}
+.search-input::placeholder {
+  color: #e1e2e7;
+}
+
+.user-profile {
+  display: flex;
+  margin-right: 20px;
+  align-items: center;
+}
+
+.user-icon {
+  margin-right: 8px;
+  font-size: 20px;
+  margin-bottom: 5px;
+}
+
+.user-name {
+  font-weight: bold;
+  color: #333;
+  margin: 5px;
+  font-size: 14px;
+}
