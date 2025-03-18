@@ -140,10 +140,10 @@
                 .desc-task {
                     color: #000;
                     font-family: 'Inter';
-                    font-size: 18px;
+                    font-size: 16px;
                     font-style: normal;
-                    font-weight: 600;
-                    line-height: normal;
+                    font-weight: 500;
+                    line-height: 30px;
                     margin-top: 15px;
                     min-height: 150px;
                 }
@@ -152,7 +152,7 @@
 
         .kaban-info {
             flex: 2;
-            background-color: #f8f9fa;
+            // background-color: #f8f9fa;
             padding: 16px;
             border-radius: 8px;
             display: flex;
