@@ -6,7 +6,7 @@ import KanbanTaskCard from "./KanbanTaskCard";
 import IssueForm from "../../components/IssueFrom/IssueForm";
 
 
-function KanbanColumn({ columnId, column }) {
+function KanbanColumn({ columnId, column ,handleCall}) {
   const { setNodeRef } = useDroppable({ id: columnId });
     const [open, setOpen] = useState(false);
   const handleClick = () => {

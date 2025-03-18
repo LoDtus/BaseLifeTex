@@ -125,6 +125,7 @@ function KanbanBoard() {
               key={key}
               columnId={key}
               column={column}
+              
             />
           ))}
         </div>

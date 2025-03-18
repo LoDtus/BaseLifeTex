@@ -83,6 +83,7 @@ const IssueForm = ({ isOpen, onClose, status }) => {
       );
       if (issueData) {
         toast.success("Tạo nhiệm vụ thành công");
+        handleCall()
         onClose();
       } else {
         toast.error("Tạo nhiệm vụ thất bại");
