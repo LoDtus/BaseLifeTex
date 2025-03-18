@@ -1,14 +1,15 @@
 import { useState, useEffect } from "react";
 import "./Home.scss";
 import { Link, useNavigate } from "react-router-dom";
-import IssueForm from "../../components/IssueFrom/IssueForm";
 import { Popover } from "@mui/material";
 import MemberListContent from "../../components/memberList/MemberList";
 import KanbanBoard from "../../components/Kanban/KanbanBoard";
+import { useSearchParams } from "react-router-dom";
 
 export default function Home() {
-  const [open, setOpen] = useState(false);
   const [anchorEl, setAnchorEl] = useState(null);
+  const [searchParams] = useSearchParams();
+  const idProject = searchParams.get("idProject");
 
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
@@ -44,7 +45,7 @@ export default function Home() {
           </div>
           <div className="flex items-center gap-2">
             <img src="image/Column.png" alt="LIFETEK" className="logo-img" />
-            <Link to="/ListHome">
+            <Link to={`/ListHome?idProject=${idProject}`}>
               <img src="image/List.png" alt="LIFETEK" className="logo-img" />
             </Link>
           </div>
@@ -117,9 +118,7 @@ export default function Home() {
 
         {/* Bảng Kanban */}
         <KanbanBoard />
-
-
-      <IssueForm isOpen={open} onClose={() => setOpen(false)} />
+       
     </div>
   );
 }

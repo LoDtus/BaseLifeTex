@@ -1,5 +1,6 @@
 import { useDraggable } from "@dnd-kit/core";
-import { Popover } from "@mui/material";
+import { Popover, IconButton } from "@mui/material";
+import CloseIcon from '@mui/icons-material/Close'; // Thêm icon close
 import React, { useState } from "react";
 
 function KanbanTaskCard({ task, index, totalTasks }) {
@@ -15,8 +16,12 @@ function KanbanTaskCard({ task, index, totalTasks }) {
     setAnchorEl((prev) => (prev ? null : event.currentTarget)); // Toggle trạng thái
   };
 
-  const handleClose = () => {
+  const handleClose = (event) => {
+    if (event) {
+      event.stopPropagation(); // Ngăn sự kiện kéo thả can thiệp
+    }
     setAnchorEl(null);
+    console.log("Popover closed via close button"); // Debug để kiểm tra
   };
 
   const handleLabelClick = (event) => {
@@ -81,13 +86,39 @@ function KanbanTaskCard({ task, index, totalTasks }) {
                 transformOrigin={{ vertical: "top", horizontal: "left" }}
                 sx={{ mt: 1 }}
               >
-                <div style={{ padding: "10px", maxWidth: "200px" }}>
-                  <strong>Danh sách người tham gia:</strong>
-                  <ul style={{ margin: "5px 0 0 0", paddingLeft: "15px" }}>
-                    {remainingUserNames.map((userName, index) => (
-                      <li key={index}>{userName}</li>
-                    ))}
-                  </ul>
+                <div style={{ padding: "20px", maxWidth: "250px", position: "relative" }}>
+                  <IconButton
+                    aria-label="close"
+                    onClick={handleClose}
+                    onPointerDown={(e) => e.stopPropagation()} // Ngăn sự kiện kéo thả can thiệp
+                    style={{
+                      position: "absolute",
+                      top: 10,
+                      right: 10,
+                      padding: "5px", // Thêm padding để nút cách viền
+                    }}
+                  >
+                    <CloseIcon style={{ fontSize: "18px" }} />
+                  </IconButton>
+                  <div style={{ marginRight: "40px" }}> {/* Tạo khoảng cách bên phải cho tiêu đề */}
+                    <strong style={{ display: "block", marginBottom: "10px", fontSize: "14px" }}>
+                      Danh sách người tham gia:
+                    </strong>
+                    <ul style={{ margin: 0, paddingLeft: "20px", listStyleType: "disc" }}>
+                      {remainingUserNames.map((userName, index) => (
+                        <li
+                          key={index}
+                          style={{
+                            marginBottom: "8px",
+                            lineHeight: "1.5",
+                            fontSize: "14px",
+                          }}
+                        >
+                          {userName}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
                 </div>
               </Popover>
             </div>

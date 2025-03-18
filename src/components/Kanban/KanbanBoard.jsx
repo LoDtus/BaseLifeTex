@@ -37,10 +37,10 @@ function transformTasksData(tasks) {
 
     return acc;
   }, {
-    pending: { title: "Công việc cần làm", tasks: [] },
-    inProgress: { title: "Công việc đang làm", tasks: [] },
-    completed: { title: "Công việc đã hoàn thành", tasks: [] },
-    done: { title: "Công việc đã xong", tasks: [] },
+    pending: { title: "Công việc mới", tasks: [] },
+    inProgress: { title: "Đang thực hiện", tasks: [] },
+    completed: { title: "Hoàn thành", tasks: [] },
+    done: { title: "Kết thúc", tasks: [] },
   });
 }
 
