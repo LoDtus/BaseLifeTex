@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import "./Home.scss";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { DndContext, closestCenter } from "@dnd-kit/core";
 import { arrayMove } from "@dnd-kit/sortable";
 import Column from "../DraggableTask/Column";
@@ -8,6 +8,7 @@ import IssueForm from "../../components/IssueFrom/IssueForm";
 import { Popover } from "@mui/material";
 import MemberListContent from "../../components/memberList/MemberList";
 import FilterDialog from "../../components/FilterForm/FilterDialog";
+import { getTaskByProject } from "../../services/taskService";
 
 // Dữ liệu ban đầu
 const initialColumns = [
@@ -15,17 +16,13 @@ const initialColumns = [
     id: 1,
     title: "Công việc mới",
     tasks: [
-      { id: 1, title: "fix header", project: "Kan-1", assignee: "TuanPM" },
-      { id: 2, title: "fix header", project: "Kan-2", assignee: "TuanPM" },
-      { id: 3, title: "fix header", project: "Kan-3", assignee: "TuanPM" },
-      { id: 4, title: "fix header", project: "Kan-3", assignee: "TuanPM" },
+      
     ],
   },
   {
     id: 2,
     title: "Đang thực hiện",
     tasks: [
-      { id: 4, title: "fix sidebar", project: "Kan-1", assignee: "HuyNQ" },
     ],
   },
   {
@@ -41,7 +38,7 @@ const initialColumns = [
   {
     id: 4,
     title: "Kết thúc",
-    tasks: [{ id: 9, title: "test", project: "Kan-1", assignee: "HuyNQ" }],
+    tasks: [],
   },
 ];
 
@@ -49,6 +46,10 @@ export default function Home() {
   const [open, setOpen] = useState(false);
   const [anchorElMember, setAnchorElMember] = useState(null); // Anchor cho Member Popover
   const [issueStatus, setIssueStatus] = useState(""); // Trạng thái của cột
+  const [task, setTask] = useState({});
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  const idProject = searchParams.get("idProject");
 
   const handleClickMember = (event) => {
     setAnchorElMember(event.currentTarget); // Mở Popover danh sách nhân viên
@@ -82,6 +83,31 @@ export default function Home() {
 
   const [columns, setColumns] = useState(initialColumns);
   const [checkedTasks, setCheckedTasks] = useState({});
+
+
+  const fetchData = async (id) => {
+    try {
+      const data = await getTaskByProject(id);
+      const dataPendding = Array.from(data.data).filter(item => item.status == 'pending');
+      const dataComplete = Array.from(data.data).filter(item => item.status == 'completed');
+
+      console.log(dataComplete, dataPendding);
+      // console.log(data.data);
+      
+      
+    } catch (error) {
+      console.log({
+        message: error
+      });
+    }
+  }
+
+  useEffect(() => {
+    fetchData(idProject);
+  }, [idProject]);
+
+  // console.log(columns);
+  
 
   const handleDragEnd = (event) => {
     const { active, over } = event;
@@ -165,8 +191,8 @@ export default function Home() {
         col.id === activeColumn.id
           ? { ...col, tasks: newActiveTasks }
           : col.id === overColumn.id
-          ? { ...col, tasks: newOverTasks }
-          : col
+            ? { ...col, tasks: newOverTasks }
+            : col
       )
     );
     console.log("Đã chuyển task sang cột khác:", {
@@ -298,10 +324,10 @@ export default function Home() {
           onDragEnd={handleDragEnd}
         >
           <div className="kanban-container">
-            {columns.map((column) => (
+            {columns.map((column, index) => (
               <Column
-                key={column.id}
-                columnId={column.id}
+                key={index}
+                columnId={column.idProject}
                 column={column}
                 checkedTasks={checkedTasks}
                 handleCheckboxChange={handleCheckboxChange}
@@ -317,3 +343,4 @@ export default function Home() {
     </div>
   );
 }
+
