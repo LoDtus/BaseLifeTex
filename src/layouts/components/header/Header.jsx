@@ -2,6 +2,7 @@ import { useSelector } from "react-redux";
 import "./Header.scss";
 import NotificationsIcon from "@mui/icons-material/Notifications";
 import SearchIcon from "@mui/icons-material/Search";
+import NotificationPopup from "../../../components/notificationPopup/NotificationPopup";
 
 export default function Header() {
   const user = useSelector((state) => state.auth.login.currentUser);
@@ -30,9 +31,7 @@ export default function Header() {
               }}
             />
           </div>
-          <NotificationsIcon
-            sx={{ marginRight: "3px", transform: "rotate(-30deg)" }}
-          />
+          <NotificationPopup />
           <span className="user-name">
             {user ? user.data.userName : "Khách"}
           </span>
