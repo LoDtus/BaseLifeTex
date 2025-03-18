@@ -16,8 +16,8 @@ export const toolTaskStatus = (task) => {
       return "pending";
     case "Đang thực hiện":
       return "inProgress";
-    case "completed":
-      return "Hoàn thành";
+    case "Hoàn thành":
+      return "completed";
     case "Kết thúc":
       return "done";
     default:
