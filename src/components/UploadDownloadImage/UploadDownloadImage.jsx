@@ -4,11 +4,13 @@ import Zoom from "react-medium-image-zoom";
 import "react-medium-image-zoom/dist/styles.css";
 
 const UploadImageButton = ({ image, setImage }) => {
+  const [urlImage, setUrlImage] = useState();
   const handleUpload = (event) => {
     const file = event.target.files[0];
     if (file) {
       const imageUrl = URL.createObjectURL(file);
-      setImage(imageUrl);
+      setUrlImage(imageUrl); // Lưu URL ảnh vào state
+      setImage(file);
     }
   };
 
@@ -34,7 +36,7 @@ const UploadImageButton = ({ image, setImage }) => {
       {image && (
         <Zoom>
           <img
-            src={image}
+            src={urlImage}
             alt="Uploaded"
             className={styles.image}
             style={{ cursor: "pointer" }}
