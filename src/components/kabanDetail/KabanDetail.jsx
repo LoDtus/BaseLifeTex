@@ -1,111 +1,54 @@
-import React, { useState } from "react";
-import { Modal, Box, TextField, Button } from "@mui/material";
-import MenuItem from "@mui/material/MenuItem";
-import FormControl from "@mui/material/FormControl";
-import Select from "@mui/material/Select";
+import React, { useEffect, useState } from "react";
+import {
+  Modal,
+  Box,
+  TextField,
+  Button,
+  Checkbox,
+  MenuItem,
+  Select,
+  FormControl,
+  Avatar,
+  Typography,
+} from "@mui/material";
 import "./KabanDetail.scss";
-import style from "../IssueFrom/IssueForm.module.scss";
-import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
-import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
-import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import EventAvailableIcon from "@mui/icons-material/EventAvailable";
-import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
-import { toast, ToastContainer } from "react-toastify";
-import dayjs from "dayjs";
+import { toast } from "react-toastify";
+import { cvDate } from "../../tools/tools.CvDateKaban";
+import { useForm, Controller } from "react-hook-form";
+import Zoom from "react-medium-image-zoom";
+import "react-medium-image-zoom/dist/styles.css";
+import imageAvatar from "../../assets/image/image_5.png";
 
-const KabanDetail = ({ open, handleClose }) => {
-  const parseDate = (dateString) => {
-    if (!dateString) return null;
-    const parsedDate = dayjs(dateString, "DD-MM-YYYY");
-    return parsedDate.isValid() ? parsedDate : null;
-  };
+const ITEM_HEIGHT = 48;
+const ITEM_PADDING_TOP = 8;
+const MenuProps = {
+  PaperProps: {
+    style: {
+      maxHeight: ITEM_HEIGHT * 4.5 + ITEM_PADDING_TOP,
+      width: 250,
+    },
+  },
+};
 
-  const listUser = [
-    {
-      id: "abc",
-      name: "Nguyen Van A",
-      avatar:
-        "https://w7.pngwing.com/pngs/922/214/png-transparent-computer-icons-avatar-businessperson-interior-design-services-corporae-building-company-heroes-thumbnail.png",
-    },
-    {
-      id: "efd",
-      name: "Le Van B",
-      avatar:
-        "https://w7.pngwing.com/pngs/922/214/png-transparent-computer-icons-avatar-businessperson-interior-design-services-corporae-building-company-heroes-thumbnail.png",
-    },
-    {
-      id: "hgj",
-      name: "Tran Van C",
-      avatar:
-        "https://w7.pngwing.com/pngs/922/214/png-transparent-computer-icons-avatar-businessperson-interior-design-services-corporae-building-company-heroes-thumbnail.png",
-    },
-    {
-      id: "wer",
-      name: "Do Van D",
-      avatar:
-        "https://w7.pngwing.com/pngs/922/214/png-transparent-computer-icons-avatar-businessperson-interior-design-services-corporae-building-company-heroes-thumbnail.png",
-    },
-  ];
-
-  const listComment = [
-    {
-      id: "anb",
-      commentBy: "Tran Van C",
-      text: "Chưa hoàn thiện giao diện kanba",
-    },
-    {
-      id: "klj",
-      commentBy: "Nguyen Van A",
-      text: "Chưa call api lấy danh sách kanba",
-    },
-  ];
-
-  const dataDefault = {
-    issueName: "Lỗi hiển thị danh sách kanba",
-    description:
-      "Danh sách kanba bị lỗi hiển thị chưa get được danh sách task theo id dự án.",
-    link: "LifeTex.com.vn",
-    imageFile:
-      "https://www.economist.com/cdn-cgi/image/width=1424,quality=80,format=auto/sites/default/files/images/2015/09/blogs/economist-explains/code2.png",
-    personName: [
-      {
-        id: "efd",
-        name: "Le Van B",
-        avatar:
-          "https://w7.pngwing.com/pngs/922/214/png-transparent-computer-icons-avatar-businessperson-interior-design-services-corporae-building-company-heroes-thumbnail.png",
-      },
-      {
-        id: "hgj",
-        name: "Tran Van C",
-        avatar:
-          "https://w7.pngwing.com/pngs/922/214/png-transparent-computer-icons-avatar-businessperson-interior-design-services-corporae-building-company-heroes-thumbnail.png",
-      },
-    ],
-    report: {
-      name: "Tucker",
-      avatar:
-        "https://w7.pngwing.com/pngs/922/214/png-transparent-computer-icons-avatar-businessperson-interior-design-services-corporae-building-company-heroes-thumbnail.png",
-    },
-    startDate: parseDate("05-01-2025"),
-    endDate: parseDate("05-01-2025"),
-    status: "1",
-  };
+const KabanDetail = ({ open, task, handleClose }) => {
+  const { control } = useForm();
 
   const errorsDefault = {
-    issueName: false,
+    title: false,
     description: false,
     link: false,
-    personName: false,
+    assigneeId: false,
     startDate: false,
     endDate: false,
     status: false,
   };
 
   const errorMessages = {
-    issueName: "Tên vấn đề không được để trống!",
+    title: "Tên vấn đề không được để trống!",
     description: "Mô tả không được để trống!",
     link: "Link không được để trống!",
-    personName: "Tên người không được để trống!",
+    assigneeId: "Tên người không được để trống!",
     startDate: "Ngày bắt đầu không được để trống!",
     endDate: "Ngày kết thúc không được để trống!",
     status: "Trạng thái không được để trống!",
@@ -113,11 +56,34 @@ const KabanDetail = ({ open, handleClose }) => {
     endDateInvalid: "Ngày kết thúc phải lớn hơn ngày bắt đầu!",
   };
 
-  const [data, setData] = useState(dataDefault);
+  const [data, setData] = useState({});
   const [comment, setComment] = useState("");
-  const [comments, setComments] = useState(listComment);
-  const [user, setUsers] = useState(listUser);
+  const [comments, setComments] = useState([]);
   const [errorData, setErrorData] = useState(errorsDefault);
+  const [selectedPerson, setSelectedPerson] = useState([]);
+  const [listMember, setListMember] = useState([]);
+  const token = "jhgshddabjsbbdak";
+
+  const getMemberByProject = async () => {
+      const response = await getlistUser(token, data.projectId);
+      if (response.members) {
+        setListMember(response.members);
+      }
+    };
+
+  useEffect(()=>{
+    getMemberByProject()
+  },[])  
+
+  useEffect(() => {
+    if (task !== null) {
+      console.log("Task data:", task);
+      setData({
+        ...task,
+      });
+      setSelectedPerson(task.assigneeId);
+    }
+  }, [task]);
 
   const handleChangeInput = (type, value) => {
     setData((prev) => ({
@@ -127,19 +93,10 @@ const KabanDetail = ({ open, handleClose }) => {
     setErrorData({ ...errorData, [type]: false });
   };
 
-  const handleChangeSelect = (value) => {
-    const {personName,...newData} = data;
-    const uniqueArr = value.filter(
-      (num) => value.indexOf(num) === value.lastIndexOf(num)
-    );
-    setData({ ...newData, personName: uniqueArr });
-  };
-
   const handleBlurChange = async (type, value) => {
     if (type) {
-      if (type === "personName") {
+      if (type === "assigneeId") {
         if (value && value.length > 0) {
-          console.log(data);
           setErrorData((prevErrorData) => ({
             ...prevErrorData,
             [type]: false,
@@ -149,36 +106,38 @@ const KabanDetail = ({ open, handleClose }) => {
           toast.error(errorMessages[type]);
         }
       } else if (type === "startDate" || type === "endDate") {
-        if (value && typeof value.isValid === "function" && value.isValid()) {
-          let isValid = true;
-
-          if (type === "startDate" && data.endDate && data.endDate.isValid()) {
-            isValid =
-              value.isBefore(data.endDate) || value.isSame(data.endDate);
-          } else if (
-            type === "endDate" &&
-            data.startDate &&
-            data.startDate.isValid()
-          ) {
-            isValid =
-              value.isAfter(data.startDate) || value.isSame(data.startDate);
-          }
-
-          setErrorData((prevErrorData) => ({
-            ...prevErrorData,
-            [type]: !isValid,
-          }));
-
-          if (!isValid) {
-            toast.error(errorMessages[type + "Invalid"]);
-          }
-        } else {
+        const startDate = cvDate(data.startDate);
+        const endDate = cvDate(data.endDate);
+        if (startDate === null || startDate === "") {
           setErrorData((prevErrorData) => ({ ...prevErrorData, [type]: true }));
           toast.error(errorMessages[type]);
         }
+        if (endDate === null || endDate === "") {
+          setErrorData((prevErrorData) => ({ ...prevErrorData, [type]: true }));
+          toast.error(errorMessages[type]);
+        }
+        if (startDate > endDate) {
+          setErrorData((prevErrorData) => ({
+            ...prevErrorData,
+            startDate: true,
+          }));
+          toast.error(errorMessages.startDateInvalid);
+          return;
+        }
+        if (endDate < startDate) {
+          setErrorData((prevErrorData) => ({
+            ...prevErrorData,
+            endDate: true,
+          }));
+          toast.error(errorMessages.endDateInvalid);
+          return;
+        }
+        setErrorData((prevErrorData) => ({
+          ...prevErrorData,
+          [type]: false,
+        }));
       } else {
-        if (value || value === 0) {
-          console.log(data);
+        if (value) {
           setErrorData((prevErrorData) => ({
             ...prevErrorData,
             [type]: false,
@@ -193,6 +152,7 @@ const KabanDetail = ({ open, handleClose }) => {
 
   const handleAddComment = () => {
     console.log(data);
+    console.log(selectedPerson);
   };
 
   return (
@@ -219,14 +179,13 @@ const KabanDetail = ({ open, handleClose }) => {
                   variant="outlined"
                   size="small"
                   fullWidth
-                  multiline
-                  error={errorData.issueName}
+                  minRows={1}
+                  maxRows={1}
+                  error={errorData.title}
                   placeholder="Nhập vấn đề..."
-                  value={data.issueName}
-                  onBlur={() => handleBlurChange("issueName", data.issueName)}
-                  onChange={(e) =>
-                    handleChangeInput("issueName", e.target.value)
-                  }
+                  value={data?.title}
+                  onBlur={() => handleBlurChange("title", data?.title)}
+                  onChange={(e) => handleChangeInput("title", e.target.value)}
                   className="kaban-content-text-edit"
                 />
                 <TextField
@@ -238,10 +197,10 @@ const KabanDetail = ({ open, handleClose }) => {
                   maxRows={20}
                   sx={{ marginTop: "8px" }}
                   placeholder="Nhập nội dung..."
-                  value={data.description}
+                  value={data?.description}
                   error={errorData.description}
                   onBlur={() =>
-                    handleBlurChange("description", data.description)
+                    handleBlurChange("description", data?.description)
                   }
                   onChange={(e) =>
                     handleChangeInput("description", e.target.value)
@@ -282,19 +241,20 @@ const KabanDetail = ({ open, handleClose }) => {
                   </Button>
                 </div>
                 <div className="comment-list">
-                  {comments.map((cmt) => (
-                    <div key={cmt.id} className="comment">
-                      <img
-                        src="https://w7.pngwing.com/pngs/922/214/png-transparent-computer-icons-avatar-businessperson-interior-design-services-corporae-building-company-heroes-thumbnail.png"
-                        alt="user"
-                        className="avatar"
-                      />
-                      <div className="cmt-text">
-                        <p>{cmt.commentBy}</p>
-                        <p>{cmt.text}</p>
+                  {comments.length > 0 &&
+                    comments.map((cmt) => (
+                      <div key={cmt.id} className="comment">
+                        <img
+                          src="https://w7.pngwing.com/pngs/922/214/png-transparent-computer-icons-avatar-businessperson-interior-design-services-corporae-building-company-heroes-thumbnail.png"
+                          alt="user"
+                          className="avatar"
+                        />
+                        <div className="cmt-text">
+                          <p>{cmt.commentBy}</p>
+                          <p>{cmt.text}</p>
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    ))}
                 </div>
               </div>
             </div>
@@ -303,91 +263,93 @@ const KabanDetail = ({ open, handleClose }) => {
               <div className="kaban-description">
                 <p>Người nhận việc:</p>
                 <div className="kaban-description-personName-edit">
-                  <FormControl sx={{ width: "100%", overflow: "hidden" }}>
-                    <Select
-                      size="small"
-                      labelId="demo-multiple-name-label"
-                      id="demo-multiple-name"
-                      multiple
-                      value={data.personName}
-                      error={errorData.personName}
-                      onChange={(e) => handleChangeSelect(e.target.value)}
-                      onBlur={() =>
-                        handleBlurChange("personName", data.personName)
-                      }
-                      renderValue={(selected) => {
-                        const maxVisible = 4;
-                        return (
-                          <div
-                            style={{
-                              display: "flex",
-                              alignItems: "center",
-                              gap: "5px",
-                            }}
-                          >
-                            {selected
-                              .slice(0, maxVisible)
-                              .map((name, index) => (
-                                <img
-                                  key={index}
-                                  src={name.avatar}
-                                  alt=""
-                                  style={{
-                                    width: "23px",
-                                    height: "23px",
-                                    borderRadius: "50%",
-                                  }}
-                                />
-                              ))}
-                            {selected.length > maxVisible && (
-                              <span
-                                style={{
-                                  overflow: "hidden",
-                                  backgroundColor: "transparent",
-                                  borderRadius: "50%",
-                                  display: "flex",
-                                  alignItems: "center",
-                                  justifyContent: "center",
-                                  color: "#333",
-                                  border: "2px solid #333",
-                                  textAlign: "center",
-                                  width: "23px",
-                                  height: "23px",
+                  <FormControl
+                    fullWidth
+                    size="small"
+                    error={errorData.assigneeId}
+                  >
+                    <Controller
+                      name="assigneeId"
+                      control={control}
+                      rules={{
+                        required: "Vui lòng chọn ít nhất một người nhận việc",
+                      }}
+                      render={({ field }) => (
+                        <Select
+                          {...field}
+                          labelId="demo-multiple-checkbox-label"
+                          id="demo-multiple-checkbox"
+                          multiple
+                          value={field.value || []}
+                          onChange={(event) =>
+                            field.onChange(event.target.value)
+                          }
+                          renderValue={(selected) =>
+                            selected
+                              .map(
+                                (id) =>
+                                  listMember.find((person) => person._id === id)
+                                    ?.userName
+                              )
+                              .join(", ")
+                          }
+                          MenuProps={MenuProps}
+                          sx={{
+                            mb: 1,
+                          }}
+                          defaultValue={task?.assigneeId.map((i) => i._id)}
+                        >
+                          {listMember.map((person) => (
+                            <MenuItem key={person._id} value={person._id}>
+                              <Checkbox
+                                checked={
+                                  field.value?.includes(person._id) || false
+                                }
+                              />
+                              <Box
+                                display="flex"
+                                alignItems="center"
+                                sx={{
+                                  ml: 4,
                                 }}
                               >
-                                <MoreHorizIcon />
-                              </span>
-                            )}
-                          </div>
-                        );
-                      }}
-                      MenuProps={{
-                        PaperProps: {
-                          style: {
-                            maxHeight: 200,
-                            overflowY: "auto",
-                          },
-                        },
-                      }}
-                    >
-                      {user.map((item) => (
-                        <MenuItem key={item.id} value={item}>
-                          <div className={style.wrapItemSlc}>
-                            <img
-                              style={{
-                                width: "25px",
-                                height: "25px",
-                                borderRadius: "50%",
-                              }}
-                              className={style.avatar}
-                              src={item.avatar}
-                              alt="avatar"
-                            />
-                            <div className={style.name}>{item.name}</div>
-                          </div>
-                        </MenuItem>
-                      ))}
-                    </Select>
+                                <Avatar
+                                  sx={{
+                                    bgcolor: "purple",
+                                    width: 40,
+                                    height: 40,
+                                    marginRight: 2,
+                                  }}
+                                  src="image\\f8ad738c648cb0c7cc815d6ceda805b0.png"
+                                ></Avatar>
+                                <Typography
+                                  sx={{
+                                    fontWeight: 500,
+                                    width: "200px",
+                                    whiteSpace: "nowrap",
+                                    overflow: "hidden",
+                                    textOverflow: "ellipsis",
+                                  }}
+                                >
+                                  {person.userName}
+                                </Typography>
+                              </Box>
+                            </MenuItem>
+                          ))}
+                        </Select>
+                      )}
+                    />
+                    {errorData.assigneeId && (
+                      <Typography
+                        variant="span"
+                        sx={{
+                          color: "red",
+                          fontSize: "small",
+                        }}
+                      >
+                        Vui lòng chọn ít nhất một người nhận việc
+                      </Typography>
+                    )}
                   </FormControl>
                 </div>
               </div>
@@ -401,19 +363,28 @@ const KabanDetail = ({ open, handleClose }) => {
                     variant="outlined"
                     size="small"
                     fullWidth
-                    multiline
+                    minRows={1}
+                    maxRows={1}
                     error={errorData.link}
                     placeholder="Nhập link..."
-                    value={data.link}
+                    value={data?.link}
                     onChange={(e) => handleChangeInput("link", e.target.value)}
-                    onBlur={() => handleBlurChange("link", data.link)}
+                    onBlur={() => handleBlurChange("link", data?.link)}
                   />
                 </div>
               </div>
               <div className="kaban-description image">
                 <p>Hình ảnh:</p>
                 <p className="kaban-descrition-image">
-                  <img src={data.imageFile} alt="image" />
+                  <Zoom>
+                    <img
+                      src={
+                        data?.image ||
+                        "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTKCI0jyuDli7hTwPGh90HItM5yF-HOF_pzrQ&s"
+                      }
+                      alt="image"
+                    />
+                  </Zoom>
                 </p>
               </div>
               <div className="kaban-description">
@@ -423,11 +394,11 @@ const KabanDetail = ({ open, handleClose }) => {
                     <Select
                       size="small"
                       error={errorData.status}
-                      value={data.status}
+                      value={data?.status || ""}
                       onChange={(e) =>
                         handleChangeInput("status", e.target.value)
                       }
-                      onBlur={() => handleBlurChange("status", data.status)}
+                      onBlur={() => handleBlurChange("status", data?.status)}
                       sx={{
                         width: "100%",
                         height: 40,
@@ -437,11 +408,11 @@ const KabanDetail = ({ open, handleClose }) => {
                       <MenuItem value="">
                         <em>Trạng thái</em>
                       </MenuItem>
-                      <MenuItem value={0}>Công việc mới</MenuItem>
-                      <MenuItem value={1}>Đang thực hiện</MenuItem>
-                      <MenuItem value={2}>Hoàn thành</MenuItem>
-                      <MenuItem value={3}>Kết thúc</MenuItem>
-                      <MenuItem value={4}>Tạm dừng</MenuItem>
+                      <MenuItem value="pending">Công việc mới</MenuItem>
+                      <MenuItem value="todo">Đang thực hiện</MenuItem>
+                      <MenuItem value="inProgress">Chưa hoàn thành</MenuItem>
+                      <MenuItem value="completed">Hoàn thành</MenuItem>
+                      <MenuItem value="done">Kết thúc</MenuItem>
                     </Select>
                   </FormControl>
                 </div>
@@ -449,139 +420,60 @@ const KabanDetail = ({ open, handleClose }) => {
               <div className="kaban-description">
                 <p>Ngày bắt đầu:</p>
                 <div className="kaban-description-date">
-                  <LocalizationProvider dateAdapter={AdapterDayjs}>
-                    <DatePicker
-                      name="startDate"
-                      error={errorData.startDate}
-                      slotProps={{
-                        textField: {
-                          size: "small",
-                          error: errorData.startDate,
-                          onBlur: () =>
-                            handleBlurChange("startDate", data.startDate),
-                          sx: {
-                            height: "40px",
-                            "& .MuiInputBase-root": {
-                              height: "40px",
-                              "&.Mui-error": {
-                                border: "1px solid red !important",
-                                borderRadius: "4px",
-                              },
-                            },
-                            "& .MuiOutlinedInput-notchedOutline": {
-                              border: errorData.startDate
-                                ? "1px solid red !important"
-                                : null,
-                              borderRadius: "4px",
-                            },
-                          },
-                        },
-                      }}
-                      value={data.startDate}
-                      onChange={(value) => {
-                        handleChangeInput("startDate", value);
-
-                        if (value && data.endDate && data.endDate.isValid()) {
-                          const isValid =
-                            value.isBefore(data.endDate) ||
-                            value.isSame(data.endDate);
-
-                          setErrorData((prevErrorData) => ({
-                            ...prevErrorData,
-                            startDate: !isValid,
-                          }));
-                          if (!isValid) {
-                            toast.error(errorMessages.startDateInvalid);
-                          }
-                        }
-                      }}
-                      size="small"
-                      format="DD/MM/YYYY"
-                    />
-                  </LocalizationProvider>
+                  <TextField
+                    fullWidth
+                    variant="outlined"
+                    type="date"
+                    size="small"
+                    error={errorData.startDate}
+                    value={cvDate(data?.startDate)}
+                    onChange={(e) =>
+                      handleChangeInput("startDate", e.target.value)
+                    }
+                    onBlur={() =>
+                      handleBlurChange("startDate", data?.startDate)
+                    }
+                    InputLabelProps={{
+                      shrink: true,
+                    }}
+                    sx={{ mb: 2 }}
+                  />
                 </div>
               </div>
               <div className="kaban-description">
                 <p>Ngày kết thúc:</p>
                 <div className="kaban-description-date">
-                  <LocalizationProvider dateAdapter={AdapterDayjs}>
-                    <DatePicker
-                      name="endDate"
-                      error={errorData.endDate}
-                      slotProps={{
-                        textField: {
-                          size: "small",
-                          error: errorData.endDate,
-                          onBlur: () =>
-                            handleBlurChange("endDate", data.endDate),
-                          sx: {
-                            height: "40px",
-                            "& .MuiInputBase-root": {
-                              height: "40px",
-                              "&.Mui-error": {
-                                border: "1px solid red !important",
-                                borderRadius: "4px",
-                              },
-                            },
-                            "& .MuiOutlinedInput-notchedOutline": {
-                              border: errorData.endDate
-                                ? "1px solid red !important"
-                                : null,
-                              borderRadius: "4px",
-                            },
-                          },
-                        },
-                      }}
-                      value={data.endDate}
-                      onChange={(value) => {
-                        handleChangeInput("endDate", value);
-                        if (
-                          value &&
-                          data.startDate &&
-                          data.startDate.isValid()
-                        ) {
-                          const isValid =
-                            value.isAfter(data.startDate) ||
-                            value.isSame(data.startDate);
-                          setErrorData((prevErrorData) => ({
-                            ...prevErrorData,
-                            endDate: !isValid,
-                          }));
-
-                          if (!isValid) {
-                            toast.error(errorMessages.endDateInvalid);
-                          }
-                        }
-                      }}
-                      size="small"
-                      format="DD/MM/YYYY"
-                    />
-                  </LocalizationProvider>
+                  <TextField
+                    fullWidth
+                    variant="outlined"
+                    type="date"
+                    size="small"
+                    error={errorData.endDate}
+                    value={cvDate(data?.endDate)}
+                    onChange={(e) =>
+                      handleChangeInput("endDate", e.target.value)
+                    }
+                    onBlur={() => handleBlurChange("endDate", data?.endDate)}
+                    InputLabelProps={{
+                      shrink: true,
+                    }}
+                    sx={{ mb: 2 }}
+                  />
                 </div>
               </div>
               <div className="kaban-description">
                 <p>Người báo cáo:</p>
-                <div className="kaban-single-info">
-                  <img src={data.report.avatar} alt="" />
-                  <p>{data.report.name}</p>
-                </div>
+                {data?.assignerId && (
+                  <div className="kaban-single-info">
+                    <img src={imageAvatar} alt="" />
+                    <p>{data?.assignerId && data?.assignerId.userName}</p>
+                  </div>
+                )}
               </div>
             </div>
           </div>
         </Box>
       </Modal>
-      <ToastContainer
-        position="top-right"
-        autoClose={3000}
-        hideProgressBar={false}
-        newestOnTop={false}
-        closeOnClick
-        rtl={false}
-        pauseOnFocusLoss
-        draggable
-        pauseOnHover
-        theme="light"
-      />
     </>
   );
 };
