@@ -1,15 +1,33 @@
-import axios from "axios";
-const API_URL = "http://192.168.11.11:5000/api/v1";
+import axiosInstance from "./apiService"
 
-const getTaskByProject = async (id) => {
-   try {
-      const response = await axios.get(`${API_URL}/tasks/project/${id}`);
-      return response.data
-   } catch (error) {
-      return console.log({
-         message: "server error" + error
-      });
-   }
+const getTasks = async () => {
+    try {
+        const response = await axiosInstance.get("/tasks");
+        return response.data;
+    } catch (error) {
+        console.log("lấy danh sách công việc thất bại", error);
+        throw error;
+    }
 }
 
-export { getTaskByProject }
+const getTasksByProject = async (projectId) => {
+    try {
+        const response = await axiosInstance.get(`/tasks/project/${projectId}`);
+        return response.data;
+    } catch (error) {
+        console.log("lấy danh sách công việc theo dự án thất bại", error);
+        throw error;
+    }
+}
+
+const updateTaskStatus = async (taskId, status) => {
+    try {
+        const response = await axiosInstance.put(`/tasks/${taskId}/status`, { status: status });        
+        return response.data;
+    } catch (error) {
+        console.log("Cập nhật trạng thái công việc thất bại", error);
+        throw error;
+    }
+}
+
+export { getTasks, getTasksByProject, updateTaskStatus }

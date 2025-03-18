@@ -5,11 +5,13 @@ import styles from "./Navbar.module.scss";
 import ProjectCard from "../../../components/projectCard/ProjectCard";
 import { getLstProject } from "../../../apis/project";
 import Loading from "../../../components/Loading/Loading";
+import { useDispatch } from "react-redux";
 
 export default function Navbar() {
   const [lstProject, setLstProject] = useState([]);
   const [loading, setLoading] = useState(true); // State for loading
   const navigate = useNavigate(); // Initialize navigate
+  const dispatch = useDispatch();
 
   const fetchProjects = async () => {
     setLoading(true); // Start loading
@@ -34,9 +36,11 @@ export default function Navbar() {
   };
 
   const handleProjectClick = (projectId) => {
+    // dispatch(setLoading(true)); // Dispatch setLoading action
     const currentUrl = new URL(window.location.href);
     currentUrl.searchParams.set("idProject", projectId); // Add or update idProject in URL
     navigate(`${currentUrl.pathname}${currentUrl.search}`); // Navigate to the updated URL
+    // dispatch(setLoading(false)); // Dispatch setLoading
   };
 
   useEffect(() => {
@@ -89,6 +93,7 @@ export default function Navbar() {
             <div
               key={index}
               onClick={() => handleProjectClick(project._id)} // Add onClick handler
+              style={{ cursor: "pointer" }}
             >
               <ProjectCard project={project} />
             </div>
