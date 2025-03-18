@@ -82,3 +82,39 @@ export const addMemberTask = async (id, data) => {
     console.error("Error posting data:", error);
   }
 };
+
+export const updateIssueDataImage = async (id, data, imageFile) => {
+  console.log(data);
+
+  try {
+    const formData = new FormData();
+
+    // Append từng field vào formData
+    Object.keys(data).forEach((key) => {
+      if (Array.isArray(data[key])) {
+        data[key].forEach((item) => formData.append(`${key}[]`, item));
+      } else {
+        formData.append(key, data[key]);
+      }
+    });
+
+    // Nếu có file, append vào formData
+    if (imageFile) {
+      formData.append("image", imageFile);
+    }
+
+    const response = await axios.put(
+      `${backendUrl}/tasks/edit-task/${id}`,
+      formData,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      }
+    );
+
+    return response.data;
+  } catch (error) {
+    console.error("Error updating issue:", error);
+  }
+};

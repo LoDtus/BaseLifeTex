@@ -3,10 +3,11 @@ import styles from "./UploadDownloadImage.module.scss";
 import Zoom from "react-medium-image-zoom";
 import "react-medium-image-zoom/dist/styles.css";
 
-const UploadImageButton = ({ image, setImage }) => {
+const UploadImageButton = ({ image, setImage, setImageFile }) => {
   const [urlImage, setUrlImage] = useState();
   const handleUpload = (event) => {
     const file = event.target.files[0];
+    setImageFile(file);
     if (file) {
       const imageUrl = URL.createObjectURL(file);
       setUrlImage(imageUrl); // Lưu URL ảnh vào state
