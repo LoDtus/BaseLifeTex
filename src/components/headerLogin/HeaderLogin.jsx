@@ -48,7 +48,7 @@ export default function HeaderLogin() {
             </Typography>
           </Box>
           <Box
-            onClick={() => navigate("/login")}
+            onClick={() => navigate("/")}
             sx={{
               display: "flex",
               alignItems: "center",
