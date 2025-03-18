@@ -22,7 +22,9 @@ const getTasksByProject = async (projectId) => {
 
 const updateTaskStatus = async (taskId, status) => {
     try {
-        const response = await axiosInstance.put(`/tasks/${taskId}/status`, { status: status });        
+        const response = await axiosInstance.put(`/tasks/${taskId}/status`, { status: status });
+        console.log(status);
+        return;
         return response.data;
     } catch (error) {
         console.log("Cập nhật trạng thái công việc thất bại", error);

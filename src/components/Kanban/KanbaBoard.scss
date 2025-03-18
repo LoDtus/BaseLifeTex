@@ -1,0 +1,138 @@
+// Container bọc Kanban
+.kanban-wrapper {
+   flex: 1; // Chiếm toàn bộ không gian còn lại
+   overflow-x: auto; // Cho phép cuộn ngang
+   overflow-y: auto; // Ngăn cuộn dọc trong wrapper
+   padding: 45px 0 0 40px;
+   margin-bottom: 50px;
+ }
+ 
+ .kanban-container {
+   display: flex;
+   gap: 40px;
+   align-items: flex-start;
+   background-color: #ffffff;
+   min-width: fit-content; // Đảm bảo container đủ rộng để chứa tất cả cột
+   height: 100%; // Đảm bảo chiều cao đầy đủ trong wrapper
+ }
+ 
+ .kanban-column {
+   background: #f7f8f9;
+   width: 265px;
+   min-height: 300px;
+   border-radius: 8px;
+   box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+   padding: 15px;
+   display: flex;
+   flex-direction: column;
+   gap: 10px;
+ 
+   h3 {
+     font-size: 16px;
+     font-weight: bold;
+     margin-bottom: 10px;
+   }
+ }
+ 
+ .add-task {
+   background: transparent;
+   border: none;
+   font-size: 14px;
+   color: #555;
+   cursor: pointer;
+ }
+ 
+ .kanban-card {
+   height: 107px;
+   display: flex;
+   flex-direction: column;
+   background: #eef4fc;
+   padding: 20px;
+   margin-bottom: 15px;
+   border-radius: 8px;
+   box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+   cursor: grab;
+ 
+   &.dragging {
+     opacity: 0.5;
+   }
+ 
+   p {
+     margin: 0;
+     font-size: 14px;
+     cursor: pointer;
+   }
+ 
+   strong {
+     font-size: 14px;
+   }
+ 
+   .task-content {
+     display: flex;
+     justify-content: space-between;
+     align-items: center;
+     gap: 10px;
+ 
+     input[type="checkbox"] {
+       width: 18px;
+       height: 18px;
+       cursor: pointer;
+     }
+   }
+ }
+ 
+ .card-footer {
+   display: flex;
+   justify-content: space-between;
+   align-items: center;
+   margin-top: 40px;
+ }
+ 
+ .project-label {
+   font-size: 12px;
+   background: #d1e7ff;
+   padding: 3px 6px;
+   border-radius: 4px;
+ }
+ 
+ .task-header {
+   display: flex;
+   align-items: center;
+   justify-content: end;
+   gap: 16px;
+   padding: 10px 0 0 0;
+   margin-top: 20px;
+ 
+   .task-add {
+     display: flex;
+     align-items: center;
+     gap: 6px;
+     color: #6b7280;
+     font-size: 14px;
+ 
+     img {
+       width: 25px;
+       height: 24px;
+       border-radius: 4px;
+       padding: 4px;
+       background-color: #f3f8f6;
+       border: 1px solid #d1d5db;
+     }
+   }
+ 
+   .task-icons {
+     display: flex;
+     align-items: center;
+ 
+     img {
+       width: 30px;
+       height: 30px;
+       margin-right: 10px;
+       border-radius: 50%;
+       object-fit: cover;
+       &:hover {
+         background-color: #d1d5db;
+       }
+     }
+   }
+ }
