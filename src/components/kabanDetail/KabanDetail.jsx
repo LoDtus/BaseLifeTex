@@ -19,6 +19,12 @@ import { useForm, Controller } from "react-hook-form";
 import Zoom from "react-medium-image-zoom";
 import "react-medium-image-zoom/dist/styles.css";
 import imageAvatar from "../../assets/image/image_5.png";
+import { getlistUser } from "../../apis/use";
+import {
+  getTaskDetailById,
+  updateIssueData,
+} from "../../apis/Issue";
+import { useSelector } from "react-redux";
 
 const ITEM_HEIGHT = 48;
 const ITEM_PADDING_TOP = 8;
@@ -26,7 +32,7 @@ const MenuProps = {
   PaperProps: {
     style: {
       maxHeight: ITEM_HEIGHT * 4.5 + ITEM_PADDING_TOP,
-      width: 250,
+      width: 200,
     },
   },
 };
@@ -42,6 +48,18 @@ const KabanDetail = ({ open, task, handleClose }) => {
     startDate: false,
     endDate: false,
     status: false,
+    comment: false,
+  };
+
+  const readOnlyDefault = {
+    title: true,
+    description: true,
+    link: true,
+    assigneeId: true,
+    startDate: true,
+    endDate: true,
+    status: true,
+    comment: true,
   };
 
   const errorMessages = {
@@ -54,34 +72,42 @@ const KabanDetail = ({ open, task, handleClose }) => {
     status: "Trạng thái không được để trống!",
     startDateInvalid: "Ngày bắt đầu phải nhỏ hơn ngày kết thúc!",
     endDateInvalid: "Ngày kết thúc phải lớn hơn ngày bắt đầu!",
+    comment: "Bình luận không được để trống!",
   };
 
   const [data, setData] = useState({});
+  const [onlyRead, setOnlyRead] = useState(readOnlyDefault);
   const [comment, setComment] = useState("");
   const [comments, setComments] = useState([]);
   const [errorData, setErrorData] = useState(errorsDefault);
   const [selectedPerson, setSelectedPerson] = useState([]);
   const [listMember, setListMember] = useState([]);
   const token = "jhgshddabjsbbdak";
+  const user = useSelector((state) => state.auth.login.currentUser);
 
-  const getMemberByProject = async () => {
-      const response = await getlistUser(token, data.projectId);
-      if (response.members) {
-        setListMember(response.members);
+  const getMemberByProject = async (projectId) => {
+    const response = await getlistUser(token, projectId);
+    if (response.members) {
+      setListMember(response.members);
+    }
+  };
+
+  const getDetailtask = async (id) => {
+    try {
+      let res = await getTaskDetailById(id);
+      if (res) {
+        setData({ ...res.data, assignerId: task.assignerId });
+        setSelectedPerson(task.assigneeId);
       }
-    };
-
-  useEffect(()=>{
-    getMemberByProject()
-  },[])  
+    } catch (err) {
+      toast.error(err);
+    }
+  };
 
   useEffect(() => {
-    if (task !== null) {
-      console.log("Task data:", task);
-      setData({
-        ...task,
-      });
-      setSelectedPerson(task.assigneeId);
+    if (task) {
+      getMemberByProject(task.projectId);
+      getDetailtask(task._id);
     }
   }, [task]);
 
@@ -92,67 +118,213 @@ const KabanDetail = ({ open, task, handleClose }) => {
     }));
     setErrorData({ ...errorData, [type]: false });
   };
+  let isOne = true;
 
-  const handleBlurChange = async (type, value) => {
-    if (type) {
-      if (type === "assigneeId") {
-        if (value && value.length > 0) {
+  const handleBlurChange = async (type, value, event) => {
+    if (user) {
+      if (event.type === "keydown" && event.key !== "Enter") return;
+      let check = validateField(type, value);
+      if (check === true) {
+        let res = await updateIssueData(task._id, {
+          ...data,
+          assigneeId: data.assigneeId.map((i) => i._id),
+          assignerId: data.assignerId._id,
+          [type]: value,
+        });
+        if (res.message === "Nhiệm vụ cập nhật thành công") {
+          toast.success(res.message);
+          setData({});
+          setErrorData(errorsDefault);
+          getDetailtask(task._id);
+          setOnlyRead(readOnlyDefault);
+        } else {
+          toast.error(res.message);
+          setData({});
+          setErrorData(errorsDefault);
+          getDetailtask(task._id);
+          setOnlyRead(readOnlyDefault);
+        }
+      } else {
+        setTimeout(() => {
+          setData({});
+          setOnlyRead(readOnlyDefault);
+          getDetailtask(task._id);
+          setErrorData(errorsDefault);
+        }, 3000);
+      }
+    }
+    else {
+      toast.warning("Bạn không có quyền sửa!");
+    }
+  };
+
+  const handleFocus = (type) => {
+    if (user || type === "comment") {
+      setOnlyRead((prevState) => ({ ...prevState, [type]: false }));
+    }
+    else {
+      toast.warning("Bạn không có quyền sửa!");
+    }
+  };
+
+  const validateField = (type, value) => {
+    switch (type) {
+      case "assigneeId":
+        if (!value || value.length === 0) {
+          toast.error(errorMessages.assigneeId);
           setErrorData((prevErrorData) => ({
             ...prevErrorData,
-            [type]: false,
+            assigneeId: true,
           }));
-        } else {
-          setErrorData((prevErrorData) => ({ ...prevErrorData, [type]: true }));
-          toast.error(errorMessages[type]);
+          return false;
         }
-      } else if (type === "startDate" || type === "endDate") {
+        break;
+      case "startDate":
+      case "endDate":
         const startDate = cvDate(data.startDate);
         const endDate = cvDate(data.endDate);
-        if (startDate === null || startDate === "") {
-          setErrorData((prevErrorData) => ({ ...prevErrorData, [type]: true }));
-          toast.error(errorMessages[type]);
-        }
-        if (endDate === null || endDate === "") {
-          setErrorData((prevErrorData) => ({ ...prevErrorData, [type]: true }));
-          toast.error(errorMessages[type]);
-        }
-        if (startDate > endDate) {
+
+        if (!startDate || startDate === "") {
+          toast.error(errorMessages.startDate);
           setErrorData((prevErrorData) => ({
             ...prevErrorData,
             startDate: true,
           }));
-          toast.error(errorMessages.startDateInvalid);
-          return;
+          return false;
         }
-        if (endDate < startDate) {
+
+        if (!endDate || endDate === "") {
+          toast.error(errorMessages.endDate);
           setErrorData((prevErrorData) => ({
             ...prevErrorData,
             endDate: true,
           }));
-          toast.error(errorMessages.endDateInvalid);
-          return;
+          return false;
         }
-        setErrorData((prevErrorData) => ({
-          ...prevErrorData,
-          [type]: false,
-        }));
-      } else {
-        if (value) {
+
+        if (startDate > endDate) {
+          toast.error(errorMessages.startDateInvalid);
           setErrorData((prevErrorData) => ({
             ...prevErrorData,
-            [type]: false,
+            startDate: true,
           }));
-        } else {
-          setErrorData((prevErrorData) => ({ ...prevErrorData, [type]: true }));
-          toast.error(errorMessages[type]);
+          return false;
         }
+
+        if (endDate < startDate) {
+          toast.error(errorMessages.endDateInvalid);
+          setErrorData((prevErrorData) => ({
+            ...prevErrorData,
+            endDate: true,
+          }));
+          return false;
+        }
+        break;
+      default:
+        if (!value) {
+          toast.error(errorMessages[type]);
+          setErrorData((prevErrorData) => ({ ...prevErrorData, [type]: true }));
+          return false;
+        }
+        break;
+    }
+    return true;
+  };
+
+  const handleSelectAssigneeId = (event, field) => {
+    if (user) {
+      const selectedValues = event.target.value;
+      setSelectedPerson(
+        listMember.filter((person) => selectedValues.includes(person._id))
+      );
+      if (selectedValues.length === 0) {
+        setErrorData((prevErrorData) => ({
+          ...prevErrorData,
+          assigneeId: true,
+        }));
+        toast.error(errorMessages["assigneeId"]);
+      } else {
+        setErrorData((prevErrorData) => ({
+          ...prevErrorData,
+          assigneeId: false,
+        }));
       }
+      field.onChange(selectedValues);
+    }
+    else {
+      toast.warning("Bạn không có quyền sửa!");
     }
   };
 
-  const handleAddComment = () => {
-    console.log(data);
-    console.log(selectedPerson);
+  const handleSelectAssigneeIdBlur = async (value, e) => {
+    if (user) {
+      let check = validateField("assigneeId", value);
+      if (check === true) {
+        let res = await updateIssueData(task._id, {
+          ...data,
+          assigneeId: selectedPerson.map((i) => i._id),
+          assignerId: data.assignerId._id,
+          [type]: value,
+        });
+        if (res.message === "Nhiệm vụ cập nhật thành công") {
+          toast.success(res.message);
+          setData({});
+          setErrorData(errorsDefault);
+          getDetailtask(task._id);
+          setOnlyRead(readOnlyDefault);
+        } else {
+          toast.error(res.message);
+          setData({});
+          setErrorData(errorsDefault);
+          getDetailtask(task._id);
+          setOnlyRead(readOnlyDefault);
+        }
+      } else {
+        setTimeout(() => {
+          setData({});
+          setOnlyRead(readOnlyDefault);
+          getDetailtask(task._id);
+          setErrorData(errorsDefault);
+        }, 3000);
+      }
+    }
+    else {
+      toast.warning("Bạn không có quyền sửa!");
+    }
+  };
+
+  const handleAddComment = async () => {
+    if (user) {
+      if (comment) {
+        try {
+          let res = "";
+          if (res) {
+            toast.success(res.message);
+          }
+        } catch (err) {
+          toast.error(res.message);
+        }
+      } else {
+        setErrorData((prevErrorData) => ({ ...prevErrorData, comment: true }));
+        toast.error(errorMessages["comment"]);
+      }
+    } else {
+      toast.warning("Đăng nhập để thực hiện yêu cầu này!");
+    }
+    setOnlyRead(readOnlyDefault);
+  };
+
+  const handleKeyDown = () => {
+    if (event.key === "Enter") {
+      handleAddComment();
+      setOnlyRead(readOnlyDefault);
+    }
+  };
+
+  const handleCancel = () => {
+    setComment("");
+    setOnlyRead(readOnlyDefault);
+    setErrorData(errorsDefault);
   };
 
   return (
@@ -184,9 +356,13 @@ const KabanDetail = ({ open, task, handleClose }) => {
                   error={errorData.title}
                   placeholder="Nhập vấn đề..."
                   value={data?.title}
-                  onBlur={() => handleBlurChange("title", data?.title)}
+                  onFocus={() => handleFocus("title")}
+                  onBlur={(e) => handleBlurChange("title", data?.title, e)}
                   onChange={(e) => handleChangeInput("title", e.target.value)}
                   className="kaban-content-text-edit"
+                  InputProps={{
+                    readOnly: onlyRead.title,
+                  }}
                 />
                 <TextField
                   variant="outlined"
@@ -199,47 +375,67 @@ const KabanDetail = ({ open, task, handleClose }) => {
                   placeholder="Nhập nội dung..."
                   value={data?.description}
                   error={errorData.description}
-                  onBlur={() =>
-                    handleBlurChange("description", data?.description)
+                  onFocus={() => handleFocus("description")}
+                  onBlur={(e) =>
+                    handleBlurChange("description", data?.description, e)
                   }
                   onChange={(e) =>
                     handleChangeInput("description", e.target.value)
                   }
+                  InputProps={{
+                    readOnly: onlyRead.description,
+                  }}
                   className="kaban-content-text-edit"
                 />
               </div>
               <div className="comment-section">
                 <h4>Bình luận</h4>
-                <div className="comment-box">
-                  <img
-                    src="https://w7.pngwing.com/pngs/922/214/png-transparent-computer-icons-avatar-businessperson-interior-design-services-corporae-building-company-heroes-thumbnail.png"
-                    alt="user"
-                    className="avatar"
-                  />
-                  <TextField
-                    variant="outlined"
-                    size="small"
-                    fullWidth
-                    multiline
-                    minRows={3}
-                    placeholder="Nhập bình luận..."
-                    value={comment}
-                    onChange={(e) => setComment(e.target.value)}
-                    className="comment-input"
-                  />
-                </div>
-                <div className="comment-actions">
-                  <Button
-                    variant="contained"
-                    color="primary"
-                    onClick={handleAddComment}
-                  >
-                    Gửi
-                  </Button>
-                  <Button variant="contained" className="cancel-btn">
-                    Hủy
-                  </Button>
-                </div>
+                {user === null && (
+                  <>
+                    <div className="comment-box">
+                      <img src={imageAvatar} alt="user" className="avatar" />
+                      <TextField
+                        variant="outlined"
+                        size="small"
+                        fullWidth
+                        multiline
+                        error={errorData.comment}
+                        minRows={3}
+                        placeholder="Nhập bình luận..."
+                        value={comment}
+                        onKeyDown={() => handleKeyDown()}
+                        onFocus={() => handleFocus("comment")}
+                        onChange={(e) => {
+                          setComment(e.target.value);
+                          setErrorData((prevErrorData) => ({
+                            ...prevErrorData,
+                            comment: false,
+                          }));
+                        }}
+                        InputProps={{
+                          readOnly: onlyRead.comment,
+                        }}
+                        className="comment-input"
+                      />
+                    </div>
+                    <div className="comment-actions">
+                      <Button
+                        variant="contained"
+                        color="primary"
+                        onClick={handleAddComment}
+                      >
+                        Gửi
+                      </Button>
+                      <Button
+                        onClick={handleCancel}
+                        variant="contained"
+                        className="cancel-btn"
+                      >
+                        Hủy
+                      </Button>
+                    </div>
+                  </>
+                )}
                 <div className="comment-list">
                   {comments.length > 0 &&
                     comments.map((cmt) => (
@@ -274,82 +470,94 @@ const KabanDetail = ({ open, task, handleClose }) => {
                       rules={{
                         required: "Vui lòng chọn ít nhất một người nhận việc",
                       }}
-                      render={({ field }) => (
-                        <Select
-                          {...field}
-                          labelId="demo-multiple-checkbox-label"
-                          id="demo-multiple-checkbox"
-                          multiple
-                          value={field.value || []}
-                          onChange={(event) =>
-                            field.onChange(event.target.value)
-                          }
-                          renderValue={(selected) =>
-                            selected
-                              .map(
-                                (id) =>
-                                  listMember.find((person) => person._id === id)
-                                    ?.userName
+                      render={({ field }) => {
+                        if (isOne) {
+                          field.value =
+                            selectedPerson &&
+                            selectedPerson.length > 0 &&
+                            selectedPerson.map((a) => a._id);
+                          isOne = false;
+                        }
+                        return (
+                          <Select
+                            {...field}
+                            labelId="demo-multiple-checkbox-label"
+                            id="demo-multiple-checkbox"
+                            multiple
+                            error={errorData.assigneeId}
+                            value={field.value || []}
+                            onChange={(event) =>
+                              handleSelectAssigneeId(event, field)
+                            }
+                            onFocus={() => handleFocus("assigneeId")}
+                            onBlur={(e) =>
+                              handleSelectAssigneeIdBlur(
+                                "assigneeId",
+                                selectedPerson,
+                                e
                               )
-                              .join(", ")
-                          }
-                          MenuProps={MenuProps}
-                          sx={{
-                            mb: 1,
-                          }}
-                          defaultValue={task?.assigneeId.map((i) => i._id)}
-                        >
-                          {listMember.map((person) => (
-                            <MenuItem key={person._id} value={person._id}>
-                              <Checkbox
-                                checked={
-                                  field.value?.includes(person._id) || false
-                                }
-                              />
-                              <Box
-                                display="flex"
-                                alignItems="center"
-                                sx={{
-                                  ml: 4,
-                                }}
-                              >
-                                <Avatar
+                            }
+                            renderValue={(selected) => {
+                              const selectedNames = listMember
+                                .filter((item) => selected.includes(item._id))
+                                .map((a) => a.userName);
+
+                              return selectedNames.length > 2
+                                ? selectedNames.slice(0, 2).join(", ") + " ... "
+                                : selectedNames.join(", ");
+                            }}
+                            MenuProps={MenuProps}
+                            InputProps={{
+                              readOnly: onlyRead.assigneeId,
+                            }}
+                            sx={{
+                              mb: 1,
+                            }}
+                          >
+                            {listMember.map((person) => (
+                              <MenuItem key={person._id} value={person._id}>
+                                <Checkbox
+                                  checked={
+                                    (field.value &&
+                                      field.value.length > 0 &&
+                                      field.value?.includes(person._id)) ||
+                                    false
+                                  }
+                                />
+                                <Box
+                                  display="flex"
+                                  alignItems="center"
                                   sx={{
-                                    bgcolor: "purple",
-                                    width: 40,
-                                    height: 40,
-                                    marginRight: 2,
-                                  }}
-                                  src="image\\f8ad738c648cb0c7cc815d6ceda805b0.png"
-                                ></Avatar>
-                                <Typography
-                                  sx={{
-                                    fontWeight: 500,
-                                    width: "200px",
-                                    whiteSpace: "nowrap",
-                                    overflow: "hidden",
-                                    textOverflow: "ellipsis",
+                                    ml: 1,
                                   }}
                                 >
-                                  {person.userName}
-                                </Typography>
-                              </Box>
-                            </MenuItem>
-                          ))}
-                        </Select>
-                      )}
+                                  <Avatar
+                                    sx={{
+                                      bgcolor: "purple",
+                                      width: 40,
+                                      height: 40,
+                                      marginRight: 2,
+                                    }}
+                                    src="image\\f8ad738c648cb0c7cc815d6ceda805b0.png"
+                                  ></Avatar>
+                                  <Typography
+                                    sx={{
+                                      fontWeight: 500,
+                                      width: "150px",
+                                      whiteSpace: "nowrap",
+                                      overflow: "hidden",
+                                      textOverflow: "ellipsis",
+                                    }}
+                                  >
+                                    {person.userName}
+                                  </Typography>
+                                </Box>
+                              </MenuItem>
+                            ))}
+                          </Select>
+                        );
+                      }}
                     />
-                    {errorData.assigneeId && (
-                      <Typography
-                        variant="span"
-                        sx={{
-                          color: "red",
-                          fontSize: "small",
-                        }}
-                      >
-                        Vui lòng chọn ít nhất một người nhận việc
-                      </Typography>
-                    )}
                   </FormControl>
                 </div>
               </div>
@@ -368,8 +576,12 @@ const KabanDetail = ({ open, task, handleClose }) => {
                     error={errorData.link}
                     placeholder="Nhập link..."
                     value={data?.link}
+                    onFocus={() => handleFocus("link")}
+                    onBlur={(e) => handleBlurChange("link", data?.link, e)}
                     onChange={(e) => handleChangeInput("link", e.target.value)}
-                    onBlur={() => handleBlurChange("link", data?.link)}
+                    InputProps={{
+                      readOnly: onlyRead.link,
+                    }}
                   />
                 </div>
               </div>
@@ -395,15 +607,21 @@ const KabanDetail = ({ open, task, handleClose }) => {
                       size="small"
                       error={errorData.status}
                       value={data?.status || ""}
+                      onFocus={() => handleFocus("status")}
+                      onBlur={(e) =>
+                        handleBlurChange("status", data?.status, e)
+                      }
                       onChange={(e) =>
                         handleChangeInput("status", e.target.value)
                       }
-                      onBlur={() => handleBlurChange("status", data?.status)}
                       sx={{
                         width: "100%",
                         height: 40,
                       }}
                       displayEmpty
+                      InputProps={{
+                        readOnly: onlyRead.status,
+                      }}
                     >
                       <MenuItem value="">
                         <em>Trạng thái</em>
@@ -427,14 +645,18 @@ const KabanDetail = ({ open, task, handleClose }) => {
                     size="small"
                     error={errorData.startDate}
                     value={cvDate(data?.startDate)}
+                    onFocus={() => handleFocus("startDate")}
+                    onBlur={(e) =>
+                      handleBlurChange("startDate", data?.startDate, e)
+                    }
                     onChange={(e) =>
                       handleChangeInput("startDate", e.target.value)
                     }
-                    onBlur={() =>
-                      handleBlurChange("startDate", data?.startDate)
-                    }
                     InputLabelProps={{
                       shrink: true,
+                    }}
+                    InputProps={{
+                      readOnly: onlyRead.startDate,
                     }}
                     sx={{ mb: 2 }}
                   />
@@ -450,12 +672,18 @@ const KabanDetail = ({ open, task, handleClose }) => {
                     size="small"
                     error={errorData.endDate}
                     value={cvDate(data?.endDate)}
+                    onFocus={() => handleFocus("endDate")}
+                    onBlur={(e) =>
+                      handleBlurChange("endDate", data?.endDate, e)
+                    }
                     onChange={(e) =>
                       handleChangeInput("endDate", e.target.value)
                     }
-                    onBlur={() => handleBlurChange("endDate", data?.endDate)}
                     InputLabelProps={{
                       shrink: true,
+                    }}
+                    InputProps={{
+                      readOnly: onlyRead.endDate,
                     }}
                     sx={{ mb: 2 }}
                   />

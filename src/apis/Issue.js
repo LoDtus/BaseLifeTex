@@ -118,3 +118,13 @@ export const updateIssueDataImage = async (id, data, imageFile) => {
     console.error("Error updating issue:", error);
   }
 };
+
+export const getTaskDetailById = async (id) => {
+  try {
+    const response = await axios.get(`${backendUrl}/tasks/${id}`);
+    // console.log(response);
+    return response.data;
+  } catch (error) {
+    console.log(error);
+  }
+}
