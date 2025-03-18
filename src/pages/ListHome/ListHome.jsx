@@ -45,7 +45,6 @@ const TaskTable = () => {
   const [listTask, setListTask] = useState([]);
   const [openComment, setOpenComment] = useState(false);
 
-
   const fetchApi = async (id) => {
     const res = await getLisTaskById(id);
     // console.log(res);
@@ -99,7 +98,7 @@ const TaskTable = () => {
   };
 
   const [open, setOpen] = useState(false);
-  const [issueStatus, setIssueStatus] = useState("");
+  const [issueStatus, setIssueStatus] = useState("Công việc mới");
 
   const onClose = () => {
     setOpen(false);
@@ -398,10 +397,7 @@ const TaskTable = () => {
             },
           }}
         >
-          <Table
-            className="task-table"
-            aria-label="sticky table"
-          >
+          <Table className="task-table" aria-label="sticky table">
             <TableHead>
               <TableRow>
                 <TableCell></TableCell> {/* Checkbox */}
