@@ -205,3 +205,14 @@
   display: none;
   /* Ẩn scrollbar trên Chrome, Edge, Safari */
 }
+
+.all-member-in-task {
+  padding: 20px;
+}
+
+.assignees {
+  .MuiAvatar-root {
+    height: 30px;
+    width: 30px;
+  }
+}

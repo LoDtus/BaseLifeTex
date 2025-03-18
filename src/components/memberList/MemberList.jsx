@@ -2,14 +2,16 @@ import React from "react";
 import { Avatar, Box, IconButton, Typography } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 
-const MemberListContent = ({ onClose }) => {
-  const members = [
-    { name: "Nguyễn Đình Minh", avatar: "https://i.pravatar.cc/150?img=10" },
-    { name: "Trần Văn A", avatar: "https://i.pravatar.cc/150?img=11" },
-    { name: "Lê Thị B", avatar: "https://i.pravatar.cc/150?img=12" },
-    { name: "Phạm Văn C", avatar: "https://i.pravatar.cc/150?img=13" },
-    { name: "Hoàng Minh D", avatar: "https://i.pravatar.cc/150?img=14" },
-  ];
+const MemberListContent = ({ onClose, members }) => {
+  // const members = [
+  //   { name: "Nguyễn Đình Minh", avatar: "https://i.pravatar.cc/150?img=10" },
+  //   { name: "Trần Văn A", avatar: "https://i.pravatar.cc/150?img=11" },
+  //   { name: "Lê Thị B", avatar: "https://i.pravatar.cc/150?img=12" },
+  //   { name: "Phạm Văn C", avatar: "https://i.pravatar.cc/150?img=13" },
+  //   { name: "Hoàng Minh D", avatar: "https://i.pravatar.cc/150?img=14" },
+  // ];
+
+  console.log(members);
 
   return (
     <Box
@@ -49,7 +51,7 @@ const MemberListContent = ({ onClose }) => {
           }}
         >
           <Avatar src={member.avatar} />
-          <Typography sx={{ ml: 1 }}>{member.name}</Typography>
+          <Typography sx={{ ml: 1 }}>{member.userName}</Typography>
         </Box>
       ))}
     </Box>
