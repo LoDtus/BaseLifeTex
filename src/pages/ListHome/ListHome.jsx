@@ -30,6 +30,7 @@ import TableRow from "@mui/material/TableRow";
 import Paper from "@mui/material/Paper";
 import CommentModal from "../../components/commentModal/CommentModal";
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
+import KabanDetail from "../../components/kabanDetail/KabanDetail";
 
 const TaskTable = () => {
   const navigate = useNavigate();
@@ -113,6 +114,18 @@ const TaskTable = () => {
   const [idOpenComment, setIdOpenComment] = useState(null);
   const [editStartDate, setEditStartDate] = useState();
   const [editEndDate, setEditEndDate] = useState();
+  const [openDetail, setOpenDetail] = useState(false);
+  const [idOpenDetail, setIdOpenDetail] = useState(null);
+
+  const onOpenDetail = (taskId) => {
+    setIdOpenDetail(taskId);
+    setOpenDetail(true);
+  };
+
+  const closeDetail = () => {
+    setIdOpenDetail(null);
+    setOpenDetail(false);
+  };
 
   const onOpenComment = (taskId) => {
     setIdOpenComment(taskId);
@@ -362,7 +375,15 @@ const TaskTable = () => {
                   </TableCell>
                   <TableCell align="center">{index + 1}</TableCell>
                   <TableCell align="center">
-                    <InfoOutlinedIcon />
+                    <InfoOutlinedIcon onClick={() => onOpenDetail(task._id)} />
+                    {idOpenDetail === task._id && (
+                      <KabanDetail
+                        open={openDetail}
+                        handleClose={closeDetail}
+                        task={task}
+                        // idOpenComment={idOpenComment}
+                      />
+                    )}
                   </TableCell>
                   <TableCell>
                     {editingTaskId === task._id ? (
@@ -455,30 +476,43 @@ const TaskTable = () => {
                           <DatePicker
                             // value={task.startDate}
                             onChange={async (newValue) => {
-                              try {
-                                const response = await updateIssueData(
-                                  task._id,
+                              if (new Date(task.endDate) < newValue) {
+                                toast.error(
+                                  "Ngày bắt đầu phải nhỏ hơn ngày kết thúc",
                                   {
-                                    ...task,
-                                    startDate: newValue,
+                                    autoClose: 3000,
                                   }
                                 );
-                                if (
-                                  response.message ===
-                                  "Nhiệm vụ cập nhật thành công"
-                                ) {
-                                  fetchApi(idProject);
-                                  toast.success(response.message, {
-                                    autoClose: 3000,
-                                  });
-                                } else {
-                                  toast.error(response.message, {
-                                    autoClose: 3000,
-                                  });
+                              } else {
+                                try {
+                                  const response = await updateIssueData(
+                                    task._id,
+                                    {
+                                      ...task,
+                                      startDate: newValue,
+                                    }
+                                  );
+                                  if (
+                                    response.message ===
+                                    "Nhiệm vụ cập nhật thành công"
+                                  ) {
+                                    fetchApi(idProject);
+                                    toast.success(response.message, {
+                                      autoClose: 3000,
+                                    });
+                                  } else {
+                                    toast.error(response.message, {
+                                      autoClose: 3000,
+                                    });
+                                  }
+                                } catch (error) {
+                                  console.error(
+                                    "Lỗi khi cập nhật task:",
+                                    error
+                                  );
                                 }
-                              } catch (error) {
-                                console.error("Lỗi khi cập nhật task:", error);
                               }
+
                               setEditStartDate("startDate", newValue);
                               setEditingDateTaskId(false);
                             }}
@@ -508,30 +542,43 @@ const TaskTable = () => {
                           <DatePicker
                             // value={task.startDate}
                             onChange={async (newValue) => {
-                              try {
-                                const response = await updateIssueData(
-                                  task._id,
+                              if (new Date(task.startDate) > newValue) {
+                                toast.error(
+                                  "Ngày kết thúc phải lớn hơn ngày bắt đầu",
                                   {
-                                    ...task,
-                                    endDate: newValue,
+                                    autoClose: 3000,
                                   }
                                 );
-                                if (
-                                  response.message ===
-                                  "Nhiệm vụ cập nhật thành công"
-                                ) {
-                                  fetchApi(idProject);
-                                  toast.success(response.message, {
-                                    autoClose: 3000,
-                                  });
-                                } else {
-                                  toast.error(response.message, {
-                                    autoClose: 3000,
-                                  });
+                              } else {
+                                try {
+                                  const response = await updateIssueData(
+                                    task._id,
+                                    {
+                                      ...task,
+                                      endDate: newValue,
+                                    }
+                                  );
+                                  if (
+                                    response.message ===
+                                    "Nhiệm vụ cập nhật thành công"
+                                  ) {
+                                    fetchApi(idProject);
+                                    toast.success(response.message, {
+                                      autoClose: 3000,
+                                    });
+                                  } else {
+                                    toast.error(response.message, {
+                                      autoClose: 3000,
+                                    });
+                                  }
+                                } catch (error) {
+                                  console.error(
+                                    "Lỗi khi cập nhật task:",
+                                    error
+                                  );
                                 }
-                              } catch (error) {
-                                console.error("Lỗi khi cập nhật task:", error);
                               }
+
                               setEditEndDate("endDate", newValue);
                               setEditingDateEndTaskId(false);
                             }}
