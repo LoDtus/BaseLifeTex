@@ -27,6 +27,8 @@ function transformTasksData(tasks) {
     acc[columnKey].tasks.push({
       ...task,
       id: task._id,
+      userName: task.assigneeId.length > 0 ? task.assigneeId[0].userName : "Chưa giao", // Lấy userName đầu tiên
+      assigneeUserNames: task.assigneeId.map((assignee) => assignee.userName), // Lưu danh sách tất cả userName
       assigneeId: task.assigneeId.map((assignee) => ({
         ...assignee,
         id: assignee._id,
