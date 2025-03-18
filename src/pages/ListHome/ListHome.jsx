@@ -371,7 +371,17 @@ const TaskTable = () => {
         sx={{ width: "100%", overflow: "hidden" }}
         style={{ paddingLeft: "45px" }}
       >
-        <TableContainer sx={{ maxWidth: 1100 }}>
+        <TableContainer
+          sx={{
+            maxWidth: {
+              xs: "100%",
+              sm: "100%",
+              md: 1100,
+              lg: 1100,
+              xl: "none",
+            },
+          }}
+        >
           <Table
             // className="task-table"
             aria-label="sticky table"
