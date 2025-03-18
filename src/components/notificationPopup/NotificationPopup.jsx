@@ -44,7 +44,7 @@ export default function NotificationPopup() {
         sx={{ boxShadow: 3, borderRadius: "0" }}
       >
         {/* Nội dung thông báo */}
-        <div style={{ width: "341px", padding: "10px" }}>
+        <div style={{ width: "341px", marginBottom: "15px" }}>
           <div style={{ display: "flex", justifyContent: "flex-end" }}>
             <IconButton onClick={handleClose}>
               <CloseIcon fontSize="small" />
@@ -56,7 +56,6 @@ export default function NotificationPopup() {
               alignItems: "center",
               background: "#f5f5f5",
               padding: "10px",
-              borderRadius: "10px",
               marginTop: "5px",
             }}
           >
@@ -65,7 +64,7 @@ export default function NotificationPopup() {
               alt="avatar"
               style={{ borderRadius: "50%", marginRight: "10px" }}
             />
-            <div style={{ flex: 1 }}>
+            <div style={{ flex: 1, fontSize: "10px" }}>
               <strong>Nguyễn Long Vũ</strong>: đã trả lời bình luận của bạn
             </div>
             <IconButton>
