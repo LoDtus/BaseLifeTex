@@ -22,6 +22,8 @@ import UploadImageButton from "../UploadDownloadImage/UploadDownloadImage";
 import { getlistUser } from "../../apis/use";
 import { postIssueData } from "../../apis/Issue";
 import { useSearchParams } from "react-router-dom";
+import { useSelector } from "react-redux";
+import { toast } from "react-toastify";
 
 const ITEM_HEIGHT = 48;
 const ITEM_PADDING_TOP = 8;
@@ -53,6 +55,8 @@ const IssueForm = ({ isOpen, onClose, status }) => {
   const [searchParams] = useSearchParams();
   const idProject = searchParams.get("idProject");
 
+  const user = useSelector((state) => state.auth.login.currentUser);
+
   const [selectedPerson, setSelectedPerson] = useState([]);
 
   const {
@@ -65,15 +69,28 @@ const IssueForm = ({ isOpen, onClose, status }) => {
   const [image, setImage] = useState();
 
   const onSubmit = async (data) => {
-    const issueData = await postIssueData(
-      {
-        ...data,
-        image,
-        status,
-        idProject,
-      },
-      token
-    );
+    try {
+      const issueData = await postIssueData(
+        {
+          ...data,
+          image,
+          status,
+          idProject,
+          assignerId: user.data._id,
+        },
+        token
+      );
+      if (issueData) {
+        toast.success("Tạo nhiệm vụ thành công");
+        onClose();
+      } else {
+        toast.error("Tạo nhiệm vụ thất bại");
+        onClose();
+      }
+    } catch (error) {
+      toast.error("Tạo nhiệm vụ thất bại");
+      return;
+    }
     console.log("Issue submitted:", issueData);
   };
   useEffect(() => {
