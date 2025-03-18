@@ -50,6 +50,7 @@ const names = [
   { _id: 10, name: "Kelly Snyder" },
 ];
 const IssueForm = ({ isOpen, onClose, status }) => {
+  console.log("status", status);
   const token = "hjshdjhdjsasas";
 
   const [searchParams] = useSearchParams();

@@ -4,6 +4,8 @@ import { toolTaskStatus } from "../tools/toolsCvStatus";
 const backendUrl = import.meta.env.VITE_BACKEND_URL;
 
 export const postIssueData = async (data, token) => {
+  console.log(toolTaskStatus(data.status));
+  
   try {
     const formData = new FormData();
     formData.append("image", data.image);
