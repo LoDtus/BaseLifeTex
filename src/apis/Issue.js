@@ -32,26 +32,44 @@ export const postIssueData = async (data, token) => {
   }
 };
 
-export const updateIssueData = async (data, token) => {
+export const updateIssueData = async (id, data) => {
   try {
     const response = await axios.put(
-      `${backendUrl}/task/edit-tash/${data.id}`,
-      {
-        personName: data.personName,
-        issueName: data.issueName,
-        link: data.link,
-        description: data.description,
-        startDate: data.startDate,
-        endDate: data.endDate,
-        imageFile: data.imageFile,
-      },
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }
+      `${backendUrl}/tasks/edit-task/${id}`,
+      data
     );
-    console.log("Data posted successfully:", response.data);
+    return response.data;
+  } catch (error) {
+    console.error("Error posting data:", error);
+  }
+};
+
+export const getLisTaskById = async (id) => {
+  try {
+    const response = await axios.get(`${backendUrl}/tasks/project/${id}`);
+    // console.log(response);
+    return response.data;
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+export const updateIssueDataStatus = async (id, data) => {
+  try {
+    const response = await axios.put(`${backendUrl}/tasks/${id}/status`, data);
+    return response.data;
+  } catch (error) {
+    console.error("Error posting data:", error);
+  }
+};
+
+export const addMemberTask = async (id, data) => {
+  try {
+    const response = await axios.post(
+      `${backendUrl}/tasks/${id}/add-user`,
+      data
+    );
+    return response.data;
   } catch (error) {
     console.error("Error posting data:", error);
   }

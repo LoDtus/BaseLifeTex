@@ -7,12 +7,12 @@ import TaskTable from "../pages/ListHome/ListHome";
 import KabanDetail from "../components/kabanDetail/KabanDetail";
 const publicRoutes = [
   {
-    path: "/",
+    path: "/home",
     component: Home,
     layout: MainLayout,
   },
   {
-    path: "/login",
+    path: "/",
     component: Login,
     layout: LoginLayout,
   },

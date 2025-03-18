@@ -11,8 +11,15 @@ import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import EventAvailableIcon from "@mui/icons-material/EventAvailable";
 import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
 import { toast, ToastContainer } from "react-toastify";
+import dayjs from "dayjs";
 
 const KabanDetail = ({ open, handleClose }) => {
+  const parseDate = (dateString) => {
+    if (!dateString) return null;
+    const parsedDate = dayjs(dateString, "DD-MM-YYYY");
+    return parsedDate.isValid() ? parsedDate : null;
+  };
+
   const listUser = [
     {
       id: "abc",
@@ -44,28 +51,44 @@ const KabanDetail = ({ open, handleClose }) => {
     {
       id: "anb",
       commentBy: "Tran Van C",
-      text: "Lỗi undefinde dòng 8",
+      text: "Chưa hoàn thiện giao diện kanba",
     },
     {
       id: "klj",
       commentBy: "Nguyen Van A",
-      text: "Lỗi thiếu function",
+      text: "Chưa call api lấy danh sách kanba",
     },
   ];
 
   const dataDefault = {
-    issueName: "Bug Header",
-    description: "Text is not visible",
+    issueName: "Lỗi hiển thị danh sách kanba",
+    description:
+      "Danh sách kanba bị lỗi hiển thị chưa get được danh sách task theo id dự án.",
     link: "LifeTex.com.vn",
-    imageFile: "",
-    personName: [],
+    imageFile:
+      "https://www.economist.com/cdn-cgi/image/width=1424,quality=80,format=auto/sites/default/files/images/2015/09/blogs/economist-explains/code2.png",
+    personName: [
+      {
+        id: "efd",
+        name: "Le Van B",
+        avatar:
+          "https://w7.pngwing.com/pngs/922/214/png-transparent-computer-icons-avatar-businessperson-interior-design-services-corporae-building-company-heroes-thumbnail.png",
+      },
+      {
+        id: "hgj",
+        name: "Tran Van C",
+        avatar:
+          "https://w7.pngwing.com/pngs/922/214/png-transparent-computer-icons-avatar-businessperson-interior-design-services-corporae-building-company-heroes-thumbnail.png",
+      },
+    ],
     report: {
-      name: 'Tucker',
-      avatar: 'https://w7.pngwing.com/pngs/922/214/png-transparent-computer-icons-avatar-businessperson-interior-design-services-corporae-building-company-heroes-thumbnail.png',
+      name: "Tucker",
+      avatar:
+        "https://w7.pngwing.com/pngs/922/214/png-transparent-computer-icons-avatar-businessperson-interior-design-services-corporae-building-company-heroes-thumbnail.png",
     },
-    startDate: null,
-    endDate: null,
-    status: "",
+    startDate: parseDate("05-01-2025"),
+    endDate: parseDate("05-01-2025"),
+    status: "1",
   };
 
   const errorsDefault = {
@@ -76,6 +99,18 @@ const KabanDetail = ({ open, handleClose }) => {
     startDate: false,
     endDate: false,
     status: false,
+  };
+
+  const errorMessages = {
+    issueName: "Tên vấn đề không được để trống!",
+    description: "Mô tả không được để trống!",
+    link: "Link không được để trống!",
+    personName: "Tên người không được để trống!",
+    startDate: "Ngày bắt đầu không được để trống!",
+    endDate: "Ngày kết thúc không được để trống!",
+    status: "Trạng thái không được để trống!",
+    startDateInvalid: "Ngày bắt đầu phải nhỏ hơn ngày kết thúc!",
+    endDateInvalid: "Ngày kết thúc phải lớn hơn ngày bắt đầu!",
   };
 
   const [data, setData] = useState(dataDefault);
@@ -89,349 +124,453 @@ const KabanDetail = ({ open, handleClose }) => {
       ...prev,
       [type]: value,
     }));
-    setErrorData({...errorData,[type]:false});
+    setErrorData({ ...errorData, [type]: false });
   };
 
   const handleChangeSelect = (value) => {
+    const {personName,...newData} = data;
     const uniqueArr = value.filter(
       (num) => value.indexOf(num) === value.lastIndexOf(num)
     );
-    setData({ ...data, personName: uniqueArr });
+    setData({ ...newData, personName: uniqueArr });
   };
 
-  const handleBlurChange = (type,value) => {
-    if(type) {
-      if(value) {
-        console.log(data);
-        setErrorData({...errorData,[type]:false});
-      }
-      else {
-        setErrorData({...errorData,[type]:true});
-        toast.error(`${type} không được để trống!`);
+  const handleBlurChange = async (type, value) => {
+    if (type) {
+      if (type === "personName") {
+        if (value && value.length > 0) {
+          console.log(data);
+          setErrorData((prevErrorData) => ({
+            ...prevErrorData,
+            [type]: false,
+          }));
+        } else {
+          setErrorData((prevErrorData) => ({ ...prevErrorData, [type]: true }));
+          toast.error(errorMessages[type]);
+        }
+      } else if (type === "startDate" || type === "endDate") {
+        if (value && typeof value.isValid === "function" && value.isValid()) {
+          let isValid = true;
+
+          if (type === "startDate" && data.endDate && data.endDate.isValid()) {
+            isValid =
+              value.isBefore(data.endDate) || value.isSame(data.endDate);
+          } else if (
+            type === "endDate" &&
+            data.startDate &&
+            data.startDate.isValid()
+          ) {
+            isValid =
+              value.isAfter(data.startDate) || value.isSame(data.startDate);
+          }
+
+          setErrorData((prevErrorData) => ({
+            ...prevErrorData,
+            [type]: !isValid,
+          }));
+
+          if (!isValid) {
+            toast.error(errorMessages[type + "Invalid"]);
+          }
+        } else {
+          setErrorData((prevErrorData) => ({ ...prevErrorData, [type]: true }));
+          toast.error(errorMessages[type]);
+        }
+      } else {
+        if (value || value === 0) {
+          console.log(data);
+          setErrorData((prevErrorData) => ({
+            ...prevErrorData,
+            [type]: false,
+          }));
+        } else {
+          setErrorData((prevErrorData) => ({ ...prevErrorData, [type]: true }));
+          toast.error(errorMessages[type]);
+        }
       }
     }
   };
 
   const handleAddComment = () => {
-    // if (comment.trim()) {
-    //   const newComment = {
-    //     id: Math.random().toString(36).substr(2, 9),
-    //     commentBy: "Tucker",
-    //     text: comment,
-    //   };
-    //   setComments((prev) => [...prev, newComment]);
-    //   setComment("");
-    // }
-    console.log(data)
+    console.log(data);
   };
 
   return (
     <>
-    <Modal
-      open={true}
-      style={{ border: "none", outline: "none" }}
-      onClose={handleClose}
-      className="modal-container"
-    >
-      <Box className="kaban-detail">
-        <div className="kaban-detail-header">
-          <p>
-            <EventAvailableIcon /> kan-1
-          </p>
-          <button className="close-btn" onClick={handleClose}>
-            ✖
-          </button>
-        </div>
-        <div className="content">
-          <div className="kaban-content">
-            <div className="kaban-content-text">
-              <TextField
-                variant="outlined"
-                size="small"
-                fullWidth
-                multiline
-                error={errorData.issueName}
-                placeholder="Nhập vấn đề..."
-                value={data.issueName}
-                onBlur={(e)=>handleBlurChange('issueName',e.target.value)}
-                onChange={(e) => handleChangeInput("issueName", e.target.value)}
-                className="kaban-content-text-edit"
-              />
-              <TextField
-                variant="outlined"
-                size="small"
-                fullWidth
-                multiline
-                minRows={6}
-                maxRows={10}
-                sx={{ marginTop: "8px" }}
-                placeholder="Nhập nội dung..."
-                value={data.description}
-                error={errorData.description}
-                onBlur={(e)=>handleBlurChange('description',e.target.value)}
-                onChange={(e) =>
-                  handleChangeInput("description", e.target.value)
-                }
-                className="kaban-content-text-edit"
-              />
-            </div>
-            <div className="comment-section">
-              <h4>Bình luận</h4>
-              <div className="comment-box">
-                <img
-                  src="https://w7.pngwing.com/pngs/922/214/png-transparent-computer-icons-avatar-businessperson-interior-design-services-corporae-building-company-heroes-thumbnail.png"
-                  alt="user"
-                  className="avatar"
+      <Modal
+        open={true}
+        style={{ border: "none", outline: "none" }}
+        onClose={handleClose}
+        className="modal-container"
+      >
+        <Box className="kaban-detail">
+          <div className="kaban-detail-header">
+            <p>
+              <EventAvailableIcon /> kan-1
+            </p>
+            <button className="close-btn" onClick={handleClose}>
+              ✖
+            </button>
+          </div>
+          <div className="content">
+            <div className="kaban-content">
+              <div className="kaban-content-text">
+                <TextField
+                  variant="outlined"
+                  size="small"
+                  fullWidth
+                  multiline
+                  error={errorData.issueName}
+                  placeholder="Nhập vấn đề..."
+                  value={data.issueName}
+                  onBlur={() => handleBlurChange("issueName", data.issueName)}
+                  onChange={(e) =>
+                    handleChangeInput("issueName", e.target.value)
+                  }
+                  className="kaban-content-text-edit"
                 />
                 <TextField
                   variant="outlined"
                   size="small"
                   fullWidth
                   multiline
-                  minRows={3}
-                  placeholder="Nhập bình luận..."
-                  value={comment}
-                  onChange={(e) => setComment(e.target.value)}
-                  className="comment-input"
+                  minRows={10}
+                  maxRows={20}
+                  sx={{ marginTop: "8px" }}
+                  placeholder="Nhập nội dung..."
+                  value={data.description}
+                  error={errorData.description}
+                  onBlur={() =>
+                    handleBlurChange("description", data.description)
+                  }
+                  onChange={(e) =>
+                    handleChangeInput("description", e.target.value)
+                  }
+                  className="kaban-content-text-edit"
                 />
               </div>
-              <div className="comment-actions">
-                <Button
-                  variant="contained"
-                  color="primary"
-                  onClick={handleAddComment}
-                >
-                  Gửi
-                </Button>
-                <Button variant="contained" className="cancel-btn">
-                  Hủy
-                </Button>
-              </div>
-              <div className="comment-list">
-                {comments.map((cmt) => (
-                  <div key={cmt.id} className="comment">
-                    <img
-                      src="https://w7.pngwing.com/pngs/922/214/png-transparent-computer-icons-avatar-businessperson-interior-design-services-corporae-building-company-heroes-thumbnail.png"
-                      alt="user"
-                      className="avatar"
-                    />
-                    <div className="cmt-text">
-                      <p>{cmt.commentBy}</p>
-                      <p>{cmt.text}</p>
+              <div className="comment-section">
+                <h4>Bình luận</h4>
+                <div className="comment-box">
+                  <img
+                    src="https://w7.pngwing.com/pngs/922/214/png-transparent-computer-icons-avatar-businessperson-interior-design-services-corporae-building-company-heroes-thumbnail.png"
+                    alt="user"
+                    className="avatar"
+                  />
+                  <TextField
+                    variant="outlined"
+                    size="small"
+                    fullWidth
+                    multiline
+                    minRows={3}
+                    placeholder="Nhập bình luận..."
+                    value={comment}
+                    onChange={(e) => setComment(e.target.value)}
+                    className="comment-input"
+                  />
+                </div>
+                <div className="comment-actions">
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    onClick={handleAddComment}
+                  >
+                    Gửi
+                  </Button>
+                  <Button variant="contained" className="cancel-btn">
+                    Hủy
+                  </Button>
+                </div>
+                <div className="comment-list">
+                  {comments.map((cmt) => (
+                    <div key={cmt.id} className="comment">
+                      <img
+                        src="https://w7.pngwing.com/pngs/922/214/png-transparent-computer-icons-avatar-businessperson-interior-design-services-corporae-building-company-heroes-thumbnail.png"
+                        alt="user"
+                        className="avatar"
+                      />
+                      <div className="cmt-text">
+                        <p>{cmt.commentBy}</p>
+                        <p>{cmt.text}</p>
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  ))}
+                </div>
               </div>
             </div>
-          </div>
-          <div className="kaban-info">
-            <h4>Thông tin chi tiết</h4>
-            <div className="kaban-description">
-              <p>Người nhận việc:</p>
-              <div className="kaban-description-personName-edit">
-                <FormControl sx={{ width: "100%", overflow: "hidden" }}>
-                  <Select
-                    size="small"
-                    labelId="demo-multiple-name-label"
-                    id="demo-multiple-name"
-                    multiple
-                    value={data.personName}
-                    error={errorData.personName}
-                    onChange={(e) => handleChangeSelect(e.target.value)}
-                    renderValue={(selected) => {
-                      const maxVisible = 4; 
-                      return (
-                        <div
-                          style={{
-                            display: "flex",
-                            alignItems: "center",
-                            gap: "5px",
-                          }}
-                        >
-                          {selected.slice(0, maxVisible).map((name, index) => (
-                            <img
-                              key={index}
-                              src={name.avatar}
-                              alt=""
-                              style={{
-                                width: "23px",
-                                height: "23px",
-                                borderRadius: "50%",
-                              }}
-                            />
-                          ))}
-                          {selected.length > maxVisible && (
-                            <span
+            <div className="kaban-info">
+              <h4>Thông tin chi tiết</h4>
+              <div className="kaban-description">
+                <p>Người nhận việc:</p>
+                <div className="kaban-description-personName-edit">
+                  <FormControl sx={{ width: "100%", overflow: "hidden" }}>
+                    <Select
+                      size="small"
+                      labelId="demo-multiple-name-label"
+                      id="demo-multiple-name"
+                      multiple
+                      value={data.personName}
+                      error={errorData.personName}
+                      onChange={(e) => handleChangeSelect(e.target.value)}
+                      onBlur={() =>
+                        handleBlurChange("personName", data.personName)
+                      }
+                      renderValue={(selected) => {
+                        const maxVisible = 4;
+                        return (
+                          <div
                             style={{
-                              overflow: "hidden",
-                              backgroundColor: "transparent",
-                              borderRadius: "50%",
                               display: "flex",
                               alignItems: "center",
-                              justifyContent: "center",
-                              color: "#333",
-                              border: "2px solid #333",
-                              textAlign: "center",
-                              width: "23px",
-                              height: "23px",
+                              gap: "5px",
                             }}
-                            >
-                              <MoreHorizIcon/>
-                            </span>
-                          )}
-                        </div>
-                      );
-                    }}
-                    MenuProps={{
-                      PaperProps: {
-                        style: {
-                          maxHeight: 200,
-                          overflowY: "auto",
+                          >
+                            {selected
+                              .slice(0, maxVisible)
+                              .map((name, index) => (
+                                <img
+                                  key={index}
+                                  src={name.avatar}
+                                  alt=""
+                                  style={{
+                                    width: "23px",
+                                    height: "23px",
+                                    borderRadius: "50%",
+                                  }}
+                                />
+                              ))}
+                            {selected.length > maxVisible && (
+                              <span
+                                style={{
+                                  overflow: "hidden",
+                                  backgroundColor: "transparent",
+                                  borderRadius: "50%",
+                                  display: "flex",
+                                  alignItems: "center",
+                                  justifyContent: "center",
+                                  color: "#333",
+                                  border: "2px solid #333",
+                                  textAlign: "center",
+                                  width: "23px",
+                                  height: "23px",
+                                }}
+                              >
+                                <MoreHorizIcon />
+                              </span>
+                            )}
+                          </div>
+                        );
+                      }}
+                      MenuProps={{
+                        PaperProps: {
+                          style: {
+                            maxHeight: 200,
+                            overflowY: "auto",
+                          },
                         },
-                      },
-                    }}
-                  >
-                    {user.map((item) => (
-                      <MenuItem key={item.id} value={item}>
-                        <div className={style.wrapItemSlc}>
-                          <img
-                            style={{
-                              width: "25px",
-                              height: "25px",
-                              borderRadius: "50%",
-                            }}
-                            className={style.avatar}
-                            src={item.avatar}
-                            alt="avatar"
-                          />
-                          <div className={style.name}>{item.name}</div>
-                        </div>
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
+                      }}
+                    >
+                      {user.map((item) => (
+                        <MenuItem key={item.id} value={item}>
+                          <div className={style.wrapItemSlc}>
+                            <img
+                              style={{
+                                width: "25px",
+                                height: "25px",
+                                borderRadius: "50%",
+                              }}
+                              className={style.avatar}
+                              src={item.avatar}
+                              alt="avatar"
+                            />
+                            <div className={style.name}>{item.name}</div>
+                          </div>
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+                </div>
               </div>
-            </div>
-            <div className="kaban-description">
-              <p>Link:</p>
-              <div className="kaban-description-link-edit">
-                <TextField
-                  sx={{
-                    width: "100%",
-                  }}
-                  variant="outlined"
-                  size="small"
-                  fullWidth
-                  multiline
-                  error={errorData.link}
-                  placeholder="Nhập link..."
-                  value={data.link}
-                  onChange={(e) => handleChangeInput("link", e.target.value)}
-                />
-              </div>
-            </div>
-            <div className="kaban-description image">
-              <p>Hình ảnh:</p>
-              <p className="kaban-descrition-image">
-                <img
-                  src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRIpV5CA8mgHMPImfa2IWGky1_7N6zcesgnaA&s"
-                  alt=""
-                />
-              </p>
-            </div>
-            <div className="kaban-description">
-              <p>Trạng thái:</p>
-              <div className="kaban-single-info">
-                <FormControl>
-                  <Select
-                    size="small"
-                    error={errorData.status}
-                    value={data.status}
-                    onChange={(e) =>
-                      handleChangeInput("status", e.target.value)
-                    }
+              <div className="kaban-description">
+                <p>Link:</p>
+                <div className="kaban-description-link-edit">
+                  <TextField
                     sx={{
                       width: "100%",
-                      height: 40,
                     }}
-                    displayEmpty
-                  >
-                    <MenuItem value="">
-                      <em>Trạng thái</em>
-                    </MenuItem>
-                    <MenuItem value={0}>Công việc mới</MenuItem>
-                    <MenuItem value={1}>Đang thực hiện</MenuItem>
-                    <MenuItem value={2}>Hoàn thành</MenuItem>
-                    <MenuItem value={3}>Kết thúc</MenuItem>
-                    <MenuItem value={4}>Tạm dừng</MenuItem>
-                  </Select>
-                </FormControl>
-              </div>
-            </div>
-            <div className="kaban-description">
-              <p>Ngày bắt đầu:</p>
-              <div className="kaban-description-date">
-                <LocalizationProvider dateAdapter={AdapterDayjs}>
-                  <DatePicker
-                    name="startDate"
-                    error={errorData.startDate}
-                    slotProps={{
-                      textField: {
-                        size: "small",
-                        sx: {
-                          height: "40px",
-                          "& .MuiInputBase-root": { height: "40px" },
-                        },
-                      },
-                    }}
-                    value={data.startDate}
-                    onChange={(value) =>
-                      handleChangeInput("startDate", value)
-                    }
+                    variant="outlined"
                     size="small"
+                    fullWidth
+                    multiline
+                    error={errorData.link}
+                    placeholder="Nhập link..."
+                    value={data.link}
+                    onChange={(e) => handleChangeInput("link", e.target.value)}
+                    onBlur={() => handleBlurChange("link", data.link)}
                   />
-                </LocalizationProvider>
+                </div>
               </div>
-            </div>
-            <div className="kaban-description">
-              <p>Ngày kết thúc:</p>
-              <div className="kaban-description-date">
-                <LocalizationProvider dateAdapter={AdapterDayjs}>
-                  <DatePicker
-                    name="endDate"
-                    error={errorData.endDate}
-                    slotProps={{
-                      textField: {
-                        size: "small",
-                        sx: {
-                          height: "40px",
-                          "& .MuiInputBase-root": { height: "40px" },
-                        },
-                      },
-                    }}
-                    value={data.endDate}
-                    onChange={(value) =>
-                      handleChangeInput("endDate",value)
-                    }
-                    size="small"
-                  />
-                </LocalizationProvider>
-              </div>
-            </div>
-            <div className="kaban-description">
-              <p>Người báo cáo:</p>
-              <div className="kaban-single-info">
-                <img src={data.report.avatar} alt="" />
-                <p>
-                  {data.report.name}
+              <div className="kaban-description image">
+                <p>Hình ảnh:</p>
+                <p className="kaban-descrition-image">
+                  <img src={data.imageFile} alt="image" />
                 </p>
+              </div>
+              <div className="kaban-description">
+                <p>Trạng thái:</p>
+                <div className="kaban-single-info">
+                  <FormControl>
+                    <Select
+                      size="small"
+                      error={errorData.status}
+                      value={data.status}
+                      onChange={(e) =>
+                        handleChangeInput("status", e.target.value)
+                      }
+                      onBlur={() => handleBlurChange("status", data.status)}
+                      sx={{
+                        width: "100%",
+                        height: 40,
+                      }}
+                      displayEmpty
+                    >
+                      <MenuItem value="">
+                        <em>Trạng thái</em>
+                      </MenuItem>
+                      <MenuItem value={0}>Công việc mới</MenuItem>
+                      <MenuItem value={1}>Đang thực hiện</MenuItem>
+                      <MenuItem value={2}>Hoàn thành</MenuItem>
+                      <MenuItem value={3}>Kết thúc</MenuItem>
+                      <MenuItem value={4}>Tạm dừng</MenuItem>
+                    </Select>
+                  </FormControl>
+                </div>
+              </div>
+              <div className="kaban-description">
+                <p>Ngày bắt đầu:</p>
+                <div className="kaban-description-date">
+                  <LocalizationProvider dateAdapter={AdapterDayjs}>
+                    <DatePicker
+                      name="startDate"
+                      error={errorData.startDate}
+                      slotProps={{
+                        textField: {
+                          size: "small",
+                          error: errorData.startDate,
+                          onBlur: () =>
+                            handleBlurChange("startDate", data.startDate),
+                          sx: {
+                            height: "40px",
+                            "& .MuiInputBase-root": {
+                              height: "40px",
+                              "&.Mui-error": {
+                                border: "1px solid red !important",
+                                borderRadius: "4px",
+                              },
+                            },
+                            "& .MuiOutlinedInput-notchedOutline": {
+                              border: errorData.startDate
+                                ? "1px solid red !important"
+                                : null,
+                              borderRadius: "4px",
+                            },
+                          },
+                        },
+                      }}
+                      value={data.startDate}
+                      onChange={(value) => {
+                        handleChangeInput("startDate", value);
+
+                        if (value && data.endDate && data.endDate.isValid()) {
+                          const isValid =
+                            value.isBefore(data.endDate) ||
+                            value.isSame(data.endDate);
+
+                          setErrorData((prevErrorData) => ({
+                            ...prevErrorData,
+                            startDate: !isValid,
+                          }));
+                          if (!isValid) {
+                            toast.error(errorMessages.startDateInvalid);
+                          }
+                        }
+                      }}
+                      size="small"
+                      format="DD/MM/YYYY"
+                    />
+                  </LocalizationProvider>
+                </div>
+              </div>
+              <div className="kaban-description">
+                <p>Ngày kết thúc:</p>
+                <div className="kaban-description-date">
+                  <LocalizationProvider dateAdapter={AdapterDayjs}>
+                    <DatePicker
+                      name="endDate"
+                      error={errorData.endDate}
+                      slotProps={{
+                        textField: {
+                          size: "small",
+                          error: errorData.endDate,
+                          onBlur: () =>
+                            handleBlurChange("endDate", data.endDate),
+                          sx: {
+                            height: "40px",
+                            "& .MuiInputBase-root": {
+                              height: "40px",
+                              "&.Mui-error": {
+                                border: "1px solid red !important",
+                                borderRadius: "4px",
+                              },
+                            },
+                            "& .MuiOutlinedInput-notchedOutline": {
+                              border: errorData.endDate
+                                ? "1px solid red !important"
+                                : null,
+                              borderRadius: "4px",
+                            },
+                          },
+                        },
+                      }}
+                      value={data.endDate}
+                      onChange={(value) => {
+                        handleChangeInput("endDate", value);
+                        if (
+                          value &&
+                          data.startDate &&
+                          data.startDate.isValid()
+                        ) {
+                          const isValid =
+                            value.isAfter(data.startDate) ||
+                            value.isSame(data.startDate);
+                          setErrorData((prevErrorData) => ({
+                            ...prevErrorData,
+                            endDate: !isValid,
+                          }));
+
+                          if (!isValid) {
+                            toast.error(errorMessages.endDateInvalid);
+                          }
+                        }
+                      }}
+                      size="small"
+                      format="DD/MM/YYYY"
+                    />
+                  </LocalizationProvider>
+                </div>
+              </div>
+              <div className="kaban-description">
+                <p>Người báo cáo:</p>
+                <div className="kaban-single-info">
+                  <img src={data.report.avatar} alt="" />
+                  <p>{data.report.name}</p>
+                </div>
               </div>
             </div>
           </div>
-        </div>
-      </Box>
-    </Modal>
-    <ToastContainer
+        </Box>
+      </Modal>
+      <ToastContainer
         position="top-right"
         autoClose={3000}
         hideProgressBar={false}
