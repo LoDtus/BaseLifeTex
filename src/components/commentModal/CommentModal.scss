@@ -1,0 +1,191 @@
+.comment-modal {
+    position: absolute;
+    font-family: sans-serif;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: calc(100% - 32px);
+    height: calc(100% - 32px);
+    overflow: hidden;
+    background: white;
+    border-radius: 8px;
+    padding: 8px 16px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+
+    .kaban-detail-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        position: relative;
+
+        p {
+            display: flex;
+            align-items: center;
+            color: #4361ee;
+        }
+
+        .close-btn {
+            position: absolute;
+            right: -8px;
+            top: -8px;
+            cursor: pointer;
+            font-size: 20px;
+            background-color: transparent;
+            border: none;
+            color: #333;
+
+            &:hover {
+                color: #4361ee;
+            }
+        }
+    }
+
+    .content {
+        display: flex;
+        align-items: stretch;
+        height: inherit;
+
+        .kaban-content {
+            flex: 4;
+            display: flex;
+            flex-direction: column;
+            padding-right: 16px;
+
+            .comment-section {
+                flex: 2;
+                padding-top: 10px;
+                overflow: hidden;
+
+                .comment-box {
+                    margin-top: 8px;
+                    display: flex;
+                    align-items: center;
+
+                    .avatar {
+                        width: 30px;
+                        height: 30px;
+                        margin-right: 8px;
+                        border-radius: 50%;
+                    }
+                }
+
+                .comment-actions {
+                    display: flex;
+                    justify-content: flex-end;
+                    align-items: center;
+                    gap: 10px;
+                    margin-top: 10px;
+
+                    button {
+                        height: 40px;
+                    }
+
+                    .cancel-btn {
+                        background-color: #bdbdbd !important; // Xám
+                        color: #fff;
+                    }
+                }
+
+                .comment-list {
+                    margin-top: 8px;
+                    overflow: auto;
+                    max-height: inherit;
+
+                    &::-webkit-scrollbar {
+                        display: none;
+                    }
+
+                    .comment {
+                        display: flex;
+                        align-items: center;
+
+                        .avatar {
+                            width: 30px;
+                            height: 30px;
+                            margin-right: 8px;
+                            border-radius: 50%;
+                        }
+
+                        .cmt-text {
+                            width: 100%;
+
+                            p {
+                                width: 100%;
+                                margin-bottom: 8px;
+                                color: #4361ee;
+
+                                &:last-child {
+                                    border-radius: 8px;
+                                    color: #626f85;
+                                    padding: 8px;
+                                    background: #f1f1f1;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            .kaban-content-text {
+                .name-task {
+                    color: #000;
+                    font-family: 'Inter';
+                    font-size: 25px;
+                    font-style: normal;
+                    font-weight: 600;
+                    line-height: normal;
+                    margin-top: 15px;
+                }
+
+                .desc-task {
+                    color: #000;
+                    font-family: 'Inter';
+                    font-size: 18px;
+                    font-style: normal;
+                    font-weight: 600;
+                    line-height: normal;
+                    margin-top: 15px;
+                    min-height: 150px;
+                }
+            }
+        }
+
+        .kaban-info {
+            flex: 2;
+            background-color: #f8f9fa;
+            padding: 16px;
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+
+            .kaban-description {
+                padding: 4px 0;
+                align-items: center;
+                justify-content: flex-start;
+
+                p {
+                    color: #000;
+                    font-family: 'Inter';
+                    font-size: 20px;
+                    font-style: normal;
+                    font-weight: 600;
+                    line-height: normal;
+                    margin-bottom: 10px;
+                }
+
+                &.image {
+                    .kaban-descrition-image {
+                        img {
+                            width: 100%;
+                            display: block;
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+.css-4nmryk-MuiBackdrop-root-MuiModal-backdrop {
+    position: relative;
+}
