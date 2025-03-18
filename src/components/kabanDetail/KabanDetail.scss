@@ -41,6 +41,7 @@
     display: flex;
     align-items: stretch;
     height: inherit;
+    overflow: hidden;
     .kaban-content {
       flex: 4;
       display: flex;
@@ -75,14 +76,17 @@
           }
 
           .cancel-btn {
-            background-color: #bdbdbd !important; // Xám
+            background-color: #bdbdbd !important; 
             color: #fff;
           }
         }
         .comment-list {
           margin-top: 8px;
           overflow: auto;
-          max-height: inherit;
+          height: 100%;
+          max-height: 370px;
+          -ms-overflow-style: none;
+          scrollbar-width: none;
           &::-webkit-scrollbar {
             display: none;
           }
@@ -154,10 +158,12 @@
           align-items: flex-start;
           .kaban-descrition-image {
             flex: 2;
-            height: inherit;
-            max-height: 200px;
+            width: 100%;
+            display: block;
             img {
               width: 100%;
+              height: auto;
+              object-fit: cover; 
               display: block;
             }
           }

@@ -11,8 +11,15 @@ import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import EventAvailableIcon from "@mui/icons-material/EventAvailable";
 import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
 import { toast, ToastContainer } from "react-toastify";
+import dayjs from "dayjs";
 
 const KabanDetail = ({ open, handleClose }) => {
+  const parseDate = (dateString) => {
+    if (!dateString) return null;
+    const parsedDate = dayjs(dateString, "DD-MM-YYYY");
+    return parsedDate.isValid() ? parsedDate : null;
+  };
+
   const listUser = [
     {
       id: "abc",
@@ -44,29 +51,44 @@ const KabanDetail = ({ open, handleClose }) => {
     {
       id: "anb",
       commentBy: "Tran Van C",
-      text: "Lỗi undefinde dòng 8",
+      text: "Chưa hoàn thiện giao diện kanba",
     },
     {
       id: "klj",
       commentBy: "Nguyen Van A",
-      text: "Lỗi thiếu function",
+      text: "Chưa call api lấy danh sách kanba",
     },
   ];
 
   const dataDefault = {
-    issueName: "Bug Header",
-    description: "Text is not visible",
+    issueName: "Lỗi hiển thị danh sách kanba",
+    description:
+      "Danh sách kanba bị lỗi hiển thị chưa get được danh sách task theo id dự án.",
     link: "LifeTex.com.vn",
-    imageFile: "",
-    personName: [],
+    imageFile:
+      "https://www.economist.com/cdn-cgi/image/width=1424,quality=80,format=auto/sites/default/files/images/2015/09/blogs/economist-explains/code2.png",
+    personName: [
+      {
+        id: "efd",
+        name: "Le Van B",
+        avatar:
+          "https://w7.pngwing.com/pngs/922/214/png-transparent-computer-icons-avatar-businessperson-interior-design-services-corporae-building-company-heroes-thumbnail.png",
+      },
+      {
+        id: "hgj",
+        name: "Tran Van C",
+        avatar:
+          "https://w7.pngwing.com/pngs/922/214/png-transparent-computer-icons-avatar-businessperson-interior-design-services-corporae-building-company-heroes-thumbnail.png",
+      },
+    ],
     report: {
       name: "Tucker",
       avatar:
         "https://w7.pngwing.com/pngs/922/214/png-transparent-computer-icons-avatar-businessperson-interior-design-services-corporae-building-company-heroes-thumbnail.png",
     },
-    startDate: null,
-    endDate: null,
-    status: "",
+    startDate: parseDate("05-01-2025"),
+    endDate: parseDate("05-01-2025"),
+    status: "1",
   };
 
   const errorsDefault = {
@@ -87,6 +109,8 @@ const KabanDetail = ({ open, handleClose }) => {
     startDate: "Ngày bắt đầu không được để trống!",
     endDate: "Ngày kết thúc không được để trống!",
     status: "Trạng thái không được để trống!",
+    startDateInvalid: "Ngày bắt đầu phải nhỏ hơn ngày kết thúc!",
+    endDateInvalid: "Ngày kết thúc phải lớn hơn ngày bắt đầu!",
   };
 
   const [data, setData] = useState(dataDefault);
@@ -104,10 +128,11 @@ const KabanDetail = ({ open, handleClose }) => {
   };
 
   const handleChangeSelect = (value) => {
+    const {personName,...newData} = data;
     const uniqueArr = value.filter(
       (num) => value.indexOf(num) === value.lastIndexOf(num)
     );
-    setData({ ...data, personName: uniqueArr });
+    setData({ ...newData, personName: uniqueArr });
   };
 
   const handleBlurChange = async (type, value) => {
@@ -115,25 +140,51 @@ const KabanDetail = ({ open, handleClose }) => {
       if (type === "personName") {
         if (value && value.length > 0) {
           console.log(data);
-          setErrorData({ ...errorData, [type]: false });
+          setErrorData((prevErrorData) => ({
+            ...prevErrorData,
+            [type]: false,
+          }));
         } else {
-          setErrorData({ ...errorData, [type]: true });
+          setErrorData((prevErrorData) => ({ ...prevErrorData, [type]: true }));
           toast.error(errorMessages[type]);
         }
       } else if (type === "startDate" || type === "endDate") {
         if (value && typeof value.isValid === "function" && value.isValid()) {
-          console.log(data);
-          setErrorData({ ...errorData, [type]: false });
+          let isValid = true;
+
+          if (type === "startDate" && data.endDate && data.endDate.isValid()) {
+            isValid =
+              value.isBefore(data.endDate) || value.isSame(data.endDate);
+          } else if (
+            type === "endDate" &&
+            data.startDate &&
+            data.startDate.isValid()
+          ) {
+            isValid =
+              value.isAfter(data.startDate) || value.isSame(data.startDate);
+          }
+
+          setErrorData((prevErrorData) => ({
+            ...prevErrorData,
+            [type]: !isValid,
+          }));
+
+          if (!isValid) {
+            toast.error(errorMessages[type + "Invalid"]);
+          }
         } else {
-          setErrorData({ ...errorData, [type]: true });
+          setErrorData((prevErrorData) => ({ ...prevErrorData, [type]: true }));
           toast.error(errorMessages[type]);
         }
       } else {
         if (value || value === 0) {
           console.log(data);
-          setErrorData({ ...errorData, [type]: false });
+          setErrorData((prevErrorData) => ({
+            ...prevErrorData,
+            [type]: false,
+          }));
         } else {
-          setErrorData({ ...errorData, [type]: true });
+          setErrorData((prevErrorData) => ({ ...prevErrorData, [type]: true }));
           toast.error(errorMessages[type]);
         }
       }
@@ -362,10 +413,7 @@ const KabanDetail = ({ open, handleClose }) => {
               <div className="kaban-description image">
                 <p>Hình ảnh:</p>
                 <p className="kaban-descrition-image">
-                  <img
-                    src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRIpV5CA8mgHMPImfa2IWGky1_7N6zcesgnaA&s"
-                    alt=""
-                  />
+                  <img src={data.imageFile} alt="image" />
                 </p>
               </div>
               <div className="kaban-description">
@@ -408,19 +456,47 @@ const KabanDetail = ({ open, handleClose }) => {
                       slotProps={{
                         textField: {
                           size: "small",
+                          error: errorData.startDate,
                           onBlur: () =>
                             handleBlurChange("startDate", data.startDate),
                           sx: {
                             height: "40px",
-                            "& .MuiInputBase-root": { height: "40px" },
+                            "& .MuiInputBase-root": {
+                              height: "40px",
+                              "&.Mui-error": {
+                                border: "1px solid red !important",
+                                borderRadius: "4px",
+                              },
+                            },
+                            "& .MuiOutlinedInput-notchedOutline": {
+                              border: errorData.startDate
+                                ? "1px solid red !important"
+                                : null,
+                              borderRadius: "4px",
+                            },
                           },
                         },
                       }}
                       value={data.startDate}
-                      onChange={(value) =>
-                        handleChangeInput("startDate", value)
-                      }
+                      onChange={(value) => {
+                        handleChangeInput("startDate", value);
+
+                        if (value && data.endDate && data.endDate.isValid()) {
+                          const isValid =
+                            value.isBefore(data.endDate) ||
+                            value.isSame(data.endDate);
+
+                          setErrorData((prevErrorData) => ({
+                            ...prevErrorData,
+                            startDate: !isValid,
+                          }));
+                          if (!isValid) {
+                            toast.error(errorMessages.startDateInvalid);
+                          }
+                        }
+                      }}
                       size="small"
+                      format="DD/MM/YYYY"
                     />
                   </LocalizationProvider>
                 </div>
@@ -435,17 +511,50 @@ const KabanDetail = ({ open, handleClose }) => {
                       slotProps={{
                         textField: {
                           size: "small",
+                          error: errorData.endDate,
                           onBlur: () =>
                             handleBlurChange("endDate", data.endDate),
                           sx: {
                             height: "40px",
-                            "& .MuiInputBase-root": { height: "40px" },
+                            "& .MuiInputBase-root": {
+                              height: "40px",
+                              "&.Mui-error": {
+                                border: "1px solid red !important",
+                                borderRadius: "4px",
+                              },
+                            },
+                            "& .MuiOutlinedInput-notchedOutline": {
+                              border: errorData.endDate
+                                ? "1px solid red !important"
+                                : null,
+                              borderRadius: "4px",
+                            },
                           },
                         },
                       }}
                       value={data.endDate}
-                      onChange={(value) => handleChangeInput("endDate", value)}
+                      onChange={(value) => {
+                        handleChangeInput("endDate", value);
+                        if (
+                          value &&
+                          data.startDate &&
+                          data.startDate.isValid()
+                        ) {
+                          const isValid =
+                            value.isAfter(data.startDate) ||
+                            value.isSame(data.startDate);
+                          setErrorData((prevErrorData) => ({
+                            ...prevErrorData,
+                            endDate: !isValid,
+                          }));
+
+                          if (!isValid) {
+                            toast.error(errorMessages.endDateInvalid);
+                          }
+                        }
+                      }}
                       size="small"
+                      format="DD/MM/YYYY"
                     />
                   </LocalizationProvider>
                 </div>
