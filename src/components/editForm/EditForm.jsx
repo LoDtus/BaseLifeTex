@@ -361,8 +361,8 @@ const EditForm = ({ isOpen, onClose, task, idProject }) => {
                     }}
                   >
                     <UploadImageButton
-                      setImage={setImage}
-                      setImageFile={setImageFile}
+                      setImage={setImageFile}
+                      //   setImageFile={setImageFile}
                       image={image ? image : task?.image}
                     />
                   </Box>
