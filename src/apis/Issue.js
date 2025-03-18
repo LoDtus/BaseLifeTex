@@ -1,4 +1,5 @@
 import axios from "axios";
+import { toolTaskStatus } from "../tools/toolsCvStatus";
 
 const backendUrl = import.meta.env.VITE_BACKEND_URL;
 
@@ -8,15 +9,15 @@ export const postIssueData = async (data, token) => {
       `${backendUrl}/tasks/create-task`,
       {
         assigneeId: data.personName,
-        title: data.issueName,
+        title: data.title,
         link: data.link,
         description: data.description,
         startDate: data.startDate,
         endDate: data.endDate,
-        images: data.imageFile,
-        status: data.status,
-        projectId: data.projectId,
-        assignerId: "65f0b8d0fbd3a6e9f8e2c9d4",
+        image: data.image,
+        status: toolTaskStatus(data.status),
+        projectId: data.idProject,
+        assignerId: "67d23acb23793aac51e64dc5",
       },
       {
         headers: {
