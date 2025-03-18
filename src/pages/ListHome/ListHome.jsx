@@ -3,7 +3,7 @@ import "./ListHome.scss";
 import "../Home/Home.scss";
 import { useNavigate } from "react-router-dom";
 import IssueForm from "../../components/IssueFrom/IssueForm";
-import { Input, Popover } from "@mui/material";
+import { Avatar, Input, Popover } from "@mui/material";
 import MemberListContent from "../../components/memberList/MemberList";
 import FilterDialog from "../../components/FilterForm/FilterDialog";
 import MemberListContentAdd from "../../components/memberListAdd/MemberListAdd";
@@ -37,6 +37,8 @@ const TaskTable = () => {
   const [anchorElFilter, setAnchorElFilter] = useState(null); // Anchor cho Filter
   const [anchorElMember, setAnchorElMember] = useState(null); // Anchor cho Member
   const [anchorElMemberAdd, setAnchorElMemberAdd] = useState(null);
+  const [anchorElMemberTask, setAnchorElMemberTask] = useState(null); // Anchor cho Member
+
   const [searchParams] = useSearchParams();
   const idProject = searchParams.get("idProject");
   const [listTask, setListTask] = useState([]);
@@ -76,6 +78,17 @@ const TaskTable = () => {
     event.stopPropagation();
     setSelectedTaskId(taskId); // Lưu lại task được click
     setAnchorElMemberAdd(event.currentTarget);
+  };
+
+  const handleClickMemberTask = (event, taskId) => {
+    event.stopPropagation();
+    setSelectedTaskId(taskId); // Lưu lại task được click
+    setAnchorElMemberTask(event.currentTarget);
+  };
+
+  const handleCloseMemberTask = () => {
+    setAnchorElMemberTask(null);
+    setSelectedTaskId(null);
   };
 
   const handleCloseMemberAdd = () => {
@@ -355,7 +368,7 @@ const TaskTable = () => {
                 <TableCell align="left" style={{ minWidth: "150px" }}>
                   Tên công việc
                 </TableCell>
-                <TableCell align="center" style={{ minWidth: "150px" }}>
+                <TableCell align="left" style={{ minWidth: "150px" }}>
                   Người nhận việc
                 </TableCell>
                 <TableCell align="center">Bình luận</TableCell>
@@ -410,14 +423,38 @@ const TaskTable = () => {
                   </TableCell>
                   <TableCell className="assignees" align="center">
                     <div className="task-icons1">
-                      {task.assigneeId?.map((avatar, i) => (
-                        <img
-                          key={i}
-                          src={`image/${avatar}`}
-                          // alt="user"
-                          className="avatar"
-                        />
+                      {task.assigneeId?.slice(0, 2).map((avatar, i) => (
+                        <Avatar src={avatar} key={i} />
                       ))}
+                      {task.assigneeId.length > 2 && (
+                        <>
+                          <img
+                            src="image/dot.png"
+                            onClick={(e) => handleClickMemberTask(e, task._id)}
+                          />
+                          <Popover
+                            open={Boolean(anchorElMemberTask)}
+                            anchorEl={anchorElMemberTask}
+                            onClose={handleCloseMemberTask}
+                            anchorOrigin={{
+                              vertical: "bottom",
+                              horizontal: "left",
+                            }}
+                            transformOrigin={{
+                              vertical: "top",
+                              horizontal: "left",
+                            }}
+                            sx={{ mt: 1 }}
+                          >
+                            <div className="all-member-in-task">
+                              <MemberListContent
+                                members={task.assigneeId}
+                                onClose={handleCloseMemberTask}
+                              />
+                            </div>
+                          </Popover>
+                        </>
+                      )}
                       <button
                         className="add-user"
                         onClick={(e) => handleClickMemberAdd(e, task._id)}
