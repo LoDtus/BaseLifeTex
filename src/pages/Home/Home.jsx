@@ -197,7 +197,24 @@ export default function Home() {
       <div className="header-section flex items-center justify-between p-4 border-b">
         {/* Logo */}
         <div className="header-container flex items-center gap-4">
-          <p className="text-gray-500 text-sm">Dự án / Phần mềm đánh giá</p>
+          <div>
+            <p
+              style={{ fontSize: "13px", color: "#485F7E", fontWeight: "600" }}
+              className="text-sm"
+            >
+              Dự án / Phần mềm đánh giá
+            </p>
+            <p
+              style={{
+                color: "#000",
+                fontWeight: "600",
+                fontSize: "20px",
+                marginTop: "4px",
+              }}
+            >
+              KAN board
+            </p>
+          </div>
           <div className="flex items-center gap-2">
             <img src="image/Column.png" alt="LIFETEK" className="logo-img" />
             <img

@@ -248,7 +248,25 @@ const TaskTable = () => {
       <div className="header-section">
         {/* Logo */}
         <div className="header-container flex items-center gap-4">
-          <p className="text-gray-500 text-sm">Dự án / Phần mềm đánh giá</p>
+          <div>
+            <p
+              style={{ fontSize: "13px", color: "#485F7E", fontWeight: "600" }}
+              className="text-sm"
+            >
+              Dự án / Phần mềm đánh giá
+            </p>
+            <p
+              style={{
+                color: "#000",
+                fontWeight: "600",
+                fontSize: "20px",
+                marginTop: "4px",
+              }}
+            >
+              List
+            </p>
+          </div>
+
           <div className="flex items-center gap-2">
             <img
               onClick={() => navigate("/home")}

@@ -229,7 +229,7 @@ export default function Register() {
                       fontSize: "18px",
                       textAlign: "center",
                       fontWeight: 300,
-                      margin: "10px 0",
+                      marginTop: "10px",
                     }}
                     variant="h4"
                   >
@@ -241,18 +241,19 @@ export default function Register() {
                         marginRight: "20px",
                         position: "absolute",
                         right: "27px",
-                        top: "26px",
+                        top: "16px",
                       }}
                     />
                     <Box sx={{ display: "flex", justifyContent: "center" }}>
                       <Input
                         sx={{
-                          paddingTop: "15px",
+                          paddingTop: "10px",
                           paddingBottom: "10px",
                           width: "75%",
                         }}
                         placeholder="UserName"
                         onChange={(e) => setUsername(e.target.value)}
+                        inputProps={{ style: { width: "85%" } }}
                       />
                     </Box>
 
@@ -280,18 +281,19 @@ export default function Register() {
                         marginRight: "20px",
                         position: "absolute",
                         right: "27px",
-                        top: "26px",
+                        top: "16px",
                       }}
                     />
                     <Box sx={{ display: "flex", justifyContent: "center" }}>
                       <Input
                         sx={{
-                          paddingTop: "15px",
+                          paddingTop: "10px",
                           paddingBottom: "10px",
                           width: "75%",
                         }}
                         placeholder="Email"
                         onChange={(e) => setEmail(e.target.value)}
+                        inputProps={{ style: { width: "85%" } }}
                       />
                     </Box>
 
@@ -319,19 +321,20 @@ export default function Register() {
                         marginRight: "20px",
                         position: "absolute",
                         right: "27px",
-                        top: "26px",
+                        top: "16px",
                       }}
                     />
                     <Box sx={{ display: "flex", justifyContent: "center" }}>
                       <Input
                         sx={{
-                          paddingTop: "15px",
+                          paddingTop: "10px",
                           paddingBottom: "10px",
                           width: "75%",
                         }}
                         placeholder="PassWord"
                         type="password"
                         onChange={(e) => setPassword(e.target.value)}
+                        inputProps={{ style: { width: "85%" } }}
                       />
                     </Box>
                   </Box>
@@ -357,19 +360,20 @@ export default function Register() {
                         marginRight: "20px",
                         position: "absolute",
                         right: "27px",
-                        top: "26px",
+                        top: "16px",
                       }}
                     />
                     <Box sx={{ display: "flex", justifyContent: "center" }}>
                       <Input
                         sx={{
-                          paddingTop: "15px",
+                          paddingTop: "10px",
                           paddingBottom: "10px",
                           width: "75%",
                         }}
                         placeholder="Confirm Password"
                         type="password"
                         onChange={(e) => setConfirmPassword(e.target.value)}
+                        inputProps={{ style: { width: "85%" } }}
                       />
                     </Box>
                     {error.confirmPassword && (

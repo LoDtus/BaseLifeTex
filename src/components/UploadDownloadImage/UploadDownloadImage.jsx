@@ -1,5 +1,7 @@
 import React, { useState } from "react";
 import styles from "./UploadDownloadImage.module.scss";
+import Zoom from "react-medium-image-zoom";
+import "react-medium-image-zoom/dist/styles.css";
 
 const UploadImageButton = ({ image, setImage }) => {
   const handleUpload = (event) => {
@@ -20,7 +22,6 @@ const UploadImageButton = ({ image, setImage }) => {
         className={styles.input}
         onChange={handleUpload}
       />
-
       {/* Hình ảnh thay thế cho button chọn ảnh */}
       <label htmlFor="fileInput">
         <img
@@ -29,9 +30,17 @@ const UploadImageButton = ({ image, setImage }) => {
           className={styles.uploadButton}
         />
       </label>
-
       {/* Hiển thị ảnh đã chọn */}
-      {image && <img src={image} alt="Uploaded" className={styles.image} />}
+      {image && (
+        <Zoom>
+          <img
+            src={image}
+            alt="Uploaded"
+            className={styles.image}
+            style={{ cursor: "pointer" }}
+          />
+        </Zoom>
+      )}
     </div>
   );
 };

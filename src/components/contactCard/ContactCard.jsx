@@ -5,7 +5,13 @@ const ContactCard = ({ onClose, contact }) => {
   return (
     <div className={styles.container}>
       <div className={styles.closeIcon} onClick={onClose}>
-        X
+        <img
+          style={{
+            width: "16px",
+          }}
+          src="image\X.png"
+          alt="avatar"
+        />
       </div>
       <div className={styles.contactItem}>
         <img

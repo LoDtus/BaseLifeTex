@@ -1,6 +1,6 @@
 import { useState } from "react";
 import styles from "./ProjectCard.module.scss";
-import { Popper } from "@mui/base/Popper";
+import Popover from "@mui/material/Popover";
 import ContactCard from "../contactCard/ContactCard";
 import { toolCvStatus } from "../../tools/toolsCvStatus";
 import { toolsCvDateYMD } from "../../tools/toolsCvDate";
@@ -9,9 +9,11 @@ const ProjectCard = ({ project }) => {
   const [anchorEl, setAnchorEl] = useState(null);
 
   const handleClick = (event) => {
+    event.stopPropagation(); // Ngăn chặn sự kiện lan lên cha
     setAnchorEl(anchorEl ? null : event.currentTarget);
   };
-  const handleClose = () => {
+  const handleClose = (event) => {
+    event.stopPropagation(); // Ngăn chặn sự kiện lan lên cha
     setAnchorEl(null);
   };
   const open = Boolean(anchorEl);
@@ -35,7 +37,7 @@ const ProjectCard = ({ project }) => {
         <div className={styles.right}>
           <h1 className={styles.nameProject}>{project.name}</h1>
           <p className={styles.projectId}>
-            <strong>Mã dự án:</strong> {project._id}
+            <strong>Mã dự án:</strong> {project.code}
           </p>
         </div>
         <div className={styles.projectDates}>
@@ -70,15 +72,27 @@ const ProjectCard = ({ project }) => {
           src="image/e10ebdc6f22af020d1cdd58a063bf347.png"
           alt=""
         />
-        <button className={getStatusButtonClass()}>
+        <button
+          style={{
+            borderRadius: 20,
+          }}
+          className={getStatusButtonClass()}
+        >
           {toolCvStatus(project.status)}
         </button>
       </div>
-      <Popper id={id} open={open} anchorEl={anchorEl} placement="bottom-start">
-        <div>
-          <ContactCard onClose={handleClose} contact={project.managerId} />
-        </div>
-      </Popper>
+      <Popover
+        id={id}
+        open={open}
+        anchorEl={anchorEl}
+        onClose={handleClose}
+        anchorOrigin={{
+          vertical: "bottom",
+          horizontal: "left",
+        }}
+      >
+        <ContactCard onClose={handleClose} contact={project.managerId} />
+      </Popover>
     </div>
   );
 };
