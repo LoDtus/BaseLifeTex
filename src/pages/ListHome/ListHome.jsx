@@ -89,6 +89,7 @@ const TaskTable = () => {
   const onClose = () => {
     setOpen(false);
     setIssueStatus("");
+    fetchApi(idProject);
   };
 
   const openModal = (status = "Công việc mới") => {

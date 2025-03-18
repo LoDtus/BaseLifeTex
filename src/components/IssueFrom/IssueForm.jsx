@@ -25,6 +25,7 @@ export default function IssueForm({ isOpen, onClose, status }) {
   const params = new URLSearchParams(window.location.search);
   const idProject = params.get("idProject");
   const token = "jhgshddabjsbbdak";
+  // console.log(idProject);
 
   const [names, setNames] = useState([]);
   const [personName, setPersonName] = useState([]);
