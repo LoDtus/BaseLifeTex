@@ -79,6 +79,15 @@
       overflow: hidden; /* Ẩn phần dư */
       text-overflow: ellipsis; /* Hiển thị dấu "..." */
       max-width: 150px; /* Giới hạn chiều rộng */
+      span {
+        margin-top: 3px;
+        color: #000;
+        font-family: Inter;
+        font-size: 13px;
+        font-style: normal;
+        font-weight: 400;
+        line-height: normal;
+      }
     }
   }
 
@@ -87,6 +96,7 @@
     justify-content: space-between;
     align-items: center;
     margin-top: 15px;
+    margin-right: 10px;
     img {
       width: 36px;
       border-radius: 225px;
@@ -99,6 +109,8 @@
       border: none;
       padding: 5px 10px;
       border-radius: 5px;
+      font-weight: 700;
+      font-size: 11px;
     }
 
     .statusBtnNotCompleted {
@@ -107,14 +119,18 @@
       border: none;
       padding: 5px 10px;
       border-radius: 5px;
+      font-weight: 700;
+      font-size: 11px;
     }
 
     .statusBtnCompleted {
-      background: #2a9d8f; // Example color for "Hoàn thành"
+      background: #2a9d4b; // Example color for "Hoàn thành"
       color: white;
       border: none;
       padding: 5px 10px;
       border-radius: 5px;
+      font-weight: 700;
+      font-size: 11px;
     }
   }
 }

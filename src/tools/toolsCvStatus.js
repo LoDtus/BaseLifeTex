@@ -5,7 +5,7 @@ export const toolCvStatus = (staus) => {
     case "inprogress":
       return "Chưa hoàn thành";
     case "done":
-      return "Hoàn thành";
+      return "Đã Hoàn thành";
     default:
       return "Chưa hoàn thành"; // Default to "Chưa hoàn thành"
   }
@@ -15,7 +15,7 @@ export const toolTaskStatus = (task) => {
     case "Công việc mới":
       return "pending";
     case "Đang thực hiện":
-      return "in progress";
+      return "inProgress";
     case "completed":
       return "Hoàn thành";
     case "Kết thúc":
