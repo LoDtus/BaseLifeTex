@@ -19,11 +19,8 @@ import { useForm, Controller } from "react-hook-form";
 import Zoom from "react-medium-image-zoom";
 import "react-medium-image-zoom/dist/styles.css";
 import imageAvatar from "../../assets/image/image_5.png";
-import { getlistUser } from "../../apis/use";
-import {
-  getTaskDetailById,
-  updateIssueData,
-} from "../../apis/Issue";
+import { getlistUser, addCommentTask } from "../../apis/use";
+import { getTaskDetailById, updateIssueData } from "../../apis/Issue";
 import { useSelector } from "react-redux";
 
 const ITEM_HEIGHT = 48;
@@ -39,6 +36,54 @@ const MenuProps = {
 
 const KabanDetail = ({ open, task, handleClose }) => {
   const { control } = useForm();
+
+  const listCmt = [
+    {
+      _id: "abcbcbcbcbab",
+      userName: "Nguyen Van A",
+      comment: "Lỗi cần sửa lại file scss",
+    },
+    {
+      _id: "abcbcbcbcbab1",
+      userName: "Nguyen Van B",
+      comment: "Lỗi cần sửa lại file scss",
+    },
+    {
+      _id: "abcbcbcbcbab2",
+      userName: "Nguyen Van C",
+      comment: "Lỗi cần sửa lại file scss",
+    },
+    {
+      _id: "abcbcbcbcbab3",
+      userName: "Nguyen Van D",
+      comment: "Lỗi cần sửa lại file scss",
+    },
+    {
+      _id: "abcbcbcbcbab4",
+      userName: "Nguyen Van E",
+      comment: "Lỗi cần sửa lại file scss",
+    },
+    {
+      _id: "abcbcbcbcbab5",
+      userName: "Nguyen Van F",
+      comment: "Lỗi cần sửa lại file scss",
+    },
+    {
+      _id: "abcbcbcbcbab6",
+      userName: "Nguyen Van G",
+      comment: "Lỗi cần sửa lại file scss",
+    },
+    {
+      _id: "abcbcbcbcbab7",
+      userName: "Nguyen Van H",
+      comment: "Lỗi cần sửa lại file scss",
+    },
+    {
+      _id: "abcbcbcbcbab8",
+      userName: "Nguyen Van I",
+      comment: "Lỗi cần sửa lại file scss",
+    },
+  ];
 
   const errorsDefault = {
     title: false,
@@ -78,15 +123,14 @@ const KabanDetail = ({ open, task, handleClose }) => {
   const [data, setData] = useState({});
   const [onlyRead, setOnlyRead] = useState(readOnlyDefault);
   const [comment, setComment] = useState("");
-  const [comments, setComments] = useState([]);
+  const [comments, setComments] = useState(listCmt);
   const [errorData, setErrorData] = useState(errorsDefault);
   const [selectedPerson, setSelectedPerson] = useState([]);
   const [listMember, setListMember] = useState([]);
-  const token = "jhgshddabjsbbdak";
   const user = useSelector((state) => state.auth.login.currentUser);
 
   const getMemberByProject = async (projectId) => {
-    const response = await getlistUser(token, projectId);
+    const response = await getlistUser(user.accessToken, projectId);
     if (response.members) {
       setListMember(response.members);
     }
@@ -128,7 +172,7 @@ const KabanDetail = ({ open, task, handleClose }) => {
         let res = await updateIssueData(task._id, {
           ...data,
           assigneeId: data.assigneeId.map((i) => i._id),
-          assignerId: data.assignerId._id,
+          assignerId: data?.assignerId?._id,
           [type]: value,
         });
         if (res.message === "Nhiệm vụ cập nhật thành công") {
@@ -152,17 +196,15 @@ const KabanDetail = ({ open, task, handleClose }) => {
           setErrorData(errorsDefault);
         }, 3000);
       }
-    }
-    else {
-      toast.warning("Bạn không có quyền sửa!");
+    } else {
+      e.preventDefault();
     }
   };
 
   const handleFocus = (type) => {
     if (user || type === "comment") {
       setOnlyRead((prevState) => ({ ...prevState, [type]: false }));
-    }
-    else {
+    } else {
       toast.warning("Bạn không có quyền sửa!");
     }
   };
@@ -250,8 +292,7 @@ const KabanDetail = ({ open, task, handleClose }) => {
         }));
       }
       field.onChange(selectedValues);
-    }
-    else {
+    } else {
       toast.warning("Bạn không có quyền sửa!");
     }
   };
@@ -263,7 +304,7 @@ const KabanDetail = ({ open, task, handleClose }) => {
         let res = await updateIssueData(task._id, {
           ...data,
           assigneeId: selectedPerson.map((i) => i._id),
-          assignerId: data.assignerId._id,
+          assignerId: data?.assignerId?._id,
           [type]: value,
         });
         if (res.message === "Nhiệm vụ cập nhật thành công") {
@@ -287,22 +328,31 @@ const KabanDetail = ({ open, task, handleClose }) => {
           setErrorData(errorsDefault);
         }, 3000);
       }
-    }
-    else {
-      toast.warning("Bạn không có quyền sửa!");
+    } else {
+      e.preventDefault();
     }
   };
 
   const handleAddComment = async () => {
-    if (user) {
+    if (user && user.data) {
       if (comment) {
-        try {
-          let res = "";
-          if (res) {
-            toast.success(res.message);
-          }
-        } catch (err) {
+        let res = await addCommentTask({
+          projectId: task.projectId,
+          taskId: data._id,
+          userId: user.data._id,
+          content: comment
+        });
+        if (res.message === "Thêm bình luận thành công") {
+          toast.success(res.message);
+          setOnlyRead(readOnlyDefault);
+          setComment("");
+          setErrorData((prevErrorData) => ({ ...prevErrorData, comment: false }));
+        }
+        else {
           toast.error(res.message);
+          setOnlyRead(readOnlyDefault);
+          setComment("");
+          setErrorData((prevErrorData) => ({ ...prevErrorData, comment: false }));
         }
       } else {
         setErrorData((prevErrorData) => ({ ...prevErrorData, comment: true }));
@@ -311,7 +361,6 @@ const KabanDetail = ({ open, task, handleClose }) => {
     } else {
       toast.warning("Đăng nhập để thực hiện yêu cầu này!");
     }
-    setOnlyRead(readOnlyDefault);
   };
 
   const handleKeyDown = () => {
@@ -369,8 +418,8 @@ const KabanDetail = ({ open, task, handleClose }) => {
                   size="small"
                   fullWidth
                   multiline
-                  minRows={10}
-                  maxRows={20}
+                  minRows={5}
+                  maxRows={10}
                   sx={{ marginTop: "8px" }}
                   placeholder="Nhập nội dung..."
                   value={data?.description}
@@ -390,10 +439,10 @@ const KabanDetail = ({ open, task, handleClose }) => {
               </div>
               <div className="comment-section">
                 <h4>Bình luận</h4>
-                {user === null && (
+                {user && user.data && (
                   <>
                     <div className="comment-box">
-                      <img src={imageAvatar} alt="user" className="avatar" />
+                      <img src={user.data.image || imageAvatar} alt="user" className="avatar" />
                       <TextField
                         variant="outlined"
                         size="small"
@@ -436,18 +485,20 @@ const KabanDetail = ({ open, task, handleClose }) => {
                     </div>
                   </>
                 )}
-                <div className="comment-list">
+                <div
+                  className={user ? "comment-list fix-height" : "comment-list"}
+                >
                   {comments.length > 0 &&
                     comments.map((cmt) => (
-                      <div key={cmt.id} className="comment">
+                      <div key={cmt._id} className="comment">
                         <img
                           src="https://w7.pngwing.com/pngs/922/214/png-transparent-computer-icons-avatar-businessperson-interior-design-services-corporae-building-company-heroes-thumbnail.png"
                           alt="user"
                           className="avatar"
                         />
                         <div className="cmt-text">
-                          <p>{cmt.commentBy}</p>
-                          <p>{cmt.text}</p>
+                          <p>{cmt.userName}</p>
+                          <p>{cmt.comment}</p>
                         </div>
                       </div>
                     ))}

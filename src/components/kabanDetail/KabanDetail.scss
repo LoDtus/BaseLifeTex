@@ -83,8 +83,10 @@
         .comment-list {
           margin-top: 8px;
           overflow: auto;
-          height: 100%;
-          max-height: 370px;
+          height: 90%;
+          &.fix-height {
+            height: 50%;
+          }
           -ms-overflow-style: none;
           scrollbar-width: none;
           &::-webkit-scrollbar {
