@@ -3,20 +3,22 @@ import styles from "./UploadDownloadImage.module.scss";
 import Zoom from "react-medium-image-zoom";
 import "react-medium-image-zoom/dist/styles.css";
 
-const UploadImageButton = ({ image, setImage }) => {
+const UploadImageButton = ({ onImageChange }) => {
   const [urlImage, setUrlImage] = useState();
+  const [localImage, setLocalImage] = useState();
+
   const handleUpload = (event) => {
     const file = event.target.files[0];
     if (file) {
       const imageUrl = URL.createObjectURL(file);
       setUrlImage(imageUrl); // Lưu URL ảnh vào state
-      setImage(file);
+      setLocalImage(file); // Lưu file ảnh vào state
+      onImageChange(file); // Gọi callback để cập nhật ảnh trong IssueForm
     }
   };
 
   return (
     <div className={styles.container}>
-      {/* Ẩn input file */}
       <input
         type="file"
         accept="image/*"
@@ -24,19 +26,17 @@ const UploadImageButton = ({ image, setImage }) => {
         className={styles.input}
         onChange={handleUpload}
       />
-      {/* Hình ảnh thay thế cho button chọn ảnh */}
       <label htmlFor="fileInput">
         <img
-          src="image/downLoad.png" // Thay bằng icon của bạn
+          src="image/downLoad.png"
           alt="Chọn ảnh"
           className={styles.uploadButton}
         />
       </label>
-      {/* Hiển thị ảnh đã chọn */}
-      {image && (
+      {localImage && (
         <Zoom>
           <img
-            src={urlImage ? urlImage : image}
+            src={urlImage}
             alt="Uploaded"
             className={styles.image}
             style={{ cursor: "pointer" }}

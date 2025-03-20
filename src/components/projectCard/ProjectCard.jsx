@@ -7,17 +7,9 @@ import { toolsCvDateYMD } from "../../tools/toolsCvDate";
 
 const ProjectCard = ({ project }) => {
   const [anchorEl, setAnchorEl] = useState(null);
-
-  const handleClick = (event) => {
-    event.stopPropagation(); // Ngăn chặn sự kiện lan lên cha
-    setAnchorEl(anchorEl ? null : event.currentTarget);
-  };
-  const handleClose = (event) => {
-    event.stopPropagation(); // Ngăn chặn sự kiện lan lên cha
-    setAnchorEl(null);
-  };
   const open = Boolean(anchorEl);
   const id = open ? "simple-popper" : undefined;
+
   const getStatusButtonClass = () => {
     switch (toolCvStatus(project.status)) {
       case "Đang thực hiện":
@@ -29,6 +21,14 @@ const ProjectCard = ({ project }) => {
       default:
         return styles.statusBtnNotCompleted; // Default to "Chưa hoàn thành"
     }
+  };
+  const handleClick = (event) => {
+    event.stopPropagation(); // Ngăn chặn sự kiện lan lên cha
+    setAnchorEl(anchorEl ? null : event.currentTarget);
+  };
+  const handleClose = (event) => {
+    event.stopPropagation(); // Ngăn chặn sự kiện lan lên cha
+    setAnchorEl(null);
   };
 
   return (
