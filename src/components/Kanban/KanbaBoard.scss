@@ -1,37 +1,49 @@
-// Container bọc Kanban
 .kanban-wrapper {
-  flex: 1; // Chiếm toàn bộ không gian còn lại
-  overflow-x: auto; // Cho phép cuộn ngang
-  overflow-y: auto; // Ngăn cuộn dọc trong wrapper
+  flex: 1;
+  overflow-x: auto;
+  overflow-y: hidden;
   padding: 45px 0 0 40px;
-  margin-bottom: 50px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
 }
 
 .kanban-container {
   display: flex;
-  gap: 20px; // Giảm khoảng cách giữa các cột để gọn gàng hơn
+  gap: 20px;
   align-items: flex-start;
   background-color: #ffffff;
-  min-width: fit-content; // Đảm bảo container đủ rộng để chứa tất cả cột
-  height: 100%; // Đảm bảo chiều cao đầy đủ trong wrapper
+  min-width: fit-content;
+  height: auto;
 }
 
 .kanban-column {
   background: #f7f8f9;
-  width: 280px; // Tăng chiều rộng cột để chứa nội dung
-  min-height: 400px; // Tăng chiều cao tối thiểu
+  width: 280px;
+  height: calc(100vh - 150px);
   border-radius: 8px;
   box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
   padding: 15px;
   display: flex;
   flex-direction: column;
   gap: 10px;
+  box-sizing: border-box;
 
   h3 {
     font-size: 16px;
     font-weight: bold;
     margin-bottom: 10px;
-    word-wrap: break-word; // Cho phép ngắt dòng nếu tiêu đề dài
+    word-wrap: break-word;
+  }
+}
+
+.kanban-column-scroll {
+  overflow-y: auto;
+  padding-bottom: 50px;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  &::-webkit-scrollbar {
+    display: none;
   }
 }
 
@@ -45,33 +57,34 @@
 }
 
 .kanban-card {
-  min-height: 120px; // Tăng chiều cao tối thiểu để chứa nội dung dài
+  min-height: 120px;
   display: flex;
   flex-direction: column;
   background: #eef4fc;
-  padding: 15px;
-  margin-bottom: 15px;
   border-radius: 8px;
   box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
   cursor: grab;
-  overflow: hidden; // Ngăn nội dung tràn ra ngoài
+  overflow: hidden;
 
   &.dragging {
-    opacity: 0.5;
+    opacity: 0.9; // Giảm opacity nhẹ để nổi bật
+    transform: scale(1.05); // Phóng to nhẹ để "nổi lên"
+    z-index: 1000; // Đưa task lên trên cùng
+    box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2); // Tăng bóng để nổi bật
   }
 
   p {
     margin: 0;
     font-size: 14px;
     cursor: pointer;
-    word-wrap: break-word; // Ngắt dòng cho tiêu đề dài
-    line-height: 1.2; // Tăng khoảng cách dòng để dễ đọc
+    word-wrap: break-word;
+    line-height: 1.2;
   }
 
   strong {
     font-size: 13px;
     margin-left: 20px;
-    word-wrap: break-word; // Ngắt dòng cho tên người tham gia
+    word-wrap: break-word;
   }
 
   .task-content {
@@ -79,7 +92,7 @@
     justify-content: space-between;
     align-items: center;
     gap: 10px;
-    flex-grow: 1; // Cho phép nội dung mở rộng
+    flex-grow: 1;
 
     input[type="checkbox"] {
       width: 18px;
@@ -92,8 +105,8 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-top: 10px; // Giảm margin-top để tiết kiệm không gian
-    flex-shrink: 0; // Ngăn footer bị co lại quá mức
+    margin-top: 10px;
+    flex-shrink: 0;
   }
 
   .project-label {
@@ -101,51 +114,9 @@
     background: #d1e7ff;
     padding: 3px 6px;
     border-radius: 4px;
-    white-space: nowrap; // Ngăn nhãn bị ngắt dòng
+    white-space: nowrap;
     overflow: hidden;
-    text-overflow: ellipsis; // Cắt bớt nếu quá dài
-    max-width: 120px; // Giới hạn chiều rộng nhãn
-  }
-}
-
-.task-header {
-  display: flex;
-  align-items: center;
-  justify-content: end;
-  gap: 16px;
-  padding: 10px 0 0 0;
-  margin-top: 20px;
-
-  .task-add {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    color: #6b7280;
-    font-size: 14px;
-
-    img {
-      width: 25px;
-      height: 24px;
-      border-radius: 4px;
-      padding: 4px;
-      background-color: #f3f8f6;
-      border: 1px solid #d1d5db;
-    }
-  }
-
-  .task-icons {
-    display: flex;
-    align-items: center;
-
-    img {
-      width: 30px;
-      height: 30px;
-      margin-right: 10px;
-      border-radius: 50%;
-      object-fit: cover;
-      &:hover {
-        background-color: #d1d5db;
-      }
-    }
+    text-overflow: ellipsis;
+    max-width: 120px;
   }
 }

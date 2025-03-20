@@ -1,10 +1,10 @@
 import { useDraggable } from "@dnd-kit/core";
 import { Popover, IconButton } from "@mui/material";
-import CloseIcon from '@mui/icons-material/Close'; // Thêm icon close
+import CloseIcon from '@mui/icons-material/Close';
 import React, { useState } from "react";
 
-function KanbanTaskCard({ task, index, totalTasks }) {
-  const { attributes, listeners, setNodeRef, transform } = useDraggable({
+function KanbanTaskCard({ task }) {
+  const { attributes, listeners, setNodeRef, isDragging } = useDraggable({
     id: task.id,
   });
 
@@ -12,45 +12,34 @@ function KanbanTaskCard({ task, index, totalTasks }) {
   const [isKanbaLabel, setIsKanbaLabel] = useState(false);
 
   const handleClick = (event) => {
-    event.stopPropagation(); // Ngăn sự kiện kéo thả can thiệp
-    setAnchorEl((prev) => (prev ? null : event.currentTarget)); // Toggle trạng thái
+    event.stopPropagation();
+    setAnchorEl((prev) => (prev ? null : event.currentTarget));
   };
 
   const handleClose = (event) => {
     if (event) {
-      event.stopPropagation(); // Ngăn sự kiện kéo thả can thiệp
+      event.stopPropagation();
     }
     setAnchorEl(null);
-    console.log("Popover closed via close button"); // Debug để kiểm tra
+    console.log("Popover closed via close button");
   };
 
   const handleLabelClick = (event) => {
-    event.stopPropagation(); // Ngăn sự kiện kéo thả can thiệp
-    setIsKanbaLabel((prev) => !prev); // Toggle giữa Kanba label và ngày
+    event.stopPropagation();
+    setIsKanbaLabel((prev) => !prev);
   };
 
   const open = Boolean(anchorEl);
 
-  const style = {
-    transform: transform
-      ? `translate3d(${transform.x}px, ${transform.y}px, 0)`
-      : undefined,
-  };
-
-  // Lấy userName đầu tiên để hiển thị
   const primaryUserName = task.assigneeUserNames && task.assigneeUserNames.length > 0 ? task.assigneeUserNames[0] : "Chưa giao";
   const remainingUserNames = task.assigneeUserNames && task.assigneeUserNames.length > 1 ? task.assigneeUserNames.slice(1) : [];
-
-  // Tính số thứ tự cho "Kanba"
-  const kanbaNumber = index + 1; // Số thứ tự bắt đầu từ 1
 
   return (
     <div
       ref={setNodeRef}
-      style={style}
       {...listeners}
       {...attributes}
-      className="kanban-card"
+      className={`kanban-card ${isDragging ? "dragging" : ""}`} // Thêm class khi kéo
     >
       <div className="task-content">
         <div>
@@ -63,7 +52,7 @@ function KanbanTaskCard({ task, index, totalTasks }) {
           onClick={handleLabelClick}
           style={{ cursor: "pointer" }}
         >
-          {isKanbaLabel ? `Kanba ${kanbaNumber}` : `📅 ${task.endDate || "Chưa giao"}`}
+          {isKanbaLabel ? `Kanba ${task.id}` : `📅 ${task.endDate || "Chưa giao"}`}
         </span>
         <div style={{ display: "flex", alignItems: "center" }}>
           <strong>{primaryUserName}</strong>
@@ -73,7 +62,7 @@ function KanbanTaskCard({ task, index, totalTasks }) {
             >
               <span
                 onClick={handleClick}
-                onPointerDown={(e) => e.stopPropagation()} // Ngăn sự kiện kéo thả can thiệp ngay từ đầu
+                onPointerDown={(e) => e.stopPropagation()}
                 style={{ fontSize: "12px" }}
               >
                 ▼
@@ -90,17 +79,17 @@ function KanbanTaskCard({ task, index, totalTasks }) {
                   <IconButton
                     aria-label="close"
                     onClick={handleClose}
-                    onPointerDown={(e) => e.stopPropagation()} // Ngăn sự kiện kéo thả can thiệp
+                    onPointerDown={(e) => e.stopPropagation()}
                     style={{
                       position: "absolute",
                       top: 10,
                       right: 10,
-                      padding: "5px", // Thêm padding để nút cách viền
+                      padding: "5px",
                     }}
                   >
                     <CloseIcon style={{ fontSize: "18px" }} />
                   </IconButton>
-                  <div style={{ marginRight: "40px" }}> {/* Tạo khoảng cách bên phải cho tiêu đề */}
+                  <div style={{ marginRight: "40px" }}>
                     <strong style={{ display: "block", marginBottom: "10px", fontSize: "14px" }}>
                       Danh sách người tham gia:
                     </strong>

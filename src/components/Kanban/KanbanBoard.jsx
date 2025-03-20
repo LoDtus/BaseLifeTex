@@ -1,10 +1,11 @@
-import { closestCorners, DndContext } from "@dnd-kit/core";
+import { closestCorners, DndContext, DragOverlay } from "@dnd-kit/core";
 import { SortableContext } from "@dnd-kit/sortable";
 import React, { useEffect, useState } from "react";
 import KanbanColumn from "./KanbanColumn";
 import { getTasksByProject, updateTaskStatus } from "../../services/taskService";
 import { useSearchParams } from "react-router-dom";
-import "./KanbaBoard.scss"; // Sử dụng Home.scss
+import "./KanbaBoard.scss";
+import KanbanTaskCard from "./KanbanTaskCard";
 
 function transformTasksData(tasks) {
   return tasks.reduce((acc, task) => {
@@ -27,8 +28,8 @@ function transformTasksData(tasks) {
     acc[columnKey].tasks.push({
       ...task,
       id: task._id,
-      userName: task.assigneeId.length > 0 ? task.assigneeId[0].userName : "Chưa giao", // Lấy userName đầu tiên
-      assigneeUserNames: task.assigneeId.map((assignee) => assignee.userName), // Lưu danh sách tất cả userName
+      userName: task.assigneeId.length > 0 ? task.assigneeId[0].userName : "Chưa giao",
+      assigneeUserNames: task.assigneeId.map((assignee) => assignee.userName),
       assigneeId: task.assigneeId.map((assignee) => ({
         ...assignee,
         id: assignee._id,
@@ -58,6 +59,7 @@ function KanbanBoard() {
   const [columns, setColumns] = useState({});
   const [searchParams] = useSearchParams();
   const [taskToUpdate, setTaskToUpdate] = useState(null);
+  const [active, setActive] = useState(null);
   const idProject = searchParams.get("idProject");
 
   const fetchData = async () => {
@@ -118,17 +120,20 @@ function KanbanBoard() {
 
   return (
     <div className="kanban-wrapper">
-      <DndContext collisionDetection={closestCorners} onDragEnd={onDragEnd}>
+      <DndContext
+        collisionDetection={closestCorners}
+        onDragEnd={onDragEnd}
+      >
         <div className="kanban-container">
           {Object.entries(columns).map(([key, column]) => (
             <KanbanColumn
               key={key}
               columnId={key}
               column={column}
-              
             />
           ))}
         </div>
+          
       </DndContext>
     </div>
   );

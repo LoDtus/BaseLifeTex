@@ -5,13 +5,13 @@ import React from "react";
 import KanbanTaskCard from "./KanbanTaskCard";
 import IssueForm from "../../components/IssueFrom/IssueForm";
 
-
-function KanbanColumn({ columnId, column ,handleCall}) {
+function KanbanColumn({ columnId, column }) {
   const { setNodeRef } = useDroppable({ id: columnId });
-    const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(false);
+
   const handleClick = () => {
     setOpen(true);
-  }
+  };
 
   return (
     <div ref={setNodeRef} className="kanban-column">
@@ -19,19 +19,24 @@ function KanbanColumn({ columnId, column ,handleCall}) {
         {column.title}: {column.tasks.length}
       </h3>
       <button className="add-task" onClick={handleClick}>➕ Thêm vấn đề</button>
-      <SortableContext
-        id={columnId}
-        items={column.tasks.map((task) => task.id)}
-        strategy={verticalListSortingStrategy}
-      >
-        {column.tasks.map((task) => (
-          <KanbanTaskCard key={task.id} task={task} />
-        ))}
-      </SortableContext>
-      {
-          open && 
-      <IssueForm isOpen={open} onClose={() => setOpen(false)} status={column.title}/>
-        }
+      <div className="kanban-column-scroll">
+        <SortableContext
+          id={columnId}
+          items={column.tasks.map((task) => task.id)}
+          strategy={verticalListSortingStrategy}
+        >
+          {column.tasks.map((task) => (
+            <KanbanTaskCard key={task.id} task={task} />
+          ))}
+        </SortableContext>
+      </div>
+      {open && (
+        <IssueForm
+          isOpen={open}
+          onClose={() => setOpen(false)}
+          status={column.title}
+        />
+      )}
     </div>
   );
 }
