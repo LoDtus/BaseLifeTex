@@ -1,123 +1,112 @@
-import React, { useState } from "react";
-import { Modal, Box, TextField, Button } from "@mui/material";
-import MenuItem from "@mui/material/MenuItem";
-import FormControl from "@mui/material/FormControl";
-import Select from "@mui/material/Select";
+import React, { useEffect, useState } from "react";
+import {
+  Modal,
+  Box,
+  TextField,
+  Button,
+  Checkbox,
+  MenuItem,
+  Select,
+  FormControl,
+  Avatar,
+  Typography,
+} from "@mui/material";
 import "./KabanDetail.scss";
-import style from "../IssueFrom/IssueForm.module.scss";
-import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
-import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
-import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import EventAvailableIcon from "@mui/icons-material/EventAvailable";
-import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
-import { toast, ToastContainer } from "react-toastify";
-import dayjs from "dayjs";
+import { toast } from "react-toastify";
+import { cvDate } from "../../tools/tools.CvDateKaban";
+import { useForm, Controller } from "react-hook-form";
+import Zoom from "react-medium-image-zoom";
+import "react-medium-image-zoom/dist/styles.css";
+import imageAvatar from "../../assets/image/image_5.png";
+import { getlistUser, addCommentTask } from "../../apis/use";
+import { getTaskDetailById, updateIssueData, getListCommentByTask } from "../../apis/Issue";
+import { useDispatch, useSelector } from "react-redux";
 
-const KabanDetail = ({ open, handleClose }) => {
-  const parseDate = (dateString) => {
-    if (!dateString) return null;
-    const parsedDate = dayjs(dateString, "DD-MM-YYYY");
-    return parsedDate.isValid() ? parsedDate : null;
-  };
+const ITEM_HEIGHT = 48;
+const ITEM_PADDING_TOP = 8;
+const MenuProps = {
+  PaperProps: {
+    style: {
+      maxHeight: ITEM_HEIGHT * 4.5 + ITEM_PADDING_TOP,
+      width: 200,
+    },
+  },
+};
 
-  const listUser = [
-    {
-      id: "abc",
-      name: "Nguyen Van A",
-      avatar:
-        "https://w7.pngwing.com/pngs/922/214/png-transparent-computer-icons-avatar-businessperson-interior-design-services-corporae-building-company-heroes-thumbnail.png",
-    },
-    {
-      id: "efd",
-      name: "Le Van B",
-      avatar:
-        "https://w7.pngwing.com/pngs/922/214/png-transparent-computer-icons-avatar-businessperson-interior-design-services-corporae-building-company-heroes-thumbnail.png",
-    },
-    {
-      id: "hgj",
-      name: "Tran Van C",
-      avatar:
-        "https://w7.pngwing.com/pngs/922/214/png-transparent-computer-icons-avatar-businessperson-interior-design-services-corporae-building-company-heroes-thumbnail.png",
-    },
-    {
-      id: "wer",
-      name: "Do Van D",
-      avatar:
-        "https://w7.pngwing.com/pngs/922/214/png-transparent-computer-icons-avatar-businessperson-interior-design-services-corporae-building-company-heroes-thumbnail.png",
-    },
-  ];
-
-  const listComment = [
-    {
-      id: "anb",
-      commentBy: "Tran Van C",
-      text: "Chưa hoàn thiện giao diện kanba",
-    },
-    {
-      id: "klj",
-      commentBy: "Nguyen Van A",
-      text: "Chưa call api lấy danh sách kanba",
-    },
-  ];
-
-  const dataDefault = {
-    issueName: "Lỗi hiển thị danh sách kanba",
-    description:
-      "Danh sách kanba bị lỗi hiển thị chưa get được danh sách task theo id dự án.",
-    link: "LifeTex.com.vn",
-    imageFile:
-      "https://www.economist.com/cdn-cgi/image/width=1424,quality=80,format=auto/sites/default/files/images/2015/09/blogs/economist-explains/code2.png",
-    personName: [
-      {
-        id: "efd",
-        name: "Le Van B",
-        avatar:
-          "https://w7.pngwing.com/pngs/922/214/png-transparent-computer-icons-avatar-businessperson-interior-design-services-corporae-building-company-heroes-thumbnail.png",
-      },
-      {
-        id: "hgj",
-        name: "Tran Van C",
-        avatar:
-          "https://w7.pngwing.com/pngs/922/214/png-transparent-computer-icons-avatar-businessperson-interior-design-services-corporae-building-company-heroes-thumbnail.png",
-      },
-    ],
-    report: {
-      name: "Tucker",
-      avatar:
-        "https://w7.pngwing.com/pngs/922/214/png-transparent-computer-icons-avatar-businessperson-interior-design-services-corporae-building-company-heroes-thumbnail.png",
-    },
-    startDate: parseDate("05-01-2025"),
-    endDate: parseDate("05-01-2025"),
-    status: "1",
-  };
+const KabanDetail = ({ open, task, handleClose }) => {
+  const { control } = useForm();
 
   const errorsDefault = {
-    issueName: false,
+    title: false,
     description: false,
     link: false,
-    personName: false,
+    assigneeId: false,
     startDate: false,
     endDate: false,
     status: false,
+    comment: false,
+  };
+
+  const readOnlyDefault = {
+    title: true,
+    description: true,
+    link: true,
+    assigneeId: true,
+    startDate: true,
+    endDate: true,
+    status: true,
+    comment: true,
   };
 
   const errorMessages = {
-    issueName: "Tên vấn đề không được để trống!",
+    title: "Tên vấn đề không được để trống!",
     description: "Mô tả không được để trống!",
     link: "Link không được để trống!",
-    personName: "Tên người không được để trống!",
+    assigneeId: "Tên người không được để trống!",
     startDate: "Ngày bắt đầu không được để trống!",
     endDate: "Ngày kết thúc không được để trống!",
     status: "Trạng thái không được để trống!",
     startDateInvalid: "Ngày bắt đầu phải nhỏ hơn ngày kết thúc!",
     endDateInvalid: "Ngày kết thúc phải lớn hơn ngày bắt đầu!",
+    comment: "Bình luận không được để trống!",
   };
 
-  const [data, setData] = useState(dataDefault);
+  const [data, setData] = useState({});
+  const [onlyRead, setOnlyRead] = useState(readOnlyDefault);
   const [comment, setComment] = useState("");
-  const [comments, setComments] = useState(listComment);
-  const [user, setUsers] = useState(listUser);
+  const [comments, setComments] = useState();
   const [errorData, setErrorData] = useState(errorsDefault);
+  const [selectedPerson, setSelectedPerson] = useState([]);
+  const [listMember, setListMember] = useState([]);
+  const user = useSelector((state) => state.auth.login.currentUser);
+  const dispatch = useDispatch();
+
+  const getMemberByProject = async (projectId) => {
+    const response = await getlistUser(user && user.accessToken, projectId);
+    if (response.members) {
+      setListMember(response.members);
+    }
+  };
+
+  const getDetailtask = async (id) => {
+    try {
+      let res = await getTaskDetailById(id);
+      if (res) {
+        setData({ ...res.data, assignerId: task.assignerId });
+        setSelectedPerson(task.assigneeId);
+      }
+    } catch (err) {
+      toast.error(err);
+    }
+  };
+
+  useEffect(() => {
+    if (task) {
+      getMemberByProject(task.projectId);
+      getDetailtask(task._id);
+    }
+  }, [task]);
 
   const handleChangeInput = (type, value) => {
     setData((prev) => ({
@@ -126,73 +115,218 @@ const KabanDetail = ({ open, handleClose }) => {
     }));
     setErrorData({ ...errorData, [type]: false });
   };
+  let isOne = true;
 
-  const handleChangeSelect = (value) => {
-    const {personName,...newData} = data;
-    const uniqueArr = value.filter(
-      (num) => value.indexOf(num) === value.lastIndexOf(num)
-    );
-    setData({ ...newData, personName: uniqueArr });
-  };
-
-  const handleBlurChange = async (type, value) => {
-    if (type) {
-      if (type === "personName") {
-        if (value && value.length > 0) {
-          console.log(data);
-          setErrorData((prevErrorData) => ({
-            ...prevErrorData,
-            [type]: false,
-          }));
+  const handleBlurChange = async (type, value, event) => {
+    if (user) {
+      if (event.type === "keydown" && event.key !== "Enter") return;
+      let check = validateField(type, value);
+      if (check === true) {
+        let res = await updateIssueData(task._id, {
+          ...data,
+          assigneeId: data.assigneeId.map((i) => i._id),
+          assignerId: data?.assignerId?._id,
+          [type]: value,
+        });
+        if (res.message === "Nhiệm vụ cập nhật thành công") {
+          toast.success(res.message);
+          setData({});
+          setErrorData(errorsDefault);
+          getDetailtask(task._id);
+          setOnlyRead(readOnlyDefault);
         } else {
-          setErrorData((prevErrorData) => ({ ...prevErrorData, [type]: true }));
-          toast.error(errorMessages[type]);
-        }
-      } else if (type === "startDate" || type === "endDate") {
-        if (value && typeof value.isValid === "function" && value.isValid()) {
-          let isValid = true;
-
-          if (type === "startDate" && data.endDate && data.endDate.isValid()) {
-            isValid =
-              value.isBefore(data.endDate) || value.isSame(data.endDate);
-          } else if (
-            type === "endDate" &&
-            data.startDate &&
-            data.startDate.isValid()
-          ) {
-            isValid =
-              value.isAfter(data.startDate) || value.isSame(data.startDate);
-          }
-
-          setErrorData((prevErrorData) => ({
-            ...prevErrorData,
-            [type]: !isValid,
-          }));
-
-          if (!isValid) {
-            toast.error(errorMessages[type + "Invalid"]);
-          }
-        } else {
-          setErrorData((prevErrorData) => ({ ...prevErrorData, [type]: true }));
-          toast.error(errorMessages[type]);
+          toast.error(res.message);
+          setData({});
+          setErrorData(errorsDefault);
+          getDetailtask(task._id);
+          setOnlyRead(readOnlyDefault);
         }
       } else {
-        if (value || value === 0) {
-          console.log(data);
-          setErrorData((prevErrorData) => ({
-            ...prevErrorData,
-            [type]: false,
-          }));
-        } else {
-          setErrorData((prevErrorData) => ({ ...prevErrorData, [type]: true }));
-          toast.error(errorMessages[type]);
-        }
+        setTimeout(() => {
+          setData({});
+          setOnlyRead(readOnlyDefault);
+          getDetailtask(task._id);
+          setErrorData(errorsDefault);
+        }, 3000);
       }
+    } else {
+      e.preventDefault();
     }
   };
 
-  const handleAddComment = () => {
-    console.log(data);
+  const handleFocus = (type) => {
+    if (user || type === "comment") {
+      setOnlyRead((prevState) => ({ ...prevState, [type]: false }));
+    } else {
+      toast.warning("Bạn không có quyền sửa!");
+    }
+  };
+
+  const validateField = (type, value) => {
+    switch (type) {
+      case "assigneeId":
+        if (!value || value.length === 0) {
+          toast.error(errorMessages.assigneeId);
+          setErrorData((prevErrorData) => ({
+            ...prevErrorData,
+            assigneeId: true,
+          }));
+          return false;
+        }
+        break;
+      case "startDate":
+      case "endDate":
+        const startDate = cvDate(data.startDate);
+        const endDate = cvDate(data.endDate);
+
+        if (!startDate || startDate === "") {
+          toast.error(errorMessages.startDate);
+          setErrorData((prevErrorData) => ({
+            ...prevErrorData,
+            startDate: true,
+          }));
+          return false;
+        }
+
+        if (!endDate || endDate === "") {
+          toast.error(errorMessages.endDate);
+          setErrorData((prevErrorData) => ({
+            ...prevErrorData,
+            endDate: true,
+          }));
+          return false;
+        }
+
+        if (startDate > endDate) {
+          toast.error(errorMessages.startDateInvalid);
+          setErrorData((prevErrorData) => ({
+            ...prevErrorData,
+            startDate: true,
+          }));
+          return false;
+        }
+
+        if (endDate < startDate) {
+          toast.error(errorMessages.endDateInvalid);
+          setErrorData((prevErrorData) => ({
+            ...prevErrorData,
+            endDate: true,
+          }));
+          return false;
+        }
+        break;
+      default:
+        if (!value) {
+          toast.error(errorMessages[type]);
+          setErrorData((prevErrorData) => ({ ...prevErrorData, [type]: true }));
+          return false;
+        }
+        break;
+    }
+    return true;
+  };
+
+  const handleSelectAssigneeId = (event, field) => {
+    if (user) {
+      const selectedValues = event.target.value;
+      setSelectedPerson(
+        listMember.filter((person) => selectedValues.includes(person._id))
+      );
+      if (selectedValues.length === 0) {
+        setErrorData((prevErrorData) => ({
+          ...prevErrorData,
+          assigneeId: true,
+        }));
+        toast.error(errorMessages["assigneeId"]);
+      } else {
+        setErrorData((prevErrorData) => ({
+          ...prevErrorData,
+          assigneeId: false,
+        }));
+      }
+      field.onChange(selectedValues);
+    } else {
+      toast.warning("Bạn không có quyền sửa!");
+    }
+  };
+
+  const handleSelectAssigneeIdBlur = async (value, e) => {
+    if (user) {
+      let check = validateField("assigneeId", value);
+      if (check === true) {
+        let res = await updateIssueData(task._id, {
+          ...data,
+          assigneeId: selectedPerson.map((i) => i._id),
+          assignerId: data?.assignerId?._id,
+          [type]: value,
+        });
+        if (res.message === "Nhiệm vụ cập nhật thành công") {
+          toast.success(res.message);
+          setData({});
+          setErrorData(errorsDefault);
+          getDetailtask(task._id);
+          setOnlyRead(readOnlyDefault);
+        } else {
+          toast.error(res.message);
+          setData({});
+          setErrorData(errorsDefault);
+          getDetailtask(task._id);
+          setOnlyRead(readOnlyDefault);
+        }
+      } else {
+        setTimeout(() => {
+          setData({});
+          setOnlyRead(readOnlyDefault);
+          getDetailtask(task._id);
+          setErrorData(errorsDefault);
+        }, 3000);
+      }
+    } else {
+      e.preventDefault();
+    }
+  };
+
+  const handleAddComment = async () => {
+    if (user && user.data) {
+      if (comment) {
+        let res = await addCommentTask({
+          projectId: task.projectId,
+          taskId: data._id,
+          userId: user.data._id,
+          content: comment
+        });
+        if (res.message === "Thêm bình luận thành công") {
+          toast.success(res.message);
+          setOnlyRead(readOnlyDefault);
+          setComment("");
+          setErrorData((prevErrorData) => ({ ...prevErrorData, comment: false }));
+        }
+        else {
+          toast.error(res.message);
+          setOnlyRead(readOnlyDefault);
+          setComment("");
+          setErrorData((prevErrorData) => ({ ...prevErrorData, comment: false }));
+        }
+      } else {
+        setErrorData((prevErrorData) => ({ ...prevErrorData, comment: true }));
+        toast.error(errorMessages["comment"]);
+      }
+    } else {
+      toast.warning("Đăng nhập để thực hiện yêu cầu này!");
+    }
+  };
+
+  const handleKeyDown = () => {
+    if (event.key === "Enter") {
+      handleAddComment();
+      setOnlyRead(readOnlyDefault);
+    }
+  };
+
+  const handleCancel = () => {
+    setComment("");
+    setOnlyRead(readOnlyDefault);
+    setErrorData(errorsDefault);
   };
 
   return (
@@ -219,82 +353,108 @@ const KabanDetail = ({ open, handleClose }) => {
                   variant="outlined"
                   size="small"
                   fullWidth
-                  multiline
-                  error={errorData.issueName}
+                  minRows={1}
+                  maxRows={1}
+                  error={errorData.title}
                   placeholder="Nhập vấn đề..."
-                  value={data.issueName}
-                  onBlur={() => handleBlurChange("issueName", data.issueName)}
-                  onChange={(e) =>
-                    handleChangeInput("issueName", e.target.value)
-                  }
+                  value={data?.title}
+                  onFocus={() => handleFocus("title")}
+                  onBlur={(e) => handleBlurChange("title", data?.title, e)}
+                  onChange={(e) => handleChangeInput("title", e.target.value)}
                   className="kaban-content-text-edit"
+                  InputProps={{
+                    readOnly: onlyRead.title,
+                  }}
                 />
                 <TextField
                   variant="outlined"
                   size="small"
                   fullWidth
                   multiline
-                  minRows={10}
-                  maxRows={20}
+                  minRows={5}
+                  maxRows={10}
                   sx={{ marginTop: "8px" }}
                   placeholder="Nhập nội dung..."
-                  value={data.description}
+                  value={data?.description}
                   error={errorData.description}
-                  onBlur={() =>
-                    handleBlurChange("description", data.description)
+                  onFocus={() => handleFocus("description")}
+                  onBlur={(e) =>
+                    handleBlurChange("description", data?.description, e)
                   }
                   onChange={(e) =>
                     handleChangeInput("description", e.target.value)
                   }
+                  InputProps={{
+                    readOnly: onlyRead.description,
+                  }}
                   className="kaban-content-text-edit"
                 />
               </div>
               <div className="comment-section">
                 <h4>Bình luận</h4>
-                <div className="comment-box">
-                  <img
-                    src="https://w7.pngwing.com/pngs/922/214/png-transparent-computer-icons-avatar-businessperson-interior-design-services-corporae-building-company-heroes-thumbnail.png"
-                    alt="user"
-                    className="avatar"
-                  />
-                  <TextField
-                    variant="outlined"
-                    size="small"
-                    fullWidth
-                    multiline
-                    minRows={3}
-                    placeholder="Nhập bình luận..."
-                    value={comment}
-                    onChange={(e) => setComment(e.target.value)}
-                    className="comment-input"
-                  />
-                </div>
-                <div className="comment-actions">
-                  <Button
-                    variant="contained"
-                    color="primary"
-                    onClick={handleAddComment}
-                  >
-                    Gửi
-                  </Button>
-                  <Button variant="contained" className="cancel-btn">
-                    Hủy
-                  </Button>
-                </div>
-                <div className="comment-list">
-                  {comments.map((cmt) => (
-                    <div key={cmt.id} className="comment">
-                      <img
-                        src="https://w7.pngwing.com/pngs/922/214/png-transparent-computer-icons-avatar-businessperson-interior-design-services-corporae-building-company-heroes-thumbnail.png"
-                        alt="user"
-                        className="avatar"
+                {user && user.data && (
+                  <>
+                    <div className="comment-box">
+                      <img src={user.data.image || imageAvatar} alt="user" className="avatar" />
+                      <TextField
+                        variant="outlined"
+                        size="small"
+                        fullWidth
+                        multiline
+                        error={errorData.comment}
+                        minRows={3}
+                        placeholder="Nhập bình luận..."
+                        value={comment}
+                        onKeyDown={() => handleKeyDown()}
+                        onFocus={() => handleFocus("comment")}
+                        onChange={(e) => {
+                          setComment(e.target.value);
+                          setErrorData((prevErrorData) => ({
+                            ...prevErrorData,
+                            comment: false,
+                          }));
+                        }}
+                        InputProps={{
+                          readOnly: onlyRead.comment,
+                        }}
+                        className="comment-input"
                       />
-                      <div className="cmt-text">
-                        <p>{cmt.commentBy}</p>
-                        <p>{cmt.text}</p>
-                      </div>
                     </div>
-                  ))}
+                    <div className="comment-actions">
+                      <Button
+                        variant="contained"
+                        color="primary"
+                        onClick={handleAddComment}
+                      >
+                        Gửi
+                      </Button>
+                      <Button
+                        onClick={handleCancel}
+                        variant="contained"
+                        className="cancel-btn"
+                      >
+                        Hủy
+                      </Button>
+                    </div>
+                  </>
+                )}
+                <div
+                  className={user ? "comment-list fix-height" : "comment-list"}
+                >
+                  {comments && comments.length > 0 &&
+                    comments.map((cmt) => (
+                      <div key={cmt._id} className="comment">
+                        <img
+                          src="https://w7.pngwing.com/pngs/922/214/png-transparent-computer-icons-avatar-businessperson-interior-design-services-corporae-building-company-heroes-thumbnail.png"
+                          alt="user"
+                          className="avatar"
+                        />
+                        <div className="cmt-text">
+                          <p>{cmt.userName}</p>
+                          <p>{cmt.comment}</p>
+                        </div>
+                      </div>
+                    ))}
                 </div>
               </div>
             </div>
@@ -303,91 +463,105 @@ const KabanDetail = ({ open, handleClose }) => {
               <div className="kaban-description">
                 <p>Người nhận việc:</p>
                 <div className="kaban-description-personName-edit">
-                  <FormControl sx={{ width: "100%", overflow: "hidden" }}>
-                    <Select
-                      size="small"
-                      labelId="demo-multiple-name-label"
-                      id="demo-multiple-name"
-                      multiple
-                      value={data.personName}
-                      error={errorData.personName}
-                      onChange={(e) => handleChangeSelect(e.target.value)}
-                      onBlur={() =>
-                        handleBlurChange("personName", data.personName)
-                      }
-                      renderValue={(selected) => {
-                        const maxVisible = 4;
+                  <FormControl
+                    fullWidth
+                    size="small"
+                    error={errorData.assigneeId}
+                  >
+                    <Controller
+                      name="assigneeId"
+                      control={control}
+                      rules={{
+                        required: "Vui lòng chọn ít nhất một người nhận việc",
+                      }}
+                      render={({ field }) => {
+                        if (isOne) {
+                          field.value =
+                            selectedPerson &&
+                            selectedPerson.length > 0 &&
+                            selectedPerson.map((a) => a._id);
+                          isOne = false;
+                        }
                         return (
-                          <div
-                            style={{
-                              display: "flex",
-                              alignItems: "center",
-                              gap: "5px",
+                          <Select
+                            {...field}
+                            labelId="demo-multiple-checkbox-label"
+                            id="demo-multiple-checkbox"
+                            multiple
+                            error={errorData.assigneeId}
+                            value={field.value || []}
+                            onChange={(event) =>
+                              handleSelectAssigneeId(event, field)
+                            }
+                            onFocus={() => handleFocus("assigneeId")}
+                            onBlur={(e) =>
+                              handleSelectAssigneeIdBlur(
+                                "assigneeId",
+                                selectedPerson,
+                                e
+                              )
+                            }
+                            renderValue={(selected) => {
+                              const selectedNames = listMember
+                                .filter((item) => selected.includes(item._id))
+                                .map((a) => a.userName);
+
+                              return selectedNames.length > 2
+                                ? selectedNames.slice(0, 2).join(", ") + " ... "
+                                : selectedNames.join(", ");
+                            }}
+                            MenuProps={MenuProps}
+                            InputProps={{
+                              readOnly: onlyRead.assigneeId,
+                            }}
+                            sx={{
+                              mb: 1,
                             }}
                           >
-                            {selected
-                              .slice(0, maxVisible)
-                              .map((name, index) => (
-                                <img
-                                  key={index}
-                                  src={name.avatar}
-                                  alt=""
-                                  style={{
-                                    width: "23px",
-                                    height: "23px",
-                                    borderRadius: "50%",
-                                  }}
+                            {listMember.map((person) => (
+                              <MenuItem key={person._id} value={person._id}>
+                                <Checkbox
+                                  checked={
+                                    (field.value &&
+                                      field.value.length > 0 &&
+                                      field.value?.includes(person._id)) ||
+                                    false
+                                  }
                                 />
-                              ))}
-                            {selected.length > maxVisible && (
-                              <span
-                                style={{
-                                  overflow: "hidden",
-                                  backgroundColor: "transparent",
-                                  borderRadius: "50%",
-                                  display: "flex",
-                                  alignItems: "center",
-                                  justifyContent: "center",
-                                  color: "#333",
-                                  border: "2px solid #333",
-                                  textAlign: "center",
-                                  width: "23px",
-                                  height: "23px",
-                                }}
-                              >
-                                <MoreHorizIcon />
-                              </span>
-                            )}
-                          </div>
+                                <Box
+                                  display="flex"
+                                  alignItems="center"
+                                  sx={{
+                                    ml: 1,
+                                  }}
+                                >
+                                  <Avatar
+                                    sx={{
+                                      bgcolor: "purple",
+                                      width: 40,
+                                      height: 40,
+                                      marginRight: 2,
+                                    }}
+                                    src="image\\f8ad738c648cb0c7cc815d6ceda805b0.png"
+                                  ></Avatar>
+                                  <Typography
+                                    sx={{
+                                      fontWeight: 500,
+                                      width: "150px",
+                                      whiteSpace: "nowrap",
+                                      overflow: "hidden",
+                                      textOverflow: "ellipsis",
+                                    }}
+                                  >
+                                    {person.userName}
+                                  </Typography>
+                                </Box>
+                              </MenuItem>
+                            ))}
+                          </Select>
                         );
                       }}
-                      MenuProps={{
-                        PaperProps: {
-                          style: {
-                            maxHeight: 200,
-                            overflowY: "auto",
-                          },
-                        },
-                      }}
-                    >
-                      {user.map((item) => (
-                        <MenuItem key={item.id} value={item}>
-                          <div className={style.wrapItemSlc}>
-                            <img
-                              style={{
-                                width: "25px",
-                                height: "25px",
-                                borderRadius: "50%",
-                              }}
-                              className={style.avatar}
-                              src={item.avatar}
-                              alt="avatar"
-                            />
-                            <div className={style.name}>{item.name}</div>
-                          </div>
-                        </MenuItem>
-                      ))}
-                    </Select>
+                    />
                   </FormControl>
                 </div>
               </div>
@@ -401,19 +575,32 @@ const KabanDetail = ({ open, handleClose }) => {
                     variant="outlined"
                     size="small"
                     fullWidth
-                    multiline
+                    minRows={1}
+                    maxRows={1}
                     error={errorData.link}
                     placeholder="Nhập link..."
-                    value={data.link}
+                    value={data?.link}
+                    onFocus={() => handleFocus("link")}
+                    onBlur={(e) => handleBlurChange("link", data?.link, e)}
                     onChange={(e) => handleChangeInput("link", e.target.value)}
-                    onBlur={() => handleBlurChange("link", data.link)}
+                    InputProps={{
+                      readOnly: onlyRead.link,
+                    }}
                   />
                 </div>
               </div>
               <div className="kaban-description image">
                 <p>Hình ảnh:</p>
                 <p className="kaban-descrition-image">
-                  <img src={data.imageFile} alt="image" />
+                  <Zoom>
+                    <img
+                      src={
+                        data?.image ||
+                        "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTKCI0jyuDli7hTwPGh90HItM5yF-HOF_pzrQ&s"
+                      }
+                      alt="image"
+                    />
+                  </Zoom>
                 </p>
               </div>
               <div className="kaban-description">
@@ -423,25 +610,31 @@ const KabanDetail = ({ open, handleClose }) => {
                     <Select
                       size="small"
                       error={errorData.status}
-                      value={data.status}
+                      value={data?.status || ""}
+                      onFocus={() => handleFocus("status")}
+                      onBlur={(e) =>
+                        handleBlurChange("status", data?.status, e)
+                      }
                       onChange={(e) =>
                         handleChangeInput("status", e.target.value)
                       }
-                      onBlur={() => handleBlurChange("status", data.status)}
                       sx={{
                         width: "100%",
                         height: 40,
                       }}
                       displayEmpty
+                      InputProps={{
+                        readOnly: onlyRead.status,
+                      }}
                     >
                       <MenuItem value="">
                         <em>Trạng thái</em>
                       </MenuItem>
-                      <MenuItem value={0}>Công việc mới</MenuItem>
-                      <MenuItem value={1}>Đang thực hiện</MenuItem>
-                      <MenuItem value={2}>Hoàn thành</MenuItem>
-                      <MenuItem value={3}>Kết thúc</MenuItem>
-                      <MenuItem value={4}>Tạm dừng</MenuItem>
+                      <MenuItem value="pending">Công việc mới</MenuItem>
+                      <MenuItem value="todo">Đang thực hiện</MenuItem>
+                      <MenuItem value="inProgress">Chưa hoàn thành</MenuItem>
+                      <MenuItem value="completed">Hoàn thành</MenuItem>
+                      <MenuItem value="done">Kết thúc</MenuItem>
                     </Select>
                   </FormControl>
                 </div>
@@ -449,139 +642,70 @@ const KabanDetail = ({ open, handleClose }) => {
               <div className="kaban-description">
                 <p>Ngày bắt đầu:</p>
                 <div className="kaban-description-date">
-                  <LocalizationProvider dateAdapter={AdapterDayjs}>
-                    <DatePicker
-                      name="startDate"
-                      error={errorData.startDate}
-                      slotProps={{
-                        textField: {
-                          size: "small",
-                          error: errorData.startDate,
-                          onBlur: () =>
-                            handleBlurChange("startDate", data.startDate),
-                          sx: {
-                            height: "40px",
-                            "& .MuiInputBase-root": {
-                              height: "40px",
-                              "&.Mui-error": {
-                                border: "1px solid red !important",
-                                borderRadius: "4px",
-                              },
-                            },
-                            "& .MuiOutlinedInput-notchedOutline": {
-                              border: errorData.startDate
-                                ? "1px solid red !important"
-                                : null,
-                              borderRadius: "4px",
-                            },
-                          },
-                        },
-                      }}
-                      value={data.startDate}
-                      onChange={(value) => {
-                        handleChangeInput("startDate", value);
-
-                        if (value && data.endDate && data.endDate.isValid()) {
-                          const isValid =
-                            value.isBefore(data.endDate) ||
-                            value.isSame(data.endDate);
-
-                          setErrorData((prevErrorData) => ({
-                            ...prevErrorData,
-                            startDate: !isValid,
-                          }));
-                          if (!isValid) {
-                            toast.error(errorMessages.startDateInvalid);
-                          }
-                        }
-                      }}
-                      size="small"
-                      format="DD/MM/YYYY"
-                    />
-                  </LocalizationProvider>
+                  <TextField
+                    fullWidth
+                    variant="outlined"
+                    type="date"
+                    size="small"
+                    error={errorData.startDate}
+                    value={cvDate(data?.startDate)}
+                    onFocus={() => handleFocus("startDate")}
+                    onBlur={(e) =>
+                      handleBlurChange("startDate", data?.startDate, e)
+                    }
+                    onChange={(e) =>
+                      handleChangeInput("startDate", e.target.value)
+                    }
+                    InputLabelProps={{
+                      shrink: true,
+                    }}
+                    InputProps={{
+                      readOnly: onlyRead.startDate,
+                    }}
+                    sx={{ mb: 2 }}
+                  />
                 </div>
               </div>
               <div className="kaban-description">
                 <p>Ngày kết thúc:</p>
                 <div className="kaban-description-date">
-                  <LocalizationProvider dateAdapter={AdapterDayjs}>
-                    <DatePicker
-                      name="endDate"
-                      error={errorData.endDate}
-                      slotProps={{
-                        textField: {
-                          size: "small",
-                          error: errorData.endDate,
-                          onBlur: () =>
-                            handleBlurChange("endDate", data.endDate),
-                          sx: {
-                            height: "40px",
-                            "& .MuiInputBase-root": {
-                              height: "40px",
-                              "&.Mui-error": {
-                                border: "1px solid red !important",
-                                borderRadius: "4px",
-                              },
-                            },
-                            "& .MuiOutlinedInput-notchedOutline": {
-                              border: errorData.endDate
-                                ? "1px solid red !important"
-                                : null,
-                              borderRadius: "4px",
-                            },
-                          },
-                        },
-                      }}
-                      value={data.endDate}
-                      onChange={(value) => {
-                        handleChangeInput("endDate", value);
-                        if (
-                          value &&
-                          data.startDate &&
-                          data.startDate.isValid()
-                        ) {
-                          const isValid =
-                            value.isAfter(data.startDate) ||
-                            value.isSame(data.startDate);
-                          setErrorData((prevErrorData) => ({
-                            ...prevErrorData,
-                            endDate: !isValid,
-                          }));
-
-                          if (!isValid) {
-                            toast.error(errorMessages.endDateInvalid);
-                          }
-                        }
-                      }}
-                      size="small"
-                      format="DD/MM/YYYY"
-                    />
-                  </LocalizationProvider>
+                  <TextField
+                    fullWidth
+                    variant="outlined"
+                    type="date"
+                    size="small"
+                    error={errorData.endDate}
+                    value={cvDate(data?.endDate)}
+                    onFocus={() => handleFocus("endDate")}
+                    onBlur={(e) =>
+                      handleBlurChange("endDate", data?.endDate, e)
+                    }
+                    onChange={(e) =>
+                      handleChangeInput("endDate", e.target.value)
+                    }
+                    InputLabelProps={{
+                      shrink: true,
+                    }}
+                    InputProps={{
+                      readOnly: onlyRead.endDate,
+                    }}
+                    sx={{ mb: 2 }}
+                  />
                 </div>
               </div>
               <div className="kaban-description">
                 <p>Người báo cáo:</p>
-                <div className="kaban-single-info">
-                  <img src={data.report.avatar} alt="" />
-                  <p>{data.report.name}</p>
-                </div>
+                {data?.assignerId && (
+                  <div className="kaban-single-info">
+                    <img src={imageAvatar} alt="" />
+                    <p>{data?.assignerId && data?.assignerId.userName}</p>
+                  </div>
+                )}
               </div>
             </div>
           </div>
         </Box>
       </Modal>
-      <ToastContainer
-        position="top-right"
-        autoClose={3000}
-        hideProgressBar={false}
-        newestOnTop={false}
-        closeOnClick
-        rtl={false}
-        pauseOnFocusLoss
-        draggable
-        pauseOnHover
-        theme="light"
-      />
     </>
   );
 };

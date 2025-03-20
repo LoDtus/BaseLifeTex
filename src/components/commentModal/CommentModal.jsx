@@ -155,7 +155,8 @@ const CommentModal = ({ open, handleClose, task }) => {
               <div className="kaban-description image">
                 <p>Hình ảnh:</p>
                 <img
-                  src="https://res.cloudinary.com/dvmpaqgtv/image/upload/v1742269884/Screenshot_2023-11-01_112242_c7zh0g.png"
+                  // src="https://res.cloudinary.com/dvmpaqgtv/image/upload/v1742269884/Screenshot_2023-11-01_112242_c7zh0g.png"
+                  src={task.image}
                   alt=""
                 />
               </div>

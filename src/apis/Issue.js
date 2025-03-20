@@ -82,3 +82,64 @@ export const addMemberTask = async (id, data) => {
     console.error("Error posting data:", error);
   }
 };
+
+export const updateIssueDataImage = async (id, data, imageFile) => {
+  console.log(data);
+
+  try {
+    const formData = new FormData();
+
+    // Append từng field vào formData
+    Object.keys(data).forEach((key) => {
+      if (Array.isArray(data[key])) {
+        data[key].forEach((item) => formData.append(`${key}[]`, item));
+      } else {
+        formData.append(key, data[key]);
+      }
+    });
+
+    // Nếu có file, append vào formData
+    if (imageFile) {
+      formData.append("image", imageFile);
+    }
+
+    const response = await axios.put(
+      `${backendUrl}/tasks/edit-task/${id}`,
+      formData,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      }
+    );
+
+    return response.data;
+  } catch (error) {
+    console.error("Error updating issue:", error);
+  }
+};
+
+export const getTaskDetailById = async (id) => {
+  try {
+    const response = await axios.get(`${backendUrl}/tasks/${id}`);
+    // console.log(response);
+    return response.data;
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+export const getListCommentByTask = async (token,taskId) => {
+  try {
+    const response = await axios.get(`${backendUrl}/comments/get-comments/${taskId}`,{
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
+    return response.data;
+  }
+  catch(err) {
+    console.log(err)
+    throw err;
+  }
+}

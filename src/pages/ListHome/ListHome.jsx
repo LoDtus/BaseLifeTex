@@ -3,7 +3,7 @@ import "./ListHome.scss";
 import "../Home/Home.scss";
 import { useNavigate } from "react-router-dom";
 import IssueForm from "../../components/IssueFrom/IssueForm";
-import { Avatar, Input, Popover } from "@mui/material";
+import { Avatar, Button, Input, Popover } from "@mui/material";
 import MemberListContent from "../../components/memberList/MemberList";
 import FilterDialog from "../../components/FilterForm/FilterDialog";
 import MemberListContentAdd from "../../components/memberListAdd/MemberListAdd";
@@ -31,7 +31,8 @@ import Paper from "@mui/material/Paper";
 import CommentModal from "../../components/commentModal/CommentModal";
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 import KabanDetail from "../../components/kabanDetail/KabanDetail";
-
+import EditNoteIcon from "@mui/icons-material/EditNote";
+import EditForm from "../../components/editForm/EditForm";
 const TaskTable = () => {
   const navigate = useNavigate();
   const [anchorElFilter, setAnchorElFilter] = useState(null); // Anchor cho Filter
@@ -43,7 +44,6 @@ const TaskTable = () => {
   const idProject = searchParams.get("idProject");
   const [listTask, setListTask] = useState([]);
   const [openComment, setOpenComment] = useState(false);
-
 
   const fetchApi = async (id) => {
     const res = await getLisTaskById(id);
@@ -98,7 +98,7 @@ const TaskTable = () => {
   };
 
   const [open, setOpen] = useState(false);
-  const [issueStatus, setIssueStatus] = useState("");
+  const [issueStatus, setIssueStatus] = useState("Công việc mới");
 
   const onClose = () => {
     setOpen(false);
@@ -242,6 +242,20 @@ const TaskTable = () => {
     console.log(newIssue);
   };
 
+  // Modal Edit
+  const [editModal, setEditModal] = useState(false);
+  const [idEditModal, setIdEditModal] = useState(null);
+
+  const editModalOpen = (taskId) => {
+    setEditModal(true);
+    setIdEditModal(taskId);
+  };
+
+  const editModalClose = () => {
+    setEditModal(false);
+    setIdEditModal(null);
+    fetchApi(idProject);
+  };
   return (
     <div className="task-table-container">
       <ToastContainer />
@@ -383,10 +397,7 @@ const TaskTable = () => {
             },
           }}
         >
-          <Table
-            className="task-table"
-            aria-label="sticky table"
-          >
+          <Table className="task-table" aria-label="sticky table">
             <TableHead>
               <TableRow>
                 <TableCell></TableCell> {/* Checkbox */}
@@ -405,6 +416,7 @@ const TaskTable = () => {
                 <TableCell align="center">Ngày kết thúc</TableCell>
                 <TableCell align="center">Trạng thái</TableCell>
                 <TableCell align="left">Link</TableCell>
+                <TableCell align="left">Actions</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -707,6 +719,19 @@ const TaskTable = () => {
                           }
                         />
                       </div>
+                    )}
+                  </TableCell>
+                  <TableCell>
+                    <Button onClick={() => editModalOpen(task._id)}>
+                      <EditNoteIcon />
+                    </Button>
+                    {idEditModal === task._id && (
+                      <EditForm
+                        isOpen={editModal}
+                        onClose={editModalClose}
+                        task={task}
+                        idProject={idProject}
+                      />
                     )}
                   </TableCell>
                 </TableRow>

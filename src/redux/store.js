@@ -1,5 +1,7 @@
 import { configureStore, combineReducers } from "@reduxjs/toolkit";
 import authReducer from "./authSlice";
+import taskReducer from "./taskSlice";
+import projectReducer from "./projectSlice";
 import { persistStore, persistReducer } from "redux-persist";
 import storage from "redux-persist/lib/storage";
 import loadingReducer from "./loadingSlice";
@@ -12,6 +14,8 @@ const persistConfig = {
 const rootReducer = combineReducers({
   auth: authReducer,
   loading: loadingReducer,
+  task: taskReducer,
+  project: projectReducer
 });
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);
