@@ -20,8 +20,8 @@ import Zoom from "react-medium-image-zoom";
 import "react-medium-image-zoom/dist/styles.css";
 import imageAvatar from "../../assets/image/image_5.png";
 import { getlistUser, addCommentTask } from "../../apis/use";
-import { getTaskDetailById, updateIssueData } from "../../apis/Issue";
-import { useSelector } from "react-redux";
+import { getTaskDetailById, updateIssueData, getListCommentByTask } from "../../apis/Issue";
+import { useDispatch, useSelector } from "react-redux";
 
 const ITEM_HEIGHT = 48;
 const ITEM_PADDING_TOP = 8;
@@ -36,54 +36,6 @@ const MenuProps = {
 
 const KabanDetail = ({ open, task, handleClose }) => {
   const { control } = useForm();
-
-  const listCmt = [
-    {
-      _id: "abcbcbcbcbab",
-      userName: "Nguyen Van A",
-      comment: "Lỗi cần sửa lại file scss",
-    },
-    {
-      _id: "abcbcbcbcbab1",
-      userName: "Nguyen Van B",
-      comment: "Lỗi cần sửa lại file scss",
-    },
-    {
-      _id: "abcbcbcbcbab2",
-      userName: "Nguyen Van C",
-      comment: "Lỗi cần sửa lại file scss",
-    },
-    {
-      _id: "abcbcbcbcbab3",
-      userName: "Nguyen Van D",
-      comment: "Lỗi cần sửa lại file scss",
-    },
-    {
-      _id: "abcbcbcbcbab4",
-      userName: "Nguyen Van E",
-      comment: "Lỗi cần sửa lại file scss",
-    },
-    {
-      _id: "abcbcbcbcbab5",
-      userName: "Nguyen Van F",
-      comment: "Lỗi cần sửa lại file scss",
-    },
-    {
-      _id: "abcbcbcbcbab6",
-      userName: "Nguyen Van G",
-      comment: "Lỗi cần sửa lại file scss",
-    },
-    {
-      _id: "abcbcbcbcbab7",
-      userName: "Nguyen Van H",
-      comment: "Lỗi cần sửa lại file scss",
-    },
-    {
-      _id: "abcbcbcbcbab8",
-      userName: "Nguyen Van I",
-      comment: "Lỗi cần sửa lại file scss",
-    },
-  ];
 
   const errorsDefault = {
     title: false,
@@ -123,14 +75,15 @@ const KabanDetail = ({ open, task, handleClose }) => {
   const [data, setData] = useState({});
   const [onlyRead, setOnlyRead] = useState(readOnlyDefault);
   const [comment, setComment] = useState("");
-  const [comments, setComments] = useState(listCmt);
+  const [comments, setComments] = useState();
   const [errorData, setErrorData] = useState(errorsDefault);
   const [selectedPerson, setSelectedPerson] = useState([]);
   const [listMember, setListMember] = useState([]);
   const user = useSelector((state) => state.auth.login.currentUser);
+  const dispatch = useDispatch();
 
   const getMemberByProject = async (projectId) => {
-    const response = await getlistUser(user.accessToken, projectId);
+    const response = await getlistUser(user && user.accessToken, projectId);
     if (response.members) {
       setListMember(response.members);
     }
@@ -488,7 +441,7 @@ const KabanDetail = ({ open, task, handleClose }) => {
                 <div
                   className={user ? "comment-list fix-height" : "comment-list"}
                 >
-                  {comments.length > 0 &&
+                  {comments && comments.length > 0 &&
                     comments.map((cmt) => (
                       <div key={cmt._id} className="comment">
                         <img
