@@ -39,7 +39,7 @@
 
 .kanban-column-scroll {
   overflow-y: auto;
-  padding-bottom: 50px;
+  margin-bottom: 150px;
   scrollbar-width: none;
   -ms-overflow-style: none;
   &::-webkit-scrollbar {
@@ -67,10 +67,15 @@
   overflow: hidden;
 
   &.dragging {
-    opacity: 0.9; // Giảm opacity nhẹ để nổi bật
-    transform: scale(1.05); // Phóng to nhẹ để "nổi lên"
-    z-index: 1000; // Đưa task lên trên cùng
-    box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2); // Tăng bóng để nổi bật
+    opacity: 0.5; /* Task gốc mờ đi khi kéo */
+  }
+
+  &.dragging-custom {
+    opacity: 0.8; /* Phần tử ảo hơi mờ */
+    transform: scale(1.05); /* Phóng to nhẹ */
+    box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2); /* Tăng bóng */
+    background: #eef4fc; /* Giữ màu nền giống task gốc */
+    border-radius: 8px;
   }
 
   p {
@@ -78,7 +83,7 @@
     font-size: 14px;
     cursor: pointer;
     word-wrap: break-word;
-    line-height: 1.2;
+    lineHeight: 1.2;
   }
 
   strong {

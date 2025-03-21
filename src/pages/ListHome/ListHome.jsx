@@ -33,6 +33,8 @@ import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 import KabanDetail from "../../components/kabanDetail/KabanDetail";
 import EditNoteIcon from "@mui/icons-material/EditNote";
 import EditForm from "../../components/editForm/EditForm";
+import { useSelector, useDispatch } from "react-redux";
+import { getListTaskByProjectIdRedux } from "../../redux/taskSlice";
 const TaskTable = () => {
   const navigate = useNavigate();
   const [anchorElFilter, setAnchorElFilter] = useState(null); // Anchor cho Filter
@@ -42,13 +44,18 @@ const TaskTable = () => {
 
   const [searchParams] = useSearchParams();
   const idProject = searchParams.get("idProject");
-  const [listTask, setListTask] = useState([]);
+  // const [listTask, setListTask] = useState([]);
+  const listTask = useSelector(state => state.task.listTask);
+  const dispatch = useDispatch();
+
   const [openComment, setOpenComment] = useState(false);
 
   const fetchApi = async (id) => {
-    const res = await getLisTaskById(id);
-    // console.log(res);
-    setListTask(res.data);
+    // const res = await getLisTaskById(id);
+    // // console.log(res);
+    // setListTask(res.data);
+    dispatch(getListTaskByProjectIdRedux(idProject));
+    
   };
 
   useEffect(() => {

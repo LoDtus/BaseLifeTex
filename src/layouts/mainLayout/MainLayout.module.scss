@@ -21,14 +21,10 @@
   }
   .content {
     flex: 1;
-    height: 1024px;
     background: var(--white-color);
-    .content {
-      flex: 1;
-      height: 1024px;
-      background: var(--white-color);
-      padding: 20px;
-      background-color: #ffffff;
-    }
+    height: 1024px;
+    padding: 20px;
+    background-color: #ffffff;
+    
   }
 }
