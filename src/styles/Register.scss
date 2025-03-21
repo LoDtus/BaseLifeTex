@@ -14,7 +14,6 @@
 .register-form-content {
   max-width: 930px;
   width: 100%;
-  height: 600px;
   background-color: white;
   margin: 16px auto;
   border-radius: 6px;
@@ -30,11 +29,12 @@
   padding: 16px;
   display: flex;
   justify-content: center;
+  flex-wrap: wrap;
 }
 .register-introduction {
   max-width: 374px;
   width: 100%;
-  height: 100px;
+  height: 100%;
 }
 .register-introduction-content {
   display: flex;
@@ -58,11 +58,12 @@
 .register-form-total {
   max-width: 374px;
   width: 100%;
-  height: 100px;
+  height: 100%;
 }
 .register-total-social {
   display: flex;
   justify-content: center;
+  margin-top: 10px;
 }
 .register-icon-tw {
   font-size: 30px !important;
