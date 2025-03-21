@@ -9,7 +9,6 @@ import TwitterIcon from "@mui/icons-material/Twitter";
 import FacebookIcon from "@mui/icons-material/Facebook";
 import SportsBaseballIcon from "@mui/icons-material/SportsBaseball";
 import Input from "@mui/material/Input";
-import bgImage from "../../assets/image/bg_login.jpg";
 import FaceIcon from "@mui/icons-material/Face";
 import EmailIcon from "@mui/icons-material/Email";
 import LockIcon from "@mui/icons-material/Lock";
@@ -17,7 +16,9 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
-import { registerUser } from "../../redux/apiRequest";
+import { registerUser } from "../../services/authService";
+import "../../styles/register.scss";
+import { Container } from "react-bootstrap";
 
 export default function Register() {
   const [email, setEmail] = useState("");
@@ -75,65 +76,22 @@ export default function Register() {
   return (
     <>
       <ToastContainer />
-      <Box
-        sx={{
-          backgroundImage: `url(${bgImage})`,
-          width: "100%",
-          height: "100%",
-          backgroundRepeat: "no-repeat",
-          backgroundSize: "cover",
-        }}
-      >
-        <Box
-          sx={{
-            width: "100%",
-            height: "100%",
-            backgroundColor: "rgba(26, 33, 18, 0.5)",
-          }}
-        >
+      <Box className="register">
+        <Box className="register-form">
           <HeaderLogin />
-          <Box
-            sx={{
-              maxWidth: "930px",
-              width: "100%",
-              height: "600px",
-              backgroundColor: "white",
-              margin: "0 auto",
-              borderRadius: "6px",
-            }}
-          >
-            <Typography
-              sx={{ textAlign: "center", fontSize: "32px", padding: "25px 0" }}
-            >
-              Resigter
-            </Typography>
-            <Box sx={{ width: "100%", maxWidth: "889px", padding: "16px" }}>
-              <Box sx={{ display: "flex", justifyContent: "center" }}>
-                <Box
-                  sx={{
-                    maxWidth: "374px",
-                    width: "100%",
-                    height: 100,
-                  }}
-                >
-                  <Box sx={{ display: "flex" }}>
-                    <TimelineIcon
-                      sx={{
-                        color: "#e32163",
-                        fontSize: "30px",
-                        marginRight: "10px",
-                      }}
-                    />
+          <Container>
+            <Box className="register-form-content">
+              <Typography className="register-title">Resigter</Typography>
+              <Box className="register-total">
+                <Box className="register-introduction">
+                  <Box className="register-introduction-content">
+                    <TimelineIcon className="register-introduction-icon" />
                     <Box>
                       <Typography
-                        sx={{
-                          fontSize: "18px",
-                          color: "#3C4858",
-                          marginBottom: "15px",
-                          marginTop: "5px",
-                        }}
+                        className="register-introduction-text"
                         variant="h4"
                       >
+                        {" "}
                         Marketing
                       </Typography>
                       <Typography
@@ -148,14 +106,8 @@ export default function Register() {
                       </Typography>
                     </Box>
                   </Box>
-                  <Box sx={{ display: "flex" }}>
-                    <CodeIcon
-                      sx={{
-                        color: "#3791d9",
-                        fontSize: "30px",
-                        marginRight: "10px",
-                      }}
-                    />
+                  <Box className="register-introduction-content">
+                    <CodeIcon className="register-introduction-icon" />
                     <Box>
                       <Typography
                         sx={{
@@ -179,14 +131,8 @@ export default function Register() {
                       </Typography>
                     </Box>
                   </Box>
-                  <Box sx={{ display: "flex" }}>
-                    <PeopleAltIcon
-                      sx={{
-                        color: "#00b1c3",
-                        fontSize: "30px",
-                        marginRight: "10px",
-                      }}
-                    />
+                  <Box className="register-introduction-content">
+                    <PeopleAltIcon className="register-introduction-icon" />
                     <Box>
                       <Typography
                         sx={{
@@ -402,7 +348,7 @@ export default function Register() {
                 </Box>
               </Box>
             </Box>
-          </Box>
+          </Container>
           <FooterLogin />
         </Box>
       </Box>

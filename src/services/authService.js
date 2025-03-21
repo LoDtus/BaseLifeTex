@@ -1,6 +1,6 @@
-import axios from "axios";
-const Api_Login = import.meta.env.VITE_API_LOGIN;
-const Api_Register = import.meta.env.VITE_API_REGISTER;
+import axiosInstance from "./apiService";
+import { toast } from "react-toastify";
+
 import {
   loginFail,
   loginStart,
@@ -8,12 +8,12 @@ import {
   registerFail,
   registerStart,
   registerSuccess,
-} from "./authSlice";
+} from "../redux/authSlice";
 
 export const loginUser = async (user, dispatch, navigate) => {
   dispatch(loginStart());
   try {
-    const res = await axios.post(`${Api_Login}`, user);
+    const res = await axiosInstance.post("/auth/sign-in", user);
     dispatch(loginSuccess(res.data));
 
     setTimeout(() => {
@@ -30,13 +30,24 @@ export const loginUser = async (user, dispatch, navigate) => {
 export const registerUser = async (user, dispatch, navigate) => {
   dispatch(registerStart());
   try {
-    await axios.post(`${Api_Register}`, user);
+    await axiosInstance.post("/auth/sign-up", user);
     dispatch(registerSuccess());
     setTimeout(() => {
       navigate("/");
     }, 4000);
   } catch (error) {
     dispatch(registerFail());
-    alert(error.response?.data?.message);
+    toast.error(error.response?.data?.message);
+  }
+};
+export const refreshToken = async () => {
+  try {
+    const res = await axiosInstance.post("/auth/refresh-token", {
+      withCredentials: true,
+    });
+    return res.data;
+  } catch (error) {
+    console.log("Lỗi refresh token", error);
+    throw error;
   }
 };
