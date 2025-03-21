@@ -19,8 +19,13 @@ import { useForm, Controller } from "react-hook-form";
 import Zoom from "react-medium-image-zoom";
 import "react-medium-image-zoom/dist/styles.css";
 import imageAvatar from "../../assets/image/image_5.png";
-import { getlistUser, addCommentTask } from "../../apis/use";
-import { getTaskDetailById, updateIssueData, getListCommentByTask } from "../../apis/Issue";
+import { getlistUser } from "../../apis/use";
+import { updateIssueData } from "../../apis/Issue";
+import { getTaskDetailById } from "../../services/taskService";
+import {
+  getListCommentByTask,
+  addCommentTask,
+} from "../../services/commentService";
 import { useDispatch, useSelector } from "react-redux";
 
 const ITEM_HEIGHT = 48;
@@ -89,15 +94,26 @@ const KabanDetail = ({ open, task, handleClose }) => {
     }
   };
 
-  const getDetailtask = async (id) => {
-    try {
-      let res = await getTaskDetailById(id);
-      if (res) {
-        setData({ ...res.data, assignerId: task.assignerId });
-        setSelectedPerson(task.assigneeId);
+  const getListComment = async (id) => {
+    if(user) {
+      let response = await getListCommentByTask(user && user.accessToken, id);
+      if (response && response.comments) {
+          setComments(response.comments);
       }
-    } catch (err) {
-      toast.error(err);
+      else {
+        toast.error(response.message)
+      }
+    }
+  }
+
+  const getDetailtask = async (id) => {
+    let res = await getTaskDetailById(id);
+    if (res && res.data) {
+      setData({ ...res.data, assignerId: task.assignerId });
+      setSelectedPerson(task.assigneeId);
+    }
+    else {
+      toast.error(res.message)
     }
   };
 
@@ -105,6 +121,7 @@ const KabanDetail = ({ open, task, handleClose }) => {
     if (task) {
       getMemberByProject(task.projectId);
       getDetailtask(task._id);
+      getListComment(task._id);
     }
   }, [task]);
 
@@ -134,6 +151,7 @@ const KabanDetail = ({ open, task, handleClose }) => {
           setErrorData(errorsDefault);
           getDetailtask(task._id);
           setOnlyRead(readOnlyDefault);
+          useDispatch(getListTaskByProjectIdRedux(task.projectId));
         } else {
           toast.error(res.message);
           setData({});
@@ -289,23 +307,28 @@ const KabanDetail = ({ open, task, handleClose }) => {
   const handleAddComment = async () => {
     if (user && user.data) {
       if (comment) {
-        let res = await addCommentTask({
+        let res = await addCommentTask(user.accessToken, {
           projectId: task.projectId,
           taskId: data._id,
           userId: user.data._id,
-          content: comment
+          content: comment,
         });
         if (res.message === "Thêm bình luận thành công") {
           toast.success(res.message);
           setOnlyRead(readOnlyDefault);
           setComment("");
-          setErrorData((prevErrorData) => ({ ...prevErrorData, comment: false }));
-        }
-        else {
+          setErrorData((prevErrorData) => ({
+            ...prevErrorData,
+            comment: false,
+          }));
+        } else {
           toast.error(res.message);
           setOnlyRead(readOnlyDefault);
           setComment("");
-          setErrorData((prevErrorData) => ({ ...prevErrorData, comment: false }));
+          setErrorData((prevErrorData) => ({
+            ...prevErrorData,
+            comment: false,
+          }));
         }
       } else {
         setErrorData((prevErrorData) => ({ ...prevErrorData, comment: true }));
@@ -314,6 +337,7 @@ const KabanDetail = ({ open, task, handleClose }) => {
     } else {
       toast.warning("Đăng nhập để thực hiện yêu cầu này!");
     }
+    getListComment(task._id)
   };
 
   const handleKeyDown = () => {
@@ -395,7 +419,11 @@ const KabanDetail = ({ open, task, handleClose }) => {
                 {user && user.data && (
                   <>
                     <div className="comment-box">
-                      <img src={user.data.image || imageAvatar} alt="user" className="avatar" />
+                      <img
+                        src={user.data.image || imageAvatar}
+                        alt="user"
+                        className="avatar"
+                      />
                       <TextField
                         variant="outlined"
                         size="small"
@@ -441,7 +469,8 @@ const KabanDetail = ({ open, task, handleClose }) => {
                 <div
                   className={user ? "comment-list fix-height" : "comment-list"}
                 >
-                  {comments && comments.length > 0 &&
+                  {comments &&
+                    comments.length > 0 &&
                     comments.map((cmt) => (
                       <div key={cmt._id} className="comment">
                         <img
@@ -451,7 +480,7 @@ const KabanDetail = ({ open, task, handleClose }) => {
                         />
                         <div className="cmt-text">
                           <p>{cmt.userName}</p>
-                          <p>{cmt.comment}</p>
+                          <p>{cmt.content}</p>
                         </div>
                       </div>
                     ))}
