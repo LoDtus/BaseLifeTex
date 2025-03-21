@@ -37,7 +37,19 @@ export const registerUser = async (user, dispatch, navigate) => {
     }, 4000);
   } catch (error) {
     dispatch(registerFail());
-    toast.error(error.response?.data?.message);
+
+    const errorMessage = error.response?.data?.message;
+
+    if (errorMessage?.includes("da duoc dang")) {
+      toast.warn(`Email đã được đăng ký. Bạn có muốn đăng nhập không?`, {
+        autoClose: 5000,
+        closeOnClick: true,
+        onClick: () => navigate("/"),
+      });
+    } else {
+      toast.error(errorMessage || "Có lỗi xảy ra, vui lòng thử lại.");
+    }
+    throw new Error(errorMessage || "Có lỗi xảy ra");
   }
 };
 export const refreshToken = async () => {

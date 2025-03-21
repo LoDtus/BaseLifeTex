@@ -19,6 +19,7 @@ import { useDispatch } from "react-redux";
 import { registerUser } from "../../services/authService";
 import "../../styles/register.scss";
 import { Container } from "react-bootstrap";
+import { validateInputs } from "./utilsValidateRegister";
 
 export default function Register() {
   const [email, setEmail] = useState("");
@@ -28,24 +29,14 @@ export default function Register() {
   const [error, setError] = useState({});
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const validateInputs = () => {
-    let newErrors = {};
-    if (!userName) {
-      newErrors.userName = "Tên đăng nhập không được để trống.";
-    } else if (userName.length < 6) {
-      newErrors.userName = "Tên đăng nhập phải có ít nhất 6 ký tự.";
-    }
-    if (!email.match(/^\S+@\S+\.\S+$/)) {
-      newErrors.email = "Email không hợp lệ.";
-    }
-    if (password.length < 6)
-      newErrors.password = "Mật khẩu phải có ít nhất 6 ký tự.";
-    if (password !== confirmPassword)
-      newErrors.confirmPassword = "Mật khẩu xác nhận không trùng khớp.";
-    return newErrors;
-  };
+
   const handleRegister = () => {
-    const validationErrors = validateInputs();
+    const validationErrors = validateInputs({
+      userName,
+      email,
+      password,
+      confirmPassword,
+    });
     if (Object.keys(validationErrors).length > 0) {
       setError(validationErrors);
       toast.error("Vui lòng kiểm tra lại thông tin đăng ký!", {
@@ -60,17 +51,11 @@ export default function Register() {
       password: password,
       confirmPassword: confirmPassword,
     };
-    console.log("Dữ liệu gửi lên API:", newUser);
-    registerUser(newUser, dispatch, navigate)
-      .then(() => {
-        toast.success(
-          "Đăng ký thành công! Vui lòng check Email để xác thực. ",
-          { autoClose: 3000 }
-        );
-      })
-      .catch(() => {
-        toast.error("Đăng ký thất bại, vui lòng thử lại!", { autoClose: 3000 });
+    registerUser(newUser, dispatch, navigate).then(() => {
+      toast.success("Đăng ký thành công! Vui lòng check Email để xác thực. ", {
+        autoClose: 3000,
       });
+    });
   };
 
   return (
@@ -91,16 +76,9 @@ export default function Register() {
                         className="register-introduction-text"
                         variant="h4"
                       >
-                        {" "}
                         Marketing
                       </Typography>
-                      <Typography
-                        sx={{
-                          fontSize: "14px",
-                          color: "#999999",
-                          marginBottom: "10px",
-                        }}
-                      >
+                      <Typography className="register-introduction-describe">
                         We've created the marketing campaign of the website. It
                         was a very interesting collaboration.
                       </Typography>
@@ -110,22 +88,12 @@ export default function Register() {
                     <CodeIcon className="register-introduction-icon" />
                     <Box>
                       <Typography
-                        sx={{
-                          fontSize: "18px",
-                          color: "#3C4858",
-                          marginBottom: "15px",
-                        }}
+                        className="register-introduction-text"
                         variant="h4"
                       >
                         Fully Coded in HTML5
                       </Typography>
-                      <Typography
-                        sx={{
-                          fontSize: "14px",
-                          color: "#999999",
-                          marginBottom: "10px",
-                        }}
-                      >
+                      <Typography className="register-introduction-describe">
                         We've developed the website with HTML5 and CSS3. The
                         client has access to the code using GitHub.
                       </Typography>
@@ -135,68 +103,32 @@ export default function Register() {
                     <PeopleAltIcon className="register-introduction-icon" />
                     <Box>
                       <Typography
-                        sx={{
-                          fontSize: "18px",
-                          color: "#3C4858",
-                          marginBottom: "15px",
-                        }}
+                        className="register-introduction-text"
                         variant="h4"
                       >
                         Built Audience
                       </Typography>
-                      <Typography
-                        sx={{
-                          fontSize: "14px",
-                          color: "#999999",
-                        }}
-                      >
+                      <Typography className="register-introduction-describe">
                         There is also a Fully Customizable CMS Admin Dashboard
                         for this product.
                       </Typography>
                     </Box>
                   </Box>
                 </Box>
-                <Box
-                  sx={{
-                    maxWidth: "374px",
-                    width: "100%",
-                    height: 100,
-                  }}
-                >
-                  <Box sx={{ display: "flex", justifyContent: "center" }}>
-                    <TwitterIcon sx={{ fontSize: "40px", color: "#57aced" }} />
-                    <SportsBaseballIcon
-                      sx={{ fontSize: "40px", color: "#ea4d88" }}
-                    />
-                    <FacebookIcon sx={{ fontSize: "40px", color: "#3b5999" }} />
+                <Box className="register-form-total">
+                  <Box className="register-total-social">
+                    <TwitterIcon className="register-icon-tw" />
+                    <SportsBaseballIcon className="register-icon-social" />
+                    <FacebookIcon className="register-icon-fb" />
                   </Box>
-                  <Typography
-                    sx={{
-                      fontSize: "18px",
-                      textAlign: "center",
-                      fontWeight: 300,
-                      marginTop: "10px",
-                    }}
-                    variant="h4"
-                  >
+                  <Typography className="register-or" variant="h4">
                     or be classical
                   </Typography>
-                  <Box sx={{ position: "relative" }}>
-                    <FaceIcon
-                      sx={{
-                        marginRight: "20px",
-                        position: "absolute",
-                        right: "27px",
-                        top: "16px",
-                      }}
-                    />
-                    <Box sx={{ display: "flex", justifyContent: "center" }}>
+                  <Box className="register-bag">
+                    <FaceIcon className="register-input-icon" />
+                    <Box className="flexR justify-center">
                       <Input
-                        sx={{
-                          paddingTop: "10px",
-                          paddingBottom: "10px",
-                          width: "75%",
-                        }}
+                        className="register-input"
                         placeholder="UserName"
                         onChange={(e) => setUsername(e.target.value)}
                         inputProps={{ style: { width: "85%" } }}
@@ -204,39 +136,17 @@ export default function Register() {
                     </Box>
 
                     {error.userName && (
-                      <Typography
-                        sx={{
-                          textAlign: "center",
-                          fontSize: "12px",
-                          marginTop: "5px",
-                        }}
-                        color="error"
-                      >
+                      <Typography className="register-error" color="error">
                         {error.userName}
                       </Typography>
                     )}
                   </Box>
 
-                  <Box
-                    sx={{
-                      position: "relative",
-                    }}
-                  >
-                    <EmailIcon
-                      sx={{
-                        marginRight: "20px",
-                        position: "absolute",
-                        right: "27px",
-                        top: "16px",
-                      }}
-                    />
-                    <Box sx={{ display: "flex", justifyContent: "center" }}>
+                  <Box className="register-bag">
+                    <EmailIcon className="register-input-icon" />
+                    <Box className="flexR justify-center">
                       <Input
-                        sx={{
-                          paddingTop: "10px",
-                          paddingBottom: "10px",
-                          width: "75%",
-                        }}
+                        className="register-input"
                         placeholder="Email"
                         onChange={(e) => setEmail(e.target.value)}
                         inputProps={{ style: { width: "85%" } }}
@@ -244,39 +154,17 @@ export default function Register() {
                     </Box>
 
                     {error.email && (
-                      <Typography
-                        sx={{
-                          fontSize: "12px",
-                          marginTop: "5px",
-                          textAlign: "center",
-                        }}
-                        color="error"
-                      >
+                      <Typography className="register-error" color="error">
                         {error.email}
                       </Typography>
                     )}
                   </Box>
 
-                  <Box
-                    sx={{
-                      position: "relative",
-                    }}
-                  >
-                    <LockIcon
-                      sx={{
-                        marginRight: "20px",
-                        position: "absolute",
-                        right: "27px",
-                        top: "16px",
-                      }}
-                    />
-                    <Box sx={{ display: "flex", justifyContent: "center" }}>
+                  <Box className="register-bag">
+                    <LockIcon className="register-input-icon" />
+                    <Box className="flexR justify-center">
                       <Input
-                        sx={{
-                          paddingTop: "10px",
-                          paddingBottom: "10px",
-                          width: "75%",
-                        }}
+                        className="register-input"
                         placeholder="PassWord"
                         type="password"
                         onChange={(e) => setPassword(e.target.value)}
@@ -285,37 +173,15 @@ export default function Register() {
                     </Box>
                   </Box>
                   {error.password && (
-                    <Typography
-                      sx={{
-                        fontSize: "12px",
-                        marginTop: "5px",
-                        textAlign: "center",
-                      }}
-                      color="error"
-                    >
+                    <Typography className="register-error" color="error">
                       {error.password}
                     </Typography>
                   )}
-                  <Box
-                    sx={{
-                      position: "relative",
-                    }}
-                  >
-                    <LockIcon
-                      sx={{
-                        marginRight: "20px",
-                        position: "absolute",
-                        right: "27px",
-                        top: "16px",
-                      }}
-                    />
-                    <Box sx={{ display: "flex", justifyContent: "center" }}>
+                  <Box className="register-bag">
+                    <LockIcon className="register-input-icon" />
+                    <Box className="flexR justify-center">
                       <Input
-                        sx={{
-                          paddingTop: "10px",
-                          paddingBottom: "10px",
-                          width: "75%",
-                        }}
+                        className="register-input"
                         placeholder="Confirm Password"
                         type="password"
                         onChange={(e) => setConfirmPassword(e.target.value)}
@@ -323,14 +189,7 @@ export default function Register() {
                       />
                     </Box>
                     {error.confirmPassword && (
-                      <Typography
-                        sx={{
-                          fontSize: "12px",
-                          marginTop: "5px",
-                          textAlign: "center",
-                        }}
-                        color="error"
-                      >
+                      <Typography className="register-error" color="error">
                         {error.confirmPassword}
                       </Typography>
                     )}
