@@ -8,8 +8,8 @@
 }
 
 .home-container {
-  max-width: 1280px; // Giữ nguyên để dành chỗ cho sidebar
-  width: 100%;
+  max-width: 1280px;
+  width: 100%; // Trừ bớt chiều rộng của sidebar
   height: 100vh; // Đảm bảo chiếm toàn bộ chiều cao viewport
   display: flex;
   flex-direction: column;
@@ -88,12 +88,13 @@
 }
 
 .kanban-container {
+  width: 100%;
+  min-width: 1200px; // Đảm bảo table đủ rộng để cần cuộn ngang
   display: flex;
   gap: 40px;
   align-items: flex-start;
   background-color: #ffffff;
   min-width: fit-content; // Đảm bảo container đủ rộng để chứa tất cả cột
-  height: 100%; // Đảm bảo chiều cao đầy đủ trong wrapper
 }
 
 .kanban-column {

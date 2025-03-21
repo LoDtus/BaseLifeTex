@@ -7,25 +7,9 @@
   overflow: hidden; // Ngăn cuộn ở cấp cao nhất
 }
 
-.task-table-container {
-  max-width: 1280px; // Giữ nguyên để dành chỗ cho sidebar
-  width: 100%;
-  height: 100%; // Đảm bảo chiếm toàn bộ chiều cao viewport
-  display: flex;
-  flex-direction: column;
-  overflow: hidden; // Ngăn cuộn toàn trang
-}
-
-.table-wrapper {
-  flex: 1; // Chiếm không gian còn lại
-  overflow-x: auto; // Cho phép cuộn ngang
-  overflow-y: auto; // Cho phép cuộn dọc nếu cần
-  padding: 45px 0 0 20px; // Đồng bộ padding với Home để loại bỏ khoảng trắng bên trái
-}
-
 .task-table {
+  max-width: 1280px;
   width: 100%;
-  min-width: 1200px; // Đảm bảo table đủ rộng để cần cuộn ngang
   margin-top: 20px; // Loại bỏ margin để nội dung tràn đầy
   border-collapse: collapse;
   font-size: 14px;
@@ -130,9 +114,12 @@
       background-color: #f3f8f6; // Màu nền nhạt
       border: 1px solid #d1d5db; // Viền nhạt
     }
+
+    p{
+      margin: 0 auto;
+    }
+
   }
-
-
 }
 
 .task-icons1 {
@@ -214,5 +201,16 @@
   .MuiAvatar-root {
     height: 30px;
     width: 30px;
+  }
+}
+
+.table-container{
+  margin-top: 20px;
+  margin-left: 80px;
+  overflow-y: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  &::-webkit-scrollbar {
+    display: none;
   }
 }

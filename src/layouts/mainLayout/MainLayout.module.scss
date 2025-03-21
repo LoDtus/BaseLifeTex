@@ -7,24 +7,24 @@
   top: 0;
   width: 100vw;
   z-index: 99;
-  margin-bottom: 14px;
   background-color: #f8f9fa;
 }
+
 .wrapContent {
   display: flex;
-  margin-top: 50px;
+  margin-top: 67px; // Tăng margin-top để tránh header che nội dung (53px + 14px khoảng cách)
+  height: calc(100vh - 67px); // Đảm bảo chiều cao còn lại của viewport
+
   .navbar {
     width: 260px;
     flex-shrink: 0;
     border-right: 1px solid #dfdfdf;
     color: white;
+    padding: 20px 0; // Thêm padding để đồng bộ với nội dung
   }
+
   .content {
-    flex: 1;
-    background: var(--white-color);
-    height: 1024px;
-    padding: 20px;
-    background-color: #ffffff;
+    flex: 1; // Chiếm toàn bộ không gian còn lại
     
   }
 }

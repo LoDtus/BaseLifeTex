@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useRef } from "react";
 import "./ListHome.scss";
 import "../Home/Home.scss";
@@ -264,7 +265,7 @@ const TaskTable = () => {
     fetchApi(idProject);
   };
   return (
-    <div className="task-table-container">
+    <div className="home-container">
       <ToastContainer />
       {/* Header Section */}
       <div className="header-section">
@@ -389,10 +390,7 @@ const TaskTable = () => {
       </div>
 
       {/* Bọc table trong wrapper để cuộn ngang */}
-      <Paper
-        sx={{ width: "100%", overflow: "hidden" }}
-        style={{ paddingLeft: "45px" }}
-      >
+     
         <TableContainer
           sx={{
             maxWidth: {
@@ -403,6 +401,7 @@ const TaskTable = () => {
               xl: "none",
             },
           }}
+          className="table-container"
         >
           <Table className="task-table" aria-label="sticky table">
             <TableHead>
@@ -746,7 +745,7 @@ const TaskTable = () => {
             </TableBody>
           </Table>
         </TableContainer>
-      </Paper>
+      
       <IssueForm
         isOpen={open}
         onClose={onClose}
