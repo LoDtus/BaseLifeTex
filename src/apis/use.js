@@ -19,17 +19,3 @@ export const getlistUser = async (token, _id) => {
   }
 };
 
-export const addCommentTask = async (token,data) => {
-  try {
-    const response = await axios.post(`${backendUrl}/comments/add-comment/${data.projectId}/${data.taskId}`,data,{
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    })
-    return response.data;
-  }
-  catch(err) {
-    console.log(err);
-    throw err;
-  }
-}

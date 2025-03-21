@@ -118,28 +118,3 @@ export const updateIssueDataImage = async (id, data, imageFile) => {
     console.error("Error updating issue:", error);
   }
 };
-
-export const getTaskDetailById = async (id) => {
-  try {
-    const response = await axios.get(`${backendUrl}/tasks/${id}`);
-    // console.log(response);
-    return response.data;
-  } catch (error) {
-    console.log(error);
-  }
-}
-
-export const getListCommentByTask = async (token,taskId) => {
-  try {
-    const response = await axios.get(`${backendUrl}/comments/get-comments/${taskId}`,{
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    })
-    return response.data;
-  }
-  catch(err) {
-    console.log(err)
-    throw err;
-  }
-}
