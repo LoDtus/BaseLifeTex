@@ -12,7 +12,7 @@ import EmailIcon from "@mui/icons-material/Email";
 import LockIcon from "@mui/icons-material/Lock";
 import HeaderLogin from "../../components/headerLogin/HeaderLogin";
 import FooterLogin from "../../components/footerLogin/FooterLogin";
-
+import { validateLogin } from "./utilsValidateLogin";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { loginUser } from "../../services/authService";
@@ -31,43 +31,25 @@ export default function Login() {
   const dispatch = useDispatch();
 
   const handleLogin = async () => {
+    const { errors, hasError } = validateLogin({ email, password });
+
+    setEmailError(errors.email || "");
+    setPasswordError(errors.password || "");
+
+    if (hasError) return;
+
     setError("");
-    setEmailError("");
-    setPasswordError("");
-
-    let hasError = false;
-    if (!email) {
-      setEmailError("Vui lòng nhập tên đăng nhập!");
-      hasError = true;
-    } else if (!email.match(/^\S+@\S+\.\S+$/)) {
-      setEmailError("Email không hợp lệ.");
-      hasError = true;
-    } else {
-      setEmailError("");
-    }
-
-    if (!password) {
-      setPasswordError("Vui lòng nhập mật khẩu!");
-      hasError = true;
-    } else if (password.length < 6) {
-      setPasswordError("Mật khẩu phải có ít nhất 6 ký tự.");
-      hasError = true;
-    } else {
-      setPasswordError("");
-    }
 
     setLoading(true);
     const newUser = { email, password };
     const response = await loginUser(newUser, dispatch, navigate);
+
     setTimeout(() => {
       setLoading(false);
-    }, 2000);
-
-    if (!response.success) {
-      setTimeout(() => {
+      if (!response.success) {
         setError(response.error);
-      }, 2000);
-    }
+      }
+    }, 2000);
   };
 
   return (
