@@ -1,0 +1,64 @@
+.body-login {
+  background-image: url("../assets/image/bg_login.jpg");
+  width: 100%;
+  height: 100vh;
+  background-size: cover;
+  background-repeat: no-repeat;
+  overflow: auto;
+}
+.coating {
+  background-color: rgba(26, 33, 18, 0.5);
+}
+.body-content {
+  width: 100%;
+  height: 550px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.login-form {
+  width: 360px;
+  background-color: white;
+  border-radius: 6px;
+  padding: 20px;
+}
+.login-form-total {
+  background: linear-gradient(60deg, #26c6da, #00acc1);
+  border-radius: 3px;
+  padding: 15px;
+  box-shadow: 0 12px 20px -10px rgba(0, 188, 212, 0.28),
+    0 4px 20px 0px rgba(0, 0, 0, 0.12), 0 7px 8px -5px rgba(0, 188, 212, 0.2);
+  margin-bottom: 10px;
+}
+.login-title {
+  text-align: center;
+  font-weight: bold;
+  color: #fff;
+  margin: 10px 0;
+}
+.login-icon {
+  margin: 10px 15px;
+}
+.login-input {
+  padding: 0 20px;
+  margin-bottom: 10px;
+  position: relative;
+}
+.login-input-icon {
+  font-size: 27px;
+  position: absolute;
+  right: 20px;
+  top: 17px;
+}
+.login-error {
+  margin-bottom: 10px !important;
+  color: red;
+  text-align: center;
+  font-size: 14px !important;
+}
+.login-forgot {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 20px;
+}

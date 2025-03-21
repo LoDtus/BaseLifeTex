@@ -7,6 +7,7 @@ import store, { persistor } from "./redux/store.js";
 import { PersistGate } from "redux-persist/integration/react";
 import { ToastContainer } from "react-toastify";
 import FullPageLoader from "./components/common/FullPageLoader.jsx";
+import "bootstrap/dist/css/bootstrap.min.css";
 
 createRoot(document.getElementById("root")).render(
   // <StrictMode>
