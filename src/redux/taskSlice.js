@@ -1,5 +1,7 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { getLisTaskById} from "../apis/Issue";
+import axiosInstance from "../services/apiService";
+import { updateTaskStatus } from "../services/taskService";
 
 export const getListTaskByProjectIdRedux = createAsyncThunk(
   'task/list',
@@ -12,7 +14,6 @@ export const getListTaskByProjectIdRedux = createAsyncThunk(
     }
   }
 );
-
 const taskSlice = createSlice({
   name: "task",
   initialState: {
@@ -31,11 +32,13 @@ const taskSlice = createSlice({
       .addCase(getListTaskByProjectIdRedux.fulfilled, (state, action) => {
         state.isFetching = false;
         state.listTask = action.payload; 
+        console.log("response", state.listTask);
+
       })
       .addCase(getListTaskByProjectIdRedux.rejected, (state, action) => {
         state.isFetching = false;
         state.error = action.payload; 
-      });
+      })
   },
 });
 
