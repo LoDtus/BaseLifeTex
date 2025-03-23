@@ -3,15 +3,7 @@ import { Avatar, Box, IconButton, Typography } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 
 const MemberListContent = ({ onClose, members }) => {
-  // const members = [
-  //   { name: "Nguyễn Đình Minh", avatar: "https://i.pravatar.cc/150?img=10" },
-  //   { name: "Trần Văn A", avatar: "https://i.pravatar.cc/150?img=11" },
-  //   { name: "Lê Thị B", avatar: "https://i.pravatar.cc/150?img=12" },
-  //   { name: "Phạm Văn C", avatar: "https://i.pravatar.cc/150?img=13" },
-  //   { name: "Hoàng Minh D", avatar: "https://i.pravatar.cc/150?img=14" },
-  // ];
-
-  console.log(members);
+  console.log("Members trong MemberListContent:", members); // Kiểm tra dữ liệu truyền vào
 
   return (
     <Box
@@ -38,22 +30,28 @@ const MemberListContent = ({ onClose, members }) => {
       >
         Danh sách thành viên công việc
       </Typography>
-      {/* Danh sách thành viên */}
-      {members.map((member, index) => (
-        <Box
-          key={index}
-          sx={{
-            display: "flex",
-            alignItems: "center",
-            py: 1,
-            "&:hover": { bgcolor: "#f5f5f5", borderRadius: 1 },
-            marginTop: "21px",
-          }}
-        >
-          <Avatar src={member.avatar} />
-          <Typography sx={{ ml: 1 }}>{member.userName}</Typography>
-        </Box>
-      ))}
+      {/* Danh sách thành viên từ API */}
+      {members && members.length > 0 ? (
+        members.map((member, index) => (
+          <Box
+            key={index}
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              py: 1,
+              "&:hover": { bgcolor: "#f5f5f5", borderRadius: 1 },
+              marginTop: "21px",
+            }}
+          >
+            <Avatar src={member.avatar} />
+            <Typography sx={{ ml: 1 }}>{member.userName || "Không có tên"}</Typography>
+          </Box>
+        ))
+      ) : (
+        <Typography sx={{ color: "#888", fontSize: "14px" }}>
+          Không có thành viên nào.
+        </Typography>
+      )}
     </Box>
   );
 };

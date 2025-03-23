@@ -1,6 +1,7 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { getLisTaskById } from "../apis/Issue";
-import { filterTask } from "../services/taskService";
+import axiosInstance from "../services/apiService";
+import { filterTask, updateTaskStatus } from "../services/taskService";
 
 export const getListTaskByProjectIdRedux = createAsyncThunk(
   "task/list",
@@ -17,10 +18,7 @@ export const getListTaskByProjectIdRedux = createAsyncThunk(
 export const filterTaskInProject = createAsyncThunk(
   "task/filterTaskInProject",
   async ({ projectId, data }) => {
-    // Nhận object
     try {
-      console.log("Project ID:", projectId);
-      console.log("Filters:", data);
       const response = await filterTask(projectId, data);
       return response.task;
     } catch (error) {
@@ -28,7 +26,6 @@ export const filterTaskInProject = createAsyncThunk(
     }
   }
 );
-
 const taskSlice = createSlice({
   name: "task",
   initialState: {
@@ -47,6 +44,7 @@ const taskSlice = createSlice({
       .addCase(getListTaskByProjectIdRedux.fulfilled, (state, action) => {
         state.isFetching = false;
         state.listTask = action.payload;
+        console.log("response", state.listTask);
       })
       .addCase(getListTaskByProjectIdRedux.rejected, (state, action) => {
         state.isFetching = false;

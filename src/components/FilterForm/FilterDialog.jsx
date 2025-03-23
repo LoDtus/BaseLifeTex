@@ -16,11 +16,7 @@ import { DemoContainer } from "@mui/x-date-pickers/internals/demo";
 import { useDispatch } from "react-redux";
 import "./FilterDialog.scss";
 import { filterTaskInProject } from "../../redux/taskSlice";
-
-const users = [
-  { id: 1, name: "Nguyễn Văn A" },
-  { id: 2, name: "Trần Thị B" },
-];
+import { getlistUser } from "../../apis/use";
 
 export default function FilterDialog({ idProject }) {
   const [filters, setFilters] = useState({
@@ -29,6 +25,20 @@ export default function FilterDialog({ idProject }) {
     startDate: "",
     endDate: "",
   });
+
+  const token = "jhgshddabjsbbdak";
+  const [listMember, setListMember] = useState([]);
+
+  const getMemberByProject = async () => {
+    const response = await getlistUser(token, idProject);
+    if (response.members) {
+      setListMember(response.members);
+    }
+  };
+
+  useEffect(() => {
+    getMemberByProject();
+  }, [idProject]);
 
   const handleChange = (field, value) => {
     setFilters((prev) => ({ ...prev, [field]: value }));
@@ -51,7 +61,7 @@ export default function FilterDialog({ idProject }) {
         onChange={(e) => handleChange("assignerId", e.target.value)}
         fullWidth
       >
-        {users.map((user) => (
+        {listMember.map((user) => (
           <MenuItem key={user.id} value={user.name}>
             {user.name}
           </MenuItem>
@@ -66,7 +76,7 @@ export default function FilterDialog({ idProject }) {
         onChange={(e) => handleChange("assignerId", e.target.value)}
         fullWidth
       >
-        {users.map((user) => (
+        {listMember.map((user) => (
           <MenuItem key={user.id} value={user.name}>
             {user.name}
           </MenuItem>

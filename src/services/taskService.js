@@ -1,3 +1,4 @@
+import { data } from "react-router-dom";
 import axiosInstance from "./apiService";
 
 const getTasks = async () => {
@@ -26,10 +27,19 @@ const updateTaskStatus = async (taskId, status) => {
       status: status,
     });
     console.log(status);
-    return response.data;
+    return;
   } catch (error) {
     console.log("Cập nhật trạng thái công việc thất bại", error);
     throw error;
+  }
+};
+
+const getTaskDetailById = async (id) => {
+  try {
+    const response = await axiosInstance.get(`/tasks/${id}`);
+    return response.data;
+  } catch (error) {
+    console.log(error);
   }
 };
 
@@ -45,4 +55,10 @@ const filterTask = async (idProject, data) => {
   }
 };
 
-export { getTasks, getTasksByProject, updateTaskStatus, filterTask };
+export {
+  getTasks,
+  getTasksByProject,
+  updateTaskStatus,
+  getTaskDetailById,
+  filterTask,
+};
