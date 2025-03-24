@@ -1,8 +1,5 @@
 import axiosInstance from "./apiService";
 import { toast } from "react-toastify";
-import axios from "axios";
-
-const API_URL = import.meta.env.VITE_BACKEND_URL;
 
 import {
   loginFail,
@@ -57,21 +54,12 @@ export const registerUser = async (user, dispatch, navigate) => {
 };
 export const refreshToken = async () => {
   try {
-    const res = await axios.post(
-      `${API_URL}/auth/refresh-token`,
-      {},
-      { withCredentials: true }
-    );
+    const res = await axiosInstance.post("/auth/refresh-token", {
+      withCredentials: true,
+    });
     return res.data;
   } catch (error) {
-    console.error("🔄 Lỗi refresh token:", error);
-
-    if (error.response?.status === 401) {
-      toast.error("🔒 Phiên đăng nhập hết hạn! Vui lòng đăng nhập lại.");
-    } else {
-      toast.error("⚠ Không thể làm mới token, vui lòng thử lại.");
-    }
-
+    console.log("Lỗi refresh token", error);
     throw error;
   }
 };
