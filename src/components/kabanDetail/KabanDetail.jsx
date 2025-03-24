@@ -98,9 +98,9 @@ const KabanDetail = ({ task, handleClose }) => {
   const getListComment = async (id) => {
     if (user) {
       let response = await getListCommentByTask(id);
-      console.log("Comment",response);
-      if (response && response.comments) {
-        setComments(response.comments);
+      console.log(response);
+      if (response && response.data) {
+        setComments(response.data);
       } else {
         toast.error(response.message);
       }
@@ -109,12 +109,11 @@ const KabanDetail = ({ task, handleClose }) => {
 
   const getDetailtask = async (id) => {
     let res = await getTaskDetailById(id);
-    console.log(res);
-    if (res && res.data) {
+    if (res && res.data && res.success === true) {
       setData({ ...res.data, assignerId: task.assignerId });
       setSelectedPerson(task.assigneeId);
     } else {
-      toast.error(res.message);
+     toast.error(res.message);
     }
   };
 
@@ -146,7 +145,8 @@ const KabanDetail = ({ task, handleClose }) => {
           assignerId: data?.assignerId?._id,
           [type]: value,
         });
-        if (!res) {
+        console.log("Update",res)
+        if (res) {
           toast.error(res.message);
           setData({});
           setErrorData(errorsDefault);
