@@ -3,23 +3,25 @@ import { useNavigate } from "react-router-dom"; // Import useNavigate for naviga
 
 import styles from "./Navbar.module.scss";
 import ProjectCard from "../../../components/projectCard/ProjectCard";
-import { getLstProject } from "../../../apis/project";
+// import { getLstProject } from "../../../apis/project";
+import { getLstProject } from "../../../services/projectService";
 import Loading from "../../../components/Loading/Loading";
-import { useDispatch } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
+import {getListProjectByUser} from "../../../redux/projectSlice"
 
 export default function Navbar() {
   const [lstProject, setLstProject] = useState([]);
   const [loading, setLoading] = useState(true); // State for loading
   const navigate = useNavigate(); // Initialize navigate
   const dispatch = useDispatch();
-
+  const user = useSelector((state) => state.auth.login.currentUser);
   const fetchProjects = async () => {
     setLoading(true); // Start loading
     try {
       const response = await getLstProject();
       if (Array.isArray(response)) {
         setLstProject(response);
-
+        dispatch(getListProjectByUser())
         // Set default idProject to the first project's _id
         if (response.length > 0) {
           const firstProjectId = response[0]._id;

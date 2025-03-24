@@ -19,13 +19,14 @@ import { useForm, Controller } from "react-hook-form";
 import Zoom from "react-medium-image-zoom";
 import "react-medium-image-zoom/dist/styles.css";
 import imageAvatar from "../../assets/image/image_5.png";
-import { getlistUser } from "../../apis/use";
+import { getlistUser } from "../../services/userService";
 import { updateIssueData } from "../../apis/Issue";
 import { getTaskDetailById } from "../../services/taskService";
 import {
   getListCommentByTask,
   addCommentTask,
 } from "../../services/commentService";
+import { getListTaskByProjectIdRedux } from "../../redux/taskSlice";
 import { useDispatch, useSelector } from "react-redux";
 
 const ITEM_HEIGHT = 48;
@@ -39,7 +40,7 @@ const MenuProps = {
   },
 };
 
-const KabanDetail = ({ open, task, handleClose }) => {
+const KabanDetail = ({ task, handleClose }) => {
   const { control } = useForm();
 
   const errorsDefault = {
@@ -88,32 +89,32 @@ const KabanDetail = ({ open, task, handleClose }) => {
   const dispatch = useDispatch();
 
   const getMemberByProject = async (projectId) => {
-    const response = await getlistUser(user && user.accessToken, projectId);
+    const response = await getlistUser(projectId);
     if (response.members) {
       setListMember(response.members);
     }
   };
 
   const getListComment = async (id) => {
-    if(user) {
-      let response = await getListCommentByTask(user && user.accessToken, id);
+    if (user) {
+      let response = await getListCommentByTask(id);
+      console.log("Comment",response);
       if (response && response.comments) {
-          setComments(response.comments);
-      }
-      else {
-        toast.error(response.message)
+        setComments(response.comments);
+      } else {
+        toast.error(response.message);
       }
     }
-  }
+  };
 
   const getDetailtask = async (id) => {
     let res = await getTaskDetailById(id);
+    console.log(res);
     if (res && res.data) {
       setData({ ...res.data, assignerId: task.assignerId });
       setSelectedPerson(task.assigneeId);
-    }
-    else {
-      toast.error(res.message)
+    } else {
+      toast.error(res.message);
     }
   };
 
@@ -145,19 +146,19 @@ const KabanDetail = ({ open, task, handleClose }) => {
           assignerId: data?.assignerId?._id,
           [type]: value,
         });
-        if (res.message === "Nhiệm vụ cập nhật thành công") {
-          toast.success(res.message);
-          setData({});
-          setErrorData(errorsDefault);
-          getDetailtask(task._id);
-          setOnlyRead(readOnlyDefault);
-          useDispatch(getListTaskByProjectIdRedux(task.projectId));
-        } else {
+        if (!res) {
           toast.error(res.message);
           setData({});
           setErrorData(errorsDefault);
           getDetailtask(task._id);
           setOnlyRead(readOnlyDefault);
+        } else {
+          toast.success(res.message);
+          setData({});
+          setErrorData(errorsDefault);
+          getDetailtask(task._id);
+          setOnlyRead(readOnlyDefault);
+          dispatch(getListTaskByProjectIdRedux(task.projectId));
         }
       } else {
         setTimeout(() => {
@@ -168,7 +169,7 @@ const KabanDetail = ({ open, task, handleClose }) => {
         }, 3000);
       }
     } else {
-      e.preventDefault();
+      event.preventDefault();
     }
   };
 
@@ -268,7 +269,7 @@ const KabanDetail = ({ open, task, handleClose }) => {
     }
   };
 
-  const handleSelectAssigneeIdBlur = async (value, e) => {
+  const handleSelectAssigneeIdBlur = async (type,value, e) => {
     if (user) {
       let check = validateField("assigneeId", value);
       if (check === true) {
@@ -307,7 +308,7 @@ const KabanDetail = ({ open, task, handleClose }) => {
   const handleAddComment = async () => {
     if (user && user.data) {
       if (comment) {
-        let res = await addCommentTask(user.accessToken, {
+        let res = await addCommentTask({
           projectId: task.projectId,
           taskId: data._id,
           userId: user.data._id,
@@ -337,7 +338,7 @@ const KabanDetail = ({ open, task, handleClose }) => {
     } else {
       toast.warning("Đăng nhập để thực hiện yêu cầu này!");
     }
-    getListComment(task._id)
+    getListComment(task._id);
   };
 
   const handleKeyDown = () => {

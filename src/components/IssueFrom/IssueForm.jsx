@@ -19,7 +19,7 @@ import {
 import CloseIcon from "@mui/icons-material/Close";
 import { useForm, Controller } from "react-hook-form";
 import UploadImageButton from "../UploadDownloadImage/UploadDownloadImage";
-import { getlistUser } from "../../apis/use";
+import { getlistUser } from "../../services/userService";
 import { postIssueData } from "../../apis/Issue";
 import { useSearchParams } from "react-router-dom";
 import { useSelector,useDispatch } from "react-redux";
@@ -91,7 +91,7 @@ const IssueForm = ({ isOpen, onClose, status }) => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const data = await getlistUser(token, idProject);
+        const data = await getlistUser(idProject);
         setSelectedPerson(data.members);
       } catch (error) {
         console.error("Error fetching user list:", error);

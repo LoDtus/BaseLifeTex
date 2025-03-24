@@ -1,4 +1,3 @@
-import { data } from "react-router-dom";
 import axiosInstance from "./apiService";
 
 const getTasks = async () => {
@@ -37,7 +36,8 @@ const updateTaskStatus = async (taskId, status) => {
 const getTaskDetailById = async (id) => {
   try {
     const response = await axiosInstance.get(`/tasks/${id}`);
-    return response.data;
+    console.log(response)
+    return response;
   } catch (error) {
     console.log(error);
   }

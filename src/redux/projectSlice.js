@@ -1,10 +1,10 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import { getLstProject } from "../apis/project";
+import { getLstProject } from "../services/projectService";
 
 export const getListProjectByUser = createAsyncThunk('/project/list',
-    async (token,{rejectWithValue}) => {
+    async ({rejectWithValue}) => {
         try {
-            const res = await getLstProject(token)
+            const res = await getLstProject()
             return res;
         }
         catch(error) {

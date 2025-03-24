@@ -21,6 +21,10 @@ export default [
       'react-refresh': reactRefresh,
     },
     rules: {
+      "no-unused-vars": "error",
+      "no-undef": "error", 
+      "no-unsafe-optional-chaining": "error",
+      "no-console": "error",
       ...js.configs.recommended.rules,
       ...reactHooks.configs.recommended.rules,
       'no-unused-vars': ['error', { varsIgnorePattern: '^[A-Z_]' }],

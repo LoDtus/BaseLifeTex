@@ -13,7 +13,7 @@ import {
 export const loginUser = async (user, dispatch, navigate) => {
   dispatch(loginStart());
   try {
-    const res = await axiosInstance.post("/auth/sign-in", user);
+    const res = await axiosInstance.post("/auth/login", user);
     dispatch(loginSuccess(res.data));
 
     setTimeout(() => {
