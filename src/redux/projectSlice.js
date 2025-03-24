@@ -13,21 +13,21 @@ export const getListProjectByUser = createAsyncThunk('/project/list',
 })
 
 const projectSlice = createSlice({
-   name: "project",
-   initialState: {
+  name: "project",
+  initialState: {
     listProject: [],
     error: null,
-    isFetching: false
-   },   
-   reducers: {},
-   extraReducers: (builder) => {  
+    isFetching: false,
+  },
+  reducers: {},
+  extraReducers: (builder) => {
     builder
       .addCase(getListProjectByUser.pending, (state) => {
         state.isFetching = true;
         state.error = null;
       })
       .addCase(getListProjectByUser.fulfilled, (state, action) => {
-        console.log("Check data", action.payload); 
+        console.log("Check data", action.payload);
         state.isFetching = false;
         state.listProject = action.payload;
       })
@@ -35,7 +35,7 @@ const projectSlice = createSlice({
         state.isFetching = false;
         state.error = action.payload;
       });
-  }
-})
+  },
+});
 
 export default projectSlice.reducer;

@@ -18,7 +18,7 @@ export const filterTaskInProject = createAsyncThunk(
   async ({ projectId, data }) => {
     try {
       const response = await filterTask(projectId, data);
-      return response.task;
+      return response.data;
     } catch (error) {
       console.log(error);
     }

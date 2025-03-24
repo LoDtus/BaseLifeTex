@@ -49,9 +49,24 @@ const filterTask = async (idProject, data) => {
       `/tasks/filter/${idProject}`,
       data
     );
+
     return response.data;
   } catch (error) {
     console.log("Fillter Error: ", error);
+  }
+};
+
+export const getlistUserInProjects = async (id) => {
+  try {
+    const response = await axiosInstance.get(`/projects/${id}/members`);
+    console.log("Data listUsers successfully:", response);
+    return response;
+  } catch (error) {
+    console.error(
+      "Error retrieving data:",
+      error.response ? error.response.data : error.message
+    );
+    throw error;
   }
 };
 

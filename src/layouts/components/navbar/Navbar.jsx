@@ -19,6 +19,7 @@ export default function Navbar() {
     setLoading(true); // Start loading
     try {
       const response = await getLstProject();
+
       if (Array.isArray(response)) {
         setLstProject(response);
         dispatch(getListProjectByUser())

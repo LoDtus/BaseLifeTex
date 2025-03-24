@@ -1,15 +1,11 @@
-import axios from "axios";
-const backendUrl = import.meta.env.VITE_BACKEND_URL;
+// import axios from "axios";
+import axiosInstance from "../services/apiService";
 
-export const getlistUser = async (token, _id) => {
+export const getlistUser = async (id) => {
   try {
-    const response = await axios.get(`${backendUrl}/projects/${_id}/members`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-    console.log("Data listUsers successfully:", response.data.data);
-    return response.data.data;
+    const response = await axiosInstance.get(`/projects/${id}/members`);
+    console.log("Data listUsers successfully:", response);
+    return response;
   } catch (error) {
     console.error(
       "Error retrieving data:",
@@ -18,4 +14,3 @@ export const getlistUser = async (token, _id) => {
     throw error;
   }
 };
-
