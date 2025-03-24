@@ -35,7 +35,6 @@ import EditNoteIcon from "@mui/icons-material/EditNote";
 import EditForm from "../../components/editForm/EditForm";
 import { useSelector, useDispatch } from "react-redux";
 import { getListTaskByProjectIdRedux } from "../../redux/taskSlice";
-
 const TaskTable = () => {
   const navigate = useNavigate();
   const [anchorElFilter, setAnchorElFilter] = useState(null); // Anchor cho Filter
