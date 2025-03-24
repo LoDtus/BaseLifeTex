@@ -1,13 +1,10 @@
-import axios from "axios";
-const backendUrl = import.meta.env.VITE_BACKEND_URL;
-
-export const getLstProject = async (token) => {
+// import axios from "axios";
+import axiosInstance from "../services/apiService";
+export const getLstProject = async () => {
   try {
-    const response = await axios.get(`${backendUrl}/projects`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
+    console.log(axiosInstance);
+
+    const response = await axiosInstance.get("/projects");
     // console.log("Data retrieved successfully:", response.data);
     return response.data.data;
   } catch (error) {

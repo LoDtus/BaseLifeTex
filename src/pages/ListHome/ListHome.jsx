@@ -12,11 +12,7 @@ import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { DemoContainer } from "@mui/x-date-pickers/internals/demo";
 import { useSearchParams } from "react-router-dom";
-import {
-  getLisTaskById,
-  updateIssueData,
-  updateIssueDataStatus,
-} from "../../apis/Issue";
+import { updateIssueData, updateIssueDataStatus } from "../../apis/Issue";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import dayjs from "dayjs";
@@ -35,8 +31,7 @@ import EditNoteIcon from "@mui/icons-material/EditNote";
 import EditForm from "../../components/editForm/EditForm";
 import { useSelector, useDispatch } from "react-redux";
 import { getListTaskByProjectIdRedux } from "../../redux/taskSlice";
-import { useSelector, useDispatch } from "react-redux";
-import { getListTaskByProjectIdRedux } from "../../redux/taskSlice";
+
 const TaskTable = () => {
   const navigate = useNavigate();
   const [anchorElFilter, setAnchorElFilter] = useState(null); // Anchor cho Filter
@@ -526,7 +521,9 @@ const TaskTable = () => {
                           onClose={handleCloseMemberAdd}
                           idProject={idProject}
                           task={task}
-                          fetchApi={fetchApi}
+                          fetchApi={dispatch(
+                            getListTaskByProjectIdRedux(idProject)
+                          )}
                           toast={toast}
                         />
                       </Popover>

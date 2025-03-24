@@ -1,6 +1,6 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { getLisTaskById } from "../apis/Issue";
-import axiosInstance from "../services/apiService";
+// import axiosInstance from "../services/apiService";
 import { filterTask, updateTaskStatus } from "../services/taskService";
 
 export const getListTaskByProjectIdRedux = createAsyncThunk(

@@ -15,6 +15,7 @@ const createAxiosInstance = (dispatch, getState) => {
   axiosInstance.interceptors.request.use(
     async (config) => {
       const currentUser = getState().auth.user;
+
       if (!currentUser?.accessToken) return config;
 
       try {
@@ -23,6 +24,7 @@ const createAxiosInstance = (dispatch, getState) => {
 
         if (decodedToken.exp < now) {
           const data = await refreshToken();
+
           dispatch(
             loginSuccess({ ...currentUser, accessToken: data.accessToken })
           );
