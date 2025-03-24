@@ -15,6 +15,7 @@ const backendUrl = import.meta.env.VITE_BACKEND_URL;
 export const loginUser = async (user, dispatch, navigate) => {
   dispatch(loginStart());
   try {
+    // const res = await axiosInstance.post("/auth/login", user);
     const res = await axios.post(`${backendUrl}/auth/login`, user);
     dispatch(loginSuccess(res.data));
 
@@ -24,6 +25,8 @@ export const loginUser = async (user, dispatch, navigate) => {
 
     return { success: true };
   } catch (err) {
+    console.log(err);
+
     dispatch(loginFail());
     return { success: false, error: "Tên đăng nhập hoặc mật khẩu không đúng!" };
   }

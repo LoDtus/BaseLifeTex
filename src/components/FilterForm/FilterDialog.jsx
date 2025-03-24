@@ -17,6 +17,7 @@ import { useDispatch } from "react-redux";
 import "./FilterDialog.scss";
 import { filterTaskInProject } from "../../redux/taskSlice";
 import { getlistUser } from "../../apis/use";
+import { getlistUserInProjects } from "../../services/taskService";
 
 export default function FilterDialog({ idProject }) {
   const [filters, setFilters] = useState({
@@ -26,15 +27,16 @@ export default function FilterDialog({ idProject }) {
     endDate: "",
   });
 
-  const token = "jhgshddabjsbbdak";
   const [listMember, setListMember] = useState([]);
 
   const getMemberByProject = async () => {
-    const response = await getlistUser(token, idProject);
-    if (response.members) {
-      setListMember(response.members);
+    const response = await getlistUserInProjects(idProject);
+    if (response.data.success === true) {
+      setListMember(response.data.data.members);
     }
   };
+
+  console.log(listMember);
 
   useEffect(() => {
     getMemberByProject();
@@ -58,12 +60,12 @@ export default function FilterDialog({ idProject }) {
         select
         label="Người được giao"
         value={filters.assigneeId}
-        onChange={(e) => handleChange("assignerId", e.target.value)}
+        onChange={(e) => handleChange("assigneeId", e.target.value)}
         fullWidth
       >
         {listMember.map((user) => (
-          <MenuItem key={user.id} value={user.name}>
-            {user.name}
+          <MenuItem key={user._id} value={user._id}>
+            {user.userName}
           </MenuItem>
         ))}
       </TextField>
@@ -77,8 +79,8 @@ export default function FilterDialog({ idProject }) {
         fullWidth
       >
         {listMember.map((user) => (
-          <MenuItem key={user.id} value={user.name}>
-            {user.name}
+          <MenuItem key={user._id} value={user._id}>
+            {user.userName}
           </MenuItem>
         ))}
       </TextField>

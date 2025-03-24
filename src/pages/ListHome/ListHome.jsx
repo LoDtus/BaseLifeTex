@@ -31,6 +31,7 @@ import EditNoteIcon from "@mui/icons-material/EditNote";
 import EditForm from "../../components/editForm/EditForm";
 import { useSelector, useDispatch } from "react-redux";
 import { getListTaskByProjectIdRedux } from "../../redux/taskSlice";
+import { getlistUserInProjects } from "../../services/taskService";
 const TaskTable = () => {
   const navigate = useNavigate();
   const [anchorElFilter, setAnchorElFilter] = useState(null); // Anchor cho Filter
@@ -47,6 +48,7 @@ const TaskTable = () => {
 
   useEffect(() => {
     dispatch(getListTaskByProjectIdRedux(idProject));
+    getMemberByProject();
   }, [idProject]);
 
   const inputRef = useRef(null);
@@ -252,6 +254,14 @@ const TaskTable = () => {
     setIdEditModal(null);
     dispatch(getListTaskByProjectIdRedux(idProject));
   };
+
+  const [listMember, setListMember] = useState([]);
+  const getMemberByProject = async () => {
+    const response = await getlistUserInProjects(idProject);
+    if (response.data.success === true) {
+      setListMember(response.data.data.members);
+    }
+  };
   return (
     <div className="home-container">
       <ToastContainer />
@@ -344,7 +354,7 @@ const TaskTable = () => {
           transformOrigin={{ vertical: "top", horizontal: "left" }}
           sx={{ mt: 1 }}
         >
-          <MemberListContent onClose={handleCloseMember} />
+          <MemberListContent onClose={handleCloseMember} members={listMember} />
         </Popover>
 
         <div className="task-header1">
@@ -416,7 +426,7 @@ const TaskTable = () => {
               </TableRow>
             </TableHead>
             <TableBody>
-              {listTask.map((task, index) => (
+              {listTask?.map((task, index) => (
                 <TableRow
                   key={task._id}
                   sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
@@ -520,9 +530,6 @@ const TaskTable = () => {
                           onClose={handleCloseMemberAdd}
                           idProject={idProject}
                           task={task}
-                          fetchApi={dispatch(
-                            getListTaskByProjectIdRedux(idProject)
-                          )}
                           toast={toast}
                         />
                       </Popover>
