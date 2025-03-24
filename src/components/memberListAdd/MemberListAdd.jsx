@@ -11,23 +11,18 @@ import {
 } from "@mui/material";
 import "./MemberListAdd.scss";
 import CloseIcon from "@mui/icons-material/Close";
-import { getlistUser } from "../../apis/use";
 import { addMemberTask } from "../../apis/Issue";
+import { getlistUserInProjects } from "../../services/taskService";
 
-const MemberListContentAdd = ({
-  onClose,
-  idProject,
-  task,
-  fetchApi,
-  toast,
-}) => {
-  const token = "jhgshddabjsbbdak";
+const MemberListContentAdd = ({ onClose, idProject, task, toast }) => {
   const [listMember, setListMember] = useState([]);
+  console.log(idProject);
 
   const getMemberByProject = async () => {
-    const response = await getlistUser(token, idProject);
-    if (response.members) {
-      setListMember(response.members);
+    const response = await getlistUserInProjects(idProject);
+
+    if (response.data.success === true) {
+      setListMember(response.data.data.members);
     }
   };
   const [checkedItems, setCheckedItems] = useState([]);
@@ -48,7 +43,6 @@ const MemberListContentAdd = ({
     });
     // console.log(respone);
     if (respone.message === "Thêm người dùng vào task thành công") {
-      fetchApi(idProject);
       toast.success(respone.message, { autoClose: 3000 });
     } else {
       toast.error(respone.message, { autoClose: 3000 });
