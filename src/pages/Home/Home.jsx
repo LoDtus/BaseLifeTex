@@ -1,10 +1,9 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import "./Home.scss";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { Popover } from "@mui/material";
 import MemberListContent from "../../components/memberList/MemberList";
 import KanbanBoard from "../../components/Kanban/KanbanBoard";
-import { useSearchParams } from "react-router-dom";
 
 export default function Home() {
   const [anchorEl, setAnchorEl] = useState(null);
@@ -22,8 +21,7 @@ export default function Home() {
   return (
     <div className="home-container">
       {/* Header Section */}
-      <div className="header-section flex items-center justify-between p-4 border-b">
-        {/* Logo */}
+      <div className="header-section">
         <div className="header-container flex items-center gap-4">
           <div>
             <p
@@ -53,8 +51,7 @@ export default function Home() {
       </div>
 
       {/* Tìm kiếm & Avatars */}
-      <div className="flex items-center gap-4">
-        {/* Ô tìm kiếm */}
+      <div className="toolbar-section flex items-center gap-4">
         <div className="search-container relative flex items-center">
           <svg
             className="search-icon absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-500"
@@ -75,9 +72,6 @@ export default function Home() {
             placeholder="Tìm kiếm..."
             className="pl-10 pr-4 py-2 border rounded-md w-64"
           />
-
-          {/* Danh sách avatar */}
-          {/* Danh sách avatar với hình ảnh */}
           <div className="flex -space-x-2 overflow-hidden">
             {[
               "image/image_4.png",
@@ -97,6 +91,7 @@ export default function Home() {
             ))}
           </div>
         </div>
+
         <Popover
           open={Boolean(anchorEl)}
           anchorEl={anchorEl}
@@ -110,15 +105,16 @@ export default function Home() {
 
         <div className="task-header">
           <div className="task-icons">
-            <img src="image/Trash.png" alt="List" />
-            <img src="image/Filter.png" alt="Columns" />
+            <img src="image/Trash.png" alt="Delete" />
+            <img src="image/Filter.png" alt="Filter" />
           </div>
         </div>
       </div>
 
-        {/* Bảng Kanban */}
+      {/* Bảng Kanban */}
+      <div className="content-section">
         <KanbanBoard />
-       
+      </div>
     </div>
   );
 }

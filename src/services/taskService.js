@@ -43,4 +43,22 @@ const getTaskDetailById = async (id) => {
   }
 };
 
-export { getTasks, getTasksByProject, updateTaskStatus, getTaskDetailById };
+const filterTask = async (idProject, data) => {
+  try {
+    const response = await axiosInstance.post(
+      `/tasks/filter/${idProject}`,
+      data
+    );
+    return response.data;
+  } catch (error) {
+    console.log("Fillter Error: ", error);
+  }
+};
+
+export {
+  getTasks,
+  getTasksByProject,
+  updateTaskStatus,
+  getTaskDetailById,
+  filterTask,
+};

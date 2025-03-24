@@ -1,10 +1,11 @@
 import { closestCorners, DndContext } from "@dnd-kit/core";
-import { SortableContext } from "@dnd-kit/sortable";
 import React, { useEffect, useState } from "react";
 import KanbanColumn from "./KanbanColumn";
 import { getTasksByProject, updateTaskStatus } from "../../services/taskService";
 import { useSearchParams } from "react-router-dom";
-import "./KanbaBoard.scss"; // Sử dụng Home.scss
+import "./KanbaBoard.scss";
+import { getListTaskByProjectIdRedux } from "../../redux/taskSlice";
+import { useDispatch, useSelector} from "react-redux"; // Thêm import useDispatch
 
 function transformTasksData(tasks) {
   return tasks.reduce((acc, task) => {
@@ -27,8 +28,8 @@ function transformTasksData(tasks) {
     acc[columnKey].tasks.push({
       ...task,
       id: task._id,
-      userName: task.assigneeId.length > 0 ? task.assigneeId[0].userName : "Chưa giao", // Lấy userName đầu tiên
-      assigneeUserNames: task.assigneeId.map((assignee) => assignee.userName), // Lưu danh sách tất cả userName
+      userName: task.assigneeId.length > 0 ? task.assigneeId[0].userName : "Chưa giao",
+      assigneeUserNames: task.assigneeId.map((assignee) => assignee.userName),
       assigneeId: task.assigneeId.map((assignee) => ({
         ...assignee,
         id: assignee._id,
@@ -55,20 +56,38 @@ function getStatusTitle(status) {
 }
 
 function KanbanBoard() {
+  const dispatch = useDispatch();
+  const listTask = useSelector((state) => state.task.listTask);
   const [columns, setColumns] = useState({});
   const [searchParams] = useSearchParams();
   const [taskToUpdate, setTaskToUpdate] = useState(null);
   const idProject = searchParams.get("idProject");
 
   const fetchData = async () => {
-    const data = await getTasksByProject(idProject);
-    const formattedData = transformTasksData(data.data);
-    setColumns(formattedData);
+    try {
+      // const data = await getTasksByProject(idProject);
+      // dispatch(getListTaskByProjectIdRedux(idProject))
+      // const formattedData = transformTasksData(data.data || data);
+      // setColumns(formattedData);
+      dispatch(getListTaskByProjectIdRedux(idProject))
+
+    } catch (error) {
+      console.error("Lấy danh sách công việc thất bại:", error);
+    }
   };
 
   useEffect(() => {
-    fetchData();
-  }, [idProject]);
+    if (listTask && listTask.length > 0) {
+      const formattedData = transformTasksData(listTask);
+      setColumns(formattedData);
+    }
+  },[listTask])
+
+  useEffect(() => {
+    if (idProject) {
+      fetchData();
+    }
+  }, [idProject,dispatch]);
 
   const onDragEnd = (event) => {
     const { active, over } = event;
@@ -104,13 +123,17 @@ function KanbanBoard() {
       ];
       return newColumns;
     });
+
     setTaskToUpdate(taskToMove);
   };
 
   useEffect(() => {
     if (taskToUpdate) {
       updateTaskStatus(taskToUpdate.id, taskToUpdate.status)
-        .then(() => console.log("Cập nhật thành công"))
+        .then(() => {
+          console.log("Cập nhật thành công");
+          fetchData();
+        })
         .catch((error) => console.error("Lỗi cập nhật:", error))
         .finally(() => setTaskToUpdate(null));
     }
@@ -118,14 +141,13 @@ function KanbanBoard() {
 
   return (
     <div className="kanban-wrapper">
-      <DndContext collisionDetection={closestCorners} onDragEnd={onDragEnd}>
+      <DndContext
+        collisionDetection={closestCorners}
+        onDragEnd={onDragEnd}
+      >
         <div className="kanban-container">
           {Object.entries(columns).map(([key, column]) => (
-            <KanbanColumn
-              key={key}
-              columnId={key}
-              column={column}
-            />
+            <KanbanColumn key={key} columnId={key} column={column} />
           ))}
         </div>
       </DndContext>
