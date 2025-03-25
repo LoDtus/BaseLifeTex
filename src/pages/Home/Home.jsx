@@ -6,7 +6,7 @@ import { Popover } from "@mui/material";
 import MemberListContent from "../../components/memberList/MemberList";
 import KanbanBoard from "../../components/Kanban/KanbanBoard";
 import ListHome from "../../components/List/ListHome";
-import { getProjectId } from "../../apis/project";
+import { getProjectId } from "../../services/projectService";
 
 export default function Home() {
   const [anchorEl, setAnchorEl] = useState(null);

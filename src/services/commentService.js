@@ -1,14 +1,9 @@
 import axiosInstance from "./apiService";
 
-const getListCommentByTask = async (token, taskId) => {
+const getListCommentByTask = async (taskId) => {
   try {
     const response = await axiosInstance.get(
-      `/comments/get-comments/${taskId}`,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }
+      `/comments/${taskId}`
     );
     return response.data;
   } catch (err) {
@@ -17,16 +12,11 @@ const getListCommentByTask = async (token, taskId) => {
   }
 };
 
-const addCommentTask = async (token, data) => {
+const addCommentTask = async (data) => {
   try {
     const response = await axiosInstance.post(
-      `/comments/add-comment/${data.taskId}`,
-      data,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }
+      `/comments`,
+      data
     );
     return response.data;
   } catch (err) {

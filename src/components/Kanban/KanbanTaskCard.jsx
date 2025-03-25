@@ -1,13 +1,23 @@
-import { useDraggable } from "@dnd-kit/core";
+import { useSortable } from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 import { Popover, IconButton } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import React, { useState } from "react";
 
-function KanbanTaskCard({ task, isOverlay = false }) {
-  const { attributes, listeners, setNodeRef, isDragging } = useDraggable({
-    id: task.id,
-    disabled: isOverlay, // Vô hiệu hóa kéo thả trên DragOverlay
-  });
+function KanbanTaskCard({ task }) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: task.id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+  };
 
   const [anchorEl, setAnchorEl] = useState(null);
   const [isKanbaLabel, setIsKanbaLabel] = useState(false);
@@ -45,11 +55,10 @@ function KanbanTaskCard({ task, isOverlay = false }) {
   return (
     <div
       ref={setNodeRef}
-      className={`kanban-card ${isDragging && !isOverlay ? "dragging" : ""} ${
-        isOverlay ? "dragging-overlay" : ""
-      }`}
-      {...listeners}
+      style={style}
       {...attributes}
+      {...listeners}
+      className={`kanban-card ${isDragging ? "dragging" : ""}`}
     >
       <div className="task-content">
         <div>

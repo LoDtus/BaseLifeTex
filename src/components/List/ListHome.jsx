@@ -24,6 +24,7 @@ import MemberListContent from "../../components/memberList/MemberList";
 import MemberListContentAdd from "../../components/memberListAdd/MemberListAdd";
 import EditForm from "../../components/editForm/EditForm";
 import "./ListHome.scss";
+import TablePagination from '@mui/material/TablePagination';
 
 const ListHome = () => {
   const [searchParams] = useSearchParams();
@@ -50,6 +51,18 @@ const ListHome = () => {
   const [idOpenComment, setIdOpenComment] = useState(null);
   const [editModal, setEditModal] = useState(false);
   const [idEditModal, setIdEditModal] = useState(null);
+
+  const [page, setPage] = useState(2);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
+
+  const handleChangePage = (event, newPage) => {
+    setPage(newPage);
+  };
+
+  const handleChangeRowsPerPage = (event) => {
+    setRowsPerPage(parseInt(event.target.value, 10));
+    setPage(0);
+  };
 
   const handleEditClick = (taskId, currentName) => {
     setEditingTaskId(taskId);
@@ -329,10 +342,10 @@ const ListHome = () => {
                       onChange={(e) => handleStatusChange(task._id, e.target.value)}
                       className="status-select"
                     >
-                      <option value="pending">Công việc mới</option>
-                      <option value="in progress">Đang thực hiện</option>
-                      <option value="completed">Hoàn thành</option>
-                      <option value="done">Kết thúc</option>
+                      <option value={0}>Công việc mới</option>
+                      <option value={1}>Đang thực hiện</option>
+                      <option value={2}>Hoàn thành</option>
+                      <option value={3}>Khóa công việc</option>
                     </select>
                   </TableCell>
                   <TableCell className="table-cell">
@@ -380,6 +393,14 @@ const ListHome = () => {
             </TableBody>
           </Table>
         </TableContainer>
+        <TablePagination
+      component="div"
+      count={100}
+      page={page}
+      onPageChange={handleChangePage}
+      rowsPerPage={rowsPerPage}
+      onRowsPerPageChange={handleChangeRowsPerPage}
+    />
       </Paper>
     </div>
   );

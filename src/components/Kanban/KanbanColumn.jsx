@@ -13,12 +13,11 @@ function KanbanColumn({ columnId, column }) {
     setOpen(true);
   };
 
-  // Ánh xạ trạng thái từ key của cột sang giá trị số để gửi lên server
   const statusMapReverse = {
-    PREPARE: 1,
-    IN_PROGRESS: 2,
-    FINISH: 4,
-    NOT_DO: 7,
+    PREPARE: 0,
+    IN_PROGRESS: 1,
+    FINISH: 2,
+    NOT_DO: 3,
   };
 
   const statusValue = statusMapReverse[columnId];
@@ -44,7 +43,7 @@ function KanbanColumn({ columnId, column }) {
         <IssueForm
           isOpen={open}
           onClose={() => setOpen(false)}
-          status={statusValue} // Truyền giá trị số (1, 2, 4, 7) thay vì tiêu đề
+          status={statusValue}
         />
       )}
     </div>
