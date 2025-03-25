@@ -3,6 +3,7 @@ import { toast } from "react-toastify";
 import { jwtDecode } from "jwt-decode";
 import Cookies from "js-cookie";
 import { refreshToken } from "./authService";
+import store from "../redux/store";
 
 const API_URL = import.meta.env.VITE_BACKEND_URL;
 let hasRedirected = false;
@@ -51,8 +52,8 @@ axiosInstance.interceptors.response.use(
 );
 axiosInstance.interceptors.request.use(
   async (config) => {
-    let accessToken = Cookies.get("accessToken");
-
+    // let accessToken = Cookies.get("accessToken");
+    let accessToken = store.getState().auth.login.currentUser?.data?.accessToken;
     if (accessToken) {
       let decodedToken;
       try {
