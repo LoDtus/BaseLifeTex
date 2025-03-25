@@ -13,10 +13,10 @@ import LockIcon from "@mui/icons-material/Lock";
 import HeaderLogin from "../../components/headerLogin/HeaderLogin";
 import FooterLogin from "../../components/footerLogin/FooterLogin";
 import { validateLogin } from "./utilsValidateLogin";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { loginUser } from "../../services/authService";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { Container } from "react-bootstrap";
 import "../../styles/login.scss";
 
@@ -29,7 +29,13 @@ export default function Login() {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const dispatch = useDispatch();
-
+  const user = useSelector((state) => state.auth.login.currentUser);
+  useEffect(() => {
+    let token = user?.data?.accessToken;
+    if (token) {
+      navigate("/home");
+    }
+  }, [user]);
   const handleLogin = async () => {
     const { errors, hasError } = validateLogin({ email, password });
 

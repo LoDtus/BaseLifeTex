@@ -1,15 +1,16 @@
 import { useSelector, useDispatch } from "react-redux";
 import "./Header.scss";
-import NotificationsIcon from "@mui/icons-material/Notifications";
 import LogoutIcon from "@mui/icons-material/Logout";
 import SearchIcon from "@mui/icons-material/Search";
 import NotificationPopup from "../../../components/notificationPopup/NotificationPopup";
 import { logoutUser } from "../../../services/authService";
 import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 
 export default function Header() {
   const user = useSelector((state) => state.auth.login.currentUser);
   const userName = user?.data?.user?.userName || "Khách";
+  const avatar = user?.data?.user?.avatar;
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
@@ -17,7 +18,7 @@ export default function Header() {
     const accessToken = user?.data?.accessToken;
     if (!accessToken) {
       console.error("Không tìm thấy accessToken trong Redux store", user);
-      alert("Vui lòng đăng nhập lại!");
+      toast.error("Vui lòng đăng nhập lại!");
       navigate("/");
       return;
     }
@@ -57,7 +58,7 @@ export default function Header() {
           <NotificationPopup />
           <span className="user-name">{userName}</span>
           <div className="avatar-container">
-            <img src="/image/image_4.png" alt="avatar" className="user-icon" />
+            <img src={avatar} alt="avatar" className="user-icon" />
             <div className="logout-container" onClick={handleLogout}>
               <LogoutIcon sx={{ cursor: "pointer", fontSize: "18px" }} />
               <span className="logout-text">Đăng xuất</span>
