@@ -23,7 +23,7 @@ const getTasksByProject = async (projectId) => {
 const updateTaskStatus = async (taskId, status) => {
   try {
     const response = await axiosInstance.put(`/tasks/${taskId}/status`, {
-      status: status,
+      status,
     });
     console.log(status);
     return;
@@ -68,6 +68,7 @@ export const getlistUserInProjects = async (id) => {
     throw error;
   }
 };
+
 
 export {
   getTasks,

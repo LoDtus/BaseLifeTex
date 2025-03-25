@@ -1,23 +1,25 @@
-import { closestCorners, DndContext, DragOverlay } from "@dnd-kit/core"; // Thêm DragOverlay
+import { closestCorners, DndContext, DragOverlay } from "@dnd-kit/core";
 import React, { useEffect, useState } from "react";
 import KanbanColumn from "./KanbanColumn";
-import KanbanTaskCard from "./KanbanTaskCard"; // Thêm import để sử dụng trong DragOverlay
+import KanbanTaskCard from "./KanbanTaskCard";
 import { getTasksByProject, updateTaskStatus } from "../../services/taskService";
 import { useSearchParams } from "react-router-dom";
 import "./KanbaBoard.scss";
 import { getListTaskByProjectIdRedux } from "../../redux/taskSlice";
 import { useDispatch, useSelector } from "react-redux";
 
+// Hàm ánh xạ dữ liệu từ server sang các cột Kanban
 function transformTasksData(tasks) {
   return tasks.reduce((acc, task) => {
+    // Ánh xạ trạng thái từ server (1, 2, 4, 7) sang key của cột
     const statusMap = {
-      pending: "pending",
-      inProgress: "inProgress",
-      completed: "completed",
-      done: "done",
+      1: "PREPARE", // Công việc mới
+      2: "IN_PROGRESS", // Đang thực hiện
+      4: "FINISH", // Hoàn thành
+      7: "NOT_DO", // Không làm
     };
 
-    const columnKey = statusMap[task.status] || "pending";
+    const columnKey = statusMap[task.status] || "PREPARE"; // Mặc định là PREPARE nếu không tìm thấy
 
     if (!acc[columnKey]) {
       acc[columnKey] = {
@@ -39,19 +41,20 @@ function transformTasksData(tasks) {
 
     return acc;
   }, {
-    pending: { title: "Công việc mới", tasks: [] },
-    inProgress: { title: "Đang thực hiện", tasks: [] },
-    completed: { title: "Hoàn thành", tasks: [] },
-    done: { title: "Kết thúc", tasks: [] },
+    PREPARE: { title: "Công việc mới", tasks: [] },
+    IN_PROGRESS: { title: "Đang thực hiện", tasks: [] },
+    FINISH: { title: "Hoàn thành", tasks: [] },
+    NOT_DO: { title: "Không làm", tasks: [] },
   });
 }
 
+// Hàm lấy tiêu đề cho từng trạng thái
 function getStatusTitle(status) {
   const titles = {
-    pending: "Công việc cần làm",
-    inProgress: "Công việc đang làm",
-    completed: "Công việc đã hoàn thành",
-    done: "Công việc đã xong",
+    PREPARE: "Công việc mới",
+    IN_PROGRESS: "Đang thực hiện",
+    FINISH: "Hoàn thành",
+    NOT_DO: "Không làm",
   };
   return titles[status] || "Công việc khác";
 }
@@ -62,7 +65,7 @@ function KanbanBoard() {
   const [columns, setColumns] = useState({});
   const [searchParams] = useSearchParams();
   const [taskToUpdate, setTaskToUpdate] = useState(null);
-  const [activeTask, setActiveTask] = useState(null); // State để lưu task đang kéo
+  const [activeTask, setActiveTask] = useState(null);
   const idProject = searchParams.get("idProject");
 
   const fetchData = async () => {
@@ -93,7 +96,7 @@ function KanbanBoard() {
     );
     if (sourceColumnKey) {
       const task = columns[sourceColumnKey].tasks.find((task) => task.id === active.id);
-      setActiveTask(task); // Lưu task đang kéo vào state
+      setActiveTask(task);
     }
   };
 
@@ -101,7 +104,7 @@ function KanbanBoard() {
     const { active, over } = event;
 
     if (!over) {
-      setActiveTask(null); // Reset activeTask khi kéo thả kết thúc
+      setActiveTask(null);
       return;
     }
 
@@ -130,7 +133,15 @@ function KanbanBoard() {
       return;
     }
 
-    taskToMove.status = destinationColumnKey;
+    // Ánh xạ trạng thái từ key của cột sang giá trị số để gửi lên server
+    const statusMapReverse = {
+      PREPARE: 1,
+      IN_PROGRESS: 2,
+      FINISH: 4,
+      NOT_DO: 7,
+    };
+
+    taskToMove.status = statusMapReverse[destinationColumnKey];
 
     setColumns((prev) => {
       const newColumns = { ...prev };
@@ -145,7 +156,7 @@ function KanbanBoard() {
     });
 
     setTaskToUpdate(taskToMove);
-    setActiveTask(null); // Reset activeTask khi kéo thả kết thúc
+    setActiveTask(null);
   };
 
   useEffect(() => {
@@ -164,7 +175,7 @@ function KanbanBoard() {
     <div className="kanban-wrapper">
       <DndContext
         collisionDetection={closestCorners}
-        onDragStart={onDragStart} // Thêm sự kiện onDragStart
+        onDragStart={onDragStart}
         onDragEnd={onDragEnd}
       >
         <div className="kanban-container">

@@ -15,3 +15,17 @@ export const getLstProject = async () => {
     throw error;
   }
 };
+
+export const getProjectId = async (projectId) => {
+  try {
+    const response = await axiosInstance.get(`/projects/${projectId}`);
+    return response.data;
+  } catch (error) {
+    console.error(
+      "Error retrieving data:",
+      error.response ? error.response.data : error.message
+    );
+    throw error;
+  }
+}
+

@@ -1,17 +1,36 @@
 // src/pages/Home/Home.jsx
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import "./Home.scss";
 import { useSearchParams } from "react-router-dom";
 import { Popover } from "@mui/material";
 import MemberListContent from "../../components/memberList/MemberList";
 import KanbanBoard from "../../components/Kanban/KanbanBoard";
 import ListHome from "../../components/List/ListHome";
+import { getProjectId } from "../../apis/project";
 
 export default function Home() {
   const [anchorEl, setAnchorEl] = useState(null);
   const [searchParams] = useSearchParams();
   const idProject = searchParams.get("idProject");
   const [viewMode, setViewMode] = useState("kanban");
+  const [nameProject, setNameProject] = useState("Phần mềm đánh giá"); // Giá trị mặc định
+
+  useEffect(() => {
+    if (idProject) {
+      const fetchProjectData = async () => {
+        try {
+          const response = await getProjectId(idProject); 
+          if (response.success) {
+            setNameProject(response.data.name);
+          }
+        } catch (error) {
+          console.error("Lỗi khi lấy thông tin dự án:", error);
+          setNameProject("Phần mềm đánh giá"); 
+        }
+      };
+      fetchProjectData(); 
+    }
+  }, [idProject]);
 
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
@@ -35,7 +54,7 @@ export default function Home() {
       <div className="header-section">
         <div className="header-container">
           <div className="project-info">
-            <p className="project-path">Dự án / Phần mềm đánh giá</p>
+            <p className="project-path">Dự án / {nameProject}</p>
           </div>
           <div className="view-toggle">
             <img
