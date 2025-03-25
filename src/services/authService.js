@@ -19,10 +19,10 @@ export const loginUser = async (user, dispatch, navigate) => {
   dispatch(loginStart());
   try {
     const res = await axios.post(`${backendUrl}/auth/login`, user);
-    toast.success("Đăng nhập thành công");
     dispatch(loginSuccess(res.data));
     setTimeout(() => {
       navigate("/home");
+      toast.success("Đăng nhập thành công");
     }, 2000);
     return { success: true };
   } catch (err) {
