@@ -3,12 +3,14 @@ import { useNavigate } from "react-router-dom"; // Import useNavigate for naviga
 
 import styles from "./Navbar.module.scss";
 import ProjectCard from "../../../components/projectCard/ProjectCard";
-import { getLstProject } from "../../../apis/project";
+import { getLstProject } from "../../../services/projectService";
 import Loading from "../../../components/Loading/Loading";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { getListProjectByUser } from "../../../redux/projectSlice";
 
 export default function Navbar() {
-  const [lstProject, setLstProject] = useState([]);
+  // const [lstProject, setLstProject] = useState([]);
+  const lstProject = useSelector((state) => state.project.listProject);
   const [loading, setLoading] = useState(true); // State for loading
   const navigate = useNavigate(); // Initialize navigate
   const dispatch = useDispatch();
@@ -16,14 +18,15 @@ export default function Navbar() {
   const fetchProjects = async () => {
     setLoading(true); // Start loading
     try {
-      const response = await getLstProject();
+      // const response = await getLstProject();
+      dispatch(getListProjectByUser());
 
-      if (Array.isArray(response)) {
-        setLstProject(response);
+      if (Array.isArray(lstProject)) {
+        // setLstProject(response);
 
         // Set default idProject to the first project's _id
-        if (response.length > 0) {
-          const firstProjectId = response[0]._id;
+        if (lstProject.length > 0) {
+          const firstProjectId = lstProject[0]._id;
           const currentUrl = new URL(window.location.href);
           currentUrl.searchParams.set("idProject", firstProjectId);
           navigate(`${currentUrl.pathname}${currentUrl.search}`);
