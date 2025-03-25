@@ -19,7 +19,7 @@ import { useForm, Controller } from "react-hook-form";
 import Zoom from "react-medium-image-zoom";
 import "react-medium-image-zoom/dist/styles.css";
 import imageAvatar from "../../assets/image/image_5.png";
-import { getlistUser } from "../../apis/use";
+import { getlistUser } from "../../services/userService";
 import { updateIssueData } from "../../apis/Issue";
 import { getTaskDetailById } from "../../services/taskService";
 import {
@@ -88,17 +88,19 @@ const KabanDetail = ({ open, task, handleClose }) => {
   const dispatch = useDispatch();
 
   const getMemberByProject = async (projectId) => {
-    const response = await getlistUser(user && user.accessToken, projectId);
-    if (response.members) {
-      setListMember(response.members);
+    const response = await getlistUser(projectId);
+    if (response.success === true) {
+      setListMember(response.data && response.data.members);
     }
   };
 
   const getListComment = async (id) => {
     if(user) {
-      let response = await getListCommentByTask(user && user.accessToken, id);
-      if (response && response.comments) {
-          setComments(response.comments);
+      let response = await getListCommentByTask(id);
+      if (response && response.success === true) {
+          setComments(response.data);
+          console.log(response.data);
+          
       }
       else {
         toast.error(response.message)
@@ -307,13 +309,12 @@ const KabanDetail = ({ open, task, handleClose }) => {
   const handleAddComment = async () => {
     if (user && user.data) {
       if (comment) {
-        let res = await addCommentTask(user.accessToken, {
-          projectId: task.projectId,
+        let res = await addCommentTask({
           taskId: data._id,
-          userId: user.data._id,
           content: comment,
         });
-        if (res.message === "Thêm bình luận thành công") {
+        console.log("Check cmt",res)
+        if (res) {
           toast.success(res.message);
           setOnlyRead(readOnlyDefault);
           setComment("");
@@ -474,12 +475,12 @@ const KabanDetail = ({ open, task, handleClose }) => {
                     comments.map((cmt) => (
                       <div key={cmt._id} className="comment">
                         <img
-                          src="https://w7.pngwing.com/pngs/922/214/png-transparent-computer-icons-avatar-businessperson-interior-design-services-corporae-building-company-heroes-thumbnail.png"
+                          src={cmt.userId.avatar || "https://w7.pngwing.com/pngs/922/214/png-transparent-computer-icons-avatar-businessperson-interior-design-services-corporae-building-company-heroes-thumbnail.png"}
                           alt="user"
                           className="avatar"
                         />
                         <div className="cmt-text">
-                          <p>{cmt.userName}</p>
+                          <p>{cmt.userId.userName}</p>
                           <p>{cmt.content}</p>
                         </div>
                       </div>
@@ -659,11 +660,10 @@ const KabanDetail = ({ open, task, handleClose }) => {
                       <MenuItem value="">
                         <em>Trạng thái</em>
                       </MenuItem>
-                      <MenuItem value="pending">Công việc mới</MenuItem>
-                      <MenuItem value="todo">Đang thực hiện</MenuItem>
-                      <MenuItem value="inProgress">Chưa hoàn thành</MenuItem>
-                      <MenuItem value="completed">Hoàn thành</MenuItem>
-                      <MenuItem value="done">Kết thúc</MenuItem>
+                      <MenuItem value={0}>Công việc mới</MenuItem>
+                      <MenuItem value={1}>Đang thực hiện</MenuItem>
+                      <MenuItem value={2}>Chưa hoàn thành</MenuItem>
+                      <MenuItem value={3}>Khóa công việc</MenuItem>
                     </Select>
                   </FormControl>
                 </div>

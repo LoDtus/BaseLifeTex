@@ -13,6 +13,15 @@ function KanbanColumn({ columnId, column }) {
     setOpen(true);
   };
 
+  const statusMapReverse = {
+    PREPARE: 0,
+    IN_PROGRESS: 1,
+    FINISH: 2,
+    NOT_DO: 3,
+  };
+
+  const statusValue = statusMapReverse[columnId];
+
   return (
     <div ref={setNodeRef} className="kanban-column">
       <h3>
@@ -34,7 +43,7 @@ function KanbanColumn({ columnId, column }) {
         <IssueForm
           isOpen={open}
           onClose={() => setOpen(false)}
-          status={column.title}
+          status={statusValue}
         />
       )}
     </div>
