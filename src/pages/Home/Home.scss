@@ -9,16 +9,12 @@
 }
 
 .home-container {
-  max-width: 1280px;
   width: 100%;
   height: 100vh;
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  padding: 20px;
 }
-
-
 
 .header-container {
   display: flex;
@@ -74,7 +70,8 @@
   margin-bottom: 20px;
 }
 
-.search-container {
+.search-container { 
+  position: relative;
   display: flex;
   align-items: center;
   gap: 20px;

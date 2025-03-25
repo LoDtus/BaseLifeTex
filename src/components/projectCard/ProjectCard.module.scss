@@ -21,11 +21,15 @@
     font-size: 16px;
     font-style: normal;
     font-weight: 600;
-    line-height: normal;
-    white-space: nowrap; /* Không cho xuống dòng */
-    overflow: hidden; /* Ẩn phần dư */
-    text-overflow: ellipsis; /* Hiển thị dấu "..." */
+    line-height: 1.4; /* Điều chỉnh chiều cao dòng */
     max-width: 130px; /* Giới hạn chiều rộng */
+
+    display: -webkit-box;
+    -webkit-line-clamp: 2; /* Giới hạn hiển thị tối đa 2 dòng */
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis; /* Hiển thị dấu "..." nếu vượt quá */
+    word-break: break-word; /* Ngắt từ nếu quá dài */
   }
 
   .projectDates {
@@ -61,7 +65,7 @@
     white-space: nowrap; /* Không cho xuống dòng */
     overflow: hidden; /* Ẩn phần dư */
     text-overflow: ellipsis; /* Hiển thị dấu "..." */
-    max-width: 100px; /* Giới hạn chiều rộng */
+    max-width: 115px; /* Giới hạn chiều rộng */
   }
 
   .projectResponsible {
@@ -110,6 +114,7 @@
       width: 36px;
       border-radius: 225px;
       cursor: pointer;
+      margin-bottom: 10px;
     }
 
     .statusBtnInProgress {

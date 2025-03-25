@@ -62,6 +62,7 @@ export const refreshToken = async () => {
       `${API_URL}/auth/refresh-token`,
       {},
       { withCredentials: true }
+    );
     return res.data;
   } catch (error) {
     console.error("🔄 Lỗi refresh token:", error);
@@ -75,3 +76,4 @@ export const refreshToken = async () => {
     throw error;
   }
 };
+export const logoutUser = async (dispatch, navigate) => {};
