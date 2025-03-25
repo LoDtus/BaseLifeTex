@@ -62,7 +62,6 @@ export const refreshToken = async () => {
       `${API_URL}/auth/refresh-token`,
       {},
       { withCredentials: true }
-    );
     return res.data;
   } catch (error) {
     console.error("🔄 Lỗi refresh token:", error);
