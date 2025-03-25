@@ -35,19 +35,25 @@ const ProjectCard = ({ project }) => {
     <div className={styles.projectCard}>
       <div className={styles.projectHeader}>
         <div className={styles.right}>
-          <h1 className={styles.nameProject}>{project.name}</h1>
-          <p className={styles.projectId}>
+          <h1 className={styles.nameProject} title={project.name}>
+            {project.name}
+          </h1>
+          <p className={styles.projectId} title={project.code}>
             <strong>Mã dự án:</strong> {project.code}
           </p>
         </div>
         <div className={styles.projectDates}>
           <p>
             <span>Ngày bắt đầu:</span>
-            <span>{toolsCvDateYMD(project.createdAt)}</span>
+            <span className={styles.date}>
+              {toolsCvDateYMD(project.createdAt)}
+            </span>
           </p>
           <p className={styles.endDate}>
             <span>Ngày kết thúc:</span>
-            <span>{toolsCvDateYMD(project.updatedAt)}</span>
+            <span className={styles.date}>
+              {toolsCvDateYMD(project.updatedAt)}
+            </span>
           </p>
         </div>
       </div>
@@ -56,7 +62,9 @@ const ProjectCard = ({ project }) => {
           <strong>Người phụ trách</strong>
 
           <div className={styles.responsibleInfo}>
-            <span>{project.managerId?.userName}</span>
+            <span title={project.managerId?.userName}>
+              {project.managerId?.userName}
+            </span>
           </div>
         </div>
         <img

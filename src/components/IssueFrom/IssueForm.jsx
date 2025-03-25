@@ -69,7 +69,6 @@ const IssueForm = ({ isOpen, onClose, status }) => {
         },
         token
       );
-      console.log(issueData);
       if (issueData) {
         toast.success("Tạo nhiệm vụ thành công");
         dispatch(getListTaskByProjectIdRedux(idProject));
