@@ -29,13 +29,7 @@ export default function Login() {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const user = useSelector((state) => state.auth.login.currentUser);
-  useEffect(() => {
-    let token = user?.data?.accessToken;
-    if (token) {
-      navigate("/home");
-    }
-  }, [user]);
+
   const handleLogin = async () => {
     const { errors, hasError } = validateLogin({ email, password });
 
