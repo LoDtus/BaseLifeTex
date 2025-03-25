@@ -76,3 +76,4 @@ export const refreshToken = async () => {
     throw error;
   }
 };
+export const logoutUser = async (dispatch, navigate) => {};

@@ -1,6 +1,7 @@
 import { useSelector } from "react-redux";
 import "./Header.scss";
 import NotificationsIcon from "@mui/icons-material/Notifications";
+import LogoutIcon from "@mui/icons-material/Logout";
 import SearchIcon from "@mui/icons-material/Search";
 import NotificationPopup from "../../../components/notificationPopup/NotificationPopup";
 
@@ -35,11 +36,17 @@ export default function Header() {
           <span className="user-name">
             {user ? user.data?.user.userName : "Khách"}
           </span>
-          <img
-            src="public/image/image_4.png"
-            alt="avatar"
-            className="user-icon"
-          />
+          <div className="avatar-container">
+            <img
+              src="public/image/image_4.png"
+              alt="avatar"
+              className="user-icon"
+            />
+            <div className="logout-container">
+              <LogoutIcon sx={{ cursor: "pointer", fontSize: "18px" }} />
+              <span className="logout-text">Đăng xuất</span>
+            </div>
+          </div>
         </div>
       </header>
     </div>
