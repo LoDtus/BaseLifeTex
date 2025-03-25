@@ -1,219 +1,284 @@
+// src/pages/Home/Home.scss
 #root,
 .app-container {
   width: 100%;
   height: 100vh;
   display: flex;
   flex-direction: column;
-  overflow: hidden; // Ngăn cuộn ở cấp cao nhất
+  overflow: hidden;
 }
 
 .home-container {
-  max-width: 1280px;
-  width: 100%; // Trừ bớt chiều rộng của sidebar
-  height: 100vh; // Đảm bảo chiếm toàn bộ chiều cao viewport
+  width: 100%;
+  height: 100vh;
   display: flex;
   flex-direction: column;
-  overflow: hidden; // Ngăn cuộn toàn trang
+  overflow: hidden;
 }
 
 .header-container {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding-top: 40px;
-  padding-left: 80px;
+  padding: 20px 30px;
+}
 
-  p {
-    color: #6b7280;
-    font-size: 30px;
+.project-info {
+  .project-path {
+    font-size: 23px;
+    color: #485f7e;
+    font-weight: 600;
+    margin: 0;
   }
 
-  .image-group {
-    display: flex;
-    align-items: center;
-    gap: 8px;
+  .view-title {
+    font-size: 24px;
+    color: #1f2937;
+    font-weight: 700;
+    margin: 4px 0 0;
+  }
+}
 
-    img {
-      width: 30px;
-      height: 30px;
-      border-radius: 50%;
-      object-fit: cover;
+.view-toggle {
+  display: flex;
+  gap: 10px;
+
+  .view-icon {
+    width: 38px;
+    height: 38px;
+    padding: 6px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s;
+
+    &:hover {
+      background: #f3f4f6;
+    }
+
+    &.active {
+      background: #dbeafe;
+      border: 1px solid #3b82f6;
     }
   }
 }
 
-.search-container {
+.toolbar-section {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 15px 30px;
+  margin-bottom: 20px;
+}
+
+.search-container { 
   position: relative;
   display: flex;
   align-items: center;
-  margin-left: 80px;
-  margin-top: 29px;
-  input {
-    width: 243px;
+  gap: 20px;
+
+  .search-input {
+    width: 280px;
     padding: 10px 10px 10px 40px;
-    margin-right: 20px;
-    border: 2px solid #d9d9d9;
-    outline: none;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
     font-size: 14px;
-    color: #333;
+    color: #374151;
+    outline: none;
+    transition: border-color 0.2s;
+
+    &:focus {
+      border-color: #3b82f6;
+      box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+    }
 
     &::placeholder {
-      color: #ccc;
+      color: #9ca3af;
     }
   }
 
   .search-icon {
     position: absolute;
-    left: 10px;
-    top: 50%;
-    transform: translateY(-50%);
+    left: 12px;
     width: 20px;
     height: 20px;
-    color: #000;
-  }
-}
-
-.logo-img {
-  height: 31px;
-  margin-right: 10px;
-}
-
-// Container bọc Kanban
-.kanban-wrapper {
-  flex: 1; // Chiếm toàn bộ không gian còn lại
-  overflow-x: auto; // Cho phép cuộn ngang
-  overflow-y: auto; // Ngăn cuộn dọc trong wrapper
-  padding: 45px 0 0 40px;
-  margin-bottom: 50px;
-}
-
-.kanban-container {
-  width: 100%;
-  min-width: 1200px; // Đảm bảo table đủ rộng để cần cuộn ngang
-  display: flex;
-  gap: 40px;
-  align-items: flex-start;
-  background-color: #ffffff;
-  min-width: fit-content; // Đảm bảo container đủ rộng để chứa tất cả cột
-}
-
-.kanban-column {
-  background: #f7f8f9;
-  width: 265px;
-  min-height: 300px;
-  border-radius: 8px;
-  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
-  padding: 15px;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-
-  h3 {
-    font-size: 16px;
-    font-weight: bold;
-    margin-bottom: 10px;
-  }
-}
-
-.add-task {
-  background: transparent;
-  border: none;
-  font-size: 14px;
-  color: #555;
-  cursor: pointer;
-}
-
-.kanban-card {
-  height: 107px;
-  display: flex;
-  flex-direction: column;
-  background: #eef4fc;
-  padding: 20px;
-  margin-bottom: 15px;
-  border-radius: 8px;
-  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
-  cursor: grab;
-
-  &.dragging {
-    opacity: 0.5;
+    color: #6b7280;
   }
 
-  p {
-    margin: 0;
-    font-size: 14px;
-    cursor: pointer;
-  }
-
-  strong {
-    font-size: 14px;
-  }
-
-  .task-content {
+  .avatar-group {
     display: flex;
-    justify-content: space-between;
     align-items: center;
-    gap: 10px;
+    gap: -8px; // Chồng avatar lên nhau
 
-    input[type="checkbox"] {
-      width: 18px;
-      height: 18px;
+    .avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      border: 2px solid #ffffff;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
       cursor: pointer;
+      transition: transform 0.2s;
+
+      &:hover {
+        transform: scale(1.1);
+      }
     }
   }
-}
-
-.card-footer {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-top: 40px;
-}
-
-.project-label {
-  font-size: 12px;
-  background: #d1e7ff;
-  padding: 3px 6px;
-  border-radius: 4px;
 }
 
 .task-header {
   display: flex;
   align-items: center;
-  justify-content: end;
+  justify-content: flex-end;
   gap: 16px;
-  padding: 10px 0 0 0;
-  margin-top: 20px;
-
-  .task-add {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    color: #6b7280;
-    font-size: 14px;
-
-    img {
-      width: 25px;
-      height: 24px;
-      border-radius: 4px;
-      padding: 4px;
-      background-color: #f3f8f6;
-      border: 1px solid #d1d5db;
-    }
-  }
 
   .task-icons {
     display: flex;
-    align-items: center;
+    gap: 8px;
 
-    img {
-      width: 30px;
-      height: 30px;
-      margin-right: 10px;
-      border-radius: 50%;
-      object-fit: cover;
+    .tool-icon {
+      width: 38px;
+      height: 38px;
+      padding: 6px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.2s;
+
       &:hover {
-        background-color: #d1d5db;
+        background: #f3f4f6;
       }
     }
+  }
+}
+
+.content-section {
+  flex: 1;
+  overflow: hidden;
+
+  .kanban-wrapper {
+    height: 100%;
+    overflow-x: auto;
+    padding: 0 20px;
+
+    &::-webkit-scrollbar {
+      width: 10px;
+      height: 10px;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background: #6b7280;
+      border-radius: 5px;
+    }
+
+    &::-webkit-scrollbar-thumb:hover {
+      background: #4b5563;
+    }
+
+    &::-webkit-scrollbar-track {
+      background: #e5e7eb;
+    }
+  }
+
+  .kanban-container {
+    display: flex;
+    gap: 20px;
+    min-width: 1200px;
+    padding-bottom: 20px;
+  }
+
+  .kanban-column {
+    background: #ffffff;
+    width: 280px;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+
+    h3 {
+      font-size: 16px;
+      font-weight: 600;
+      color: #1f2937;
+      margin: 0 0 10px;
+    }
+  }
+
+  .add-task {
+    background: #f3f4f6;
+    border: 1px dashed #9ca3af;
+    border-radius: 6px;
+    padding: 8px;
+    font-size: 14px;
+    color: #6b7280;
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.2s;
+
+    &:hover {
+      background: #e5e7eb;
+      border-color: #6b7280;
+    }
+  }
+
+  .kanban-card {
+    height: 120px;
+    display: flex;
+    flex-direction: column;
+    background: #ffffff;
+    padding: 15px;
+    border-radius: 8px;
+    margin-top: 20px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+    cursor: grab;
+    transition: all 0.2s;
+
+    &:hover {
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    &.dragging {
+      opacity: 0.5;
+    }
+
+    p {
+      margin: 0;
+      font-size: 14px;
+      color: #374151;
+      font-weight: 500;
+    }
+
+    strong {
+      font-size: 14px;
+      color: #1f2937;
+    }
+
+    .task-content {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+
+      input[type="checkbox"] {
+        width: 18px;
+        height: 18px;
+        accent-color: #3b82f6;
+        cursor: pointer;
+      }
+    }
+  }
+
+  .card-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: auto;
+  }
+
+  .project-label {
+    font-size: 12px;
+    background: #dbeafe;
+    color: #1e40af;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-weight: 500;
   }
 }
