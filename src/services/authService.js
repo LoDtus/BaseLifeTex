@@ -1,4 +1,5 @@
 import axiosInstance from "./apiService";
+import axios from "axios";
 import { toast } from "react-toastify";
 
 import {
@@ -9,11 +10,13 @@ import {
   registerStart,
   registerSuccess,
 } from "../redux/authSlice";
+const backendUrl = import.meta.env.VITE_BACKEND_URL;
 
 export const loginUser = async (user, dispatch, navigate) => {
   dispatch(loginStart());
   try {
-    const res = await axiosInstance.post("/auth/login", user);
+    // const res = await axiosInstance.post("/auth/login", user);
+    const res = await axios.post(`${backendUrl}/auth/login`, user);
     dispatch(loginSuccess(res.data));
 
     setTimeout(() => {
@@ -22,6 +25,8 @@ export const loginUser = async (user, dispatch, navigate) => {
 
     return { success: true };
   } catch (err) {
+    console.log(err);
+
     dispatch(loginFail());
     return { success: false, error: "Tên đăng nhập hoặc mật khẩu không đúng!" };
   }
@@ -54,7 +59,7 @@ export const registerUser = async (user, dispatch, navigate) => {
 };
 export const refreshToken = async () => {
   try {
-    const res = await axiosInstance.post("/auth/refresh-token", {
+    const res = await axiosInstance.post(`${backendUrl}/auth/refresh-token`, {
       withCredentials: true,
     });
     return res.data;

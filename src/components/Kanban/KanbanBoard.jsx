@@ -1,11 +1,12 @@
-import { closestCorners, DndContext } from "@dnd-kit/core";
+import { closestCorners, DndContext, DragOverlay } from "@dnd-kit/core"; // Thêm DragOverlay
 import React, { useEffect, useState } from "react";
 import KanbanColumn from "./KanbanColumn";
+import KanbanTaskCard from "./KanbanTaskCard"; // Thêm import để sử dụng trong DragOverlay
 import { getTasksByProject, updateTaskStatus } from "../../services/taskService";
 import { useSearchParams } from "react-router-dom";
 import "./KanbaBoard.scss";
 import { getListTaskByProjectIdRedux } from "../../redux/taskSlice";
-import { useDispatch, useSelector} from "react-redux"; // Thêm import useDispatch
+import { useDispatch, useSelector } from "react-redux";
 
 function transformTasksData(tasks) {
   return tasks.reduce((acc, task) => {
@@ -61,16 +62,12 @@ function KanbanBoard() {
   const [columns, setColumns] = useState({});
   const [searchParams] = useSearchParams();
   const [taskToUpdate, setTaskToUpdate] = useState(null);
+  const [activeTask, setActiveTask] = useState(null); // State để lưu task đang kéo
   const idProject = searchParams.get("idProject");
 
   const fetchData = async () => {
     try {
-      // const data = await getTasksByProject(idProject);
-      // dispatch(getListTaskByProjectIdRedux(idProject))
-      // const formattedData = transformTasksData(data.data || data);
-      // setColumns(formattedData);
-      dispatch(getListTaskByProjectIdRedux(idProject))
-
+      dispatch(getListTaskByProjectIdRedux(idProject));
     } catch (error) {
       console.error("Lấy danh sách công việc thất bại:", error);
     }
@@ -81,34 +78,57 @@ function KanbanBoard() {
       const formattedData = transformTasksData(listTask);
       setColumns(formattedData);
     }
-  },[listTask])
+  }, [listTask]);
 
   useEffect(() => {
     if (idProject) {
       fetchData();
     }
-  }, [idProject,dispatch]);
+  }, [idProject, dispatch]);
+
+  const onDragStart = (event) => {
+    const { active } = event;
+    const sourceColumnKey = Object.keys(columns).find((key) =>
+      columns[key].tasks.find((task) => task.id === active.id)
+    );
+    if (sourceColumnKey) {
+      const task = columns[sourceColumnKey].tasks.find((task) => task.id === active.id);
+      setActiveTask(task); // Lưu task đang kéo vào state
+    }
+  };
 
   const onDragEnd = (event) => {
     const { active, over } = event;
 
-    if (!over) return;
+    if (!over) {
+      setActiveTask(null); // Reset activeTask khi kéo thả kết thúc
+      return;
+    }
 
     const sourceColumnKey = Object.keys(columns).find((key) =>
       columns[key].tasks.find((task) => task.id === active.id)
     );
 
-    if (!sourceColumnKey) return;
+    if (!sourceColumnKey) {
+      setActiveTask(null);
+      return;
+    }
 
     const destinationColumnKey = over.id;
 
-    if (sourceColumnKey === destinationColumnKey) return;
+    if (sourceColumnKey === destinationColumnKey) {
+      setActiveTask(null);
+      return;
+    }
 
     const taskToMove = columns[sourceColumnKey].tasks.find(
       (task) => task.id === active.id
     );
 
-    if (!taskToMove) return;
+    if (!taskToMove) {
+      setActiveTask(null);
+      return;
+    }
 
     taskToMove.status = destinationColumnKey;
 
@@ -125,6 +145,7 @@ function KanbanBoard() {
     });
 
     setTaskToUpdate(taskToMove);
+    setActiveTask(null); // Reset activeTask khi kéo thả kết thúc
   };
 
   useEffect(() => {
@@ -143,6 +164,7 @@ function KanbanBoard() {
     <div className="kanban-wrapper">
       <DndContext
         collisionDetection={closestCorners}
+        onDragStart={onDragStart} // Thêm sự kiện onDragStart
         onDragEnd={onDragEnd}
       >
         <div className="kanban-container">
@@ -150,6 +172,11 @@ function KanbanBoard() {
             <KanbanColumn key={key} columnId={key} column={column} />
           ))}
         </div>
+        <DragOverlay>
+          {activeTask ? (
+            <KanbanTaskCard task={activeTask} isOverlay={true} />
+          ) : null}
+        </DragOverlay>
       </DndContext>
     </div>
   );
