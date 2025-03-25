@@ -37,7 +37,7 @@ const IssueForm = ({ isOpen, onClose, status }) => {
       },
     },
   };
-  const token = "hjshdjhdjsasas";
+
   const [searchParams] = useSearchParams();
   const [selectedPerson, setSelectedPerson] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -45,7 +45,7 @@ const IssueForm = ({ isOpen, onClose, status }) => {
   const [image, setImage] = useState();
 
   const user = useSelector((state) => state.auth.login.currentUser);
-
+  const token = user.accessToken;
   const {
     register,
     handleSubmit,

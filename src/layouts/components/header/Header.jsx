@@ -27,7 +27,7 @@ export default function Header() {
                 fontSize: "20px",
                 position: "absolute",
                 left: "6px",
-                top: "8px",
+                top: "9px",
               }}
             />
           </div>

@@ -53,9 +53,8 @@ const ProjectCard = ({ project }) => {
       </div>
       <div className={styles.projectResponsible}>
         <div>
-          <p>
-            <strong>Người phụ trách</strong>
-          </p>
+          <strong>Người phụ trách</strong>
+
           <div className={styles.responsibleInfo}>
             <span>{project.managerId?.userName}</span>
           </div>
