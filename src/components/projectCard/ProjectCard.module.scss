@@ -71,7 +71,8 @@
     margin-top: 26px;
 
     .avatar {
-      width: 36px;
+      width: 42px;
+      height: 42px;
       border-radius: 225px;
       margin-right: 21px;
     }
@@ -85,7 +86,6 @@
       text-overflow: ellipsis; /* Hiển thị dấu "..." */
       max-width: 150px; /* Giới hạn chiều rộng */
       span {
-        margin-top: 3px;
         color: #000;
         font-family: Inter;
         font-size: 13px;
@@ -94,6 +94,10 @@
         line-height: normal;
       }
     }
+  }
+
+  .date {
+    margin-top: 4px;
   }
 
   .projectFooter {
