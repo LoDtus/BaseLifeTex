@@ -12,11 +12,7 @@ import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { DemoContainer } from "@mui/x-date-pickers/internals/demo";
 import { useSearchParams } from "react-router-dom";
-import {
-  getLisTaskById,
-  updateIssueData,
-  updateIssueDataStatus,
-} from "../../apis/Issue";
+import { updateIssueData, updateIssueDataStatus } from "../../apis/Issue";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import dayjs from "dayjs";
@@ -33,26 +29,26 @@ import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 import KabanDetail from "../../components/kabanDetail/KabanDetail";
 import EditNoteIcon from "@mui/icons-material/EditNote";
 import EditForm from "../../components/editForm/EditForm";
+import { useSelector, useDispatch } from "react-redux";
+import { getListTaskByProjectIdRedux } from "../../redux/taskSlice";
+import { getlistUserInProjects } from "../../services/taskService";
 const TaskTable = () => {
   const navigate = useNavigate();
   const [anchorElFilter, setAnchorElFilter] = useState(null); // Anchor cho Filter
   const [anchorElMember, setAnchorElMember] = useState(null); // Anchor cho Member
   const [anchorElMemberAdd, setAnchorElMemberAdd] = useState(null);
   const [anchorElMemberTask, setAnchorElMemberTask] = useState(null); // Anchor cho Member
-
   const [searchParams] = useSearchParams();
   const idProject = searchParams.get("idProject");
-  const [listTask, setListTask] = useState([]);
+  // const [listTask, setListTask] = useState([]);
   const [openComment, setOpenComment] = useState(false);
 
-  const fetchApi = async (id) => {
-    const res = await getLisTaskById(id);
-    // console.log(res);
-    setListTask(res.data);
-  };
+  const { listTask } = useSelector((state) => state.task);
+  const dispatch = useDispatch();
 
   useEffect(() => {
-    fetchApi(idProject);
+    dispatch(getListTaskByProjectIdRedux(idProject));
+    getMemberByProject();
   }, [idProject]);
 
   const inputRef = useRef(null);
@@ -103,7 +99,7 @@ const TaskTable = () => {
   const onClose = () => {
     setOpen(false);
     setIssueStatus("");
-    fetchApi(idProject);
+    dispatch(getListTaskByProjectIdRedux(idProject));
   };
 
   const openModal = (status = "Công việc mới") => {
@@ -187,7 +183,8 @@ const TaskTable = () => {
         title: editedTaskName,
       });
       if (response.message === "Nhiệm vụ cập nhật thành công") {
-        fetchApi(idProject);
+        dispatch(getListTaskByProjectIdRedux(idProject));
+
         toast.success(response.message, { autoClose: 3000 });
       } else {
         toast.error(response.message, { autoClose: 3000 });
@@ -210,7 +207,7 @@ const TaskTable = () => {
         link: editedTaskLink,
       });
       if (response.message === "Nhiệm vụ cập nhật thành công") {
-        fetchApi(idProject);
+        dispatch(getListTaskByProjectIdRedux(idProject));
         toast.success(response.message, { autoClose: 3000 });
       } else {
         toast.error(response.message, { autoClose: 3000 });
@@ -228,7 +225,8 @@ const TaskTable = () => {
         status: newStatus,
       });
       if (response.message === "Thay đổi trạng thái task thành công") {
-        fetchApi(idProject);
+        dispatch(getListTaskByProjectIdRedux(idProject));
+
         toast.success(response.message, { autoClose: 3000 });
       } else {
         toast.error(response.message, { autoClose: 3000 });
@@ -254,10 +252,18 @@ const TaskTable = () => {
   const editModalClose = () => {
     setEditModal(false);
     setIdEditModal(null);
-    fetchApi(idProject);
+    dispatch(getListTaskByProjectIdRedux(idProject));
+  };
+
+  const [listMember, setListMember] = useState([]);
+  const getMemberByProject = async () => {
+    const response = await getlistUserInProjects(idProject);
+    if (response.data.success === true) {
+      setListMember(response.data.data.members);
+    }
   };
   return (
-    <div className="task-table-container">
+    <div className="home-container">
       <ToastContainer />
       {/* Header Section */}
       <div className="header-section">
@@ -348,7 +354,7 @@ const TaskTable = () => {
           transformOrigin={{ vertical: "top", horizontal: "left" }}
           sx={{ mt: 1 }}
         >
-          <MemberListContent onClose={handleCloseMember} />
+          <MemberListContent onClose={handleCloseMember} members={listMember} />
         </Popover>
 
         <div className="task-header1">
@@ -376,7 +382,7 @@ const TaskTable = () => {
               horizontal: "left",
             }}
           >
-            <FilterDialog />
+            <FilterDialog idProject={idProject} />
           </Popover>
         </div>
       </div>
@@ -420,7 +426,7 @@ const TaskTable = () => {
               </TableRow>
             </TableHead>
             <TableBody>
-              {listTask.map((task, index) => (
+              {listTask?.map((task, index) => (
                 <TableRow
                   key={task._id}
                   sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
@@ -473,27 +479,29 @@ const TaskTable = () => {
                             src="image/dot.png"
                             onClick={(e) => handleClickMemberTask(e, task._id)}
                           />
-                          <Popover
-                            open={Boolean(anchorElMemberTask)}
-                            anchorEl={anchorElMemberTask}
-                            onClose={handleCloseMemberTask}
-                            anchorOrigin={{
-                              vertical: "bottom",
-                              horizontal: "left",
-                            }}
-                            transformOrigin={{
-                              vertical: "top",
-                              horizontal: "left",
-                            }}
-                            sx={{ mt: 1 }}
-                          >
-                            <div className="all-member-in-task">
-                              <MemberListContent
-                                members={task.assigneeId}
-                                onClose={handleCloseMemberTask}
-                              />
-                            </div>
-                          </Popover>
+                          {selectedTaskId === task._id && (
+                            <Popover
+                              open={Boolean(anchorElMemberTask)}
+                              anchorEl={anchorElMemberTask}
+                              onClose={handleCloseMemberTask}
+                              anchorOrigin={{
+                                vertical: "bottom",
+                                horizontal: "left",
+                              }}
+                              transformOrigin={{
+                                vertical: "top",
+                                horizontal: "left",
+                              }}
+                              sx={{ mt: 1 }}
+                            >
+                              <div className="all-member-in-task">
+                                <MemberListContent
+                                  members={task.assigneeId}
+                                  onClose={handleCloseMemberTask}
+                                />
+                              </div>
+                            </Popover>
+                          )}
                         </>
                       )}
                       <button
@@ -522,7 +530,6 @@ const TaskTable = () => {
                           onClose={handleCloseMemberAdd}
                           idProject={idProject}
                           task={task}
-                          fetchApi={fetchApi}
                           toast={toast}
                         />
                       </Popover>
@@ -575,7 +582,10 @@ const TaskTable = () => {
                                     response.message ===
                                     "Nhiệm vụ cập nhật thành công"
                                   ) {
-                                    fetchApi(idProject);
+                                    dispatch(
+                                      getListTaskByProjectIdRedux(idProject)
+                                    );
+
                                     toast.success(response.message, {
                                       autoClose: 3000,
                                     });
@@ -641,7 +651,10 @@ const TaskTable = () => {
                                     response.message ===
                                     "Nhiệm vụ cập nhật thành công"
                                   ) {
-                                    fetchApi(idProject);
+                                    dispatch(
+                                      getListTaskByProjectIdRedux(idProject)
+                                    );
+
                                     toast.success(response.message, {
                                       autoClose: 3000,
                                     });

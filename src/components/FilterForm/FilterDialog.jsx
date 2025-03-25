@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Box,
   Button,
@@ -13,23 +13,43 @@ import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { DemoContainer } from "@mui/x-date-pickers/internals/demo";
+import { useDispatch } from "react-redux";
 import "./FilterDialog.scss";
+import { filterTaskInProject } from "../../redux/taskSlice";
+import { getlistUser } from "../../apis/use";
+import { getlistUserInProjects } from "../../services/taskService";
 
-const users = [
-  { id: 1, name: "Nguyễn Văn A" },
-  { id: 2, name: "Trần Thị B" },
-];
-
-export default function FilterDialog() {
+export default function FilterDialog({ idProject }) {
   const [filters, setFilters] = useState({
-    assignee: "",
-    reporter: "",
-    startDate: null,
-    endDate: null,
+    assigneeId: "",
+    assignerId: "",
+    startDate: "",
+    endDate: "",
   });
+
+  const [listMember, setListMember] = useState([]);
+
+  const getMemberByProject = async () => {
+    const response = await getlistUserInProjects(idProject);
+    if (response.data.success === true) {
+      setListMember(response.data.data.members);
+    }
+  };
+
+  console.log(listMember);
+
+  useEffect(() => {
+    getMemberByProject();
+  }, [idProject]);
 
   const handleChange = (field, value) => {
     setFilters((prev) => ({ ...prev, [field]: value }));
+  };
+  const dispatch = useDispatch();
+
+  const onfilterTask = () => {
+    // console.log(filters);
+    dispatch(filterTaskInProject({ projectId: idProject, data: filters }));
   };
 
   return (
@@ -39,13 +59,13 @@ export default function FilterDialog() {
       <TextField
         select
         label="Người được giao"
-        value={filters.assignee}
-        onChange={(e) => handleChange("assignee", e.target.value)}
+        value={filters.assigneeId}
+        onChange={(e) => handleChange("assigneeId", e.target.value)}
         fullWidth
       >
-        {users.map((user) => (
-          <MenuItem key={user.id} value={user.name}>
-            {user.name}
+        {listMember.map((user) => (
+          <MenuItem key={user._id} value={user._id}>
+            {user.userName}
           </MenuItem>
         ))}
       </TextField>
@@ -54,13 +74,13 @@ export default function FilterDialog() {
       <TextField
         select
         label="Người báo cáo"
-        value={filters.reporter}
-        onChange={(e) => handleChange("reporter", e.target.value)}
+        value={filters.assignerId}
+        onChange={(e) => handleChange("assignerId", e.target.value)}
         fullWidth
       >
-        {users.map((user) => (
-          <MenuItem key={user.id} value={user.name}>
-            {user.name}
+        {listMember.map((user) => (
+          <MenuItem key={user._id} value={user._id}>
+            {user.userName}
           </MenuItem>
         ))}
       </TextField>
@@ -70,7 +90,7 @@ export default function FilterDialog() {
         <DemoContainer components={["DatePicker"]}>
           <DatePicker
             label="Ngày giao việc"
-            value={filters.startDate}
+            // value={filters.startDate}
             onChange={(newValue) => handleChange("startDate", newValue)}
             format="DD/MM/YYYY"
           />
@@ -82,7 +102,7 @@ export default function FilterDialog() {
         <DemoContainer components={["DatePicker"]}>
           <DatePicker
             label="Ngày kết thúc"
-            value={filters.endDate}
+            // value={filters.endDate}
             onChange={(newValue) => handleChange("endDate", newValue)}
             format="DD/MM/YYYY"
           />
@@ -94,7 +114,7 @@ export default function FilterDialog() {
         variant="contained"
         color="primary"
         fullWidth
-        onClick={() => console.log(filters)}
+        onClick={onfilterTask}
       >
         Lọc
       </Button>

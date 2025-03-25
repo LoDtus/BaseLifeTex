@@ -22,9 +22,10 @@ import UploadImageButton from "../UploadDownloadImage/UploadDownloadImage";
 import { getlistUser } from "../../apis/use";
 import { postIssueData } from "../../apis/Issue";
 import { useSearchParams } from "react-router-dom";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { toast } from "react-toastify";
 import Loading from "../../components/Loading/Loading";
+import { getListTaskByProjectIdRedux } from "../../redux/taskSlice";
 
 const IssueForm = ({ isOpen, onClose, status }) => {
   const ITEM_HEIGHT = 48;
@@ -68,14 +69,18 @@ const IssueForm = ({ isOpen, onClose, status }) => {
         },
         token
       );
+      console.log(issueData);
       if (issueData) {
         toast.success("Tạo nhiệm vụ thành công");
+        dispatch(getListTaskByProjectIdRedux(idProject));
         onClose();
       } else {
         toast.error("Tạo nhiệm vụ thất bại");
       }
     } catch (error) {
-      toast.error("Tạo nhiệm vụ thất bại");
+      console.log("error", error);
+
+      toast.error("Tạo nhiệm vụ thất bại 123", error);
     } finally {
       reset();
       setLoading(false); // Kết thúc loading

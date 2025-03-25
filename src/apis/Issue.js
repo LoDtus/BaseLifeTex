@@ -1,11 +1,12 @@
-import axios from "axios";
+// import axios from "axios";
+import axiosInstance from "../services/apiService";
 import { toolTaskStatus } from "../tools/toolsCvStatus";
 
 const backendUrl = import.meta.env.VITE_BACKEND_URL;
 
 export const postIssueData = async (data, token) => {
   console.log(toolTaskStatus(data.status));
-  
+
   try {
     const formData = new FormData();
     formData.append("image", data.image);
@@ -22,7 +23,7 @@ export const postIssueData = async (data, token) => {
       data.assignerId || "67d23acb23793aac51e64dc5"
     );
 
-    const response = await axios.post(
+    const response = await axiosInstance.post(
       `${backendUrl}/tasks/create-task`,
       formData,
       {
@@ -42,7 +43,7 @@ export const postIssueData = async (data, token) => {
 
 export const updateIssueData = async (id, data) => {
   try {
-    const response = await axios.put(
+    const response = await axiosInstance.put(
       `${backendUrl}/tasks/edit-task/${id}`,
       data
     );
@@ -54,7 +55,7 @@ export const updateIssueData = async (id, data) => {
 
 export const getLisTaskById = async (id) => {
   try {
-    const response = await axios.get(`${backendUrl}/tasks/project/${id}`);
+    const response = await axiosInstance.get(`/tasks/project/${id}`);
     // console.log(response);
     return response.data;
   } catch (error) {
@@ -64,7 +65,10 @@ export const getLisTaskById = async (id) => {
 
 export const updateIssueDataStatus = async (id, data) => {
   try {
-    const response = await axios.put(`${backendUrl}/tasks/${id}/status`, data);
+    const response = await axiosInstance.put(
+      `${backendUrl}/tasks/${id}/status`,
+      data
+    );
     return response.data;
   } catch (error) {
     console.error("Error posting data:", error);
@@ -73,7 +77,7 @@ export const updateIssueDataStatus = async (id, data) => {
 
 export const addMemberTask = async (id, data) => {
   try {
-    const response = await axios.post(
+    const response = await axiosInstance.post(
       `${backendUrl}/tasks/${id}/add-user`,
       data
     );
@@ -103,7 +107,7 @@ export const updateIssueDataImage = async (id, data, imageFile) => {
       formData.append("image", imageFile);
     }
 
-    const response = await axios.put(
+    const response = await axiosInstance.put(
       `${backendUrl}/tasks/edit-task/${id}`,
       formData,
       {
