@@ -34,7 +34,7 @@ export const loginUser = async (user, dispatch, navigate) => {
 export const registerUser = async (user, dispatch, navigate) => {
   dispatch(registerStart());
   try {
-    await axios.post("/auth/register", user);
+    await axios.post(`${backendUrl}/auth/register`, user);
     dispatch(registerSuccess());
     setTimeout(() => {
       navigate("/");
