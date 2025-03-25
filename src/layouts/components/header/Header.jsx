@@ -33,7 +33,7 @@ export default function Header() {
           </div>
           <NotificationPopup />
           <span className="user-name">
-            {user ? user.data.userName : "Khách"}
+            {user ? user.data?.user.userName : "Khách"}
           </span>
           <img
             src="public/image/image_4.png"
