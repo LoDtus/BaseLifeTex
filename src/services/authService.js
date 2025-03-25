@@ -15,7 +15,6 @@ const backendUrl = import.meta.env.VITE_BACKEND_URL;
 export const loginUser = async (user, dispatch, navigate) => {
   dispatch(loginStart());
   try {
-    // const res = await axiosInstance.post("/auth/login", user);
     const res = await axios.post(`${backendUrl}/auth/login`, user);
     dispatch(loginSuccess(res.data));
 
@@ -35,7 +34,7 @@ export const loginUser = async (user, dispatch, navigate) => {
 export const registerUser = async (user, dispatch, navigate) => {
   dispatch(registerStart());
   try {
-    await axiosInstance.post("/auth/sign-up", user);
+    await axios.post("/auth/register", user);
     dispatch(registerSuccess());
     setTimeout(() => {
       navigate("/");
@@ -59,12 +58,21 @@ export const registerUser = async (user, dispatch, navigate) => {
 };
 export const refreshToken = async () => {
   try {
-    const res = await axiosInstance.post("/auth/refresh-token", {
-      withCredentials: true,
-    });
+    const res = await axios.post(
+      `${API_URL}/auth/refresh-token`,
+      {},
+      { withCredentials: true }
+    );
     return res.data;
   } catch (error) {
-    console.log("Lỗi refresh token", error);
+    console.error("🔄 Lỗi refresh token:", error);
+
+    if (error.response?.status === 401) {
+      toast.error("🔒 Phiên đăng nhập hết hạn! Vui lòng đăng nhập lại.");
+    } else {
+      toast.error("⚠ Không thể làm mới token, vui lòng thử lại.");
+    }
+
     throw error;
   }
 };

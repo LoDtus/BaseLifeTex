@@ -3,9 +3,13 @@ import { toast } from "react-toastify";
 import { jwtDecode } from "jwt-decode";
 import Cookies from "js-cookie";
 import { refreshToken } from "./authService";
+import store from "../redux/store";
+import { loginSuccess } from "../redux/authSlice";
 
 const API_URL = import.meta.env.VITE_BACKEND_URL;
 let hasRedirected = false;
+let isRefreshing = false;
+let refreshSubscribers = [];
 
 const axiosInstance = axios.create({
   baseURL: API_URL,
@@ -14,17 +18,17 @@ const axiosInstance = axios.create({
   },
 });
 
+// Xử lý lỗi từ server
 axiosInstance.interceptors.response.use(
   (response) => response,
   (error) => {
     if (axios.isAxiosError(error)) {
-      if (error.code === "ECONNABORTED" && error.message.includes("timeout"))
+      if (error.code === "ECONNABORTED" && error.message.includes("timeout")) {
         toast.error("⏳ Kết nối quá thời gian! Vui lòng thử lại.");
+      }
       if (!hasRedirected) {
         hasRedirected = true;
-        // setTimeout(() => {
-        //     window.location.href = "/error-timeout";
-        // }, 1500);
+        // window.location.href = "/error-timeout"; (Có thể kích hoạt nếu cần)
       }
     } else if (error.response) {
       switch (error.response.status) {
@@ -49,23 +53,18 @@ axiosInstance.interceptors.response.use(
     return Promise.reject(error);
   }
 );
+
 axiosInstance.interceptors.request.use(
   async (config) => {
-    let accessToken = Cookies.get("accessToken");
+    let accessToken =
+      store.getState().auth.login.currentUser?.data?.accessToken;
 
-    if (accessToken) {
-      let decodedToken;
-      try {
-        decodedToken = jwtDecode(accessToken);
-      } catch (error) {
-        console.error("Lỗi decode token:", error);
-        Cookies.remove("accessToken");
-        Cookies.remove("refreshToken");
-        window.location.href = "/";
-        return Promise.reject(error);
-      }
+    if (!accessToken) return config;
 
+    try {
+      const decodedToken = jwtDecode(accessToken);
       const currentTime = Date.now() / 1000;
+
       if (decodedToken.exp < currentTime) {
         if (!isRefreshing) {
           isRefreshing = true;
@@ -76,10 +75,13 @@ axiosInstance.interceptors.request.use(
 
             const data = await refreshToken(refreshTokenValue);
             accessToken = data.accessToken;
-            Cookies.set("accessToken", accessToken, {
-              expires: 1,
-              path: "/",
-            });
+            Cookies.set("accessToken", accessToken, { expires: 1, path: "/" });
+            store.dispatch(
+              loginSuccess({
+                ...store.getState().auth.login.currentUser,
+                data: { accessToken },
+              })
+            );
 
             isRefreshing = false;
             refreshSubscribers.forEach((callback) => callback(accessToken));
@@ -93,7 +95,6 @@ axiosInstance.interceptors.request.use(
             return Promise.reject(error);
           }
         }
-
         return new Promise((resolve) => {
           refreshSubscribers.push((newToken) => {
             config.headers["Authorization"] = `Bearer ${newToken}`;
@@ -101,8 +102,10 @@ axiosInstance.interceptors.request.use(
           });
         });
       }
-
       config.headers["Authorization"] = `Bearer ${accessToken}`;
+    } catch (error) {
+      console.error("Lỗi decode token:", error);
+      return Promise.reject(error);
     }
 
     return config;
