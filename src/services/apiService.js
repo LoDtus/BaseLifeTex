@@ -58,9 +58,7 @@ axiosInstance.interceptors.request.use(
   async (config) => {
     let accessToken =
       store.getState().auth.login.currentUser?.data?.accessToken;
-
     if (!accessToken) return config;
-
     try {
       const decodedToken = jwtDecode(accessToken);
       const currentTime = Date.now() / 1000;
