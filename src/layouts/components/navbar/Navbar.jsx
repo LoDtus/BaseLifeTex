@@ -9,7 +9,6 @@ import { useDispatch, useSelector } from "react-redux";
 import { getListProjectByUser } from "../../../redux/projectSlice";
 
 export default function Navbar() {
-  // const [lstProject, setLstProject] = useState([]);
   const lstProject = useSelector((state) => state.project.listProject);
   const [loading, setLoading] = useState(true); // State for loading
   const navigate = useNavigate(); // Initialize navigate
@@ -18,20 +17,7 @@ export default function Navbar() {
   const fetchProjects = async () => {
     setLoading(true); // Start loading
     try {
-      // const response = await getLstProject();
       dispatch(getListProjectByUser());
-
-      if (Array.isArray(lstProject)) {
-        // setLstProject(response);
-
-        // Set default idProject to the first project's _id
-        if (lstProject.length > 0) {
-          const firstProjectId = lstProject[0]._id;
-          const currentUrl = new URL(window.location.href);
-          currentUrl.searchParams.set("idProject", firstProjectId);
-          navigate(`${currentUrl.pathname}${currentUrl.search}`);
-        }
-      }
     } catch (err) {
       console.error("Failed to fetch projects:", err);
     } finally {
@@ -40,16 +26,22 @@ export default function Navbar() {
   };
 
   const handleProjectClick = (projectId) => {
-    // dispatch(setLoading(true)); // Dispatch setLoading action
     const currentUrl = new URL(window.location.href);
     currentUrl.searchParams.set("idProject", projectId); // Add or update idProject in URL
     navigate(`${currentUrl.pathname}${currentUrl.search}`); // Navigate to the updated URL
-    // dispatch(setLoading(false)); // Dispatch setLoading
   };
 
   useEffect(() => {
     fetchProjects();
   }, []);
+  useEffect(() => {
+    if (lstProject.length > 0) {
+      const firstProjectId = lstProject[0]._id;
+      const currentUrl = new URL(window.location.href);
+      currentUrl.searchParams.set("idProject", firstProjectId);
+      navigate(`${currentUrl.pathname}${currentUrl.search}`);
+    }
+  }, [lstProject]);
 
   return (
     <div className={styles.navbar}>
