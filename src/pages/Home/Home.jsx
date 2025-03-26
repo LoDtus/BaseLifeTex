@@ -7,7 +7,7 @@ import MemberListContent from "../../components/memberList/MemberList";
 import KanbanBoard from "../../components/Kanban/KanbanBoard";
 import ListHome from "../../components/List/ListHome";
 import { getProjectId } from "../../services/projectService";
-
+import FilterDialog from "../../components/FilterForm/FilterDialog";
 export default function Home() {
   const [anchorEl, setAnchorEl] = useState(null);
   const [searchParams] = useSearchParams();

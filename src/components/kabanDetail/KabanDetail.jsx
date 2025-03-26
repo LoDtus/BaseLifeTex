@@ -91,7 +91,7 @@ const KabanDetail = ({ task, handleClose }) => {
   const getMemberByProject = async (projectId) => {
     const response = await getlistUser(projectId);
     if (response.success === true) {
-      setListMember(response.data && response.data.members);
+      setListMember(response.data && response.data);
     }
   };
 
@@ -550,7 +550,7 @@ const KabanDetail = ({ task, handleClose }) => {
                               mb: 1,
                             }}
                           >
-                            {listMember.map((person) => (
+                            {listMember.length > 0 && listMember.map((person) => (
                               <MenuItem key={person._id} value={person._id}>
                                 <Checkbox
                                   checked={
