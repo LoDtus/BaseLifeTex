@@ -1,73 +1,36 @@
 import axiosInstance from "./apiService";
 
 const getTasks = async () => {
-  try {
-    const response = await axiosInstance.get("/tasks");
-    return response.data;
-  } catch (error) {
-    console.log("lấy danh sách công việc thất bại", error);
-    throw error;
-  }
+  const response = await axiosInstance.get("/tasks");
+  return response.data;
 };
 
 const getTasksByProject = async (projectId) => {
-  try {
-    const response = await axiosInstance.get(`/tasks/project/${projectId}`);
-    return response.data;
-  } catch (error) {
-    console.log("lấy danh sách công việc theo dự án thất bại", error);
-    throw error;
-  }
+  const response = await axiosInstance.get(`/tasks/project/${projectId}`);
+  return response.data;
 };
 
 const updateTaskStatus = async (taskId, status) => {
-  try {
-    const response = await axiosInstance.put(`/tasks/${taskId}/status`, {status});
-    console.log("Status", status);
-    return response.data;
-  } catch (error) {
-    console.log("Cập nhật trạng thái công việc thất bại", error);
-    throw error;
-  }
+  const response = await axiosInstance.put(`/tasks/${taskId}/status`, {
+    status,
+  });
+  return response.data;
 };
 
 const getTaskDetailById = async (id) => {
-  try {
-    const response = await axiosInstance.get(`/tasks/${id}`);
-    console.log(response)
-    return response.data;
-  } catch (error) {
-    console.log(error);
-  }
+  const response = await axiosInstance.get(`/tasks/${id}`);
+  return response.data;
 };
 
 const filterTask = async (idProject, data) => {
-  try {
-    const response = await axiosInstance.post(
-      `/tasks/filter/${idProject}`,
-      data
-    );
-
-    return response.data;
-  } catch (error) {
-    console.log("Fillter Error: ", error);
-  }
+  const response = await axiosInstance.post(`/tasks/filter/${idProject}`, data);
+  return response.data;
 };
 
 export const getlistUserInProjects = async (id) => {
-  try {
-    const response = await axiosInstance.get(`/projects/${id}/members`);
-    console.log("Data listUsers successfully:", response);
-    return response;
-  } catch (error) {
-    console.error(
-      "Error retrieving data:",
-      error.response ? error.response.data : error.message
-    );
-    throw error;
-  }
+  const response = await axiosInstance.get(`/projects/${id}/members`);
+  return response;
 };
-
 
 export {
   getTasks,

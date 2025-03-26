@@ -26,8 +26,8 @@ export const loginUser = async (user, dispatch, navigate) => {
     }, 2000);
     return { success: true };
   } catch (err) {
-    console.log(err);
     dispatch(loginFail());
+    toast.error(err);
     return { success: false, error: "Tên đăng nhập hoặc mật khẩu không đúng!" };
   }
 };
@@ -58,14 +58,13 @@ export const registerUser = async (user, dispatch, navigate) => {
 
 export const refreshToken = async () => {
   try {
-    const res = await axios.post(
-      `${API_URL}/auth/refresh-token`,
+    const res = await axiosInstance.post(
+      `/auth/refresh-token`,
       {},
       { withCredentials: true }
     );
     return res.data;
   } catch (error) {
-    console.error("🔄 Lỗi refresh token:", error);
     if (error.response?.status === 401) {
       toast.error("🔒 Phiên đăng nhập hết hạn! Vui lòng đăng nhập lại.");
     } else {
@@ -94,11 +93,11 @@ export const logoutUser = async (dispatch, navigate, accessToken) => {
     toast.success("Đăng xuất thành công!");
     navigate("/");
   } catch (err) {
-    console.error("Lỗi logout:", err.response?.data || err.message);
     dispatch(logOutFail());
     toast.error(
       "Đăng xuất thất bại: " +
         (err.response?.data?.message || "Lỗi không xác định")
     );
+    throw err;
   }
 };

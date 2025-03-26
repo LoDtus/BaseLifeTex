@@ -16,22 +16,3 @@ export const listProject = [
     __v: 0,
   },
 ];
-
-const createIssue = {
-  title: "Tạo API cho hệ thống",
-  description: "Tạo API cho hệ thống sử dụng Node.js và Express",
-  projectId: "60d4f6d3c2f2a00015f8a3d5",
-  assigneeId: ["60d4f6d3c2f2a00015f8a3d5", "60d4f6d3c2f2a00015f8a3d5"],
-  status: "pending",
-  link: "dhskhdshdhdas",
-  images: "https://via.placeholder.com/150",
-  startDate: "2021-06-25T00:00:00.000Z",
-  endDate: "2021-06-25T00:00:00.000Z",
-};
-
-const listAssignee = [
-  {
-    id: "dshkahdw7878",
-    name: "djksdksjada",
-  },
-];

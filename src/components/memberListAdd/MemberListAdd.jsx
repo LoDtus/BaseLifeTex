@@ -16,7 +16,6 @@ import { getlistUserInProjects } from "../../services/taskService";
 
 const MemberListContentAdd = ({ onClose, idProject, task, toast }) => {
   const [listMember, setListMember] = useState([]);
-  console.log(idProject);
 
   const getMemberByProject = async () => {
     const response = await getlistUserInProjects(idProject);

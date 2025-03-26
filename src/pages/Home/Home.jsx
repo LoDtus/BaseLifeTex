@@ -19,16 +19,16 @@ export default function Home() {
     if (idProject) {
       const fetchProjectData = async () => {
         try {
-          const response = await getProjectId(idProject); 
+          const response = await getProjectId(idProject);
           if (response.success) {
             setNameProject(response.data.name);
           }
         } catch (error) {
-          console.error("Lỗi khi lấy thông tin dự án:", error);
-          setNameProject("Phần mềm đánh giá"); 
+          setNameProject("Phần mềm đánh giá");
+          throw error;
         }
       };
-      fetchProjectData(); 
+      fetchProjectData();
     }
   }, [idProject]);
 
@@ -90,7 +90,11 @@ export default function Home() {
               d="M21 21l-4.35-4.35m2.6-5.15a7 7 0 11-14 0 7 7 0 0114 0z"
             />
           </svg>
-          <input type="text" placeholder="Tìm kiếm..." className="search-input" />
+          <input
+            type="text"
+            placeholder="Tìm kiếm..."
+            className="search-input"
+          />
           <div className="avatar-group">
             {[
               "image/image_4.png",

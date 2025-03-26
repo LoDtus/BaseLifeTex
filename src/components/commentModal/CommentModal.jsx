@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Modal, Box, TextField, Button, Backdrop } from "@mui/material";
 import "./CommentModal.scss";
 import EventAvailableIcon from "@mui/icons-material/EventAvailable";
-import { toast, ToastContainer } from "react-toastify";
+import { ToastContainer } from "react-toastify";
 
 const CommentModal = ({ open, handleClose, task }) => {
   const listComment = [
@@ -73,11 +73,7 @@ const CommentModal = ({ open, handleClose, task }) => {
   //     }
   //   };
 
-  console.log(task);
-
-  const handleAddComment = () => {
-    console.log(task);
-  };
+  const handleAddComment = () => {};
 
   return (
     <>

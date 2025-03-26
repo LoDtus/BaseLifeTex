@@ -24,7 +24,7 @@ import MemberListContent from "../../components/memberList/MemberList";
 import MemberListContentAdd from "../../components/memberListAdd/MemberListAdd";
 import EditForm from "../../components/editForm/EditForm";
 import "./ListHome.scss";
-import TablePagination from '@mui/material/TablePagination';
+import TablePagination from "@mui/material/TablePagination";
 
 const ListHome = () => {
   const [searchParams] = useSearchParams();
@@ -79,62 +79,51 @@ const ListHome = () => {
   const handleBlurOrEnter = async (event, task) => {
     if (event.type === "keydown" && event.key !== "Enter") return;
     const { _id, ...taskWithoutId } = task;
-    try {
-      const response = await updateIssueData(task._id, {
-        ...taskWithoutId,
-        assigneeId: task.assigneeId?.map((i) => i._id),
-        assignerId: task.assignerId?._id,
-        title: editedTaskName,
-      });
-      if (response.message === "Nhiệm vụ cập nhật thành công") {
-        dispatch(getListTaskByProjectIdRedux(idProject));
-        toast.success(response.message, { autoClose: 3000 });
-      } else {
-        toast.error(response.message, { autoClose: 3000 });
-      }
-      setEditedTaskName("");
-      setEditingTaskId(null);
-    } catch (error) {
-      console.error("Lỗi khi cập nhật task:", error);
+
+    const response = await updateIssueData(task._id, {
+      ...taskWithoutId,
+      assigneeId: task.assigneeId?.map((i) => i._id),
+      assignerId: task.assignerId?._id,
+      title: editedTaskName,
+    });
+    if (response.message === "Nhiệm vụ cập nhật thành công") {
+      dispatch(getListTaskByProjectIdRedux(idProject));
+      toast.success(response.message, { autoClose: 3000 });
+    } else {
+      toast.error(response.message, { autoClose: 3000 });
     }
+    setEditedTaskName("");
+    setEditingTaskId(null);
   };
 
   const handleBlurOrEnterLink = async (event, task) => {
     if (event.type === "keydown" && event.key !== "Enter") return;
     const { _id, ...taskWithoutId } = task;
-    try {
-      const response = await updateIssueData(task._id, {
-        ...taskWithoutId,
-        assigneeId: task.assigneeId?.map((i) => i._id),
-        assignerId: task.assignerId?._id,
-        link: editedTaskLink,
-      });
-      if (response.message === "Nhiệm vụ cập nhật thành công") {
-        dispatch(getListTaskByProjectIdRedux(idProject));
-        toast.success(response.message, { autoClose: 3000 });
-      } else {
-        toast.error(response.message, { autoClose: 3000 });
-      }
-      setEditedTaskLink("");
-      setEditingLinkTaskId(null);
-    } catch (error) {
-      console.error("Lỗi khi cập nhật task:", error);
+    const response = await updateIssueData(task._id, {
+      ...taskWithoutId,
+      assigneeId: task.assigneeId?.map((i) => i._id),
+      assignerId: task.assignerId?._id,
+      link: editedTaskLink,
+    });
+    if (response.message === "Nhiệm vụ cập nhật thành công") {
+      dispatch(getListTaskByProjectIdRedux(idProject));
+      toast.success(response.message, { autoClose: 3000 });
+    } else {
+      toast.error(response.message, { autoClose: 3000 });
     }
+    setEditedTaskLink("");
+    setEditingLinkTaskId(null);
   };
 
   const handleStatusChange = async (taskId, newStatus) => {
-    try {
-      const response = await updateIssueDataStatus(taskId, {
-        status: newStatus,
-      });
-      if (response.message === "Thay đổi trạng thái task thành công") {
-        dispatch(getListTaskByProjectIdRedux(idProject));
-        toast.success(response.message, { autoClose: 3000 });
-      } else {
-        toast.error(response.message, { autoClose: 3000 });
-      }
-    } catch (error) {
-      console.log(error);
+    const response = await updateIssueDataStatus(taskId, {
+      status: newStatus,
+    });
+    if (response.message === "Thay đổi trạng thái task thành công") {
+      dispatch(getListTaskByProjectIdRedux(idProject));
+      toast.success(response.message, { autoClose: 3000 });
+    } else {
+      toast.error(response.message, { autoClose: 3000 });
     }
   };
 
@@ -199,17 +188,54 @@ const ListHome = () => {
           <Table className="task-table" aria-label="sticky table">
             <TableHead>
               <TableRow>
-                <TableCell className="table-header-cell"></TableCell> {/* Checkbox */}
-                <TableCell className="table-header-cell" align="center">STT</TableCell>
-                <TableCell className="table-header-cell" align="center" style={{ minWidth: "100px" }}>Chi tiết</TableCell>
-                <TableCell className="table-header-cell" align="left" style={{ minWidth: "150px" }}>Tên công việc</TableCell>
-                <TableCell className="table-header-cell" align="left" style={{ minWidth: "150px" }}>Người nhận việc</TableCell>
-                <TableCell className="table-header-cell" align="center">Bình luận</TableCell>
-                <TableCell className="table-header-cell" align="center">Ngày bắt đầu</TableCell>
-                <TableCell className="table-header-cell" align="center">Ngày kết thúc</TableCell>
-                <TableCell className="table-header-cell" align="center">Trạng thái</TableCell>
-                <TableCell className="table-header-cell" align="left" style={{ minWidth: "250px" }}>Link</TableCell>
-                <TableCell className="table-header-cell" align="left">Actions</TableCell>
+                <TableCell className="table-header-cell"></TableCell>{" "}
+                {/* Checkbox */}
+                <TableCell className="table-header-cell" align="center">
+                  STT
+                </TableCell>
+                <TableCell
+                  className="table-header-cell"
+                  align="center"
+                  style={{ minWidth: "100px" }}
+                >
+                  Chi tiết
+                </TableCell>
+                <TableCell
+                  className="table-header-cell"
+                  align="left"
+                  style={{ minWidth: "150px" }}
+                >
+                  Tên công việc
+                </TableCell>
+                <TableCell
+                  className="table-header-cell"
+                  align="left"
+                  style={{ minWidth: "150px" }}
+                >
+                  Người nhận việc
+                </TableCell>
+                <TableCell className="table-header-cell" align="center">
+                  Bình luận
+                </TableCell>
+                <TableCell className="table-header-cell" align="center">
+                  Ngày bắt đầu
+                </TableCell>
+                <TableCell className="table-header-cell" align="center">
+                  Ngày kết thúc
+                </TableCell>
+                <TableCell className="table-header-cell" align="center">
+                  Trạng thái
+                </TableCell>
+                <TableCell
+                  className="table-header-cell"
+                  align="left"
+                  style={{ minWidth: "250px" }}
+                >
+                  Link
+                </TableCell>
+                <TableCell className="table-header-cell" align="left">
+                  Actions
+                </TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -222,9 +248,14 @@ const ListHome = () => {
                   <TableCell className="table-cell">
                     <input type="checkbox" className="checkbox-input" />
                   </TableCell>
-                  <TableCell className="table-cell" align="center">{index + 1}</TableCell>
                   <TableCell className="table-cell" align="center">
-                    <InfoOutlinedIcon className="action-icon" onClick={() => onOpenDetail(task._id)} />
+                    {index + 1}
+                  </TableCell>
+                  <TableCell className="table-cell" align="center">
+                    <InfoOutlinedIcon
+                      className="action-icon"
+                      onClick={() => onOpenDetail(task._id)}
+                    />
                     {idOpenDetail === task._id && (
                       <KabanDetail
                         open={openDetail}
@@ -272,8 +303,14 @@ const ListHome = () => {
                             open={Boolean(anchorElMemberTask)}
                             anchorEl={anchorElMemberTask}
                             onClose={handleCloseMemberTask}
-                            anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
-                            transformOrigin={{ vertical: "top", horizontal: "left" }}
+                            anchorOrigin={{
+                              vertical: "bottom",
+                              horizontal: "left",
+                            }}
+                            transformOrigin={{
+                              vertical: "top",
+                              horizontal: "left",
+                            }}
                             sx={{ mt: 1 }}
                           >
                             <div className="all-member-in-task">
@@ -297,21 +334,33 @@ const ListHome = () => {
                         open={Boolean(anchorElMemberAdd)}
                         anchorEl={anchorElMemberAdd}
                         onClose={handleCloseMemberAdd}
-                        anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
-                        transformOrigin={{ vertical: "top", horizontal: "left" }}
+                        anchorOrigin={{
+                          vertical: "bottom",
+                          horizontal: "left",
+                        }}
+                        transformOrigin={{
+                          vertical: "top",
+                          horizontal: "left",
+                        }}
                         sx={{ mt: 1 }}
                       >
                         <MemberListContentAdd
                           onClose={handleCloseMemberAdd}
                           idProject={idProject}
                           task={task}
-                          fetchApi={() => dispatch(getListTaskByProjectIdRedux(idProject))}
+                          fetchApi={() =>
+                            dispatch(getListTaskByProjectIdRedux(idProject))
+                          }
                           toast={toast}
                         />
                       </Popover>
                     )}
                   </TableCell>
-                  <TableCell className="table-cell comment-cell" align="center" style={{ minWidth: "100px" }}>
+                  <TableCell
+                    className="table-cell comment-cell"
+                    align="center"
+                    style={{ minWidth: "100px" }}
+                  >
                     <img
                       src="image/Chat_.png"
                       alt="comments"
@@ -339,7 +388,9 @@ const ListHome = () => {
                   <TableCell className="table-cell status-cell">
                     <select
                       value={task.status}
-                      onChange={(e) => handleStatusChange(task._id, e.target.value)}
+                      onChange={(e) =>
+                        handleStatusChange(task._id, e.target.value)
+                      }
                       className="status-select"
                     >
                       <option value={0}>Công việc mới</option>
@@ -370,13 +421,18 @@ const ListHome = () => {
                         </a>
                         <LinkIcon
                           className="action-icon"
-                          onClick={() => handleEditClickLink(task._id, task.link)}
+                          onClick={() =>
+                            handleEditClickLink(task._id, task.link)
+                          }
                         />
                       </div>
                     )}
                   </TableCell>
                   <TableCell className="table-cell">
-                    <Button className="edit-button" onClick={() => editModalOpen(task._id)}>
+                    <Button
+                      className="edit-button"
+                      onClick={() => editModalOpen(task._id)}
+                    >
                       <EditNoteIcon className="action-icon" />
                     </Button>
                     {idEditModal === task._id && (
@@ -394,13 +450,13 @@ const ListHome = () => {
           </Table>
         </TableContainer>
         <TablePagination
-      component="div"
-      count={100}
-      page={page}
-      onPageChange={handleChangePage}
-      rowsPerPage={rowsPerPage}
-      onRowsPerPageChange={handleChangeRowsPerPage}
-    />
+          component="div"
+          count={100}
+          page={page}
+          onPageChange={handleChangePage}
+          rowsPerPage={rowsPerPage}
+          onRowsPerPageChange={handleChangeRowsPerPage}
+        />
       </Paper>
     </div>
   );

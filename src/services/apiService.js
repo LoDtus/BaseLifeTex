@@ -85,7 +85,6 @@ axiosInstance.interceptors.request.use(
             refreshSubscribers.forEach((callback) => callback(accessToken));
             refreshSubscribers = [];
           } catch (error) {
-            console.error("Lỗi refresh token:", error);
             Cookies.remove("accessToken");
             Cookies.remove("refreshToken");
             window.location.href = "/";
@@ -102,7 +101,6 @@ axiosInstance.interceptors.request.use(
       }
       config.headers["Authorization"] = `Bearer ${accessToken}`;
     } catch (error) {
-      console.error("Lỗi decode token:", error);
       return Promise.reject(error);
     }
 

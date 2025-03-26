@@ -16,7 +16,6 @@ import { DemoContainer } from "@mui/x-date-pickers/internals/demo";
 import { useDispatch } from "react-redux";
 import "./FilterDialog.scss";
 import { filterTaskInProject } from "../../redux/taskSlice";
-import { getlistUser } from "../../apis/use";
 import { getlistUserInProjects } from "../../services/taskService";
 
 export default function FilterDialog({ idProject }) {
@@ -36,19 +35,16 @@ export default function FilterDialog({ idProject }) {
     }
   };
 
-  console.log(listMember);
-
   useEffect(() => {
     getMemberByProject();
   }, [idProject]);
 
-  const handleChange = (field, value) => {
+  function handleChange(field, value) {
     setFilters((prev) => ({ ...prev, [field]: value }));
-  };
+  }
   const dispatch = useDispatch();
 
   const onfilterTask = () => {
-    // console.log(filters);
     dispatch(filterTaskInProject({ projectId: idProject, data: filters }));
   };
 

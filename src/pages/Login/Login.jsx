@@ -13,10 +13,10 @@ import LockIcon from "@mui/icons-material/Lock";
 import HeaderLogin from "../../components/headerLogin/HeaderLogin";
 import FooterLogin from "../../components/footerLogin/FooterLogin";
 import { validateLogin } from "./utilsValidateLogin";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { loginUser } from "../../services/authService";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import { Container } from "react-bootstrap";
 import "../../styles/login.scss";
 
