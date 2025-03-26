@@ -144,7 +144,7 @@ const KabanDetail = ({ task, handleClose }) => {
           assignerId: data?.assignerId?._id,
           [type]: value,
         });
-        if (res) {
+        if (res && res.success) {
           toast.error(res.message);
           setData({});
           setErrorData(errorsDefault);
@@ -181,7 +181,7 @@ const KabanDetail = ({ task, handleClose }) => {
 
   const validateField = (type, value) => {
     switch (type) {
-      case "assigneeId":
+      case "assigneeId": {
         if (!value || value.length === 0) {
           toast.error(errorMessages.assigneeId);
           setErrorData((prevErrorData) => ({
@@ -191,8 +191,9 @@ const KabanDetail = ({ task, handleClose }) => {
           return false;
         }
         break;
+      }
       case "startDate":
-      case "endDate":
+      case "endDate": {
         const startDate = cvDate(data.startDate);
         const endDate = cvDate(data.endDate);
 
@@ -232,13 +233,15 @@ const KabanDetail = ({ task, handleClose }) => {
           return false;
         }
         break;
-      default:
+      }
+      default: {
         if (!value) {
           toast.error(errorMessages[type]);
           setErrorData((prevErrorData) => ({ ...prevErrorData, [type]: true }));
           return false;
         }
         break;
+      }
     }
     return true;
   };

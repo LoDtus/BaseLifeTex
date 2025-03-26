@@ -28,14 +28,13 @@ export default function FilterDialog({ idProject }) {
 
   const [listMember, setListMember] = useState([]);
 
-  const getMemberByProject = async () => {
-    const response = await getlistUserInProjects(idProject);
-    if (response.data.success === true) {
-      setListMember(response.data.data.members);
-    }
-  };
-
   useEffect(() => {
+    const getMemberByProject = async () => {
+      const response = await getlistUserInProjects(idProject);
+      if (response.data.success === true) {
+        setListMember(response.data.data.members);
+      }
+    };
     getMemberByProject();
   }, [idProject]);
 

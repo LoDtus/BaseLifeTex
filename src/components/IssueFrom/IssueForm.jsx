@@ -90,7 +90,7 @@ const IssueForm = ({ isOpen, onClose, status }) => {
       setSelectedPerson(data.members);
     };
     fetchData();
-  }, [searchParams]);
+  }, [searchParams, idProject]);
 
   return (
     <Dialog
