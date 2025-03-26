@@ -26,11 +26,16 @@ import EditForm from "../../components/editForm/EditForm";
 import "./ListHome.scss";
 import TablePagination from "@mui/material/TablePagination";
 
-const ListHome = () => {
+export default function ListHome({ result }) {
   const [searchParams] = useSearchParams();
   const idProject = searchParams.get("idProject");
-  const { listTask } = useSelector((state) => state.task);
+  const [listTask, setListTask] = useState(useSelector((state) => state.task));
   const dispatch = useDispatch();
+
+  useEffect(() => {
+    if (!result || result.length === 0) return;
+    setListTask(result);
+  }, [result]);
 
   useEffect(() => {
     dispatch(getListTaskByProjectIdRedux(idProject));
@@ -239,7 +244,7 @@ const ListHome = () => {
               </TableRow>
             </TableHead>
             <TableBody>
-              {listTask?.map((task, index) => (
+              {/* {listTask?.map((task, index) => (
                 <TableRow
                   key={task._id}
                   className="table-row"
@@ -445,7 +450,7 @@ const ListHome = () => {
                     )}
                   </TableCell>
                 </TableRow>
-              ))}
+              ))} */}
             </TableBody>
           </Table>
         </TableContainer>
@@ -481,5 +486,3 @@ const styleSheet = document.createElement("style");
 styleSheet.type = "text/css";
 styleSheet.innerText = styles;
 document.head.appendChild(styleSheet);
-
-export default ListHome;

@@ -64,9 +64,10 @@ function getStatusTitle(status) {
   return titles[status] || "Công việc khác";
 }
 
-function KanbanBoard() {
+function KanbanBoard({ result }) {
   const dispatch = useDispatch();
-  const listTask = useSelector((state) => state.task.listTask);
+  const [listTask, setListTask] = useState(useSelector((state) => state.task.listTask));
+  
   const [columns, setColumns] = useState({});
   const [searchParams] = useSearchParams();
   const [taskToUpdate, setTaskToUpdate] = useState(null);
@@ -75,6 +76,11 @@ function KanbanBoard() {
   const fetchData = async () => {
     dispatch(getListTaskByProjectIdRedux(idProject));
   };
+
+  useEffect(() => {
+    if (!result || result.length === 0) return;
+    setListTask(result);
+  }, [result]);
 
   useEffect(() => {
     if (listTask && listTask.length > 0) {
@@ -181,7 +187,11 @@ function KanbanBoard() {
       <DndContext collisionDetection={closestCorners} onDragEnd={onDragEnd}>
         <div className="kanban-container">
           {Object.entries(columns).map(([key, column]) => (
-            <KanbanColumn key={key} columnId={key} column={column} />
+            <KanbanColumn
+              key={key}
+              columnId={key}
+              column={column}
+            />
           ))}
         </div>
       </DndContext>
