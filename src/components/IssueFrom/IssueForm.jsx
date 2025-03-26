@@ -44,13 +44,13 @@ const IssueForm = ({ isOpen, onClose, status }) => {
   const [loading, setLoading] = useState(false);
   const idProject = searchParams.get("idProject");
   const [image, setImage] = useState();
+  const dispatch = useDispatch();
 
   const user = useSelector((state) => state.auth.login.currentUser);
   const token = user.accessToken;
   const {
     register,
     handleSubmit,
-    watch,
     reset,
     formState: { errors },
     control,
@@ -77,9 +77,8 @@ const IssueForm = ({ isOpen, onClose, status }) => {
         toast.error("Tạo nhiệm vụ thất bại");
       }
     } catch (error) {
-      console.log("error", error);
-
       toast.error("Tạo nhiệm vụ thất bại 123", error);
+      throw error;
     } finally {
       reset();
       setLoading(false); // Kết thúc loading
@@ -87,12 +86,8 @@ const IssueForm = ({ isOpen, onClose, status }) => {
   };
   useEffect(() => {
     const fetchData = async () => {
-      try {
-        const data = await getlistUser(idProject);
-        setSelectedPerson(data.members);
-      } catch (error) {
-        console.error("Error fetching user list:", error);
-      }
+      const data = await getlistUser(idProject);
+      setSelectedPerson(data.members);
     };
     fetchData();
   }, [searchParams]);

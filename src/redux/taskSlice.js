@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { filterTask, updateTaskStatus, getTasksByProject } from "../services/taskService";
+import { filterTask, getTasksByProject } from "../services/taskService";
 
 export const getListTaskByProjectIdRedux = createAsyncThunk(
   "task/list",
@@ -16,12 +16,8 @@ export const getListTaskByProjectIdRedux = createAsyncThunk(
 export const filterTaskInProject = createAsyncThunk(
   "task/filterTaskInProject",
   async ({ projectId, data }) => {
-    try {
-      const response = await filterTask(projectId, data);
-      return response.data;
-    } catch (error) {
-      console.log(error);
-    }
+    const response = await filterTask(projectId, data);
+    return response.data;
   }
 );
 const taskSlice = createSlice({

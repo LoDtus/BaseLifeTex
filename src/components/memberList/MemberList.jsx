@@ -3,8 +3,6 @@ import { Avatar, Box, IconButton, Typography } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 
 const MemberListContent = ({ onClose, members }) => {
-  console.log("Members trong MemberListContent:", members); // Kiểm tra dữ liệu truyền vào
-
   return (
     <Box
       sx={{
@@ -44,7 +42,9 @@ const MemberListContent = ({ onClose, members }) => {
             }}
           >
             <Avatar src={member.avatar} />
-            <Typography sx={{ ml: 1 }}>{member.userName || "Không có tên"}</Typography>
+            <Typography sx={{ ml: 1 }}>
+              {member.userName || "Không có tên"}
+            </Typography>
           </Box>
         ))
       ) : (

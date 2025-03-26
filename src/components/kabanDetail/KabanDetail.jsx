@@ -96,15 +96,12 @@ const KabanDetail = ({ task, handleClose }) => {
   };
 
   const getListComment = async (id) => {
-    if(user) {
+    if (user) {
       let response = await getListCommentByTask(id);
       if (response && response.success === true) {
-          setComments(response.data);
-          console.log(response.data);
-          
-      }
-      else {
-        toast.error(response.message)
+        setComments(response.data);
+      } else {
+        toast.error(response.message);
       }
     }
   };
@@ -112,11 +109,10 @@ const KabanDetail = ({ task, handleClose }) => {
   const getDetailtask = async (id) => {
     let res = await getTaskDetailById(id);
     if (res && res.data && res.success === true) {
-      setData({...res.data});
-      console.log(res.data)
+      setData({ ...res.data });
       setSelectedPerson(task.assigneeId);
     } else {
-     toast.error(res.message);
+      toast.error(res.message);
     }
   };
 
@@ -148,7 +144,6 @@ const KabanDetail = ({ task, handleClose }) => {
           assignerId: data?.assignerId?._id,
           [type]: value,
         });
-        console.log("Update",res)
         if (res) {
           toast.error(res.message);
           setData({});
@@ -272,7 +267,7 @@ const KabanDetail = ({ task, handleClose }) => {
     }
   };
 
-  const handleSelectAssigneeIdBlur = async (type,value, e) => {
+  const handleSelectAssigneeIdBlur = async (type, value, e) => {
     if (user) {
       let check = validateField("assigneeId", value);
       if (check === true) {
@@ -315,7 +310,6 @@ const KabanDetail = ({ task, handleClose }) => {
           taskId: data._id,
           content: comment,
         });
-        console.log("Check cmt",res)
         if (res) {
           toast.success(res.message);
           setOnlyRead(readOnlyDefault);
@@ -477,7 +471,10 @@ const KabanDetail = ({ task, handleClose }) => {
                     comments.map((cmt) => (
                       <div key={cmt._id} className="comment">
                         <img
-                          src={cmt.userId.avatar || "https://w7.pngwing.com/pngs/922/214/png-transparent-computer-icons-avatar-businessperson-interior-design-services-corporae-building-company-heroes-thumbnail.png"}
+                          src={
+                            cmt.userId.avatar ||
+                            "https://w7.pngwing.com/pngs/922/214/png-transparent-computer-icons-avatar-businessperson-interior-design-services-corporae-building-company-heroes-thumbnail.png"
+                          }
                           alt="user"
                           className="avatar"
                         />

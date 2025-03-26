@@ -25,7 +25,6 @@ function KanbanTaskCard({ task }) {
   const handleClick = (event) => {
     event.preventDefault();
     event.stopPropagation();
-    console.log("Arrow clicked");
     setAnchorEl((prev) => (prev ? null : event.currentTarget));
   };
 
@@ -34,7 +33,6 @@ function KanbanTaskCard({ task }) {
       event.stopPropagation();
     }
     setAnchorEl(null);
-    console.log("Popover closed via close button");
   };
 
   const handleLabelClick = (event) => {
