@@ -20,7 +20,7 @@ import CloseIcon from "@mui/icons-material/Close";
 import { useForm, Controller } from "react-hook-form";
 import UploadImageButton from "../UploadDownloadImage/UploadDownloadImage";
 import { getlistUser } from "../../services/userService";
-import { postIssueData } from "../../apis/Issue";
+import { postIssueData } from "../../services/issueService";
 import { useSearchParams } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { toast } from "react-toastify";
@@ -47,7 +47,7 @@ const IssueForm = ({ isOpen, onClose, status }) => {
   const dispatch = useDispatch();
 
   const user = useSelector((state) => state.auth.login.currentUser);
-  const token = user.accessToken;
+  console.log(user);
   const {
     register,
     handleSubmit,
@@ -59,16 +59,13 @@ const IssueForm = ({ isOpen, onClose, status }) => {
   const onSubmit = async (data) => {
     setLoading(true); // Bắt đầu loading
     try {
-      const issueData = await postIssueData(
-        {
-          ...data,
-          image,
-          status,
-          idProject,
-          assignerId: user.data._id,
-        },
-        token
-      );
+      const issueData = await postIssueData({
+        ...data,
+        image,
+        status,
+        idProject,
+        assignerId: user.data.user._id,
+      });
       if (issueData) {
         toast.success("Tạo nhiệm vụ thành công");
         dispatch(getListTaskByProjectIdRedux(idProject));
@@ -77,7 +74,7 @@ const IssueForm = ({ isOpen, onClose, status }) => {
         toast.error("Tạo nhiệm vụ thất bại");
       }
     } catch (error) {
-      toast.error("Tạo nhiệm vụ thất bại 123", error);
+      toast.error("Tạo nhiệm vụ thất bại", error);
       throw error;
     } finally {
       reset();
@@ -87,7 +84,8 @@ const IssueForm = ({ isOpen, onClose, status }) => {
   useEffect(() => {
     const fetchData = async () => {
       const data = await getlistUser(idProject);
-      setSelectedPerson(data.members);
+
+      setSelectedPerson(data.data);
     };
     fetchData();
   }, [searchParams, idProject]);

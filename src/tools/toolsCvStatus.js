@@ -13,14 +13,14 @@ export const toolCvStatus = (staus) => {
 export const toolTaskStatus = (task) => {
   switch (task) {
     case "Công việc mới":
-      return "pending";
+      return 1;
     case "Đang thực hiện":
-      return "inProgress";
+      return 2;
     case "Hoàn thành":
-      return "completed";
+      return 4;
     case "Kết thúc":
-      return "done";
+      return 7;
     default:
-      return "pending";
+      return 1;
   }
 };
