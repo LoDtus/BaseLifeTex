@@ -28,6 +28,7 @@ import {
 } from "../../services/commentService";
 import { getListTaskByProjectIdRedux } from "../../redux/taskSlice";
 import { useDispatch, useSelector } from "react-redux";
+import CloseIcon from '@mui/icons-material/Close';
 
 const ITEM_HEIGHT = 48;
 const ITEM_PADDING_TOP = 8;
@@ -78,7 +79,7 @@ const KabanDetail = ({ task, handleClose }) => {
     comment: "Bình luận không được để trống!",
   };
 
-  const [data, setData] = useState();
+  const [data, setData] = useState({});
   const [onlyRead, setOnlyRead] = useState(readOnlyDefault);
   const [comment, setComment] = useState("");
   const [comments, setComments] = useState();
@@ -367,7 +368,7 @@ const KabanDetail = ({ task, handleClose }) => {
               <EventAvailableIcon /> kan-1
             </p>
             <button className="close-btn" onClick={handleClose}>
-              ✖
+              <CloseIcon/>
             </button>
           </div>
           <div className="content">
@@ -381,7 +382,7 @@ const KabanDetail = ({ task, handleClose }) => {
                   maxRows={1}
                   error={errorData.title}
                   placeholder="Nhập vấn đề..."
-                  value={data?.title}
+                  value={data?.title ?? ""}
                   onFocus={() => handleFocus("title")}
                   onBlur={(e) => handleBlurChange("title", data?.title, e)}
                   onChange={(e) => handleChangeInput("title", e.target.value)}
@@ -399,7 +400,7 @@ const KabanDetail = ({ task, handleClose }) => {
                   maxRows={10}
                   sx={{ marginTop: "8px" }}
                   placeholder="Nhập nội dung..."
-                  value={data?.description}
+                  value={data?.description ?? ""}
                   error={errorData.description}
                   onFocus={() => handleFocus("description")}
                   onBlur={(e) =>
@@ -611,7 +612,7 @@ const KabanDetail = ({ task, handleClose }) => {
                     maxRows={1}
                     error={errorData.link}
                     placeholder="Nhập link..."
-                    value={data?.link}
+                    value={data?.link ?? ""}
                     onFocus={() => handleFocus("link")}
                     onBlur={(e) => handleBlurChange("link", data?.link, e)}
                     onChange={(e) => handleChangeInput("link", e.target.value)}
@@ -623,7 +624,7 @@ const KabanDetail = ({ task, handleClose }) => {
               </div>
               <div className="kaban-description image">
                 <p>Hình ảnh:</p>
-                <p className="kaban-descrition-image">
+                <div className="kaban-descrition-image">
                   <Zoom>
                     <img
                       src={
@@ -633,7 +634,7 @@ const KabanDetail = ({ task, handleClose }) => {
                       alt="image"
                     />
                   </Zoom>
-                </p>
+                </div>
               </div>
               <div className="kaban-description">
                 <p>Trạng thái:</p>
