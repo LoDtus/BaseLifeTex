@@ -39,7 +39,9 @@
 
 .kanban-column-scroll {
   overflow-y: auto;
-  margin-bottom: 150px;
+  flex-grow: 1; /* Đảm bảo phần cuộn chiếm toàn bộ không gian còn lại */
+  margin-bottom: 60px;
+  overscroll-behavior: contain; /* Ngăn cuộn tự động */
   scrollbar-width: none;
   -ms-overflow-style: none;
   &::-webkit-scrollbar {
@@ -67,15 +69,9 @@
   overflow: hidden;
 
   &.dragging {
-    opacity: 0.5; /* Task gốc mờ đi khi kéo */
-  }
-
-  &.dragging-custom {
-    opacity: 0.8; /* Phần tử ảo hơi mờ */
+    opacity: 0.5; /* Task mờ đi khi kéo */
     transform: scale(1.05); /* Phóng to nhẹ */
     box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2); /* Tăng bóng */
-    background: #eef4fc; /* Giữ màu nền giống task gốc */
-    border-radius: 8px;
   }
 
   p {
@@ -105,7 +101,6 @@
       cursor: pointer;
     }
   }
-
   .card-footer {
     display: flex;
     justify-content: space-between;

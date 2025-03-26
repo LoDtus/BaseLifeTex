@@ -1,14 +1,36 @@
-import { useState } from "react";
+// src/pages/Home/Home.jsx
+import { useEffect, useState } from "react";
 import "./Home.scss";
-import { Link, useSearchParams } from "react-router-dom";
+import { useSearchParams } from "react-router-dom";
 import { Popover } from "@mui/material";
 import MemberListContent from "../../components/memberList/MemberList";
 import KanbanBoard from "../../components/Kanban/KanbanBoard";
+import ListHome from "../../components/List/ListHome";
+import { getProjectId } from "../../services/projectService";
 
 export default function Home() {
   const [anchorEl, setAnchorEl] = useState(null);
   const [searchParams] = useSearchParams();
   const idProject = searchParams.get("idProject");
+  const [viewMode, setViewMode] = useState("kanban");
+  const [nameProject, setNameProject] = useState("Phần mềm đánh giá"); // Giá trị mặc định
+
+  useEffect(() => {
+    if (idProject) {
+      const fetchProjectData = async () => {
+        try {
+          const response = await getProjectId(idProject); 
+          if (response.success) {
+            setNameProject(response.data.name);
+          }
+        } catch (error) {
+          console.error("Lỗi khi lấy thông tin dự án:", error);
+          setNameProject("Phần mềm đánh giá"); 
+        }
+      };
+      fetchProjectData(); 
+    }
+  }, [idProject]);
 
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
@@ -18,43 +40,44 @@ export default function Home() {
     setAnchorEl(null);
   };
 
+  const handleSwitchToKanban = () => {
+    setViewMode("kanban");
+  };
+
+  const handleSwitchToList = () => {
+    setViewMode("list");
+  };
+
   return (
     <div className="home-container">
       {/* Header Section */}
       <div className="header-section">
-        <div className="header-container flex items-center gap-4">
-          <div>
-            <p
-              style={{ fontSize: "13px", color: "#485F7E", fontWeight: "600" }}
-              className="text-sm"
-            >
-              Dự án / Phần mềm đánh giá
-            </p>
-            <p
-              style={{
-                color: "#000",
-                fontWeight: "600",
-                fontSize: "20px",
-                marginTop: "4px",
-              }}
-            >
-              KAN board
-            </p>
+        <div className="header-container">
+          <div className="project-info">
+            <p className="project-path">Dự án / {nameProject}</p>
           </div>
-          <div className="flex items-center gap-2">
-            <img src="image/Column.png" alt="LIFETEK" className="logo-img" />
-            <Link to={`/ListHome?idProject=${idProject}`}>
-              <img src="image/List.png" alt="LIFETEK" className="logo-img" />
-            </Link>
+          <div className="view-toggle">
+            <img
+              src="image/Column.png"
+              alt="Kanban View"
+              className={`view-icon ${viewMode === "kanban" ? "active" : ""}`}
+              onClick={handleSwitchToKanban}
+            />
+            <img
+              src="image/List.png"
+              alt="List View"
+              className={`view-icon ${viewMode === "list" ? "active" : ""}`}
+              onClick={handleSwitchToList}
+            />
           </div>
         </div>
       </div>
 
-      {/* Tìm kiếm & Avatars */}
-      <div className="toolbar-section flex items-center gap-4">
-        <div className="search-container relative flex items-center">
+      {/* Toolbar Section */}
+      <div className="toolbar-section">
+        <div className="search-container">
           <svg
-            className="search-icon absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-500"
+            className="search-icon"
             xmlns="http://www.w3.org/2000/svg"
             fill="none"
             viewBox="0 0 24 24"
@@ -67,12 +90,8 @@ export default function Home() {
               d="M21 21l-4.35-4.35m2.6-5.15a7 7 0 11-14 0 7 7 0 0114 0z"
             />
           </svg>
-          <input
-            type="text"
-            placeholder="Tìm kiếm..."
-            className="pl-10 pr-4 py-2 border rounded-md w-64"
-          />
-          <div className="flex -space-x-2 overflow-hidden">
+          <input type="text" placeholder="Tìm kiếm..." className="search-input" />
+          <div className="avatar-group">
             {[
               "image/image_4.png",
               "image/image_5.png",
@@ -86,7 +105,7 @@ export default function Home() {
                 key={index}
                 src={avatar}
                 alt={`Avatar ${index + 1}`}
-                className="w-8 h-8 rounded-full border border-white shadow"
+                className="avatar"
               />
             ))}
           </div>
@@ -105,15 +124,15 @@ export default function Home() {
 
         <div className="task-header">
           <div className="task-icons">
-            <img src="image/Trash.png" alt="Delete" />
-            <img src="image/Filter.png" alt="Filter" />
+            <img src="image/Trash.png" alt="Delete" className="tool-icon" />
+            <img src="image/Filter.png" alt="Filter" className="tool-icon" />
           </div>
         </div>
       </div>
 
-      {/* Bảng Kanban */}
+      {/* Content Section */}
       <div className="content-section">
-        <KanbanBoard />
+        {viewMode === "kanban" ? <KanbanBoard /> : <ListHome />}
       </div>
     </div>
   );

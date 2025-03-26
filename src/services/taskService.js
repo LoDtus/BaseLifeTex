@@ -22,11 +22,9 @@ const getTasksByProject = async (projectId) => {
 
 const updateTaskStatus = async (taskId, status) => {
   try {
-    const response = await axiosInstance.put(`/tasks/${taskId}/status`, {
-      status: status,
-    });
-    console.log(status);
-    return;
+    const response = await axiosInstance.put(`/tasks/${taskId}/status`, {status});
+    console.log("Status", status);
+    return response.data;
   } catch (error) {
     console.log("Cập nhật trạng thái công việc thất bại", error);
     throw error;
@@ -69,6 +67,7 @@ export const getlistUserInProjects = async (id) => {
     throw error;
   }
 };
+
 
 export {
   getTasks,

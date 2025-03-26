@@ -51,8 +51,9 @@
 
 .user-icon {
   margin-right: 8px;
-  font-size: 20px;
-  margin-bottom: 5px;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
 }
 
 .user-name {
@@ -60,4 +61,43 @@
   color: #333;
   margin: 5px;
   font-size: 14px;
+}
+.user-profile {
+  display: flex;
+  align-items: center;
+  gap: 15px; // Khoảng cách giữa các phần tử
+
+  .avatar-container {
+    display: flex;
+    align-items: center;
+    gap: 10px; // Khoảng cách giữa avatar và icon logout
+
+    .logout-container {
+      position: relative; // Để định vị logout-text so với icon
+      display: inline-flex;
+      align-items: center;
+
+      .logout-text {
+        display: none;
+        position: absolute;
+        right: 1px;
+        top: 42px;
+        transform: translateY(-50%);
+        background-color: #333;
+        color: white;
+        padding: 5px 10px;
+        border-radius: 4px;
+        font-size: 12px;
+        white-space: nowrap;
+        margin-left: 5px;
+        z-index: 10;
+      }
+
+      &:hover {
+        .logout-text {
+          display: block; // Hiển thị chữ khi hover
+        }
+      }
+    }
+  }
 }

@@ -1,16 +1,17 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { getLstProject } from "../services/projectService";
 
-export const getListProjectByUser = createAsyncThunk('/project/list',
-    async ({rejectWithValue}) => {
-        try {
-            const res = await getLstProject()
-            return res;
-        }
-        catch(error) {
-            return rejectWithValue(error.message)
-        }
-})
+export const getListProjectByUser = createAsyncThunk(
+  "/project/list",
+  async (payload, { rejectWithValue }) => {
+    try {
+      const res = await getLstProject();
+      return res.data;
+    } catch (error) {
+      return rejectWithValue(error.message);
+    }
+  }
+);
 
 const projectSlice = createSlice({
   name: "project",
@@ -27,7 +28,6 @@ const projectSlice = createSlice({
         state.error = null;
       })
       .addCase(getListProjectByUser.fulfilled, (state, action) => {
-        console.log("Check data", action.payload);
         state.isFetching = false;
         state.listProject = action.payload;
       })

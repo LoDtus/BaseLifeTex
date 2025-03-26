@@ -3,7 +3,8 @@ import axiosInstance from "./apiService";
 const getListCommentByTask = async (taskId) => {
   try {
     const response = await axiosInstance.get(
-      `/comments/${taskId}`,);
+      `/comments/${taskId}`
+    );
     return response.data;
   } catch (err) {
     throw err;
@@ -13,8 +14,9 @@ const getListCommentByTask = async (taskId) => {
 const addCommentTask = async (data) => {
   try {
     const response = await axiosInstance.post(
-      `/comments/${data.taskId}`,
-      data);
+      `/comments`,
+      data
+    );
     return response.data;
   } catch (err) {
     throw err;

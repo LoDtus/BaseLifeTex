@@ -118,52 +118,28 @@
 import axios from "axios";
 import { refreshToken } from "./authService";
 import store from "../redux/store";
-import {loginSuccess} from "../redux/authSlice"
+import { loginSuccess } from "../redux/authSlice";
 
 const API_URL = import.meta.env.VITE_BACKEND_URL;
-const instance = axios.create({
+let hasRedirected = false;
+let isRefreshing = false;
+let refreshSubscribers = [];
+
+const axiosInstance = axios.create({
   baseURL: API_URL,
 });
 
-instance.defaults.withCredentials = true;
-
-instance.interceptors.request.use(
-  function (config) {
-    const accessToken = store.getState().auth.login.currentUser?.data?.accessToken;
-    if (accessToken !== null || accessToken !== "") {
-      config.headers["Authorization"] = `Bearer ${accessToken}`;
-    }
-    return config;
-  },
-  function (error) {
-    return Promise.reject(error);
-  }
-);
-
-instance.interceptors.response.use(
-  function (response) {
-    return response.data;
-  },
-
-  async function (error) {
-    const originalRequest = error.config;
-    if (
-      error.response &&
-      (error.response.status === 401 || error.response.status === 403) &&
-      !originalRequest._retry
-    ) {
-      originalRequest._retry = true;
-      try {
-        const response = await refreshToken();
-        if (response && response.success === 200) {
-          console.log(response)
-          // store.dispatch();
-          // originalRequest.headers["Authorization"] = "Bearer " + response.data.access_token;
-        }
-        return instance(originalRequest);
-      } catch (refreshError) {
-        console.error("Refresh token failed", refreshError);
-        return Promise.reject(refreshError);
+// Xử lý lỗi từ server
+axiosInstance.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (axios.isAxiosError(error)) {
+      if (error.code === "ECONNABORTED" && error.message.includes("timeout")) {
+        toast.error("⏳ Kết nối quá thời gian! Vui lòng thử lại.");
+      }
+      if (!hasRedirected) {
+        hasRedirected = true;
+        // window.location.href = "/error-timeout"; (Có thể kích hoạt nếu cần)
       }
     }
     if (error.response) {
@@ -173,4 +149,61 @@ instance.interceptors.response.use(
   }
 );
 
-export default instance;
+axiosInstance.interceptors.request.use(
+  async (config) => {
+    let accessToken =
+      store.getState().auth.login.currentUser?.data?.accessToken;
+    if (!accessToken) return config;
+    try {
+      const decodedToken = jwtDecode(accessToken);
+      const currentTime = Date.now() / 1000;
+
+      if (decodedToken.exp < currentTime) {
+        if (!isRefreshing) {
+          isRefreshing = true;
+          try {
+            const refreshTokenValue = Cookies.get("refreshToken");
+            if (!refreshTokenValue)
+              throw new Error("Refresh token không tồn tại!");
+
+            const data = await refreshToken(refreshTokenValue);
+            accessToken = data.accessToken;
+            Cookies.set("accessToken", accessToken, { expires: 1, path: "/" });
+            store.dispatch(
+              loginSuccess({
+                ...store.getState().auth.login.currentUser,
+                data: { accessToken },
+              })
+            );
+
+            isRefreshing = false;
+            refreshSubscribers.forEach((callback) => callback(accessToken));
+            refreshSubscribers = [];
+          } catch (error) {
+            console.error("Lỗi refresh token:", error);
+            Cookies.remove("accessToken");
+            Cookies.remove("refreshToken");
+            window.location.href = "/";
+            isRefreshing = false;
+            return Promise.reject(error);
+          }
+        }
+        return new Promise((resolve) => {
+          refreshSubscribers.push((newToken) => {
+            config.headers["Authorization"] = `Bearer ${newToken}`;
+            resolve(config);
+          });
+        });
+      }
+      config.headers["Authorization"] = `Bearer ${accessToken}`;
+    } catch (error) {
+      console.error("Lỗi decode token:", error);
+      return Promise.reject(error);
+    }
+
+    return config;
+  },
+  (error) => Promise.reject(error)
+);
+
+export default axiosInstance;

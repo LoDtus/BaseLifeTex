@@ -1,22 +1,24 @@
 import { closestCorners, DndContext } from "@dnd-kit/core";
 import React, { useEffect, useState } from "react";
 import KanbanColumn from "./KanbanColumn";
+import KanbanTaskCard from "./KanbanTaskCard";
 import { getTasksByProject, updateTaskStatus } from "../../services/taskService";
 import { useSearchParams } from "react-router-dom";
 import "./KanbaBoard.scss";
 import { getListTaskByProjectIdRedux } from "../../redux/taskSlice";
-import { useDispatch, useSelector} from "react-redux"; // Thêm import useDispatch
+import { useDispatch, useSelector } from "react-redux";
 
+// Hàm ánh xạ dữ liệu từ server sang các cột Kanban
 function transformTasksData(tasks) {
   return tasks.reduce((acc, task) => {
     const statusMap = {
-      pending: "pending",
-      inProgress: "inProgress",
-      completed: "completed",
-      done: "done",
+      0: "PREPARE", // Công việc mới
+      1: "IN_PROGRESS", // Đang thực hiện
+      2: "FINISH", // Hoàn thành
+      3: "NOT_DO", // Không làm
     };
 
-    const columnKey = statusMap[task.status] || "pending";
+    const columnKey = statusMap[task.status] || "PREPARE";
 
     if (!acc[columnKey]) {
       acc[columnKey] = {
@@ -38,19 +40,20 @@ function transformTasksData(tasks) {
 
     return acc;
   }, {
-    pending: { title: "Công việc mới", tasks: [] },
-    inProgress: { title: "Đang thực hiện", tasks: [] },
-    completed: { title: "Hoàn thành", tasks: [] },
-    done: { title: "Kết thúc", tasks: [] },
+    PREPARE: { title: "Công việc mới", tasks: [] },
+    IN_PROGRESS: { title: "Đang thực hiện", tasks: [] },
+    FINISH: { title: "Hoàn thành", tasks: [] },
+    NOT_DO: { title: "Khóa công việc", tasks: [] },
   });
 }
 
+// Hàm lấy tiêu đề cho từng trạng thái
 function getStatusTitle(status) {
   const titles = {
-    pending: "Công việc cần làm",
-    inProgress: "Công việc đang làm",
-    completed: "Công việc đã hoàn thành",
-    done: "Công việc đã xong",
+    PREPARE: "Công việc mới",
+    IN_PROGRESS: "Đang thực hiện",
+    FINISH: "Hoàn thành",
+    NOT_DO: "Khóa công việc",
   };
   return titles[status] || "Công việc khác";
 }
@@ -65,12 +68,7 @@ function KanbanBoard() {
 
   const fetchData = async () => {
     try {
-      // const data = await getTasksByProject(idProject);
-      // dispatch(getListTaskByProjectIdRedux(idProject))
-      // const formattedData = transformTasksData(data.data || data);
-      // setColumns(formattedData);
-      dispatch(getListTaskByProjectIdRedux(idProject))
-
+      dispatch(getListTaskByProjectIdRedux(idProject));
     } catch (error) {
       console.error("Lấy danh sách công việc thất bại:", error);
     }
@@ -81,36 +79,67 @@ function KanbanBoard() {
       const formattedData = transformTasksData(listTask);
       setColumns(formattedData);
     }
-  },[listTask])
+  }, [listTask]);
 
   useEffect(() => {
     if (idProject) {
       fetchData();
     }
-  }, [idProject,dispatch]);
+  }, [idProject, dispatch]);
 
   const onDragEnd = (event) => {
     const { active, over } = event;
 
     if (!over) return;
 
+    // Tìm cột nguồn và cột đích
     const sourceColumnKey = Object.keys(columns).find((key) =>
       columns[key].tasks.find((task) => task.id === active.id)
     );
+    const destinationColumnKey = Object.keys(columns).find((key) =>
+      columns[key].tasks.find((task) => task.id === over.id)
+    ) || over.id; // Nếu over.id là ID của cột
 
     if (!sourceColumnKey) return;
 
-    const destinationColumnKey = over.id;
+    // Nếu kéo thả trong cùng một cột
+    if (sourceColumnKey === destinationColumnKey) {
+      const sourceColumn = columns[sourceColumnKey];
+      const oldIndex = sourceColumn.tasks.findIndex((task) => task.id === active.id);
+      const newIndex = sourceColumn.tasks.findIndex((task) => task.id === over.id);
 
-    if (sourceColumnKey === destinationColumnKey) return;
+      if (oldIndex === newIndex) return;
 
+      // Sắp xếp lại task trong cùng cột
+      const newTasks = [...sourceColumn.tasks];
+      const [movedTask] = newTasks.splice(oldIndex, 1);
+      newTasks.splice(newIndex, 0, movedTask);
+
+      setColumns((prev) => ({
+        ...prev,
+        [sourceColumnKey]: {
+          ...sourceColumn,
+          tasks: newTasks,
+        },
+      }));
+      return;
+    }
+
+    // Nếu kéo thả giữa các cột
     const taskToMove = columns[sourceColumnKey].tasks.find(
       (task) => task.id === active.id
     );
 
     if (!taskToMove) return;
 
-    taskToMove.status = destinationColumnKey;
+    const statusMapReverse = {
+      PREPARE: 0,
+      IN_PROGRESS: 1,
+      FINISH: 2,
+      NOT_DO: 3,
+    };
+
+    taskToMove.status = statusMapReverse[destinationColumnKey];
 
     setColumns((prev) => {
       const newColumns = { ...prev };
