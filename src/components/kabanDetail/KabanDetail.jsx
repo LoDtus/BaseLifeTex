@@ -78,7 +78,7 @@ const KabanDetail = ({ task, handleClose }) => {
     comment: "Bình luận không được để trống!",
   };
 
-  const [data, setData] = useState({});
+  const [data, setData] = useState();
   const [onlyRead, setOnlyRead] = useState(readOnlyDefault);
   const [comment, setComment] = useState("");
   const [comments, setComments] = useState();
@@ -112,7 +112,8 @@ const KabanDetail = ({ task, handleClose }) => {
   const getDetailtask = async (id) => {
     let res = await getTaskDetailById(id);
     if (res && res.data && res.success === true) {
-      setData({ ...res.data, assignerId: task.assignerId });
+      setData({...res.data});
+      console.log(res.data)
       setSelectedPerson(task.assigneeId);
     } else {
      toast.error(res.message);
@@ -641,7 +642,7 @@ const KabanDetail = ({ task, handleClose }) => {
                     <Select
                       size="small"
                       error={errorData.status}
-                      value={data?.status || ""}
+                      value={data?.status ?? ""}
                       onFocus={() => handleFocus("status")}
                       onBlur={(e) =>
                         handleBlurChange("status", data?.status, e)

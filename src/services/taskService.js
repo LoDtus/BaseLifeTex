@@ -35,7 +35,7 @@ const getTaskDetailById = async (id) => {
   try {
     const response = await axiosInstance.get(`/tasks/${id}`);
     console.log(response)
-    return response;
+    return response.data;
   } catch (error) {
     console.log(error);
   }
