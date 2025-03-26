@@ -36,6 +36,7 @@ function KanbanColumn({ columnId, column }) {
         >
           {column.tasks.map((task) => (
             <KanbanTaskCard key={task.id} task={task} />
+            
           ))}
         </SortableContext>
       </div>

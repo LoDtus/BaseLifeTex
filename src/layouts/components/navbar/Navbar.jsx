@@ -13,7 +13,7 @@ export default function Navbar() {
   const [loading, setLoading] = useState(true); // State for loading
   const navigate = useNavigate(); // Initialize navigate
   const dispatch = useDispatch();
-
+  const user = useSelector((state) => state.auth.login.currentUser);
   const fetchProjects = async () => {
     setLoading(true); // Start loading
     try {

@@ -7,7 +7,6 @@ const getListCommentByTask = async (taskId) => {
     );
     return response.data;
   } catch (err) {
-    console.log(err);
     throw err;
   }
 };
@@ -20,7 +19,6 @@ const addCommentTask = async (data) => {
     );
     return response.data;
   } catch (err) {
-    console.log(err);
     throw err;
   }
 };

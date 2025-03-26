@@ -26,6 +26,7 @@ import {
   getListCommentByTask,
   addCommentTask,
 } from "../../services/commentService";
+import { getListTaskByProjectIdRedux } from "../../redux/taskSlice";
 import { useDispatch, useSelector } from "react-redux";
 
 const ITEM_HEIGHT = 48;
@@ -39,7 +40,7 @@ const MenuProps = {
   },
 };
 
-const KabanDetail = ({ open, task, handleClose }) => {
+const KabanDetail = ({ task, handleClose }) => {
   const { control } = useForm();
 
   const errorsDefault = {
@@ -77,7 +78,7 @@ const KabanDetail = ({ open, task, handleClose }) => {
     comment: "Bình luận không được để trống!",
   };
 
-  const [data, setData] = useState({});
+  const [data, setData] = useState();
   const [onlyRead, setOnlyRead] = useState(readOnlyDefault);
   const [comment, setComment] = useState("");
   const [comments, setComments] = useState();
@@ -106,16 +107,16 @@ const KabanDetail = ({ open, task, handleClose }) => {
         toast.error(response.message)
       }
     }
-  }
+  };
 
   const getDetailtask = async (id) => {
     let res = await getTaskDetailById(id);
-    if (res && res.data) {
-      setData({ ...res.data, assignerId: task.assignerId });
+    if (res && res.data && res.success === true) {
+      setData({...res.data});
+      console.log(res.data)
       setSelectedPerson(task.assigneeId);
-    }
-    else {
-      toast.error(res.message)
+    } else {
+     toast.error(res.message);
     }
   };
 
@@ -147,19 +148,20 @@ const KabanDetail = ({ open, task, handleClose }) => {
           assignerId: data?.assignerId?._id,
           [type]: value,
         });
-        if (res.message === "Nhiệm vụ cập nhật thành công") {
-          toast.success(res.message);
-          setData({});
-          setErrorData(errorsDefault);
-          getDetailtask(task._id);
-          setOnlyRead(readOnlyDefault);
-          useDispatch(getListTaskByProjectIdRedux(task.projectId));
-        } else {
+        console.log("Update",res)
+        if (res) {
           toast.error(res.message);
           setData({});
           setErrorData(errorsDefault);
           getDetailtask(task._id);
           setOnlyRead(readOnlyDefault);
+        } else {
+          toast.success(res.message);
+          setData({});
+          setErrorData(errorsDefault);
+          getDetailtask(task._id);
+          setOnlyRead(readOnlyDefault);
+          dispatch(getListTaskByProjectIdRedux(task.projectId));
         }
       } else {
         setTimeout(() => {
@@ -170,7 +172,7 @@ const KabanDetail = ({ open, task, handleClose }) => {
         }, 3000);
       }
     } else {
-      e.preventDefault();
+      event.preventDefault();
     }
   };
 
@@ -270,7 +272,7 @@ const KabanDetail = ({ open, task, handleClose }) => {
     }
   };
 
-  const handleSelectAssigneeIdBlur = async (value, e) => {
+  const handleSelectAssigneeIdBlur = async (type,value, e) => {
     if (user) {
       let check = validateField("assigneeId", value);
       if (check === true) {
@@ -338,7 +340,7 @@ const KabanDetail = ({ open, task, handleClose }) => {
     } else {
       toast.warning("Đăng nhập để thực hiện yêu cầu này!");
     }
-    getListComment(task._id)
+    getListComment(task._id);
   };
 
   const handleKeyDown = () => {
@@ -640,7 +642,7 @@ const KabanDetail = ({ open, task, handleClose }) => {
                     <Select
                       size="small"
                       error={errorData.status}
-                      value={data?.status || ""}
+                      value={data?.status ?? ""}
                       onFocus={() => handleFocus("status")}
                       onBlur={(e) =>
                         handleBlurChange("status", data?.status, e)
