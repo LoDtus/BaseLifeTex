@@ -244,7 +244,7 @@ export default function ListHome({ result }) {
               </TableRow>
             </TableHead>
             <TableBody>
-              {/* {listTask?.map((task, index) => (
+              {listTask?.map((task, index) => (
                 <TableRow
                   key={task._id}
                   className="table-row"
@@ -450,7 +450,7 @@ export default function ListHome({ result }) {
                     )}
                   </TableCell>
                 </TableRow>
-              ))} */}
+              ))}
             </TableBody>
           </Table>
         </TableContainer>
