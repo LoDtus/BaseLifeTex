@@ -14,6 +14,7 @@ export default function Home() {
   const idProject = searchParams.get("idProject");
   const [viewMode, setViewMode] = useState("kanban");
   const [nameProject, setNameProject] = useState("Phần mềm đánh giá"); // Giá trị mặc định
+  const [anchorElFilter, setAnchorElFilter] = useState(null);
 
   useEffect(() => {
     if (idProject) {
@@ -48,6 +49,16 @@ export default function Home() {
     setViewMode("list");
   };
 
+  const handleClickFilter = (event) => {
+    setAnchorElFilter(event.currentTarget); // Mở Popover Filter
+  };
+
+  const handleCloseFilter = () => {
+    setAnchorElFilter(null); // Đóng Popover Filter
+  };
+
+  const openFilter = Boolean(anchorElFilter);
+  const filterId = openFilter ? "filter-popover" : undefined;
   return (
     <div className="home-container">
       {/* Header Section */}
@@ -129,7 +140,25 @@ export default function Home() {
         <div className="task-header">
           <div className="task-icons">
             <img src="image/Trash.png" alt="Delete" className="tool-icon" />
-            <img src="image/Filter.png" alt="Filter" className="tool-icon" />
+            <img
+              src="image/Filter.png"
+              alt="Filter"
+              className="tool-icon"
+              onClick={handleClickFilter}
+              aria-describedby={filterId}
+            />
+            <Popover
+              id={filterId}
+              open={openFilter}
+              anchorEl={anchorElFilter}
+              onClose={handleCloseFilter}
+              anchorOrigin={{
+                vertical: "bottom",
+                horizontal: "left",
+              }}
+            >
+              <FilterDialog idProject={idProject} />
+            </Popover>
           </div>
         </div>
       </div>
