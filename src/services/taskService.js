@@ -60,3 +60,8 @@ export const searchTasks = async(searchQuery) => {
   });
   return response.data;
 }
+
+export const getTaskByPagination = async (projectId,page,pageSize) => {
+  const response = await axiosInstance.get(`/tasks/project/${projectId}?page=${page}&limit=${pageSize}`);
+  return response.data;
+};

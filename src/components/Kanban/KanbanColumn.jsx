@@ -1,12 +1,20 @@
 
 import { useState } from "react";
 import { useDroppable } from "@dnd-kit/core";
-import { SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
+import {
+  SortableContext,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
 import React from "react";
 import KanbanTaskCard from "./KanbanTaskCard";
 import IssueForm from "../../components/IssueFrom/IssueForm";
 
-function KanbanColumn({ columnId, column }) {
+function KanbanColumn({
+  columnId,
+  column,
+  selectedTasks = [],
+  setSelectedTasks,
+}) {
   const { setNodeRef } = useDroppable({ id: columnId });
   const [open, setOpen] = useState(false);
 
@@ -28,7 +36,9 @@ function KanbanColumn({ columnId, column }) {
       <h3>
         {column.title}: {column.tasks.length}
       </h3>
-      <button className="add-task" onClick={handleClick}>➕ Thêm vấn đề</button>
+      <button className="add-task" onClick={handleClick}>
+        ➕ Thêm vấn đề
+      </button>
       <div className="kanban-column-scroll">
         <SortableContext
           id={columnId}
@@ -36,8 +46,12 @@ function KanbanColumn({ columnId, column }) {
           strategy={verticalListSortingStrategy}
         >
           {column.tasks.map((task) => (
-            <KanbanTaskCard key={task.id} task={task} />
-            
+            <KanbanTaskCard
+              key={task.id}
+              task={task}
+              selectedTasks={selectedTasks}
+              setSelectedTasks={setSelectedTasks}
+            />
           ))}
         </SortableContext>
       </div>

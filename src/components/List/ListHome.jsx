@@ -3,7 +3,7 @@ import { useState, useEffect, useRef } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { useSearchParams } from "react-router-dom";
 import { updateIssueData, updateIssueDataStatus } from "../../apis/Issue";
-import { getListTaskByProjectIdRedux } from "../../redux/taskSlice";
+import { getByIndexParanation, getListTaskByProjectIdRedux, changePage, changeRowPerPage } from "../../redux/taskSlice";
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
 import TableCell from "@mui/material/TableCell";
@@ -25,21 +25,44 @@ import MemberListContentAdd from "../../components/memberListAdd/MemberListAdd";
 import EditForm from "../../components/editForm/EditForm";
 import "./ListHome.scss";
 import TablePagination from "@mui/material/TablePagination";
+import Loading from "../../components/Loading/Loading"
+import { tr } from "date-fns/locale";
 export default function ListHome({  selectedTasks = [], setSelectedTasks, result }) {
   const [searchParams] = useSearchParams();
   const idProject = searchParams.get("idProject");
   const initialTaks = useSelector((state) => state.task);
-  const [listTask, setListTask] = useState(initialTaks.listTask);
+  // const [listTask, setListTask] = useState(initialTaks.listTask);
   const dispatch = useDispatch();
+  let listTask = useSelector((state)=>state.task.listTask),
+  Page = useSelector((state)=>state.task.page),
+  Limit = useSelector((state)=>state.task.limit),
+  Total = useSelector((state)=>state.task.total);
+
+  // useEffect(() => {
+  //   if (!result || result.length === 0) return;
+  //   setListTask(result);
+  // }, [result]);
+    const [loading, setLoading] = useState(false);
+  
+  const getList = async ()=>{
+    setLoading(true)
+    try {
+      if (idProject) {
+        await dispatch(getByIndexParanation({ projectId: idProject, page: Page, pageSize: Limit }));
+      }
+    } catch (error) {
+      toast.error("Tạo nhiệm vụ thất bại", error);
+      throw error;
+    } finally {
+      setLoading(false);
+    }
+  }
 
   useEffect(() => {
-    if (!result || result.length === 0) return;
-    setListTask(result);
-  }, [result]);
+    getList()
 
-  useEffect(() => {
-    dispatch(getListTaskByProjectIdRedux(idProject));
-  }, [idProject, dispatch]);
+  }, [idProject, Page, Limit]);
+  
 
   const inputRef = useRef(null);
 
@@ -56,18 +79,16 @@ export default function ListHome({  selectedTasks = [], setSelectedTasks, result
   const [idOpenComment, setIdOpenComment] = useState(null);
   const [editModal, setEditModal] = useState(false);
   const [idEditModal, setIdEditModal] = useState(null);
-
-  const [page, setPage] = useState(2);
-  const [rowsPerPage, setRowsPerPage] = useState(10);
-
+  
   const handleChangePage = (event, newPage) => {
-    setPage(newPage);
+    dispatch(changePage(newPage));
   };
-
+  
   const handleChangeRowsPerPage = (event) => {
-    setRowsPerPage(parseInt(event.target.value, 10));
-    setPage(0);
+    const newLimit = parseInt(event.target.value, 10);
+    dispatch(changeRowPerPage(newLimit));
   };
+  
 
   const handleEditClick = (taskId, currentName) => {
     setEditingTaskId(taskId);
@@ -193,7 +214,8 @@ export default function ListHome({  selectedTasks = [], setSelectedTasks, result
   };
   return (
     <div className="list-home-wrapper">
-     <Paper className="table-paper" sx={{ width: "100%", overflow: "hidden" }}>
+     {loading ?<Loading /> : 
+      <Paper className="table-paper" sx={{ width: "100%", overflow: "hidden" }}>
         <TableContainer className="table-container">
           <Table className="task-table" aria-label="sticky table">
             <TableHead>
@@ -482,14 +504,16 @@ export default function ListHome({  selectedTasks = [], setSelectedTasks, result
         </TableContainer>
         <TablePagination
       component="div"
-      count={100}
-      page={page}
+      count={Total}
+      page={Page-1}
       onPageChange={handleChangePage}
-      rowsPerPage={rowsPerPage}
+      rowsPerPage={Limit}
       onRowsPerPageChange={handleChangeRowsPerPage}
     />     
       </Paper>
+      }
     </div>
+
   );
 };
 

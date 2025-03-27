@@ -155,7 +155,7 @@ export default function Home() {
       <div className="header-section">
         <div className="header-container">
           <div className="project-info">
-            <p className="project-path">Dự án / {nameProject}</p>
+            <p className="project-path">{nameProject}</p>
           </div>
           <div className="view-toggle">
             <img

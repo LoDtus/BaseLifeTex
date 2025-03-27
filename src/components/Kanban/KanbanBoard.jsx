@@ -1,3 +1,5 @@
+
+// KanbanBoard.jsx
 import { closestCorners, DndContext } from "@dnd-kit/core";
 import React, { useEffect, useState } from "react";
 import KanbanColumn from "./KanbanColumn";
@@ -8,7 +10,7 @@ import "./KanbaBoard.scss";
 import { getListTaskByProjectIdRedux } from "../../redux/taskSlice";
 import { useDispatch, useSelector } from "react-redux";
 
-// Hàm ánh xạ dữ liệu từ server sang các cột Kanban
+// Hàm ánh xạ dữ liệu từ server sang các cột Kanban (giữ nguyên)
 function transformTasksData(tasks) {
   return tasks.reduce(
     (acc, task) => {
@@ -53,7 +55,7 @@ function transformTasksData(tasks) {
   );
 }
 
-// Hàm lấy tiêu đề cho từng trạng thái
+// Hàm lấy tiêu đề cho từng trạng thái (giữ nguyên)
 function getStatusTitle(status) {
   const titles = {
     PREPARE: "Công việc mới",
@@ -64,9 +66,11 @@ function getStatusTitle(status) {
   return titles[status] || "Công việc khác";
 }
 
-function KanbanBoard() {
+
+function KanbanBoard({ selectedTasks, setSelectedTasks, result }) {
   const dispatch = useDispatch();
-  const listTask = useSelector((state) => state.task.listTask);
+  const [listTask, setListTask] = useState(useSelector((state) => state.task.listTask));
+  
   const [columns, setColumns] = useState({});
   const [searchParams] = useSearchParams();
   const [taskToUpdate, setTaskToUpdate] = useState(null);
@@ -75,6 +79,11 @@ function KanbanBoard() {
   const fetchData = async () => {
     dispatch(getListTaskByProjectIdRedux(idProject));
   };
+
+  useEffect(() => {
+    if (!result || result.length === 0) return;
+    setListTask(result);
+  }, [result]);
 
   useEffect(() => {
     if (listTask && listTask.length > 0) {
@@ -101,7 +110,7 @@ function KanbanBoard() {
     const destinationColumnKey =
       Object.keys(columns).find((key) =>
         columns[key].tasks.find((task) => task.id === over.id)
-      ) || over.id; // Nếu over.id là ID của cột
+      ) || over.id;
 
     if (!sourceColumnKey) return;
 
@@ -179,13 +188,18 @@ function KanbanBoard() {
     }
   }, [taskToUpdate]);
   
-
   return (
     <div className="kanban-wrapper">
       <DndContext collisionDetection={closestCorners} onDragEnd={onDragEnd}>
         <div className="kanban-container">
           {Object.entries(columns).map(([key, column]) => (
-            <KanbanColumn key={key} columnId={key} column={column} />
+            <KanbanColumn
+              key={key}
+              columnId={key}
+              column={column}
+              setSelectedTasks={setSelectedTasks}
+              selectedTasks={selectedTasks}
+            />
           ))}
         </div>
       </DndContext>
