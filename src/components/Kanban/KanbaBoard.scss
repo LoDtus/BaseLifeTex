@@ -39,9 +39,9 @@
 
 .kanban-column-scroll {
   overflow-y: auto;
-  flex-grow: 1; /* Đảm bảo phần cuộn chiếm toàn bộ không gian còn lại */
+  flex-grow: 1;
   margin-bottom: 60px;
-  overscroll-behavior: contain; /* Ngăn cuộn tự động */
+  overscroll-behavior: contain;
   scrollbar-width: none;
   -ms-overflow-style: none;
   &::-webkit-scrollbar {
@@ -64,14 +64,19 @@
   flex-direction: column;
   background: #eef4fc;
   border-radius: 8px;
-  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+  box-shadow: 0px 1px 3px rgba(0, 0, 0, 0.1); /* Bóng nhẹ giống Trello */
   cursor: grab;
   overflow: hidden;
+  position: relative;
+  transition: transform 0.1s ease, box-shadow 0.1s ease; /* Hiệu ứng nhanh giống Trello */
 
   &.dragging {
-    opacity: 0.5; /* Task mờ đi khi kéo */
-    transform: scale(1.05); /* Phóng to nhẹ */
-    box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2); /* Tăng bóng */
+    opacity: 1; /* Không mờ để thấy rõ task, giống Trello */
+    transform: rotate(4deg); /* Xoay nhẹ như Trello */
+    box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.25); /* Bóng đậm hơn khi kéo */
+    z-index: 9999; /* Đảm bảo task nổi lên trên mọi thứ */
+    background-color: #ffffff; /* Màu trắng giống Trello khi kéo */
+    border: 1px solid #ccc; /* Viền nhẹ để phân biệt */
   }
 
   p {
@@ -101,6 +106,7 @@
       cursor: pointer;
     }
   }
+
   .card-footer {
     display: flex;
     justify-content: space-between;

@@ -62,8 +62,9 @@ function KanbanTaskCard({ selectedTasks, setSelectedTasks, task }) {
     <div
       ref={setNodeRef}
       style={style}
+      {...listeners}
       {...attributes}
-      // {...listeners}
+
       className={`kanban-card ${isDragging ? "dragging" : ""}`}
     >
       <div className="task-content">
@@ -76,6 +77,8 @@ function KanbanTaskCard({ selectedTasks, setSelectedTasks, task }) {
             onChange={(e) => {
               handleSelectTask(e, task._id);
             }}
+            onPointerDown
+            ={(e) => e.stopPropagation()}
           />
         </div>
       </div>
