@@ -7,6 +7,8 @@ import MemberListContent from "../../components/memberList/MemberList";
 import KanbanBoard from "../../components/Kanban/KanbanBoard";
 import ListHome from "../../components/List/ListHome";
 import { getProjectId } from "../../services/projectService";
+import { getlistUser } from "../../services/userService";
+import FilterDialog from "../../components/FilterForm/FilterDialog";
 
 export default function Home() {
   const [anchorEl, setAnchorEl] = useState(null);
@@ -15,6 +17,14 @@ export default function Home() {
   const [viewMode, setViewMode] = useState("kanban");
   const [nameProject, setNameProject] = useState("Phần mềm đánh giá"); // Giá trị mặc định
   const [anchorElFilter, setAnchorElFilter] = useState(null);
+  const [listMember, setListMember] = useState([]);
+
+  const getMemberByProject = async () => {
+    const response = await getlistUser(idProject);
+    if (response.success === true) {
+      setListMember(response.data);
+    }
+  };
 
   useEffect(() => {
     if (idProject) {
@@ -30,6 +40,7 @@ export default function Home() {
         }
       };
       fetchProjectData();
+      getMemberByProject();
     }
   }, [idProject]);
 
@@ -58,7 +69,9 @@ export default function Home() {
   };
 
   const openFilter = Boolean(anchorElFilter);
+  const openMember = Boolean(anchorEl);
   const filterId = openFilter ? "filter-popover" : undefined;
+  const memberId = openMember ? "member-popover" : undefined;
   return (
     <div className="home-container">
       {/* Header Section */}
@@ -107,14 +120,15 @@ export default function Home() {
             className="search-input"
           />
           <div className="avatar-group">
-            {[
-              "image/image_4.png",
-              "image/image_5.png",
-              "image/image_6.png",
-              "image/image_7.png",
-              "image/image_8.png",
-              "image/dot.png",
-            ].map((avatar, index) => (
+            {listMember?.map((member, index) => (
+              <img
+                key={index}
+                src={member.avatar}
+                alt={`Avatar ${index + 1}`}
+                className="avatar"
+              />
+            ))}
+            {["image/dot.png"].map((avatar, index) => (
               <img
                 onClick={handleClick}
                 key={index}
@@ -127,14 +141,15 @@ export default function Home() {
         </div>
 
         <Popover
-          open={Boolean(anchorEl)}
+          id={memberId}
+          open={openMember}
           anchorEl={anchorEl}
           onClose={handleClose}
           anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
           transformOrigin={{ vertical: "top", horizontal: "left" }}
           sx={{ mt: 1 }}
         >
-          <MemberListContent onClose={handleClose} />
+          <MemberListContent onClose={handleClose} members={listMember} />
         </Popover>
 
         <div className="task-header">
