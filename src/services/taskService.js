@@ -39,9 +39,24 @@ export const getlistUserInProjects = async (id) => {
   return response;
 };
 
+export const deleteManyTasks = async (ids) => {
+  try {
+    console.log("Gửi request xóa:", ids); // Debug
+    const response = await axiosInstance.delete(`/tasks/`, {
+      data: { ids },
+    });
+    return { success: true, data: response.data };
+  } catch (error) {
+    return {
+      success: false,
+      error: error.response?.data || "Lỗi khi xóa task!",
+    };
+  }
+};
+
 export const searchTasks = async(searchQuery) => {
   const response = await axiosInstance.get(`/tasks/search`, {
     params: { search: searchQuery }
   });
   return response.data;
-};
+}

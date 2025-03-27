@@ -25,8 +25,7 @@ import MemberListContentAdd from "../../components/memberListAdd/MemberListAdd";
 import EditForm from "../../components/editForm/EditForm";
 import "./ListHome.scss";
 import TablePagination from "@mui/material/TablePagination";
-
-export default function ListHome({ result }) {
+export default function ListHome({  selectedTasks = [], setSelectedTasks, result }) {
   const [searchParams] = useSearchParams();
   const idProject = searchParams.get("idProject");
   const initialTaks = useSelector((state) => state.task);
@@ -37,11 +36,6 @@ export default function ListHome({ result }) {
     if (!result || result.length === 0) return;
     setListTask(result);
   }, [result]);
-
-  // useEffect(() => {
-  //   console.log(listTask);
-    
-  // }, [listTask]);
 
   useEffect(() => {
     dispatch(getListTaskByProjectIdRedux(idProject));
@@ -190,7 +184,13 @@ export default function ListHome({ result }) {
     setIdEditModal(null);
     dispatch(getListTaskByProjectIdRedux(idProject));
   };
+  const handleSelectTask = (taskId) => {
+    const updatedSelection = selectedTasks.includes(taskId)
+      ? selectedTasks.filter((id) => id !== taskId)
+      : [...selectedTasks, taskId];
 
+    setSelectedTasks(updatedSelection);
+  };
   return (
     <div className="list-home-wrapper">
      <Paper className="table-paper" sx={{ width: "100%", overflow: "hidden" }}>
@@ -224,16 +224,32 @@ export default function ListHome({ result }) {
                 >
                   Người nhận việc
                 </TableCell>
-                <TableCell className="table-header-cell" align="center" style={{minWidth:"150px"}}>
+                <TableCell
+                  className="table-header-cell"
+                  align="center"
+                  style={{ minWidth: "150px" }}
+                >
                   Bình luận
                 </TableCell>
-                <TableCell className="table-header-cell" align="center" style={{minWidth:"150px"}}>
+                <TableCell
+                  className="table-header-cell"
+                  align="center"
+                  style={{ minWidth: "150px" }}
+                >
                   Ngày bắt đầu
                 </TableCell>
-                <TableCell className="table-header-cell" align="center" style={{minWidth:"150px"}}>
+                <TableCell
+                  className="table-header-cell"
+                  align="center"
+                  style={{ minWidth: "150px" }}
+                >
                   Ngày kết thúc
                 </TableCell>
-                <TableCell className="table-header-cell" align="center"style={{minWidth:"150px"}}>
+                <TableCell
+                  className="table-header-cell"
+                  align="center"
+                  style={{ minWidth: "150px" }}
+                >
                   Trạng thái
                 </TableCell>
                 <TableCell
@@ -256,7 +272,12 @@ export default function ListHome({ result }) {
                   sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
                 >
                   <TableCell className="table-cell">
-                    <input type="checkbox" className="checkbox-input" />
+                    <input
+                      type="checkbox"
+                      className="checkbox-input"
+                      checked={selectedTasks.includes(task._id)}
+                      onChange={() => handleSelectTask(task._id)}
+                    />
                   </TableCell>
                   <TableCell className="table-cell" align="center">
                     {index + 1}
