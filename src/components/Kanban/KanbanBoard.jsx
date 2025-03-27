@@ -1,3 +1,4 @@
+// KanbanBoard.jsx
 import { closestCorners, DndContext } from "@dnd-kit/core";
 import React, { useEffect, useState } from "react";
 import KanbanColumn from "./KanbanColumn";
@@ -8,15 +9,15 @@ import "./KanbaBoard.scss";
 import { getListTaskByProjectIdRedux } from "../../redux/taskSlice";
 import { useDispatch, useSelector } from "react-redux";
 
-// Hàm ánh xạ dữ liệu từ server sang các cột Kanban
+// Hàm ánh xạ dữ liệu từ server sang các cột Kanban (giữ nguyên)
 function transformTasksData(tasks) {
   return tasks.reduce(
     (acc, task) => {
       const statusMap = {
-        0: "PREPARE", // Công việc mới
-        1: "IN_PROGRESS", // Đang thực hiện
-        2: "FINISH", // Hoàn thành
-        3: "NOT_DO", // Không làm
+        1: "PREPARE",     // Công việc mới
+        2: "IN_PROGRESS", // Đang thực hiện
+        3: "FINISH",      // Hoàn thành
+        4: "NOT_DO",      // Không làm
       };
 
       const columnKey = statusMap[task.status] || "PREPARE";
@@ -53,7 +54,7 @@ function transformTasksData(tasks) {
   );
 }
 
-// Hàm lấy tiêu đề cho từng trạng thái
+// Hàm lấy tiêu đề cho từng trạng thái (giữ nguyên)
 function getStatusTitle(status) {
   const titles = {
     PREPARE: "Công việc mới",
@@ -107,7 +108,7 @@ function KanbanBoard({ result }) {
     const destinationColumnKey =
       Object.keys(columns).find((key) =>
         columns[key].tasks.find((task) => task.id === over.id)
-      ) || over.id; // Nếu over.id là ID của cột
+      ) || over.id;
 
     if (!sourceColumnKey) return;
 
@@ -146,13 +147,15 @@ function KanbanBoard({ result }) {
     if (!taskToMove) return;
 
     const statusMapReverse = {
-      PREPARE: 0,
-      IN_PROGRESS: 1,
-      FINISH: 2,
-      NOT_DO: 3,
+      PREPARE: 1,
+      IN_PROGRESS: 2,
+      FINISH: 3,
+      NOT_DO: 4,
     };
 
-    taskToMove.status = statusMapReverse[destinationColumnKey];
+    const oldStatus = taskToMove.status; // Lưu trạng thái cũ
+    const newStatus = statusMapReverse[destinationColumnKey]; // Trạng thái mới
+    taskToMove.status = newStatus;
 
     setColumns((prev) => {
       const newColumns = { ...prev };
@@ -166,12 +169,13 @@ function KanbanBoard({ result }) {
       return newColumns;
     });
 
-    setTaskToUpdate(taskToMove);
+    // Cập nhật taskToUpdate với cả oldStatus và newStatus
+    setTaskToUpdate({ id: taskToMove.id, oldStatus, newStatus });
   };
 
   useEffect(() => {
     if (taskToUpdate) {
-      updateTaskStatus(taskToUpdate.id, taskToUpdate.status)
+      updateTaskStatus(taskToUpdate.id, taskToUpdate.oldStatus, taskToUpdate.newStatus)
         .then(() => {
           fetchData();
         })
@@ -181,7 +185,7 @@ function KanbanBoard({ result }) {
         .finally(() => setTaskToUpdate(null));
     }
   }, [taskToUpdate]);
-
+  
   return (
     <div className="kanban-wrapper">
       <DndContext collisionDetection={closestCorners} onDragEnd={onDragEnd}>

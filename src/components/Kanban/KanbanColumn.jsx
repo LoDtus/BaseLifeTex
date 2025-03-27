@@ -14,10 +14,10 @@ function KanbanColumn({ columnId, column }) {
   };
 
   const statusMapReverse = {
-    PREPARE: 0,
-    IN_PROGRESS: 1,
-    FINISH: 2,
-    NOT_DO: 3,
+    PREPARE: 1,
+    IN_PROGRESS: 2,
+    FINISH: 3,
+    NOT_DO: 4,
   };
 
   const statusValue = statusMapReverse[columnId];

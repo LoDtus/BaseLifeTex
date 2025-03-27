@@ -47,7 +47,7 @@ const IssueForm = ({ isOpen, onClose, status }) => {
   const dispatch = useDispatch();
 
   const user = useSelector((state) => state.auth.login.currentUser);
-  console.log(user);
+
   const {
     register,
     handleSubmit,

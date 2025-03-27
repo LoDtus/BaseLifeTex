@@ -193,8 +193,7 @@ export default function ListHome({ result }) {
 
   return (
     <div className="list-home-wrapper">
-      <ToastContainer />
-      <Paper className="table-paper" sx={{ width: "100%", overflow: "hidden" }}>
+     <Paper className="table-paper" sx={{ width: "100%", overflow: "hidden" }}>
         <TableContainer className="table-container">
           <Table className="task-table" aria-label="sticky table">
             <TableHead>
@@ -461,13 +460,13 @@ export default function ListHome({ result }) {
           </Table>
         </TableContainer>
         <TablePagination
-          component="div"
-          count={100}
-          page={page}
-          onPageChange={handleChangePage}
-          rowsPerPage={rowsPerPage}
-          onRowsPerPageChange={handleChangeRowsPerPage}
-        />
+      component="div"
+      count={100}
+      page={page}
+      onPageChange={handleChangePage}
+      rowsPerPage={rowsPerPage}
+      onRowsPerPageChange={handleChangeRowsPerPage}
+    />     
       </Paper>
     </div>
   );
