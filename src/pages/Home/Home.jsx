@@ -8,6 +8,12 @@ import KanbanBoard from "../../components/Kanban/KanbanBoard";
 import ListHome from "../../components/List/ListHome";
 import { getProjectId } from "../../services/projectService";
 import FilterDialog from "../../components/FilterForm/FilterDialog";
+import {
+  deleteManyTasksRedux,
+  getListTaskByProjectIdRedux,
+} from "../../redux/taskSlice";
+import { useDispatch } from "react-redux";
+
 export default function Home() {
   const [anchorEl, setAnchorEl] = useState(null);
   const [searchParams] = useSearchParams();
@@ -56,7 +62,35 @@ export default function Home() {
   const handleCloseFilter = () => {
     setAnchorElFilter(null); // Đóng Popover Filter
   };
+const [selectedTasks, setSelectedTasks] = useState([]);
+const dispatch = useDispatch();
+const handleDeleteSelected = async () => {
+  if (selectedTasks.length === 0) {
+    alert("Vui lòng chọn ít nhất một task để xóa!");
+    return;
+  }
 
+  const confirmDelete = window.confirm(
+    `Bạn có chắc muốn xóa ${selectedTasks.length} task không?`
+  );
+  if (!confirmDelete) return;
+
+  try {
+    const result = await dispatch(deleteManyTasksRedux(selectedTasks)).unwrap();
+
+    console.log("Kết quả xóa từ Redux:", result); // Debug
+
+    if (result && result.length > 0) {
+      alert("✅ Xóa thành công!");
+      setSelectedTasks([]); // Reset danh sách chọn
+      dispatch(getListTaskByProjectIdRedux(idProject));
+    } else {
+      alert("Xóa thất bại!");
+    }
+  } catch (error) {
+    alert("Lỗi hệ thống, vui lòng thử lại!");
+  }
+};
   const openFilter = Boolean(anchorElFilter);
   const filterId = openFilter ? "filter-popover" : undefined;
   return (
@@ -139,7 +173,12 @@ export default function Home() {
 
         <div className="task-header">
           <div className="task-icons">
-            <img src="image/Trash.png" alt="Delete" className="tool-icon" />
+            <img
+              src="image/Trash.png"
+              alt="Delete"
+              className="tool-icon"
+              onClick={handleDeleteSelected}
+            />
             <img
               src="image/Filter.png"
               alt="Filter"
@@ -165,7 +204,17 @@ export default function Home() {
 
       {/* Content Section */}
       <div className="content-section">
-        {viewMode === "kanban" ? <KanbanBoard /> : <ListHome />}
+        {viewMode === "kanban" ? (
+          <KanbanBoard
+            setSelectedTasks={setSelectedTasks}
+            selectedTasks={selectedTasks}
+          />
+        ) : (
+          <ListHome
+            setSelectedTasks={setSelectedTasks}
+            selectedTasks={selectedTasks}
+          />
+        )}
       </div>
     </div>
   );

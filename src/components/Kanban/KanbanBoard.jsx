@@ -64,7 +64,7 @@ function getStatusTitle(status) {
   return titles[status] || "Công việc khác";
 }
 
-function KanbanBoard() {
+function KanbanBoard({ selectedTasks, setSelectedTasks }) {
   const dispatch = useDispatch();
   const listTask = useSelector((state) => state.task.listTask);
   const [columns, setColumns] = useState({});
@@ -181,7 +181,13 @@ function KanbanBoard() {
       <DndContext collisionDetection={closestCorners} onDragEnd={onDragEnd}>
         <div className="kanban-container">
           {Object.entries(columns).map(([key, column]) => (
-            <KanbanColumn key={key} columnId={key} column={column} />
+            <KanbanColumn
+              key={key}
+              columnId={key}
+              column={column}
+              setSelectedTasks={setSelectedTasks}
+              selectedTasks={selectedTasks}
+            />
           ))}
         </div>
       </DndContext>

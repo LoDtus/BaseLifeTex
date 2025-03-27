@@ -4,7 +4,7 @@ import { Popover, IconButton } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import React, { useState } from "react";
 
-function KanbanTaskCard({ task }) {
+function KanbanTaskCard({ selectedTasks, setSelectedTasks, task }) {
   const {
     attributes,
     listeners,
@@ -49,18 +49,34 @@ function KanbanTaskCard({ task }) {
     task.assigneeUserNames && task.assigneeUserNames.length > 1
       ? task.assigneeUserNames.slice(1)
       : [];
+  const handleSelectTask = (event, taskId) => {
+    event.stopPropagation();
+    event.preventDefault();
+    const updatedSelection = selectedTasks.includes(taskId)
+      ? selectedTasks.filter((id) => id !== taskId)
+      : [...selectedTasks, taskId];
+    setSelectedTasks(updatedSelection);
+  };
 
   return (
     <div
       ref={setNodeRef}
       style={style}
       {...attributes}
-      {...listeners}
+      // {...listeners}
       className={`kanban-card ${isDragging ? "dragging" : ""}`}
     >
       <div className="task-content">
-        <div>
-          <p>{task.title}</p>
+        <div style={{ display: "flex", width: "100%" }}>
+          <p style={{ width: "70%", marginRight: "auto" }}>{task.title}</p>
+          <input
+            type="checkbox"
+            className="checkbox-input"
+            checked={selectedTasks.includes(task._id)}
+            onChange={(e) => {
+              handleSelectTask(e, task._id);
+            }}
+          />
         </div>
       </div>
       <div className="card-footer">

@@ -31,11 +31,25 @@ export const getlistUserInProjects = async (id) => {
   const response = await axiosInstance.get(`/projects/${id}/members`);
   return response;
 };
-
+const deleteManyTasks = async (ids) => {
+  try {
+    console.log("Gửi request xóa:", ids); // Debug
+    const response = await axiosInstance.delete(`/tasks/`, {
+      data: { ids },
+    });
+    return { success: true, data: response.data };
+  } catch (error) {
+    return {
+      success: false,
+      error: error.response?.data || "Lỗi khi xóa task!",
+    };
+  }
+};
 export {
   getTasks,
   getTasksByProject,
   updateTaskStatus,
   getTaskDetailById,
   filterTask,
+  deleteManyTasks,
 };

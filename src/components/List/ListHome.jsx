@@ -26,7 +26,7 @@ import EditForm from "../../components/editForm/EditForm";
 import "./ListHome.scss";
 import TablePagination from "@mui/material/TablePagination";
 
-const ListHome = () => {
+const ListHome = ({ selectedTasks = [], setSelectedTasks }) => {
   const [searchParams] = useSearchParams();
   const idProject = searchParams.get("idProject");
   const { listTask } = useSelector((state) => state.task);
@@ -179,7 +179,13 @@ const ListHome = () => {
     setIdEditModal(null);
     dispatch(getListTaskByProjectIdRedux(idProject));
   };
+  const handleSelectTask = (taskId) => {
+    const updatedSelection = selectedTasks.includes(taskId)
+      ? selectedTasks.filter((id) => id !== taskId)
+      : [...selectedTasks, taskId];
 
+    setSelectedTasks(updatedSelection);
+  };
   return (
     <div className="list-home-wrapper">
       <ToastContainer />
@@ -214,16 +220,32 @@ const ListHome = () => {
                 >
                   Người nhận việc
                 </TableCell>
-                <TableCell className="table-header-cell" align="center" style={{minWidth:"150px"}}>
+                <TableCell
+                  className="table-header-cell"
+                  align="center"
+                  style={{ minWidth: "150px" }}
+                >
                   Bình luận
                 </TableCell>
-                <TableCell className="table-header-cell" align="center" style={{minWidth:"150px"}}>
+                <TableCell
+                  className="table-header-cell"
+                  align="center"
+                  style={{ minWidth: "150px" }}
+                >
                   Ngày bắt đầu
                 </TableCell>
-                <TableCell className="table-header-cell" align="center" style={{minWidth:"150px"}}>
+                <TableCell
+                  className="table-header-cell"
+                  align="center"
+                  style={{ minWidth: "150px" }}
+                >
                   Ngày kết thúc
                 </TableCell>
-                <TableCell className="table-header-cell" align="center"style={{minWidth:"150px"}}>
+                <TableCell
+                  className="table-header-cell"
+                  align="center"
+                  style={{ minWidth: "150px" }}
+                >
                   Trạng thái
                 </TableCell>
                 <TableCell
@@ -246,7 +268,12 @@ const ListHome = () => {
                   sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
                 >
                   <TableCell className="table-cell">
-                    <input type="checkbox" className="checkbox-input" />
+                    <input
+                      type="checkbox"
+                      className="checkbox-input"
+                      checked={selectedTasks.includes(task._id)}
+                      onChange={() => handleSelectTask(task._id)}
+                    />
                   </TableCell>
                   <TableCell className="table-cell" align="center">
                     {index + 1}

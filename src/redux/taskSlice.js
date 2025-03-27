@@ -1,5 +1,9 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { filterTask, getTasksByProject } from "../services/taskService";
+import {
+  filterTask,
+  getTasksByProject,
+  deleteManyTasks,
+} from "../services/taskService";
 
 export const getListTaskByProjectIdRedux = createAsyncThunk(
   "task/list",
@@ -18,6 +22,18 @@ export const filterTaskInProject = createAsyncThunk(
   async ({ projectId, data }) => {
     const response = await filterTask(projectId, data);
     return response.data;
+  }
+);
+export const deleteManyTasksRedux = createAsyncThunk(
+  "task/deleteMany",
+  async (ids, { rejectWithValue }) => {
+    const result = await deleteManyTasks(ids);
+
+    if (result.success) {
+      return ids;
+    } else {
+      return rejectWithValue(result.error);
+    }
   }
 );
 const taskSlice = createSlice({
@@ -52,6 +68,19 @@ const taskSlice = createSlice({
         state.listTask = action.payload;
       })
       .addCase(filterTaskInProject.rejected, (state, action) => {
+        state.isFetching = false;
+        state.error = action.payload;
+      })
+      .addCase(deleteManyTasksRedux.pending, (state) => {
+        state.isFetching = true;
+      })
+      .addCase(deleteManyTasksRedux.fulfilled, (state, action) => {
+        state.isFetching = false;
+        state.listTask = state.listTask.filter(
+          (task) => !action.payload.includes(task.id)
+        );
+      })
+      .addCase(deleteManyTasksRedux.rejected, (state, action) => {
         state.isFetching = false;
         state.error = action.payload;
       });
