@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import "./Home.scss";
 import { useSearchParams } from "react-router-dom";
-import { Popover } from "@mui/material";
+import { Avatar, Popover } from "@mui/material";
 import MemberListContent from "../../components/memberList/MemberList";
 import KanbanBoard from "../../components/Kanban/KanbanBoard";
 import ListHome from "../../components/List/ListHome";
@@ -19,7 +19,7 @@ import { searchTasks, getTasksByProject } from "../../services/taskService";
 export default function Home() {
   const [anchorEl, setAnchorEl] = useState(null);
   const [searchParams] = useSearchParams();
-  const idProject = searchParams.get("idProject");
+  const idProject = searchParams.get("idProject") || "";
   const [viewMode, setViewMode] = useState("kanban");
   const [nameProject, setNameProject] = useState("Phần mềm đánh giá"); // Giá trị mặc định
   const [anchorElFilter, setAnchorElFilter] = useState(null);
@@ -191,16 +191,22 @@ export default function Home() {
               d="M21 21l-4.35-4.35m2.6-5.15a7 7 0 11-14 0 7 7 0 0114 0z"
             />
           </svg>
-          <input type="text" placeholder="Tìm kiếm..." className="search-input" />
+          <input
+            type="text"
+            placeholder="Tìm kiếm..."
+            className="search-input"
+            onChange={(e) => setKeyword(e.target.value.trim())}
+          />
           <div className="avatar-group">
-            {[
-              "image/image_4.png",
-              "image/image_5.png",
-              "image/image_6.png",
-              "image/image_7.png",
-              "image/image_8.png",
-              "image/dot.png",
-            ].map((avatar, index) => (
+            {listMember?.map((member, index) => (
+              <Avatar
+                key={index}
+                src={member.avatar}
+                alt={`Avatar ${index + 1}`}
+                className="avatar"
+              />
+            ))}
+            {["image/dot.png"].map((avatar, index) => (
               <img
                 onClick={handleClick}
                 key={index}
@@ -213,14 +219,15 @@ export default function Home() {
         </div>
 
         <Popover
-          open={Boolean(anchorEl)}
+          id={memberId}
+          open={openMember}
           anchorEl={anchorEl}
           onClose={handleClose}
           anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
           transformOrigin={{ vertical: "top", horizontal: "left" }}
           sx={{ mt: 1 }}
         >
-          <MemberListContent onClose={handleClose} />
+          <MemberListContent onClose={handleClose} members={listMember} />
         </Popover>
 
         <div className="task-header">
