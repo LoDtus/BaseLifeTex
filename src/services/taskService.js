@@ -24,7 +24,6 @@ export const updateTaskStatus = async (taskId, oldStatus, newStatus) => {
     throw error;
   }
 };
-
 export const getTaskDetailById = async (id) => {
   const response = await axiosInstance.get(`/tasks/${id}`);
   return response.data;
@@ -40,6 +39,9 @@ export const getlistUserInProjects = async (id) => {
   return response;
 };
 
-
-
-
+export const searchTasks = async(searchQuery) => {
+  const response = await axiosInstance.get(`/tasks/search`, {
+    params: { search: searchQuery }
+  });
+  return response.data;
+};

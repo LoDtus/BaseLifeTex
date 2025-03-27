@@ -2,13 +2,11 @@
 import { useEffect, useState } from "react";
 import "./Home.scss";
 import { useSearchParams } from "react-router-dom";
-import { Avatar, Popover } from "@mui/material";
+import { Popover } from "@mui/material";
 import MemberListContent from "../../components/memberList/MemberList";
 import KanbanBoard from "../../components/Kanban/KanbanBoard";
 import ListHome from "../../components/List/ListHome";
 import { getProjectId } from "../../services/projectService";
-import { getlistUser } from "../../services/userService";
-import FilterDialog from "../../components/FilterForm/FilterDialog";
 
 export default function Home() {
   const [anchorEl, setAnchorEl] = useState(null);
@@ -16,31 +14,21 @@ export default function Home() {
   const idProject = searchParams.get("idProject");
   const [viewMode, setViewMode] = useState("kanban");
   const [nameProject, setNameProject] = useState("Phần mềm đánh giá"); // Giá trị mặc định
-  const [anchorElFilter, setAnchorElFilter] = useState(null);
-  const [listMember, setListMember] = useState([]);
-
-  const getMemberByProject = async () => {
-    const response = await getlistUser(idProject);
-    if (response.success === true) {
-      setListMember(response.data);
-    }
-  };
 
   useEffect(() => {
     if (idProject) {
       const fetchProjectData = async () => {
         try {
-          const response = await getProjectId(idProject);
+          const response = await getProjectId(idProject); 
           if (response.success) {
             setNameProject(response.data.name);
           }
         } catch (error) {
-          setNameProject("Phần mềm đánh giá");
-          throw error;
+          console.error("Lỗi khi lấy thông tin dự án:", error);
+          setNameProject("Phần mềm đánh giá"); 
         }
       };
-      fetchProjectData();
-      getMemberByProject();
+      fetchProjectData(); 
     }
   }, [idProject]);
 
@@ -60,18 +48,6 @@ export default function Home() {
     setViewMode("list");
   };
 
-  const handleClickFilter = (event) => {
-    setAnchorElFilter(event.currentTarget); // Mở Popover Filter
-  };
-
-  const handleCloseFilter = () => {
-    setAnchorElFilter(null); // Đóng Popover Filter
-  };
-
-  const openFilter = Boolean(anchorElFilter);
-  const openMember = Boolean(anchorEl);
-  const filterId = openFilter ? "filter-popover" : undefined;
-  const memberId = openMember ? "member-popover" : undefined;
   return (
     <div className="home-container">
       {/* Header Section */}
@@ -114,21 +90,16 @@ export default function Home() {
               d="M21 21l-4.35-4.35m2.6-5.15a7 7 0 11-14 0 7 7 0 0114 0z"
             />
           </svg>
-          <input
-            type="text"
-            placeholder="Tìm kiếm..."
-            className="search-input"
-          />
+          <input type="text" placeholder="Tìm kiếm..." className="search-input" />
           <div className="avatar-group">
-            {listMember?.map((member, index) => (
-              <Avatar
-                key={index}
-                src={member.avatar}
-                alt={`Avatar ${index + 1}`}
-                className="avatar"
-              />
-            ))}
-            {["image/dot.png"].map((avatar, index) => (
+            {[
+              "image/image_4.png",
+              "image/image_5.png",
+              "image/image_6.png",
+              "image/image_7.png",
+              "image/image_8.png",
+              "image/dot.png",
+            ].map((avatar, index) => (
               <img
                 onClick={handleClick}
                 key={index}
@@ -141,39 +112,20 @@ export default function Home() {
         </div>
 
         <Popover
-          id={memberId}
-          open={openMember}
+          open={Boolean(anchorEl)}
           anchorEl={anchorEl}
           onClose={handleClose}
           anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
           transformOrigin={{ vertical: "top", horizontal: "left" }}
           sx={{ mt: 1 }}
         >
-          <MemberListContent onClose={handleClose} members={listMember} />
+          <MemberListContent onClose={handleClose} />
         </Popover>
 
         <div className="task-header">
           <div className="task-icons">
             <img src="image/Trash.png" alt="Delete" className="tool-icon" />
-            <img
-              src="image/Filter.png"
-              alt="Filter"
-              className="tool-icon"
-              onClick={handleClickFilter}
-              aria-describedby={filterId}
-            />
-            <Popover
-              id={filterId}
-              open={openFilter}
-              anchorEl={anchorElFilter}
-              onClose={handleCloseFilter}
-              anchorOrigin={{
-                vertical: "bottom",
-                horizontal: "left",
-              }}
-            >
-              <FilterDialog idProject={idProject} />
-            </Popover>
+            <img src="image/Filter.png" alt="Filter" className="tool-icon" />
           </div>
         </div>
       </div>
