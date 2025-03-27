@@ -34,7 +34,6 @@ export default function Home() {
       setListMember(response.data);
     }
   };
-
   async function fetchProjectData(idPrj) {
     try {
       const response = await getProjectId(idPrj);
@@ -63,7 +62,7 @@ export default function Home() {
     if (!keyword) {
       const response = await getTasks(idProject);
       setResult(response.data);
-        return response;
+      return response;
     } else {
       try {
         const response = await searchTasks(keyword);
@@ -115,35 +114,37 @@ export default function Home() {
   const handleCloseFilter = () => {
     setAnchorElFilter(null); // Đóng Popover Filter
   };
-const [selectedTasks, setSelectedTasks] = useState([]);
-const dispatch = useDispatch();
-const handleDeleteSelected = async () => {
-  if (selectedTasks.length === 0) {
-    alert("Vui lòng chọn ít nhất một task để xóa!");
-    return;
-  }
-
-  const confirmDelete = window.confirm(
-    `Bạn có chắc muốn xóa ${selectedTasks.length} task không?`
-  );
-  if (!confirmDelete) return;
-
-  try {
-    const result = await dispatch(deleteManyTasksRedux(selectedTasks)).unwrap();
-
-    console.log("Kết quả xóa từ Redux:", result); // Debug
-
-    if (result && result.length > 0) {
-      alert("✅ Xóa thành công!");
-      setSelectedTasks([]); // Reset danh sách chọn
-      dispatch(getListTaskByProjectIdRedux(idProject));
-    } else {
-      alert("Xóa thất bại!");
+  const [selectedTasks, setSelectedTasks] = useState([]);
+  const dispatch = useDispatch();
+  const handleDeleteSelected = async () => {
+    if (selectedTasks.length === 0) {
+      alert("Vui lòng chọn ít nhất một task để xóa!");
+      return;
     }
-  } catch (error) {
-    alert("Lỗi hệ thống, vui lòng thử lại!");
-  }
-};
+
+    const confirmDelete = window.confirm(
+      `Bạn có chắc muốn xóa ${selectedTasks.length} task không?`
+    );
+    if (!confirmDelete) return;
+
+    try {
+      const result = await dispatch(
+        deleteManyTasksRedux(selectedTasks)
+      ).unwrap();
+
+      console.log("Kết quả xóa từ Redux:", result); // Debug
+
+      if (result && result.length > 0) {
+        alert("✅ Xóa thành công!");
+        setSelectedTasks([]); // Reset danh sách chọn
+        dispatch(getListTaskByProjectIdRedux(idProject));
+      } else {
+        alert("Xóa thất bại!");
+      }
+    } catch (error) {
+      alert("Lỗi hệ thống, vui lòng thử lại!");
+    }
+  };
   const openFilter = Boolean(anchorElFilter);
   const openMember = Boolean(anchorEl);
   const filterId = openFilter ? "filter-popover" : undefined;
