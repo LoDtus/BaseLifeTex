@@ -20,7 +20,7 @@ import Zoom from "react-medium-image-zoom";
 import "react-medium-image-zoom/dist/styles.css";
 import imageAvatar from "../../assets/image/image_5.png";
 import { getlistUser } from "../../services/userService";
-import { updateIssueData } from "../../apis/Issue";
+import { updateIssueData } from "../../services/issueService";
 import { getTaskDetailById } from "../../services/taskService";
 import {
   getListCommentByTask,
@@ -143,16 +143,17 @@ const KabanDetail = ({ task, handleClose }) => {
           ...data,
           assigneeId: data.assigneeId.map((i) => i._id),
           assignerId: data?.assignerId?._id,
+          projectId: task?.projectId,
           [type]: value,
         });
-        if (res && res.success) {
-          toast.error(res.message);
+        if (res && res.success === true) {
+          toast.success(res.message);
           setData({});
           setErrorData(errorsDefault);
           getDetailtask(task._id);
           setOnlyRead(readOnlyDefault);
         } else {
-          toast.success(res.message);
+          toast.error(res.message);
           setData({});
           setErrorData(errorsDefault);
           getDetailtask(task._id);

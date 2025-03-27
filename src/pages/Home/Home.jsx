@@ -2,11 +2,12 @@
 import { useEffect, useState } from "react";
 import "./Home.scss";
 import { useSearchParams } from "react-router-dom";
-import { Popover } from "@mui/material";
+import { Avatar, Popover } from "@mui/material";
 import MemberListContent from "../../components/memberList/MemberList";
 import KanbanBoard from "../../components/Kanban/KanbanBoard";
 import ListHome from "../../components/List/ListHome";
 import { getProjectId } from "../../services/projectService";
+import { getlistUser } from "../../services/userService";
 import FilterDialog from "../../components/FilterForm/FilterDialog";
 import {
   deleteManyTasksRedux,
@@ -17,27 +18,69 @@ import { useDispatch } from "react-redux";
 export default function Home() {
   const [anchorEl, setAnchorEl] = useState(null);
   const [searchParams] = useSearchParams();
-  const idProject = searchParams.get("idProject");
+  const idProject = searchParams.get("idProject") || "";
   const [viewMode, setViewMode] = useState("kanban");
   const [nameProject, setNameProject] = useState("Phần mềm đánh giá"); // Giá trị mặc định
   const [anchorElFilter, setAnchorElFilter] = useState(null);
+  const [keyword, setKeyword] = useState("");
+  const [debouncedKeyword, setDebouncedKeyword] = useState("");
+  const [result, setResult] = useState([]);
+
+  async function fetchProjectData(idPrj) {
+    try {
+      const response = await getProjectId(idPrj);
+      if (response.success) {
+        setNameProject(response.data.name);
+      }
+    } catch (error) {
+      setNameProject("Phần mềm đánh giá");
+      throw error;
+    }
+  }
 
   useEffect(() => {
     if (idProject) {
-      const fetchProjectData = async () => {
-        try {
-          const response = await getProjectId(idProject);
-          if (response.success) {
-            setNameProject(response.data.name);
-          }
-        } catch (error) {
-          setNameProject("Phần mềm đánh giá");
-          throw error;
-        }
-      };
-      fetchProjectData();
+      fetchProjectData(idProject);
     }
   }, [idProject]);
+
+  async function getTasks(idPrj) {
+    const response = await getTasksByProject(idPrj);
+    return response;
+  }
+
+  async function searchByKeyword(keyword, idProject) {
+    if (!keyword) {
+      const response = await getTasks(idProject);
+      setResult(response.data);
+        return response;
+    } else {
+      try {
+        const response = await searchTasks(keyword);
+        setResult(response.data);
+        return response;
+      } catch (error) {
+        console.error("Search error:", error);
+        return null;
+      }
+    }
+  }
+
+  useEffect(() => {
+    setResult([]);
+    if (!idProject) return;
+
+    // Đợi 300ms mới cập nhật keyword mới, tránh cho server quá tải request, gây lỗi 500
+    const handler = setTimeout(() => {
+      setDebouncedKeyword(keyword);
+    }, 200);
+
+    return () => clearTimeout(handler); // Hủy timeout nếu keyword thay đổi
+  }, [keyword, idProject]);
+
+  useEffect(() => {
+    searchByKeyword(debouncedKeyword, idProject);
+  }, [debouncedKeyword, idProject]);
 
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
@@ -92,7 +135,9 @@ const handleDeleteSelected = async () => {
   }
 };
   const openFilter = Boolean(anchorElFilter);
+  const openMember = Boolean(anchorEl);
   const filterId = openFilter ? "filter-popover" : undefined;
+  const memberId = openMember ? "member-popover" : undefined;
   return (
     <div className="home-container">
       {/* Header Section */}
@@ -139,16 +184,18 @@ const handleDeleteSelected = async () => {
             type="text"
             placeholder="Tìm kiếm..."
             className="search-input"
+            onChange={(e) => setKeyword(e.target.value.trim())}
           />
           <div className="avatar-group">
-            {[
-              "image/image_4.png",
-              "image/image_5.png",
-              "image/image_6.png",
-              "image/image_7.png",
-              "image/image_8.png",
-              "image/dot.png",
-            ].map((avatar, index) => (
+            {listMember?.map((member, index) => (
+              <Avatar
+                key={index}
+                src={member.avatar}
+                alt={`Avatar ${index + 1}`}
+                className="avatar"
+              />
+            ))}
+            {["image/dot.png"].map((avatar, index) => (
               <img
                 onClick={handleClick}
                 key={index}
@@ -161,14 +208,15 @@ const handleDeleteSelected = async () => {
         </div>
 
         <Popover
-          open={Boolean(anchorEl)}
+          id={memberId}
+          open={openMember}
           anchorEl={anchorEl}
           onClose={handleClose}
           anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
           transformOrigin={{ vertical: "top", horizontal: "left" }}
           sx={{ mt: 1 }}
         >
-          <MemberListContent onClose={handleClose} />
+          <MemberListContent onClose={handleClose} members={listMember} />
         </Popover>
 
         <div className="task-header">

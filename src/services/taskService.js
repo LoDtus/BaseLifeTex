@@ -1,28 +1,36 @@
 import axiosInstance from "./apiService";
 
-const getTasks = async () => {
+export const getTasks = async () => {
   const response = await axiosInstance.get("/tasks");
   return response.data;
 };
 
-const getTasksByProject = async (projectId) => {
+export const getTasksByProject = async (projectId) => {
   const response = await axiosInstance.get(`/tasks/project/${projectId}`);
   return response.data;
 };
 
-const updateTaskStatus = async (taskId, status) => {
-  const response = await axiosInstance.put(`/tasks/${taskId}/status`, {
-    status,
-  });
-  return response.data;
-};
+export const updateTaskStatus = async (taskId, oldStatus, newStatus) => {
+  try {
+    console.log("Dữ liệu gửi đi:", { taskId, oldStatus, newStatus });
+    const response = await axiosInstance.put(`/tasks/${taskId}/status`, {
+      oldStatus: oldStatus,
+      newStatus: newStatus,
+    });
+    console.log("Phản hồi từ server:", response.data);
+    return response.data;
+  } catch (error) {
+    console.log("Cập nhật trạng thái công việc thất bại", error.response?.data || error);
+    throw error;
+  }
+}
 
-const getTaskDetailById = async (id) => {
+export const getTaskDetailById = async (id) => {
   const response = await axiosInstance.get(`/tasks/${id}`);
   return response.data;
 };
 
-const filterTask = async (idProject, data) => {
+export const filterTask = async (idProject, data) => {
   const response = await axiosInstance.post(`/tasks/filter/${idProject}`, data);
   return response.data;
 };
@@ -31,7 +39,8 @@ export const getlistUserInProjects = async (id) => {
   const response = await axiosInstance.get(`/projects/${id}/members`);
   return response;
 };
-const deleteManyTasks = async (ids) => {
+
+export const deleteManyTasks = async (ids) => {
   try {
     console.log("Gửi request xóa:", ids); // Debug
     const response = await axiosInstance.delete(`/tasks/`, {
@@ -45,11 +54,10 @@ const deleteManyTasks = async (ids) => {
     };
   }
 };
-export {
-  getTasks,
-  getTasksByProject,
-  updateTaskStatus,
-  getTaskDetailById,
-  filterTask,
-  deleteManyTasks,
+
+export const searchTasks = async(searchQuery) => {
+  const response = await axiosInstance.get(`/tasks/search`, {
+    params: { search: searchQuery }
+  });
+  return response.data;
 };

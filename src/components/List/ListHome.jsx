@@ -25,12 +25,22 @@ import MemberListContentAdd from "../../components/memberListAdd/MemberListAdd";
 import EditForm from "../../components/editForm/EditForm";
 import "./ListHome.scss";
 import TablePagination from "@mui/material/TablePagination";
-
-const ListHome = ({ selectedTasks = [], setSelectedTasks }) => {
+export default function ListHome({  selectedTasks = [], setSelectedTasks, result }) {
   const [searchParams] = useSearchParams();
   const idProject = searchParams.get("idProject");
-  const { listTask } = useSelector((state) => state.task);
+  const initialTaks = useSelector((state) => state.task);
+  const [listTask, setListTask] = useState(initialTaks.listTask);
   const dispatch = useDispatch();
+
+  useEffect(() => {
+    if (!result || result.length === 0) return;
+    setListTask(result);
+  }, [result]);
+
+  // useEffect(() => {
+  //   console.log(listTask);
+    
+  // }, [listTask]);
 
   useEffect(() => {
     dispatch(getListTaskByProjectIdRedux(idProject));
@@ -188,8 +198,7 @@ const ListHome = ({ selectedTasks = [], setSelectedTasks }) => {
   };
   return (
     <div className="list-home-wrapper">
-      <ToastContainer />
-      <Paper className="table-paper" sx={{ width: "100%", overflow: "hidden" }}>
+     <Paper className="table-paper" sx={{ width: "100%", overflow: "hidden" }}>
         <TableContainer className="table-container">
           <Table className="task-table" aria-label="sticky table">
             <TableHead>
@@ -477,13 +486,13 @@ const ListHome = ({ selectedTasks = [], setSelectedTasks }) => {
           </Table>
         </TableContainer>
         <TablePagination
-          component="div"
-          count={100}
-          page={page}
-          onPageChange={handleChangePage}
-          rowsPerPage={rowsPerPage}
-          onRowsPerPageChange={handleChangeRowsPerPage}
-        />
+      component="div"
+      count={100}
+      page={page}
+      onPageChange={handleChangePage}
+      rowsPerPage={rowsPerPage}
+      onRowsPerPageChange={handleChangeRowsPerPage}
+    />     
       </Paper>
     </div>
   );
@@ -508,5 +517,3 @@ const styleSheet = document.createElement("style");
 styleSheet.type = "text/css";
 styleSheet.innerText = styles;
 document.head.appendChild(styleSheet);
-
-export default ListHome;
