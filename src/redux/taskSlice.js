@@ -3,11 +3,14 @@ import {
   filterTask,
   getTasksByProject,
   deleteManyTasks,
+  searchTasks,
 } from "../services/taskService";
 
 export const getListTaskByProjectIdRedux = createAsyncThunk(
   "task/list",
   async (projectId, { rejectWithValue }) => {
+    console.log("getListTaskByProjectIdRedux");
+    
     try {
       const response = await getTasksByProject(projectId);
       return response.data;
@@ -24,6 +27,7 @@ export const filterTaskInProject = createAsyncThunk(
     return response.data;
   }
 );
+
 export const deleteManyTasksRedux = createAsyncThunk(
   "task/deleteMany",
   async (ids, { rejectWithValue }) => {
@@ -36,6 +40,31 @@ export const deleteManyTasksRedux = createAsyncThunk(
     }
   }
 );
+
+export const searchTasksInProject = createAsyncThunk(
+  "task/search",
+  async ({ searchQuery, idProject }, { rejectWithValue }) => {
+    console.log("searchTasksInProject" + " " + searchQuery + " " + idProject);
+    
+    try {
+      let result;
+      if (!searchQuery) {
+        result = await getTasksByProject(idProject);
+      } else {
+        result = await searchTasks(searchQuery);
+      }
+
+      if (result.success) {
+        return result.data;
+      } else {
+        return rejectWithValue(result.error);
+      }
+    } catch (error) {
+      return rejectWithValue(error.message);
+    }
+  }
+);
+
 const taskSlice = createSlice({
   name: "task",
   initialState: {
@@ -62,6 +91,7 @@ const taskSlice = createSlice({
         state.isFetching = false;
         state.error = action.payload;
       })
+
       .addCase(filterTaskInProject.pending, (state) => {
         state.isFetching = true;
         state.error = null;
@@ -74,6 +104,7 @@ const taskSlice = createSlice({
         state.isFetching = false;
         state.error = action.payload;
       })
+
       .addCase(deleteManyTasksRedux.pending, (state) => {
         state.isFetching = true;
       })
@@ -84,6 +115,19 @@ const taskSlice = createSlice({
         );
       })
       .addCase(deleteManyTasksRedux.rejected, (state, action) => {
+        state.isFetching = false;
+        state.error = action.payload;
+      })
+
+      .addCase(searchTasksInProject.pending, (state) => {
+        state.isFetching = true;
+      })
+      .addCase(searchTasksInProject.fulfilled, (state, action) => {
+        console.log(action.payload);
+        state.isFetching = false;
+        state.listTask = action.payload; // bla bla
+      })
+      .addCase(searchTasksInProject.rejected, (state, action) => {
         state.isFetching = false;
         state.error = action.payload;
       });

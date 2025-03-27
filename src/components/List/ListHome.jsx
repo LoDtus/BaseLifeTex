@@ -25,17 +25,16 @@ import MemberListContentAdd from "../../components/memberListAdd/MemberListAdd";
 import EditForm from "../../components/editForm/EditForm";
 import "./ListHome.scss";
 import TablePagination from "@mui/material/TablePagination";
-export default function ListHome({  selectedTasks = [], setSelectedTasks, result }) {
+
+export default function ListHome({  selectedTasks = [], setSelectedTasks }) {
   const [searchParams] = useSearchParams();
   const idProject = searchParams.get("idProject");
-  const initialTaks = useSelector((state) => state.task);
-  const [listTask, setListTask] = useState(initialTaks.listTask);
+  const listTask = useSelector((state) => state.task.listTask);
   const dispatch = useDispatch();
 
   useEffect(() => {
-    if (!result || result.length === 0) return;
-    setListTask(result);
-  }, [result]);
+    console.log(listTask);
+  }, [listTask]);
 
   useEffect(() => {
     dispatch(getListTaskByProjectIdRedux(idProject));

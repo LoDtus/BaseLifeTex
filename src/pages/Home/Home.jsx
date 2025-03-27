@@ -12,11 +12,13 @@ import FilterDialog from "../../components/FilterForm/FilterDialog";
 import {
   deleteManyTasksRedux,
   getListTaskByProjectIdRedux,
+  searchTasksInProject,
 } from "../../redux/taskSlice";
 import { useDispatch } from "react-redux";
 import { searchTasks, getTasksByProject } from "../../services/taskService";
 
 export default function Home() {
+  const dispatch = useDispatch();
   const [anchorEl, setAnchorEl] = useState(null);
   const [searchParams] = useSearchParams();
   const idProject = searchParams.get("idProject") || "";
@@ -26,7 +28,6 @@ export default function Home() {
   const [listMember, setListMember] = useState([]);
   const [keyword, setKeyword] = useState("");
   const [debouncedKeyword, setDebouncedKeyword] = useState("");
-  const [result, setResult] = useState([]);
 
   const getMemberByProject = async () => {
     const response = await getlistUser(idProject);
@@ -53,30 +54,7 @@ export default function Home() {
     }
   }, [idProject]);
 
-  async function getTasks(idPrj) {
-    const response = await getTasksByProject(idPrj);
-    return response;
-  }
-
-  async function searchByKeyword(keyword, idProject) {
-    if (!keyword) {
-      const response = await getTasks(idProject);
-      setResult(response.data);
-      return response;
-    } else {
-      try {
-        const response = await searchTasks(keyword);
-        setResult(response.data);
-        return response;
-      } catch (error) {
-        console.error("Search error:", error);
-        return null;
-      }
-    }
-  }
-
   useEffect(() => {
-    setResult([]);
     if (!idProject) return;
 
     // Đợi 300ms mới cập nhật keyword mới, tránh cho server quá tải request, gây lỗi 500
@@ -88,7 +66,10 @@ export default function Home() {
   }, [keyword, idProject]);
 
   useEffect(() => {
-    searchByKeyword(debouncedKeyword, idProject);
+    if (!idProject) return;
+
+    console.log(debouncedKeyword);
+    dispatch(searchTasksInProject({ searchQuery: debouncedKeyword, idProject: idProject }));
   }, [debouncedKeyword, idProject]);
 
   const handleClick = (event) => {
@@ -115,7 +96,6 @@ export default function Home() {
     setAnchorElFilter(null); // Đóng Popover Filter
   };
   const [selectedTasks, setSelectedTasks] = useState([]);
-  const dispatch = useDispatch();
   const handleDeleteSelected = async () => {
     if (selectedTasks.length === 0) {
       alert("Vui lòng chọn ít nhất một task để xóa!");
@@ -265,13 +245,11 @@ export default function Home() {
       <div className="content-section">
         {viewMode === "kanban" ? (
           <KanbanBoard
-            result={result}
             setSelectedTasks={setSelectedTasks}
             selectedTasks={selectedTasks}
           />
         ) : (
           <ListHome
-            result={result}
             setSelectedTasks={setSelectedTasks}
             selectedTasks={selectedTasks}
           />
