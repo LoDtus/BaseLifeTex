@@ -7,9 +7,9 @@ import {
 } from "@dnd-kit/sortable";
 import React from "react";
 import KanbanTaskCard from "./KanbanTaskCard";
-import IssueForm from "../../components/IssueFrom/IssueForm";
+import IssueForm from "../../components/IssueForm/IssueForm";
 
-function KanbanColumn({
+export default function KanbanColumn({
   columnId,
   column,
   selectedTasks = [],
@@ -17,10 +17,6 @@ function KanbanColumn({
 }) {
   const { setNodeRef } = useDroppable({ id: columnId });
   const [open, setOpen] = useState(false);
-
-  const handleClick = () => {
-    setOpen(true);
-  };
 
   const statusMapReverse = {
     PREPARE: 1,
@@ -36,7 +32,7 @@ function KanbanColumn({
       <h3>
         {column.title}: {column.tasks.length}
       </h3>
-      <button className="add-task" onClick={handleClick}>
+      <button className="add-task" onClick={()=> setOpen(true)}>
         ➕ Thêm vấn đề
       </button>
       <div className="kanban-column-scroll">
@@ -64,6 +60,4 @@ function KanbanColumn({
       )}
     </div>
   );
-}
-
-export default KanbanColumn;
+};

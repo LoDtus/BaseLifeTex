@@ -26,23 +26,21 @@ import EditForm from "../../components/editForm/EditForm";
 import "./ListHome.scss";
 import TablePagination from "@mui/material/TablePagination";
 import Loading from "../../components/Loading/Loading"
-import { tr } from "date-fns/locale";
-export default function ListHome({  selectedTasks = [], setSelectedTasks, result }) {
+
+export default function ListHome({  selectedTasks = [], setSelectedTasks }) {
   const [searchParams] = useSearchParams();
   const idProject = searchParams.get("idProject");
-  const initialTaks = useSelector((state) => state.task);
-  // const [listTask, setListTask] = useState(initialTaks.listTask);
+  const listTask = useSelector((state) => state.task.listTask);
   const dispatch = useDispatch();
-  let listTask = useSelector((state)=>state.task.listTask),
-  Page = useSelector((state)=>state.task.page),
-  Limit = useSelector((state)=>state.task.limit),
-  Total = useSelector((state)=>state.task.total);
+  let Page = useSelector((state)=>state.task.page);
+  let Limit = useSelector((state)=>state.task.limit);
+  let Total = useSelector((state)=>state.task.total);
 
-  // useEffect(() => {
-  //   if (!result || result.length === 0) return;
-  //   setListTask(result);
-  // }, [result]);
-    const [loading, setLoading] = useState(false);
+  useEffect(() => {
+    dispatch(getListTaskByProjectIdRedux(idProject));
+  }, [idProject, dispatch]);
+
+  const [loading, setLoading] = useState(false);
   
   const getList = async ()=>{
     setLoading(true)
@@ -59,8 +57,7 @@ export default function ListHome({  selectedTasks = [], setSelectedTasks, result
   }
 
   useEffect(() => {
-    getList()
-
+    getList();
   }, [idProject, Page, Limit]);
   
 
@@ -214,7 +211,7 @@ export default function ListHome({  selectedTasks = [], setSelectedTasks, result
   };
   return (
     <div className="list-home-wrapper">
-     {loading ?<Loading /> : 
+      {loading ?<Loading /> : 
       <Paper className="table-paper" sx={{ width: "100%", overflow: "hidden" }}>
         <TableContainer className="table-container">
           <Table className="task-table" aria-label="sticky table">

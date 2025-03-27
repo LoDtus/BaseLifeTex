@@ -3,9 +3,9 @@ import {
   filterTask,
   getTasksByProject,
   deleteManyTasks,
-  getTaskByPagination
+  getTaskByPagination,
+  searchTasks
 } from "../services/taskService";
-import { act } from "react";
 
 export const getListTaskByProjectIdRedux = createAsyncThunk(
   "task/list",
@@ -49,6 +49,29 @@ export const getByIndexParanation = createAsyncThunk(
     }
   }
 );
+
+export const searchTasksInProject = createAsyncThunk(
+  "task/search",
+  async ({ searchQuery, idProject }, { rejectWithValue }) => {
+    try {
+      let result;
+      if (!searchQuery) {
+        result = await getTasksByProject(idProject);
+      } else {
+        result = await searchTasks(searchQuery);
+      }
+
+      if (result.success) {
+        return result.data;
+      } else {
+        return rejectWithValue(result.error);
+      }
+    } catch (error) {
+      return rejectWithValue(error.message);
+    }
+  }
+);
+
 const taskSlice = createSlice({
   name: "task",
   initialState: {
@@ -70,7 +93,7 @@ const taskSlice = createSlice({
     }
   },
   extraReducers: (builder) => {
-    builder
+    builder // Get List Task
       .addCase(getListTaskByProjectIdRedux.pending, (state) => {
         state.isFetching = true;
         state.error = null;
@@ -82,7 +105,7 @@ const taskSlice = createSlice({
       .addCase(getListTaskByProjectIdRedux.rejected, (state, action) => {
         state.isFetching = false;
         state.error = action.payload;
-      })
+      }) // Filter Tasks
       .addCase(filterTaskInProject.pending, (state) => {
         state.isFetching = true;
         state.error = null;
@@ -94,7 +117,7 @@ const taskSlice = createSlice({
       .addCase(filterTaskInProject.rejected, (state, action) => {
         state.isFetching = false;
         state.error = action.payload;
-      })
+      }) // Delete Many Tasks
       .addCase(deleteManyTasksRedux.pending, (state) => {
         state.isFetching = true;
       })
@@ -107,7 +130,7 @@ const taskSlice = createSlice({
       .addCase(deleteManyTasksRedux.rejected, (state, action) => {
         state.isFetching = false;
         state.error = action.payload;
-      })
+      }) // Get Tasks By Index Paranation
       .addCase(getByIndexParanation.pending,(state) => {
         state.isFetching = true;
       })
@@ -121,7 +144,18 @@ const taskSlice = createSlice({
       .addCase(getByIndexParanation.rejected,(state,action) => {
         state.isFetching = false;
         state.error = action.payload;
+      }) // Search Tasks
+      .addCase(searchTasksInProject.pending, (state) => {
+        state.isFetching = true;
       })
+      .addCase(searchTasksInProject.fulfilled, (state, action) => {
+        state.isFetching = false;
+        state.listTask = action.payload;
+      })
+      .addCase(searchTasksInProject.rejected, (state, action) => {
+        state.isFetching = false;
+        state.error = action.payload;
+      });
   },
 });
 
