@@ -9,40 +9,76 @@ import ListHome from "../../components/List/ListHome";
 import { getProjectId } from "../../services/projectService";
 import { getlistUser } from "../../services/userService";
 import FilterDialog from "../../components/FilterForm/FilterDialog";
+import { searchTasks } from "../../services/taskService";
+import { getTasksByProject } from "../../services/taskService";
+
 
 export default function Home() {
   const [anchorEl, setAnchorEl] = useState(null);
   const [searchParams] = useSearchParams();
-  const idProject = searchParams.get("idProject");
+  const idProject = searchParams.get("idProject") || "";
   const [viewMode, setViewMode] = useState("kanban");
   const [nameProject, setNameProject] = useState("Phần mềm đánh giá"); // Giá trị mặc định
   const [anchorElFilter, setAnchorElFilter] = useState(null);
-  const [listMember, setListMember] = useState([]);
+  const [keyword, setKeyword] = useState("");
+  const [debouncedKeyword, setDebouncedKeyword] = useState("");
+  const [result, setResult] = useState([]);
 
-  const getMemberByProject = async () => {
-    const response = await getlistUser(idProject);
-    if (response.success === true) {
-      setListMember(response.data);
+  async function fetchProjectData(idPrj) {
+    try {
+      const response = await getProjectId(idPrj);
+      if (response.success) {
+        setNameProject(response.data.name);
+      }
+    } catch (error) {
+      setNameProject("Phần mềm đánh giá");
+      throw error;
     }
-  };
+  }
 
   useEffect(() => {
     if (idProject) {
-      const fetchProjectData = async () => {
-        try {
-          const response = await getProjectId(idProject);
-          if (response.success) {
-            setNameProject(response.data.name);
-          }
-        } catch (error) {
-          setNameProject("Phần mềm đánh giá");
-          throw error;
-        }
-      };
-      fetchProjectData();
-      getMemberByProject();
+      fetchProjectData(idProject);
     }
   }, [idProject]);
+
+  async function getTasks(idPrj) {
+    const response = await getTasksByProject(idPrj);
+    return response;
+  }
+
+  async function searchByKeyword(keyword, idProject) {
+    if (!keyword) {
+      const response = await getTasks(idProject);
+      setResult(response.data);
+        return response;
+    } else {
+      try {
+        const response = await searchTasks(keyword);
+        setResult(response.data);
+        return response;
+      } catch (error) {
+        console.error("Search error:", error);
+        return null;
+      }
+    }
+  }
+
+  useEffect(() => {
+    setResult([]);
+    if (!idProject) return;
+
+    // Đợi 300ms mới cập nhật keyword mới, tránh cho server quá tải request, gây lỗi 500
+    const handler = setTimeout(() => {
+      setDebouncedKeyword(keyword);
+    }, 200);
+
+    return () => clearTimeout(handler); // Hủy timeout nếu keyword thay đổi
+  }, [keyword, idProject]);
+
+  useEffect(() => {
+    searchByKeyword(debouncedKeyword, idProject);
+  }, [debouncedKeyword, idProject]);
 
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
@@ -118,6 +154,7 @@ export default function Home() {
             type="text"
             placeholder="Tìm kiếm..."
             className="search-input"
+            onChange={(e) => setKeyword(e.target.value.trim())}
           />
           <div className="avatar-group">
             {listMember?.map((member, index) => (
@@ -180,7 +217,14 @@ export default function Home() {
 
       {/* Content Section */}
       <div className="content-section">
-        {viewMode === "kanban" ? <KanbanBoard /> : <ListHome />}
+        { viewMode === "kanban"
+          ? <KanbanBoard
+            result={result}
+          />
+          : <ListHome
+            result={result}
+          />
+        }
       </div>
     </div>
   );

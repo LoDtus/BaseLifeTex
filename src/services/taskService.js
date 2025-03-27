@@ -39,6 +39,17 @@ export const getlistUserInProjects = async (id) => {
   return response;
 };
 
+export const searchTasks = async(searchQuery) => {
+  const response = await axiosInstance.get(`/tasks/search`, {
+    params: { search: searchQuery }
+  });
+  return response.data;
+}
 
-
-
+export {
+  getTasks,
+  getTasksByProject,
+  updateTaskStatus,
+  getTaskDetailById,
+  filterTask,
+};

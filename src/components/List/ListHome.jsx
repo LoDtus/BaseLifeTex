@@ -24,12 +24,24 @@ import MemberListContent from "../../components/memberList/MemberList";
 import MemberListContentAdd from "../../components/memberListAdd/MemberListAdd";
 import EditForm from "../../components/editForm/EditForm";
 import "./ListHome.scss";
-import TablePagination from '@mui/material/TablePagination';
-const ListHome = () => {
+import TablePagination from "@mui/material/TablePagination";
+
+export default function ListHome({ result }) {
   const [searchParams] = useSearchParams();
   const idProject = searchParams.get("idProject");
-  const { listTask } = useSelector((state) => state.task);
+  const initialTaks = useSelector((state) => state.task);
+  const [listTask, setListTask] = useState(initialTaks.listTask);
   const dispatch = useDispatch();
+
+  useEffect(() => {
+    if (!result || result.length === 0) return;
+    setListTask(result);
+  }, [result]);
+
+  // useEffect(() => {
+  //   console.log(listTask);
+    
+  // }, [listTask]);
 
   useEffect(() => {
     dispatch(getListTaskByProjectIdRedux(idProject));
@@ -479,5 +491,3 @@ const styleSheet = document.createElement("style");
 styleSheet.type = "text/css";
 styleSheet.innerText = styles;
 document.head.appendChild(styleSheet);
-
-export default ListHome;
