@@ -67,9 +67,14 @@ function getStatusTitle(status) {
 }
 
 
-function KanbanBoard({ selectedTasks, setSelectedTasks, result }) {
+function KanbanBoard({ selectedTasks, setSelectedTasks }) {
   const dispatch = useDispatch();
-  const [listTask, setListTask] = useState(useSelector((state) => state.task.listTask));
+  const listTask = useSelector((state) => state.task.listTask);
+
+  useSelector(() => {
+    console.log("list: ", listTask);
+    
+  }, [listTask]);
   
   const [columns, setColumns] = useState({});
   const [searchParams] = useSearchParams();
@@ -79,11 +84,6 @@ function KanbanBoard({ selectedTasks, setSelectedTasks, result }) {
   const fetchData = async () => {
     dispatch(getListTaskByProjectIdRedux(idProject));
   };
-
-  useEffect(() => {
-    if (!result || result.length === 0) return;
-    setListTask(result);
-  }, [result]);
 
   useEffect(() => {
     if (listTask && listTask.length > 0) {
