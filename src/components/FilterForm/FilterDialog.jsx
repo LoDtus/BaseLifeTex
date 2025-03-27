@@ -23,7 +23,7 @@ export default function FilterDialog({ idProject }) {
     const getMemberByProject = async () => {
       const response = await getlistUserInProjects(idProject);
       if (response.data.success === true) {
-        setListMember(response.data.data.members);
+        setListMember(response.data.data);
       }
     };
     getMemberByProject();

@@ -188,7 +188,7 @@ const ListHome = () => {
           <Table className="task-table" aria-label="sticky table">
             <TableHead>
               <TableRow>
-                <TableCell className="table-header-cell"></TableCell>{" "}
+                <TableCell className="table-header-cell"></TableCell>
                 {/* Checkbox */}
                 <TableCell className="table-header-cell" align="center">
                   STT
@@ -203,33 +203,33 @@ const ListHome = () => {
                 <TableCell
                   className="table-header-cell"
                   align="left"
-                  style={{ minWidth: "150px" }}
+                  style={{ minWidth: "200px" }}
                 >
                   Tên công việc
                 </TableCell>
                 <TableCell
                   className="table-header-cell"
                   align="left"
-                  style={{ minWidth: "150px" }}
+                  style={{ minWidth: "200px" }}
                 >
                   Người nhận việc
                 </TableCell>
-                <TableCell className="table-header-cell" align="center">
+                <TableCell className="table-header-cell" align="center" style={{minWidth:"150px"}}>
                   Bình luận
                 </TableCell>
-                <TableCell className="table-header-cell" align="center">
+                <TableCell className="table-header-cell" align="center" style={{minWidth:"150px"}}>
                   Ngày bắt đầu
                 </TableCell>
-                <TableCell className="table-header-cell" align="center">
+                <TableCell className="table-header-cell" align="center" style={{minWidth:"150px"}}>
                   Ngày kết thúc
                 </TableCell>
-                <TableCell className="table-header-cell" align="center">
+                <TableCell className="table-header-cell" align="center"style={{minWidth:"150px"}}>
                   Trạng thái
                 </TableCell>
                 <TableCell
                   className="table-header-cell"
                   align="left"
-                  style={{ minWidth: "250px" }}
+                  style={{ minWidth: "200px" }}
                 >
                   Link
                 </TableCell>
