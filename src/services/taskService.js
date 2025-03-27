@@ -10,11 +10,19 @@ const getTasksByProject = async (projectId) => {
   return response.data;
 };
 
-const updateTaskStatus = async (taskId, status) => {
-  const response = await axiosInstance.put(`/tasks/${taskId}/status`, {
-    status,
-  });
-  return response.data;
+const updateTaskStatus = async (taskId, oldStatus, newStatus) => {
+  try {
+    console.log("Dữ liệu gửi đi:", { taskId, oldStatus, newStatus });
+    const response = await axiosInstance.put(`/tasks/${taskId}/status`, {
+      oldStatus: oldStatus,
+      newStatus: newStatus,
+    });
+    console.log("Phản hồi từ server:", response.data);
+    return response.data;
+  } catch (error) {
+    console.log("Cập nhật trạng thái công việc thất bại", error.response?.data || error);
+    throw error;
+  }
 };
 
 const getTaskDetailById = async (id) => {
