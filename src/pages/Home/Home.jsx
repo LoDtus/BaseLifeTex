@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import "./Home.scss";
 import { useSearchParams } from "react-router-dom";
-import { Popover } from "@mui/material";
+import { Avatar, Popover } from "@mui/material";
 import MemberListContent from "../../components/memberList/MemberList";
 import KanbanBoard from "../../components/Kanban/KanbanBoard";
 import ListHome from "../../components/List/ListHome";
@@ -121,7 +121,7 @@ export default function Home() {
           />
           <div className="avatar-group">
             {listMember?.map((member, index) => (
-              <img
+              <Avatar
                 key={index}
                 src={member.avatar}
                 alt={`Avatar ${index + 1}`}
