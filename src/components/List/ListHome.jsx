@@ -29,13 +29,19 @@ import TablePagination from "@mui/material/TablePagination";
 export default function ListHome({ result }) {
   const [searchParams] = useSearchParams();
   const idProject = searchParams.get("idProject");
-  const [listTask, setListTask] = useState(useSelector((state) => state.task));
+  const initialTaks = useSelector((state) => state.task);
+  const [listTask, setListTask] = useState(initialTaks.listTask);
   const dispatch = useDispatch();
 
   useEffect(() => {
     if (!result || result.length === 0) return;
     setListTask(result);
   }, [result]);
+
+  // useEffect(() => {
+  //   console.log(listTask);
+    
+  // }, [listTask]);
 
   useEffect(() => {
     dispatch(getListTaskByProjectIdRedux(idProject));
