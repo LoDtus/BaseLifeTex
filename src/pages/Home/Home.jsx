@@ -1,5 +1,5 @@
 // src/pages/Home/Home.jsx
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import "./Home.scss";
 import { useSearchParams } from "react-router-dom";
 import { Avatar, Popover } from "@mui/material";
@@ -29,12 +29,12 @@ export default function Home() {
   const [keyword, setKeyword] = useState("");
   const [debouncedKeyword, setDebouncedKeyword] = useState("");
 
-  const getMemberByProject = async () => {
+  const getMemberByProject = useCallback(async () => {
     const response = await getlistUser(idProject);
-    if (response.success === true) {
+    if (response.success) {
       setListMember(response.data);
     }
-  };
+  }, [idProject]);
 
   async function fetchProjectData(idPrj) {
     try {
@@ -53,7 +53,7 @@ export default function Home() {
       fetchProjectData(idProject);
       getMemberByProject();
     }
-  }, [idProject]);
+  }, [idProject, getMemberByProject]);
 
   useEffect(() => {
     if (!idProject) return;
@@ -69,7 +69,7 @@ export default function Home() {
   useEffect(() => {
     if (!idProject) return;
     dispatch(searchTasksInProject({ searchQuery: debouncedKeyword, idProject: idProject }));
-  }, [debouncedKeyword, idProject]);
+  }, [debouncedKeyword, idProject, dispatch]);
 
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
