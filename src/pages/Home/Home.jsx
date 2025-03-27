@@ -14,6 +14,7 @@ import {
   getListTaskByProjectIdRedux,
 } from "../../redux/taskSlice";
 import { useDispatch } from "react-redux";
+import { searchTasks, getTasksByProject } from "../../services/taskService";
 
 export default function Home() {
   const [anchorEl, setAnchorEl] = useState(null);
@@ -22,9 +23,17 @@ export default function Home() {
   const [viewMode, setViewMode] = useState("kanban");
   const [nameProject, setNameProject] = useState("Phần mềm đánh giá"); // Giá trị mặc định
   const [anchorElFilter, setAnchorElFilter] = useState(null);
+  const [listMember, setListMember] = useState([]);
   const [keyword, setKeyword] = useState("");
   const [debouncedKeyword, setDebouncedKeyword] = useState("");
   const [result, setResult] = useState([]);
+
+  const getMemberByProject = async () => {
+    const response = await getlistUser(idProject);
+    if (response.success === true) {
+      setListMember(response.data);
+    }
+  };
 
   async function fetchProjectData(idPrj) {
     try {
@@ -41,6 +50,7 @@ export default function Home() {
   useEffect(() => {
     if (idProject) {
       fetchProjectData(idProject);
+      getMemberByProject();
     }
   }, [idProject]);
 
@@ -254,11 +264,13 @@ const handleDeleteSelected = async () => {
       <div className="content-section">
         {viewMode === "kanban" ? (
           <KanbanBoard
+            result={result}
             setSelectedTasks={setSelectedTasks}
             selectedTasks={selectedTasks}
           />
         ) : (
           <ListHome
+            result={result}
             setSelectedTasks={setSelectedTasks}
             selectedTasks={selectedTasks}
           />
