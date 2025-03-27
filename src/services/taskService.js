@@ -60,4 +60,4 @@ export const searchTasks = async(searchQuery) => {
     params: { search: searchQuery }
   });
   return response.data;
-};
+}

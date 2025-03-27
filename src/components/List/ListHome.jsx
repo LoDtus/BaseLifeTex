@@ -37,11 +37,6 @@ export default function ListHome({  selectedTasks = [], setSelectedTasks, result
     setListTask(result);
   }, [result]);
 
-  // useEffect(() => {
-  //   console.log(listTask);
-    
-  // }, [listTask]);
-
   useEffect(() => {
     dispatch(getListTaskByProjectIdRedux(idProject));
   }, [idProject, dispatch]);
