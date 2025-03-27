@@ -26,7 +26,9 @@ import {
   getListCommentByTask,
   addCommentTask,
 } from "../../services/commentService";
+import { getListTaskByProjectIdRedux } from "../../redux/taskSlice";
 import { useDispatch, useSelector } from "react-redux";
+import CloseIcon from '@mui/icons-material/Close';
 
 const ITEM_HEIGHT = 48;
 const ITEM_PADDING_TOP = 8;
@@ -39,7 +41,7 @@ const MenuProps = {
   },
 };
 
-const KabanDetail = ({ open, task, handleClose }) => {
+const KabanDetail = ({ task, handleClose }) => {
   const { control } = useForm();
 
   const errorsDefault = {
@@ -90,32 +92,28 @@ const KabanDetail = ({ open, task, handleClose }) => {
   const getMemberByProject = async (projectId) => {
     const response = await getlistUser(projectId);
     if (response.success === true) {
-      setListMember(response.data && response.data.members);
+      setListMember(response.data && response.data);
     }
   };
 
   const getListComment = async (id) => {
-    if(user) {
+    if (user) {
       let response = await getListCommentByTask(id);
       if (response && response.success === true) {
-          setComments(response.data);
-          console.log(response.data);
-          
-      }
-      else {
-        toast.error(response.message)
+        setComments(response.data);
+      } else {
+        toast.error(response.message);
       }
     }
-  }
+  };
 
   const getDetailtask = async (id) => {
     let res = await getTaskDetailById(id);
-    if (res && res.data) {
-      setData({ ...res.data, assignerId: task.assignerId });
+    if (res && res.data && res.success === true) {
+      setData({ ...res.data });
       setSelectedPerson(task.assigneeId);
-    }
-    else {
-      toast.error(res.message)
+    } else {
+      toast.error(res.message);
     }
   };
 
@@ -147,19 +145,19 @@ const KabanDetail = ({ open, task, handleClose }) => {
           assignerId: data?.assignerId?._id,
           [type]: value,
         });
-        if (res.message === "Nhiệm vụ cập nhật thành công") {
-          toast.success(res.message);
-          setData({});
-          setErrorData(errorsDefault);
-          getDetailtask(task._id);
-          setOnlyRead(readOnlyDefault);
-          useDispatch(getListTaskByProjectIdRedux(task.projectId));
-        } else {
+        if (res && res.success) {
           toast.error(res.message);
           setData({});
           setErrorData(errorsDefault);
           getDetailtask(task._id);
           setOnlyRead(readOnlyDefault);
+        } else {
+          toast.success(res.message);
+          setData({});
+          setErrorData(errorsDefault);
+          getDetailtask(task._id);
+          setOnlyRead(readOnlyDefault);
+          dispatch(getListTaskByProjectIdRedux(task.projectId));
         }
       } else {
         setTimeout(() => {
@@ -170,7 +168,7 @@ const KabanDetail = ({ open, task, handleClose }) => {
         }, 3000);
       }
     } else {
-      e.preventDefault();
+      event.preventDefault();
     }
   };
 
@@ -184,7 +182,7 @@ const KabanDetail = ({ open, task, handleClose }) => {
 
   const validateField = (type, value) => {
     switch (type) {
-      case "assigneeId":
+      case "assigneeId": {
         if (!value || value.length === 0) {
           toast.error(errorMessages.assigneeId);
           setErrorData((prevErrorData) => ({
@@ -194,8 +192,9 @@ const KabanDetail = ({ open, task, handleClose }) => {
           return false;
         }
         break;
+      }
       case "startDate":
-      case "endDate":
+      case "endDate": {
         const startDate = cvDate(data.startDate);
         const endDate = cvDate(data.endDate);
 
@@ -235,13 +234,15 @@ const KabanDetail = ({ open, task, handleClose }) => {
           return false;
         }
         break;
-      default:
+      }
+      default: {
         if (!value) {
           toast.error(errorMessages[type]);
           setErrorData((prevErrorData) => ({ ...prevErrorData, [type]: true }));
           return false;
         }
         break;
+      }
     }
     return true;
   };
@@ -270,7 +271,7 @@ const KabanDetail = ({ open, task, handleClose }) => {
     }
   };
 
-  const handleSelectAssigneeIdBlur = async (value, e) => {
+  const handleSelectAssigneeIdBlur = async (type, value, e) => {
     if (user) {
       let check = validateField("assigneeId", value);
       if (check === true) {
@@ -313,7 +314,6 @@ const KabanDetail = ({ open, task, handleClose }) => {
           taskId: data._id,
           content: comment,
         });
-        console.log("Check cmt",res)
         if (res) {
           toast.success(res.message);
           setOnlyRead(readOnlyDefault);
@@ -338,7 +338,7 @@ const KabanDetail = ({ open, task, handleClose }) => {
     } else {
       toast.warning("Đăng nhập để thực hiện yêu cầu này!");
     }
-    getListComment(task._id)
+    getListComment(task._id);
   };
 
   const handleKeyDown = () => {
@@ -368,7 +368,7 @@ const KabanDetail = ({ open, task, handleClose }) => {
               <EventAvailableIcon /> kan-1
             </p>
             <button className="close-btn" onClick={handleClose}>
-              ✖
+              <CloseIcon/>
             </button>
           </div>
           <div className="content">
@@ -382,7 +382,7 @@ const KabanDetail = ({ open, task, handleClose }) => {
                   maxRows={1}
                   error={errorData.title}
                   placeholder="Nhập vấn đề..."
-                  value={data?.title}
+                  value={data?.title ?? ""}
                   onFocus={() => handleFocus("title")}
                   onBlur={(e) => handleBlurChange("title", data?.title, e)}
                   onChange={(e) => handleChangeInput("title", e.target.value)}
@@ -400,7 +400,7 @@ const KabanDetail = ({ open, task, handleClose }) => {
                   maxRows={10}
                   sx={{ marginTop: "8px" }}
                   placeholder="Nhập nội dung..."
-                  value={data?.description}
+                  value={data?.description ?? ""}
                   error={errorData.description}
                   onFocus={() => handleFocus("description")}
                   onBlur={(e) =>
@@ -475,7 +475,10 @@ const KabanDetail = ({ open, task, handleClose }) => {
                     comments.map((cmt) => (
                       <div key={cmt._id} className="comment">
                         <img
-                          src={cmt.userId.avatar || "https://w7.pngwing.com/pngs/922/214/png-transparent-computer-icons-avatar-businessperson-interior-design-services-corporae-building-company-heroes-thumbnail.png"}
+                          src={
+                            cmt.userId.avatar ||
+                            "https://w7.pngwing.com/pngs/922/214/png-transparent-computer-icons-avatar-businessperson-interior-design-services-corporae-building-company-heroes-thumbnail.png"
+                          }
                           alt="user"
                           className="avatar"
                         />
@@ -548,7 +551,7 @@ const KabanDetail = ({ open, task, handleClose }) => {
                               mb: 1,
                             }}
                           >
-                            {listMember.map((person) => (
+                            {listMember.length > 0 && listMember.map((person) => (
                               <MenuItem key={person._id} value={person._id}>
                                 <Checkbox
                                   checked={
@@ -609,7 +612,7 @@ const KabanDetail = ({ open, task, handleClose }) => {
                     maxRows={1}
                     error={errorData.link}
                     placeholder="Nhập link..."
-                    value={data?.link}
+                    value={data?.link ?? ""}
                     onFocus={() => handleFocus("link")}
                     onBlur={(e) => handleBlurChange("link", data?.link, e)}
                     onChange={(e) => handleChangeInput("link", e.target.value)}
@@ -621,7 +624,7 @@ const KabanDetail = ({ open, task, handleClose }) => {
               </div>
               <div className="kaban-description image">
                 <p>Hình ảnh:</p>
-                <p className="kaban-descrition-image">
+                <div className="kaban-descrition-image">
                   <Zoom>
                     <img
                       src={
@@ -631,7 +634,7 @@ const KabanDetail = ({ open, task, handleClose }) => {
                       alt="image"
                     />
                   </Zoom>
-                </p>
+                </div>
               </div>
               <div className="kaban-description">
                 <p>Trạng thái:</p>
@@ -640,7 +643,7 @@ const KabanDetail = ({ open, task, handleClose }) => {
                     <Select
                       size="small"
                       error={errorData.status}
-                      value={data?.status || ""}
+                      value={data?.status ?? ""}
                       onFocus={() => handleFocus("status")}
                       onBlur={(e) =>
                         handleBlurChange("status", data?.status, e)

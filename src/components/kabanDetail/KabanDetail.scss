@@ -76,7 +76,7 @@
           }
 
           .cancel-btn {
-            background-color: #bdbdbd !important; 
+            background-color: #bdbdbd !important;
             color: #fff;
           }
         }
@@ -149,7 +149,7 @@
             height: inherit !important;
             overflow-y: auto;
           }
-        } 
+        }
         .kaban-description-edit {
           flex: 2;
           width: inherit;
@@ -167,9 +167,9 @@
             max-height: 150px;
             display: block;
             img {
-              width: 100%;
+              width: 150px;
               height: auto;
-              object-fit: cover; 
+              object-fit: cover;
               display: block;
             }
           }

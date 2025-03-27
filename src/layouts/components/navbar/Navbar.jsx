@@ -3,7 +3,6 @@ import { useNavigate } from "react-router-dom"; // Import useNavigate for naviga
 
 import styles from "./Navbar.module.scss";
 import ProjectCard from "../../../components/projectCard/ProjectCard";
-import { getLstProject } from "../../../services/projectService";
 import Loading from "../../../components/Loading/Loading";
 import { useDispatch, useSelector } from "react-redux";
 import { getListProjectByUser } from "../../../redux/projectSlice";
@@ -13,13 +12,10 @@ export default function Navbar() {
   const [loading, setLoading] = useState(true); // State for loading
   const navigate = useNavigate(); // Initialize navigate
   const dispatch = useDispatch();
-
   const fetchProjects = async () => {
     setLoading(true); // Start loading
     try {
       dispatch(getListProjectByUser());
-    } catch (err) {
-      console.error("Failed to fetch projects:", err);
     } finally {
       setLoading(false); // End loading
     }

@@ -1,83 +1,56 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Modal, Box, TextField, Button, Backdrop } from "@mui/material";
+import {
+  getListCommentByTask,
+  addCommentTask,
+} from "../../services/commentService";
 import "./CommentModal.scss";
 import EventAvailableIcon from "@mui/icons-material/EventAvailable";
 import { toast, ToastContainer } from "react-toastify";
+import { useSelector } from "react-redux";
 
 const CommentModal = ({ open, handleClose, task }) => {
-  const listComment = [
-    {
-      id: "anb",
-      commentBy: "Tran Van C",
-      text: "Lỗi undefinde dòng 8",
-    },
-    {
-      id: "klj",
-      commentBy: "Nguyen Van A",
-      text: "Lỗi thiếu function",
-    },
-  ];
-
-  //   const errorsDefault = {
-  //     issueName: false,
-  //     description: false,
-  //     link: false,
-  //     personName: false,
-  //     startDate: false,
-  //     endDate: false,
-  //     status: false,
-  //   };
-
-  //   const errorMessages = {
-  //     issueName: "Tên vấn đề không được để trống!",
-  //     description: "Mô tả không được để trống!",
-  //     link: "Link không được để trống!",
-  //     personName: "Tên người không được để trống!",
-  //     startDate: "Ngày bắt đầu không được để trống!",
-  //     endDate: "Ngày kết thúc không được để trống!",
-  //     status: "Trạng thái không được để trống!",
-  //   };
-
-  const [comment, setComment] = useState("");
-  const [comments, setComments] = useState(listComment);
-
-  //   const [errorData, setErrorData] = useState(errorsDefault);
-
-  //   const handleBlurChange = async (type, value) => {
-  //     if (type) {
-  //       if (type === "personName") {
-  //         if (value && value.length > 0) {
-  //           console.log(data);
-  //           setErrorData({ ...errorData, [type]: false });
-  //         } else {
-  //           setErrorData({ ...errorData, [type]: true });
-  //           toast.error(errorMessages[type]);
-  //         }
-  //       } else if (type === "startDate" || type === "endDate") {
-  //         if (value && typeof value.isValid === "function" && value.isValid()) {
-  //           console.log(data);
-  //           setErrorData({ ...errorData, [type]: false });
-  //         } else {
-  //           setErrorData({ ...errorData, [type]: true });
-  //           toast.error(errorMessages[type]);
-  //         }
-  //       } else {
-  //         if (value || value === 0) {
-  //           console.log(data);
-  //           setErrorData({ ...errorData, [type]: false });
-  //         } else {
-  //           setErrorData({ ...errorData, [type]: true });
-  //           toast.error(errorMessages[type]);
-  //         }
-  //       }
-  //     }
-  //   };
-
-  console.log(task);
-
-  const handleAddComment = () => {
-    console.log(task);
+  const user = useSelector((state) => state.auth.login.currentUser);
+  const getListComment = async (id) => {
+    if (user) {
+      let response = await getListCommentByTask(id);
+      if (response && response.success === true) {
+        setComments(response.data);
+      } else {
+        toast.error(response.message);
+      }
+    }
   };
+  const [comment, setComment] = useState("");
+  const [comments, setComments] = useState([]);
+
+  const handleAddComment = async () => {
+    if (user && user.data) {
+      if (comment) {
+        let res = await addCommentTask({
+          taskId: task._id,
+          content: comment,
+        });
+        if (res && res.success === true) {
+          toast.success(res.message);
+          setComment("");
+        } else {
+          toast.error(res.message);
+          setComment("");
+        }
+      } else {
+        toast.error("Comment không được để trống");
+      }
+    } else {
+      toast.warning("Đăng nhập để thực hiện yêu cầu này!");
+    }
+    getListComment(task._id);
+  };
+  useEffect(() => {
+    if (task) {
+      getListComment(task._id);
+    }
+  }, [task]);
 
   return (
     <>
@@ -134,20 +107,27 @@ const CommentModal = ({ open, handleClose, task }) => {
                     Hủy
                   </Button>
                 </div>
-                <div className="comment-list">
-                  {comments.map((cmt) => (
-                    <div key={cmt.id} className="comment">
-                      <img
-                        src="https://w7.pngwing.com/pngs/922/214/png-transparent-computer-icons-avatar-businessperson-interior-design-services-corporae-building-company-heroes-thumbnail.png"
-                        alt="user"
-                        className="avatar"
-                      />
-                      <div className="cmt-text">
-                        <p>{cmt.commentBy}</p>
-                        <p>{cmt.text}</p>
+                <div
+                  className={user ? "comment-list fix-height" : "comment-list"}
+                >
+                  {comments &&
+                    comments.length > 0 &&
+                    comments.map((cmt) => (
+                      <div key={cmt._id} className="comment">
+                        <img
+                          src={
+                            cmt.userId.avatar ||
+                            "https://w7.pngwing.com/pngs/922/214/png-transparent-computer-icons-avatar-businessperson-interior-design-services-corporae-building-company-heroes-thumbnail.png"
+                          }
+                          alt="user"
+                          className="avatar"
+                        />
+                        <div className="cmt-text">
+                          <p>{cmt.userId.userName}</p>
+                          <p>{cmt.content}</p>
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    ))}
                 </div>
               </div>
             </div>

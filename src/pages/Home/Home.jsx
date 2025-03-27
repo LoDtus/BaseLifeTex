@@ -7,28 +7,29 @@ import MemberListContent from "../../components/memberList/MemberList";
 import KanbanBoard from "../../components/Kanban/KanbanBoard";
 import ListHome from "../../components/List/ListHome";
 import { getProjectId } from "../../services/projectService";
-
+import FilterDialog from "../../components/FilterForm/FilterDialog";
 export default function Home() {
   const [anchorEl, setAnchorEl] = useState(null);
   const [searchParams] = useSearchParams();
   const idProject = searchParams.get("idProject");
   const [viewMode, setViewMode] = useState("kanban");
   const [nameProject, setNameProject] = useState("Phần mềm đánh giá"); // Giá trị mặc định
+  const [anchorElFilter, setAnchorElFilter] = useState(null);
 
   useEffect(() => {
     if (idProject) {
       const fetchProjectData = async () => {
         try {
-          const response = await getProjectId(idProject); 
+          const response = await getProjectId(idProject);
           if (response.success) {
             setNameProject(response.data.name);
           }
         } catch (error) {
-          console.error("Lỗi khi lấy thông tin dự án:", error);
-          setNameProject("Phần mềm đánh giá"); 
+          setNameProject("Phần mềm đánh giá");
+          throw error;
         }
       };
-      fetchProjectData(); 
+      fetchProjectData();
     }
   }, [idProject]);
 
@@ -48,6 +49,16 @@ export default function Home() {
     setViewMode("list");
   };
 
+  const handleClickFilter = (event) => {
+    setAnchorElFilter(event.currentTarget); // Mở Popover Filter
+  };
+
+  const handleCloseFilter = () => {
+    setAnchorElFilter(null); // Đóng Popover Filter
+  };
+
+  const openFilter = Boolean(anchorElFilter);
+  const filterId = openFilter ? "filter-popover" : undefined;
   return (
     <div className="home-container">
       {/* Header Section */}
@@ -90,7 +101,11 @@ export default function Home() {
               d="M21 21l-4.35-4.35m2.6-5.15a7 7 0 11-14 0 7 7 0 0114 0z"
             />
           </svg>
-          <input type="text" placeholder="Tìm kiếm..." className="search-input" />
+          <input
+            type="text"
+            placeholder="Tìm kiếm..."
+            className="search-input"
+          />
           <div className="avatar-group">
             {[
               "image/image_4.png",
@@ -125,7 +140,25 @@ export default function Home() {
         <div className="task-header">
           <div className="task-icons">
             <img src="image/Trash.png" alt="Delete" className="tool-icon" />
-            <img src="image/Filter.png" alt="Filter" className="tool-icon" />
+            <img
+              src="image/Filter.png"
+              alt="Filter"
+              className="tool-icon"
+              onClick={handleClickFilter}
+              aria-describedby={filterId}
+            />
+            <Popover
+              id={filterId}
+              open={openFilter}
+              anchorEl={anchorElFilter}
+              onClose={handleCloseFilter}
+              anchorOrigin={{
+                vertical: "bottom",
+                horizontal: "left",
+              }}
+            >
+              <FilterDialog idProject={idProject} />
+            </Popover>
           </div>
         </div>
       </div>

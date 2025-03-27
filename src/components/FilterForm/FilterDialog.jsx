@@ -1,14 +1,5 @@
 import React, { useEffect, useState } from "react";
-import {
-  Box,
-  Button,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  TextField,
-  MenuItem,
-  IconButton,
-} from "@mui/material";
+import { Box, Button, TextField, MenuItem } from "@mui/material";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
@@ -16,7 +7,6 @@ import { DemoContainer } from "@mui/x-date-pickers/internals/demo";
 import { useDispatch } from "react-redux";
 import "./FilterDialog.scss";
 import { filterTaskInProject } from "../../redux/taskSlice";
-import { getlistUser } from "../../apis/use";
 import { getlistUserInProjects } from "../../services/taskService";
 
 export default function FilterDialog({ idProject }) {
@@ -29,26 +19,22 @@ export default function FilterDialog({ idProject }) {
 
   const [listMember, setListMember] = useState([]);
 
-  const getMemberByProject = async () => {
-    const response = await getlistUserInProjects(idProject);
-    if (response.data.success === true) {
-      setListMember(response.data.data.members);
-    }
-  };
-
-  console.log(listMember);
-
   useEffect(() => {
+    const getMemberByProject = async () => {
+      const response = await getlistUserInProjects(idProject);
+      if (response.data.success === true) {
+        setListMember(response.data.data);
+      }
+    };
     getMemberByProject();
   }, [idProject]);
 
-  const handleChange = (field, value) => {
+  function handleChange(field, value) {
     setFilters((prev) => ({ ...prev, [field]: value }));
-  };
+  }
   const dispatch = useDispatch();
 
   const onfilterTask = () => {
-    // console.log(filters);
     dispatch(filterTaskInProject({ projectId: idProject, data: filters }));
   };
 

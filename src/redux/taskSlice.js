@@ -1,13 +1,11 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { getLisTaskById } from "../apis/Issue";
-// import axiosInstance from "../services/apiService";
-import { filterTask, updateTaskStatus } from "../services/taskService";
+import { filterTask, getTasksByProject } from "../services/taskService";
 
 export const getListTaskByProjectIdRedux = createAsyncThunk(
   "task/list",
   async (projectId, { rejectWithValue }) => {
     try {
-      const response = await getLisTaskById(projectId);
+      const response = await getTasksByProject(projectId);
       return response.data;
     } catch (error) {
       return rejectWithValue(error.message);
@@ -18,12 +16,8 @@ export const getListTaskByProjectIdRedux = createAsyncThunk(
 export const filterTaskInProject = createAsyncThunk(
   "task/filterTaskInProject",
   async ({ projectId, data }) => {
-    try {
-      const response = await filterTask(projectId, data);
-      return response.data;
-    } catch (error) {
-      console.log(error);
-    }
+    const response = await filterTask(projectId, data);
+    return response.data;
   }
 );
 const taskSlice = createSlice({
@@ -44,7 +38,6 @@ const taskSlice = createSlice({
       .addCase(getListTaskByProjectIdRedux.fulfilled, (state, action) => {
         state.isFetching = false;
         state.listTask = action.payload;
-        console.log("response", state.listTask);
       })
       .addCase(getListTaskByProjectIdRedux.rejected, (state, action) => {
         state.isFetching = false;

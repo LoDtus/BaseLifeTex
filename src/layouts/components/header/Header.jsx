@@ -17,17 +17,11 @@ export default function Header() {
   const handleLogout = async () => {
     const accessToken = user?.data?.accessToken;
     if (!accessToken) {
-      console.error("Không tìm thấy accessToken trong Redux store", user);
       toast.error("Vui lòng đăng nhập lại!");
       navigate("/");
       return;
     }
-
-    try {
-      await logoutUser(dispatch, navigate, accessToken);
-    } catch (error) {
-      console.error("Lỗi khi đăng xuất:", error);
-    }
+    await logoutUser(dispatch, navigate, accessToken);
   };
 
   return (

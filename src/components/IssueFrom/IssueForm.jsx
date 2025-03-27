@@ -19,8 +19,8 @@ import {
 import CloseIcon from "@mui/icons-material/Close";
 import { useForm, Controller } from "react-hook-form";
 import UploadImageButton from "../UploadDownloadImage/UploadDownloadImage";
-import { getlistUser } from "../../apis/use";
-import { postIssueData } from "../../apis/Issue";
+import { getlistUser } from "../../services/userService";
+import { postIssueData } from "../../services/issueService";
 import { useSearchParams } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { toast } from "react-toastify";
@@ -44,13 +44,13 @@ const IssueForm = ({ isOpen, onClose, status }) => {
   const [loading, setLoading] = useState(false);
   const idProject = searchParams.get("idProject");
   const [image, setImage] = useState();
+  const dispatch = useDispatch();
 
   const user = useSelector((state) => state.auth.login.currentUser);
-  const token = user.accessToken;
+  console.log(user);
   const {
     register,
     handleSubmit,
-    watch,
     reset,
     formState: { errors },
     control,
@@ -59,16 +59,13 @@ const IssueForm = ({ isOpen, onClose, status }) => {
   const onSubmit = async (data) => {
     setLoading(true); // Bắt đầu loading
     try {
-      const issueData = await postIssueData(
-        {
-          ...data,
-          image,
-          status,
-          idProject,
-          assignerId: user.data._id,
-        },
-        token
-      );
+      const issueData = await postIssueData({
+        ...data,
+        image,
+        status,
+        idProject,
+        assignerId: user.data.user._id,
+      });
       if (issueData) {
         toast.success("Tạo nhiệm vụ thành công");
         dispatch(getListTaskByProjectIdRedux(idProject));
@@ -77,9 +74,8 @@ const IssueForm = ({ isOpen, onClose, status }) => {
         toast.error("Tạo nhiệm vụ thất bại");
       }
     } catch (error) {
-      console.log("error", error);
-
-      toast.error("Tạo nhiệm vụ thất bại 123", error);
+      toast.error("Tạo nhiệm vụ thất bại", error);
+      throw error;
     } finally {
       reset();
       setLoading(false); // Kết thúc loading
@@ -87,15 +83,12 @@ const IssueForm = ({ isOpen, onClose, status }) => {
   };
   useEffect(() => {
     const fetchData = async () => {
-      try {
-        const data = await getlistUser(token, idProject);
-        setSelectedPerson(data.members);
-      } catch (error) {
-        console.error("Error fetching user list:", error);
-      }
+      const data = await getlistUser(idProject);
+
+      setSelectedPerson(data.data);
     };
     fetchData();
-  }, [searchParams]);
+  }, [searchParams, idProject]);
 
   return (
     <Dialog
