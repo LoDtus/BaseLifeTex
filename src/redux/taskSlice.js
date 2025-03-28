@@ -80,7 +80,7 @@ const taskSlice = createSlice({
     searchQuery: "",  // Thêm searchQuery để lưu từ khóa tìm kiếm
     isFetching: false,
     total: 0,
-    limit: 5,
+    limit: 10,
     page: 1,
     error: null,
   },

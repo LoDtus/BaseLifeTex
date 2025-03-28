@@ -1,28 +1,23 @@
 import React, { useEffect, useState } from "react";
 import { Modal, Box, TextField, Button, Backdrop } from "@mui/material";
 import {
-  getListCommentByTask,
+  getPaginateCommentByTask,
   addCommentTask,
 } from "../../services/commentService";
 import "./CommentModal.scss";
 import EventAvailableIcon from "@mui/icons-material/EventAvailable";
 import { toast, ToastContainer } from "react-toastify";
 import { useSelector } from "react-redux";
+import Pagination from "@mui/material/Pagination";
+import Stack from "@mui/material/Stack";
 
 const CommentModal = ({ open, handleClose, task }) => {
   const user = useSelector((state) => state.auth.login.currentUser);
-  const getListComment = async (id) => {
-    if (user) {
-      let response = await getListCommentByTask(id);
-      if (response && response.success === true) {
-        setComments(response.data);
-      } else {
-        toast.error(response.message);
-      }
-    }
-  };
   const [comment, setComment] = useState("");
   const [comments, setComments] = useState([]);
+  const [totalPage, setTotalPage] = useState(0);
+  const [page, setPage] = useState(1);
+  const [limit, setLimit] = useState(2);
 
   const handleAddComment = async () => {
     if (user && user.data) {
@@ -44,13 +39,31 @@ const CommentModal = ({ open, handleClose, task }) => {
     } else {
       toast.warning("Đăng nhập để thực hiện yêu cầu này!");
     }
-    getListComment(task._id);
+    getPaginateComment(task._id, page, limit);
   };
+
+  const handleChange = (event, value) => {
+    setPage(value);
+  };
+
+  const getPaginateComment = async (id, page, limit) => {
+    if (user) {
+      let response = await getPaginateCommentByTask(id, page, limit);
+      if (response && response.success === true) {
+        setComments(response.data);
+        setTotalPage(response.totalPage);
+        setPage(response.page);
+      } else {
+        toast.error(response.message);
+      }
+    }
+  };
+
   useEffect(() => {
     if (task) {
-      getListComment(task._id);
+      getPaginateComment(task._id, page, limit);
     }
-  }, [task]);
+  }, [task, page, limit]);
 
   return (
     <>
@@ -88,7 +101,7 @@ const CommentModal = ({ open, handleClose, task }) => {
                     size="small"
                     fullWidth
                     multiline
-                    minRows={3}
+                    minRows={2}
                     placeholder="Nhập bình luận..."
                     value={comment}
                     onChange={(e) => setComment(e.target.value)}
@@ -128,6 +141,15 @@ const CommentModal = ({ open, handleClose, task }) => {
                         </div>
                       </div>
                     ))}
+                  {totalPage > 1 && (
+                    <Stack spacing={2} sx={{ textAlign: "center" }}>
+                      <Pagination
+                        count={totalPage}
+                        page={page}
+                        onChange={handleChange}
+                      />
+                    </Stack>
+                  )}
                 </div>
               </div>
             </div>
