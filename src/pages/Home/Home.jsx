@@ -116,6 +116,17 @@ export default function Home() {
   const openMember = Boolean(anchorEl);
   const filterId = openFilter ? "filter-popover" : undefined;
   const memberId = openMember ? "member-popover" : undefined;
+
+  const [searchTerm, setSearchTerm] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedSearch(searchTerm);
+    }, 500); // Delay 300ms
+
+    return () => clearTimeout(handler); // Clear timeout nếu người dùng tiếp tục gõ
+  }, [searchTerm]);
+
   return (
     <div className="home-container">
       {/* Header Section */}
@@ -162,7 +173,8 @@ export default function Home() {
             type="text"
             placeholder="Tìm kiếm..."
             className="search-input"
-            onChange={(e) => setKeyword(e.target.value.trim())}
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
           />
           <div className="avatar-group">
             {listMember?.map((member, index) => (
@@ -242,6 +254,7 @@ export default function Home() {
           <ListHome
             setSelectedTasks={setSelectedTasks}
             selectedTasks={selectedTasks}
+            searchTerm={debouncedSearch}
           />
         )}
       </div>
