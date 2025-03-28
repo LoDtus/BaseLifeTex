@@ -36,11 +36,10 @@ const MenuProps = {
 
 // Using a simpler date input approach instead of MUI date pickers
 
-const EditForm = ({ isOpen, onClose, task, idProject }) => {
-  const token = "jhgshddabjsbbdak";
+const EditForm = ({ isOpen, onClose, task }) => {
   const [listMember, setListMember] = useState([]);
   const getMemberByProject = async () => {
-    const response = await getlistUser(token, idProject);
+    const response = await getlistUser(task.idProject);
     if (response.members) {
       setListMember(response.members);
     }

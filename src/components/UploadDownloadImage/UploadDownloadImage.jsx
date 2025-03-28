@@ -3,16 +3,14 @@ import styles from "./UploadDownloadImage.module.scss";
 import Zoom from "react-medium-image-zoom";
 import "react-medium-image-zoom/dist/styles.css";
 
-const UploadImageButton = ({ onImageChange }) => {
-  const [urlImage, setUrlImage] = useState();
-  const [localImage, setLocalImage] = useState();
+const UploadImageButton = ({ onImageChange, Image = null }) => {
+  const [urlImage, setUrlImage] = useState(Image);
 
   const handleUpload = (event) => {
     const file = event.target.files[0];
     if (file) {
       const imageUrl = URL.createObjectURL(file);
-      setUrlImage(imageUrl); // Lưu URL ảnh vào state
-      setLocalImage(file); // Lưu file ảnh vào state
+      setUrlImage(imageUrl || null); // Đảm bảo không truyền chuỗi rỗng
       onImageChange(file); // Gọi callback để cập nhật ảnh trong IssueForm
     }
   };
@@ -33,7 +31,7 @@ const UploadImageButton = ({ onImageChange }) => {
           className={styles.uploadButton}
         />
       </label>
-      {localImage && (
+      {urlImage && (
         <Zoom>
           <img
             src={urlImage}

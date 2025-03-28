@@ -31,6 +31,7 @@ import EditForm from "../../components/editForm/EditForm";
 import "./ListHome.scss";
 import TablePagination from "@mui/material/TablePagination";
 import Loading from "../../components/Loading/Loading";
+import EditFormv2 from "../editFormv2/editFormv2";
 
 export default function ListHome({ selectedTasks = [], setSelectedTasks }) {
   const [searchParams] = useSearchParams();
@@ -511,11 +512,10 @@ export default function ListHome({ selectedTasks = [], setSelectedTasks }) {
                         <EditNoteIcon className="action-icon" />
                       </Button>
                       {idEditModal === task._id && (
-                        <EditForm
+                        <EditFormv2
                           isOpen={editModal}
                           onClose={editModalClose}
                           task={task}
-                          idProject={idProject}
                         />
                       )}
                     </TableCell>
