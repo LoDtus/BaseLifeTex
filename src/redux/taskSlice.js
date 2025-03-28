@@ -135,7 +135,7 @@ const taskSlice = createSlice({
       })
       .addCase(getByIndexParanation.fulfilled, (state, action) => {
         state.isFetching = false;
-        state.listTask = action.payload.data;
+        state.listTask = action.payload.data; // Gán lại listTask
         state.page = action.payload.page;
         state.limit = action.payload.limit;
         state.total = action.payload.total;
