@@ -4,7 +4,7 @@ import {
   getTasksByProject,
   deleteManyTasks,
   getTaskByPagination,
-  searchTasks
+  searchTasks,
 } from "../services/taskService";
 
 export const getListTaskByProjectIdRedux = createAsyncThunk(
@@ -40,8 +40,8 @@ export const deleteManyTasksRedux = createAsyncThunk(
 );
 export const getByIndexParanation = createAsyncThunk(
   "task/getByIndexParanation",
-  async ({projectId,page,pageSize}, { rejectWithValue }) => {
-    const reponse = await getTaskByPagination(projectId,+page,+pageSize);    
+  async ({ projectId, page, pageSize }, { rejectWithValue }) => {
+    const reponse = await getTaskByPagination(projectId, +page, +pageSize);
     if (reponse.success) {
       return reponse;
     } else {
@@ -78,19 +78,18 @@ const taskSlice = createSlice({
     listTask: [],
     listComment: [],
     isFetching: false,
-    total:0,
-    limit:5,
-    page:1,
+    total: 0,
+    limit: 5,
+    page: 1,
     error: null,
   },
   reducers: {
-    changePage: (state,action) => {
+    changePage: (state, action) => {
       state.page = action.payload + 1; // Chuyển từ 0-based sang 1-based
     },
     changeRowPerPage: (state, action) => {
-      state.limit = action.payload,
-      state.page = 1
-    }
+      (state.limit = action.payload), (state.page = 1);
+    },
   },
   extraReducers: (builder) => {
     builder // Get List Task
@@ -131,17 +130,17 @@ const taskSlice = createSlice({
         state.isFetching = false;
         state.error = action.payload;
       }) // Get Tasks By Index Paranation
-      .addCase(getByIndexParanation.pending,(state) => {
+      .addCase(getByIndexParanation.pending, (state) => {
         state.isFetching = true;
       })
-      .addCase(getByIndexParanation.fulfilled,(state,action) => {
+      .addCase(getByIndexParanation.fulfilled, (state, action) => {
         state.isFetching = false;
         state.listTask = action.payload.data;
         state.page = action.payload.page;
         state.limit = action.payload.limit;
-        state.total = action.payload.total
+        state.total = action.payload.total;
       })
-      .addCase(getByIndexParanation.rejected,(state,action) => {
+      .addCase(getByIndexParanation.rejected, (state, action) => {
         state.isFetching = false;
         state.error = action.payload;
       }) // Search Tasks
@@ -159,9 +158,6 @@ const taskSlice = createSlice({
   },
 });
 
-export const {
-  changePage,
-  changeRowPerPage
-} = taskSlice.actions;
+export const { changePage, changeRowPerPage } = taskSlice.actions;
 
 export default taskSlice.reducer;
