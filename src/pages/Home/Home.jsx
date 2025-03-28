@@ -117,10 +117,11 @@ export default function Home() {
   useEffect(() => {
     const handler = setTimeout(() => {
       setDebouncedSearch(searchTerm);
-    }, 1500); // Delay 300ms
+    }, 500); // Delay 300ms
 
     return () => clearTimeout(handler); // Clear timeout nếu người dùng tiếp tục gõ
   }, [searchTerm]);
+
   return (
     <div className="home-container">
       {/* Header Section */}
