@@ -1,15 +1,14 @@
-// KanbanBoard.jsx
 import { closestCorners, DndContext } from "@dnd-kit/core";
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import KanbanColumn from "./KanbanColumn";
-import KanbanTaskCard from "./KanbanTaskCard";
 import { updateTaskStatus } from "../../services/taskService";
 import { useSearchParams } from "react-router-dom";
 import "./KanbaBoard.scss";
 import { getListTaskByProjectIdRedux } from "../../redux/taskSlice";
 import { useDispatch, useSelector } from "react-redux";
+import { toast } from "react-toastify";
 
-// Hàm ánh xạ dữ liệu từ server sang các cột Kanban (giữ nguyên)
+// Hàm ánh xạ dữ liệu từ server sang các cột Kanban
 function transformTasksData(tasks) {
   return tasks.reduce(
     (acc, task) => {
@@ -17,7 +16,7 @@ function transformTasksData(tasks) {
         1: "PREPARE", // Công việc mới
         2: "IN_PROGRESS", // Đang thực hiện
         3: "FINISH", // Hoàn thành
-        4: "NOT_DO", // Không làm
+        4: "NOT_DO", // Khóa công việc
       };
 
       const columnKey = statusMap[task.status] || "PREPARE";
@@ -54,7 +53,7 @@ function transformTasksData(tasks) {
   );
 }
 
-// Hàm lấy tiêu đề cho từng trạng thái (giữ nguyên)
+// Hàm lấy tiêu đề cho từng trạng thái
 function getStatusTitle(status) {
   const titles = {
     PREPARE: "Công việc mới",
@@ -68,14 +67,16 @@ function getStatusTitle(status) {
 function KanbanBoard({ selectedTasks, setSelectedTasks }) {
   const dispatch = useDispatch();
   const listTask = useSelector((state) => state.task.listTask);
-
   const [columns, setColumns] = useState({});
   const [searchParams] = useSearchParams();
-  const [taskToUpdate, setTaskToUpdate] = useState(null);
   const idProject = searchParams.get("idProject");
 
   const fetchData = async () => {
-    dispatch(getListTaskByProjectIdRedux(idProject));
+    try {
+      await dispatch(getListTaskByProjectIdRedux(idProject));
+    } catch (error) {
+      toast.error("Lấy danh sách công việc thất bại", { autoClose: 3000 });
+    }
   };
 
   useEffect(() => {
@@ -91,35 +92,91 @@ function KanbanBoard({ selectedTasks, setSelectedTasks }) {
     }
   }, [idProject, dispatch]);
 
-  const onDragEnd = (event) => {
+  const onDragStart = (event) => {
+    const { active } = event;
+    // Có thể thêm logic nếu cần khi bắt đầu kéo
+  };
+
+  const onDragOver = (event) => {
     const { active, over } = event;
 
     if (!over) return;
 
-    // Tìm cột nguồn và cột đích
     const sourceColumnKey = Object.keys(columns).find((key) =>
       columns[key].tasks.find((task) => task.id === active.id)
     );
-    const destinationColumnKey =
-      Object.keys(columns).find((key) =>
-        columns[key].tasks.find((task) => task.id === over.id)
-      ) || over.id;
 
     if (!sourceColumnKey) return;
 
-    // Nếu kéo thả trong cùng một cột
+    let destinationColumnKey;
+    if (over.id in columns) {
+      destinationColumnKey = over.id;
+    } else {
+      destinationColumnKey = Object.keys(columns).find((key) =>
+        columns[key].tasks.find((task) => task.id === over.id)
+      );
+    }
+
+    if (!destinationColumnKey) return;
+
     if (sourceColumnKey === destinationColumnKey) {
       const sourceColumn = columns[sourceColumnKey];
       const oldIndex = sourceColumn.tasks.findIndex(
         (task) => task.id === active.id
       );
-      const newIndex = sourceColumn.tasks.findIndex(
+      const newIndex = over.id in columns ? 0 : sourceColumn.tasks.findIndex(
         (task) => task.id === over.id
       );
 
       if (oldIndex === newIndex) return;
 
-      // Sắp xếp lại task trong cùng cột
+      const newTasks = [...sourceColumn.tasks];
+      const [movedTask] = newTasks.splice(oldIndex, 1);
+      newTasks.splice(newIndex, 0, movedTask);
+
+      setColumns((prev) => ({
+        ...prev,
+        [sourceColumnKey]: {
+          ...sourceColumn,
+          tasks: newTasks,
+        },
+      }));
+    }
+  };
+
+  const onDragEnd = async (event) => {
+    const { active, over } = event;
+
+    if (!over) return;
+
+    const sourceColumnKey = Object.keys(columns).find((key) =>
+      columns[key].tasks.find((task) => task.id === active.id)
+    );
+
+    if (!sourceColumnKey) return;
+
+    let destinationColumnKey;
+    if (over.id in columns) {
+      destinationColumnKey = over.id;
+    } else {
+      destinationColumnKey = Object.keys(columns).find((key) =>
+        columns[key].tasks.find((task) => task.id === over.id)
+      );
+    }
+
+    if (!destinationColumnKey) return;
+
+    if (sourceColumnKey === destinationColumnKey) {
+      const sourceColumn = columns[sourceColumnKey];
+      const oldIndex = sourceColumn.tasks.findIndex(
+        (task) => task.id === active.id
+      );
+      const newIndex = over.id in columns ? 0 : sourceColumn.tasks.findIndex(
+        (task) => task.id === over.id
+      );
+
+      if (oldIndex === newIndex) return;
+
       const newTasks = [...sourceColumn.tasks];
       const [movedTask] = newTasks.splice(oldIndex, 1);
       newTasks.splice(newIndex, 0, movedTask);
@@ -134,7 +191,6 @@ function KanbanBoard({ selectedTasks, setSelectedTasks }) {
       return;
     }
 
-    // Nếu kéo thả giữa các cột
     const taskToMove = columns[sourceColumnKey].tasks.find(
       (task) => task.id === active.id
     );
@@ -148,46 +204,42 @@ function KanbanBoard({ selectedTasks, setSelectedTasks }) {
       NOT_DO: 4,
     };
 
-    const oldStatus = taskToMove.status; // Lưu trạng thái cũ
-    const newStatus = statusMapReverse[destinationColumnKey]; // Trạng thái mới
-    taskToMove.status = newStatus;
+    const oldStatus = taskToMove.status;
+    const newStatus = statusMapReverse[destinationColumnKey];
+
+    const previousColumns = { ...columns };
 
     setColumns((prev) => {
       const newColumns = { ...prev };
-      newColumns[sourceColumnKey].tasks = newColumns[
-        sourceColumnKey
-      ].tasks.filter((task) => task.id !== active.id);
+      newColumns[sourceColumnKey].tasks = newColumns[sourceColumnKey].tasks.filter(
+        (task) => task.id !== active.id
+      );
       newColumns[destinationColumnKey].tasks = [
-        ...newColumns[destinationColumnKey].tasks,
         taskToMove,
+        ...newColumns[destinationColumnKey].tasks,
       ];
       return newColumns;
     });
 
-    // Cập nhật taskToUpdate với cả oldStatus và newStatus
-    setTaskToUpdate({ id: taskToMove.id, oldStatus, newStatus });
-  };
-
-  useEffect(() => {
-    if (taskToUpdate) {
-      updateTaskStatus(
-        taskToUpdate.id,
-        taskToUpdate.oldStatus,
-        taskToUpdate.newStatus
-      )
-        .then(() => {
-          fetchData();
-        })
-        .catch((error) => {
-          throw error;
-        })
-        .finally(() => setTaskToUpdate(null));
+    try {
+      await updateTaskStatus(taskToMove.id, oldStatus, newStatus);
+      toast.success("Cập nhật trạng thái công việc thành công", { autoClose: 3000 });
+      fetchData();
+    } catch (error) {
+      setColumns(previousColumns);
+      toast.error("Cập nhật trạng thái công việc thất bại", { autoClose: 3000 });
+      throw error;
     }
-  }, [taskToUpdate]);
+  };
 
   return (
     <div className="kanban-wrapper">
-      <DndContext collisionDetection={closestCorners} onDragEnd={onDragEnd}>
+      <DndContext
+        collisionDetection={closestCorners}
+        onDragStart={onDragStart}
+        onDragOver={onDragOver}
+        onDragEnd={onDragEnd}
+      >
         <div className="kanban-container">
           {Object.entries(columns).map(([key, column]) => (
             <KanbanColumn
