@@ -116,8 +116,6 @@
 .task-name {
   display: flex;
   align-items: center;
-  
-
 
   .edit-icon {
     width: 16px;
@@ -146,6 +144,8 @@
   display: flex;
   align-items: center;
   gap: 8px;
+  width: 150px;
+  justify-content: space-between;
 
   .avatar {
     width: 28px;
@@ -294,7 +294,7 @@
 .add-job {
   display: flex;
   align-items: center;
-  margin-bottom: 10px;
+  margin-bottom: 15px;
   cursor: pointer;
 
   p {
