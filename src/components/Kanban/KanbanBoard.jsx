@@ -1,4 +1,3 @@
-
 // KanbanBoard.jsx
 import { closestCorners, DndContext } from "@dnd-kit/core";
 import React, { useCallback, useEffect, useState } from "react";
@@ -15,10 +14,10 @@ function transformTasksData(tasks) {
   return tasks.reduce(
     (acc, task) => {
       const statusMap = {
-        1: "PREPARE",     // Công việc mới
+        1: "PREPARE", // Công việc mới
         2: "IN_PROGRESS", // Đang thực hiện
-        3: "FINISH",      // Hoàn thành
-        4: "NOT_DO",      // Không làm
+        3: "FINISH", // Hoàn thành
+        4: "NOT_DO", // Không làm
       };
 
       const columnKey = statusMap[task.status] || "PREPARE";
@@ -66,19 +65,18 @@ function getStatusTitle(status) {
   return titles[status] || "Công việc khác";
 }
 
-
 function KanbanBoard({ selectedTasks, setSelectedTasks }) {
   const dispatch = useDispatch();
   const listTask = useSelector((state) => state.task.listTask);
-  
+
   const [columns, setColumns] = useState({});
   const [searchParams] = useSearchParams();
   const [taskToUpdate, setTaskToUpdate] = useState(null);
   const idProject = searchParams.get("idProject");
 
-  const fetchData = useCallback(async () => {
+  const fetchData = async () => {
     dispatch(getListTaskByProjectIdRedux(idProject));
-  }, [idProject, dispatch]);
+  };
 
   useEffect(() => {
     if (listTask && listTask.length > 0) {
@@ -91,7 +89,7 @@ function KanbanBoard({ selectedTasks, setSelectedTasks }) {
     if (idProject) {
       fetchData();
     }
-  }, [idProject, dispatch, fetchData]);
+  }, [idProject, dispatch]);
 
   const onDragEnd = (event) => {
     const { active, over } = event;
@@ -172,7 +170,11 @@ function KanbanBoard({ selectedTasks, setSelectedTasks }) {
 
   useEffect(() => {
     if (taskToUpdate) {
-      updateTaskStatus(taskToUpdate.id, taskToUpdate.oldStatus, taskToUpdate.newStatus)
+      updateTaskStatus(
+        taskToUpdate.id,
+        taskToUpdate.oldStatus,
+        taskToUpdate.newStatus
+      )
         .then(() => {
           fetchData();
         })
@@ -182,7 +184,7 @@ function KanbanBoard({ selectedTasks, setSelectedTasks }) {
         .finally(() => setTaskToUpdate(null));
     }
   }, [taskToUpdate]);
-  
+
   return (
     <div className="kanban-wrapper">
       <DndContext collisionDetection={closestCorners} onDragEnd={onDragEnd}>

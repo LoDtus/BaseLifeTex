@@ -68,7 +68,12 @@ export default function Home() {
 
   useEffect(() => {
     if (!idProject) return;
-    dispatch(searchTasksInProject({ searchQuery: debouncedKeyword, idProject: idProject }));
+    dispatch(
+      searchTasksInProject({
+        searchQuery: debouncedKeyword,
+        idProject: idProject,
+      })
+    );
   }, [debouncedKeyword, idProject, dispatch]);
 
   const handleClick = (event) => {
@@ -235,6 +240,9 @@ export default function Home() {
         </div>
       </div>
 
+      <div>
+        
+      </div>
       {/* Content Section */}
       <div className="content-section">
         {viewMode === "kanban" ? (
