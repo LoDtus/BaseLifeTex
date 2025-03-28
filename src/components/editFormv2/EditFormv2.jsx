@@ -115,7 +115,7 @@ const EditFormv2 = ({ isOpen, onClose, task }) => {
           component="div"
           sx={{ color: "#1976d2", fontWeight: "bold" }}
         >
-          Tạo công việc
+          Sửa công việc
         </Typography>
         <IconButton
           aria-label="close"
@@ -476,7 +476,7 @@ const EditFormv2 = ({ isOpen, onClose, task }) => {
                 px: 8,
               }}
             >
-              Tạo
+              Sửa
             </Button>
           </DialogActions>
         </form>
