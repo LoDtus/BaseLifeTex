@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useDroppable } from "@dnd-kit/core";
 import {
@@ -15,7 +14,7 @@ export default function KanbanColumn({
   selectedTasks = [],
   setSelectedTasks,
 }) {
-  const { setNodeRef } = useDroppable({ id: columnId });
+  const { setNodeRef, isOver } = useDroppable({ id: columnId });
   const [open, setOpen] = useState(false);
 
   const statusMapReverse = {
@@ -28,11 +27,14 @@ export default function KanbanColumn({
   const statusValue = statusMapReverse[columnId];
 
   return (
-    <div ref={setNodeRef} className="kanban-column">
+    <div
+      ref={setNodeRef}
+      className={`kanban-column ${isOver ? "kanban-column-over" : ""}`}
+    >
       <h3>
         {column.title}: {column.tasks.length}
       </h3>
-      <button className="add-task" onClick={()=> setOpen(true)}>
+      <button className="add-task" onClick={() => setOpen(true)}>
         ➕ Thêm vấn đề
       </button>
       <div className="kanban-column-scroll">
@@ -41,14 +43,20 @@ export default function KanbanColumn({
           items={column.tasks.map((task) => task.id)}
           strategy={verticalListSortingStrategy}
         >
-          {column.tasks.map((task) => (
-            <KanbanTaskCard
-              key={task.id}
-              task={task}
-              selectedTasks={selectedTasks}
-              setSelectedTasks={setSelectedTasks}
-            />
-          ))}
+          {column.tasks.length === 0 ? (
+            <div className="empty-column-placeholder">
+              Kéo thả công việc vào đây
+            </div>
+          ) : (
+            column.tasks.map((task) => (
+              <KanbanTaskCard
+                key={task.id}
+                task={task}
+                selectedTasks={selectedTasks}
+                setSelectedTasks={setSelectedTasks}
+              />
+            ))
+          )}
         </SortableContext>
       </div>
       {open && (
@@ -60,4 +68,4 @@ export default function KanbanColumn({
       )}
     </div>
   );
-};
+}

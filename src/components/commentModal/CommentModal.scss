@@ -98,7 +98,6 @@
                     .comment {
                         display: flex;
                         align-items: center;
-
                         .avatar {
                             width: 30px;
                             height: 30px;
@@ -111,13 +110,14 @@
 
                             p {
                                 width: 100%;
-                                margin-bottom: 8px;
+                                margin-bottom: 0;
                                 color: #4361ee;
 
                                 &:last-child {
                                     border-radius: 8px;
                                     color: #626f85;
                                     padding: 8px;
+                                    margin-bottom: 6px;
                                     background: #f1f1f1;
                                 }
                             }
@@ -145,7 +145,7 @@
                     font-weight: 500;
                     line-height: 30px;
                     margin-top: 15px;
-                    min-height: 150px;
+                    min-height: 100px;
                 }
             }
         }

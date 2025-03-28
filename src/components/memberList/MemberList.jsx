@@ -1,3 +1,4 @@
+// src/components/memberList/MemberList.jsx
 import React from "react";
 import { Avatar, Box, IconButton, Typography } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
@@ -28,7 +29,6 @@ const MemberListContent = ({ onClose, members }) => {
       >
         Danh sách thành viên công việc
       </Typography>
-      {/* Danh sách thành viên từ API */}
       {members && members.length > 0 ? (
         members.map((member, index) => (
           <Box
