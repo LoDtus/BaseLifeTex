@@ -19,6 +19,7 @@
     position: relative;
     p {
       display: flex;
+      margin-bottom: 0;
       align-items: center;
       color: #4361ee;
     }
@@ -83,10 +84,8 @@
         .comment-list {
           margin-top: 8px;
           overflow: auto;
-          height: 90%;
-          &.fix-height {
-            height: 50%;
-          }
+          height: 100%;
+          max-height: 380px;
           -ms-overflow-style: none;
           scrollbar-width: none;
           &::-webkit-scrollbar {
@@ -107,10 +106,12 @@
                 width: 100%;
                 margin-bottom: 8px;
                 color: #4361ee;
+                margin: 0;
                 &:last-child {
                   border-radius: 8px;
                   color: #626f85;
                   padding: 8px;
+                  margin-bottom: 6px;
                   background: #f1f1f1;
                 }
               }
@@ -137,6 +138,9 @@
         padding: 4px 0;
         align-items: center;
         justify-content: flex-start;
+        .assginer {
+          margin: 0;
+        }
         .kaban-description-personName-edit,
         .kaban-description-link-edit {
           flex: 2;
@@ -228,6 +232,9 @@
             object-fit: cover;
           }
           p {
+            margin-top:  0;
+            margin-left: 0;
+            margin-bottom: 0;
             color: #626f85;
             margin-right: 8px;
             font-size: 16px;

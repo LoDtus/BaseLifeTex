@@ -79,7 +79,7 @@ const taskSlice = createSlice({
     listComment: [],
     isFetching: false,
     total: 0,
-    limit: 5,
+    limit: 10,
     page: 1,
     error: null,
   },
