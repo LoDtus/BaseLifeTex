@@ -17,6 +17,7 @@ function KanbanTaskCard({ selectedTasks, setSelectedTasks, task }) {
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
+    opacity: isDragging ? 0.6 : 1, // Làm mờ nhẹ khi kéo, giống Trello
   };
 
   const [anchorEl, setAnchorEl] = useState(null);
@@ -64,7 +65,6 @@ function KanbanTaskCard({ selectedTasks, setSelectedTasks, task }) {
       style={style}
       {...listeners}
       {...attributes}
-
       className={`kanban-card ${isDragging ? "dragging" : ""}`}
     >
       <div className="task-content">
@@ -77,8 +77,7 @@ function KanbanTaskCard({ selectedTasks, setSelectedTasks, task }) {
             onChange={(e) => {
               handleSelectTask(e, task._id);
             }}
-            onPointerDown
-            ={(e) => e.stopPropagation()}
+            onPointerDown={(e) => e.stopPropagation()}
           />
         </div>
       </div>
