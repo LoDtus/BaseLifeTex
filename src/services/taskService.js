@@ -18,7 +18,10 @@ export const updateTaskStatus = async (taskId, oldStatus, newStatus) => {
     });
     return response.data;
   } catch (error) {
-    console.log("Cập nhật trạng thái công việc thất bại", error.response?.data || error);
+    console.log(
+      "Cập nhật trạng thái công việc thất bại",
+      error.response?.data || error
+    );
     throw error;
   }
 };
@@ -53,12 +56,14 @@ export const deleteManyTasks = async (ids) => {
 
 export const searchTasks = async (searchQuery, projectId) => {
   const response = await axiosInstance.get(`/tasks/search`, {
-    params: { search: searchQuery, projectId }
+    params: { search: searchQuery, projectId },
   });
   return response.data;
 };
 
-export const getTaskByPagination = async (projectId,page,pageSize) => {
-  const response = await axiosInstance.get(`/tasks/project/${projectId}?page=${page}&limit=${pageSize}`);
+export const getTaskByPagination = async (projectId, page, pageSize) => {
+  const response = await axiosInstance.get(
+    `/tasks/project/${projectId}?page=${page}&limit=${pageSize}`
+  );
   return response.data;
 };

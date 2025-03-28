@@ -84,7 +84,9 @@
     background: #f9fafb;
   }
 }
-
+.date000 {
+  margin: 0 auto;
+}
 .table-cell {
   padding: 12px 16px;
   color: #374151;
@@ -133,7 +135,8 @@
     max-width: 200px;
     white-space: nowrap;
     overflow: hidden;
-    margin: 0 auto;
+    margin: 0;
+    margin-left: 9px;
     text-overflow: ellipsis;
     color: #1f2937;
     font-weight: 500;
@@ -146,7 +149,10 @@
   gap: 8px;
   width: 150px;
   justify-content: space-between;
-
+  .avatar-icon {
+    display: flex;
+    align-items: center;
+  }
   .avatar {
     width: 28px;
     height: 28px;
@@ -160,8 +166,8 @@
   }
 
   .more-icon {
-    width: 20px;
-    height: 20px;
+    width: 26px;
+    height: 26px;
     cursor: pointer;
     opacity: 0.7;
 
@@ -210,6 +216,7 @@
   gap: 10px;
   color: #4b5563;
   font-weight: 500;
+  justify-content: space-between;
 }
 
 .status-select {
