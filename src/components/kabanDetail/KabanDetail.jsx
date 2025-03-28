@@ -25,7 +25,7 @@ import {
   getPaginateCommentByTask,
   addCommentTask,
 } from "../../services/commentService";
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 import CloseIcon from "@mui/icons-material/Close";
 import { toolCvStatus } from "../../tools/toolsCvStatus";
 import Pagination from "@mui/material/Pagination";
@@ -50,7 +50,6 @@ const KabanDetail = ({ task, handleClose }) => {
   const [selectedPerson, setSelectedPerson] = useState([]);
   const [listMember, setListMember] = useState([]);
   const user = useSelector((state) => state.auth.login.currentUser);
-  const dispatch = useDispatch();
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(2);
   const [totalPage, setTotalPage] = useState(0);
@@ -112,7 +111,6 @@ const KabanDetail = ({ task, handleClose }) => {
           content: comment,
         });
         if (res) {
-          toast.success(res.message);
           setComment("");
         } else {
           toast.error(res.message);
@@ -124,7 +122,7 @@ const KabanDetail = ({ task, handleClose }) => {
     } else {
       toast.warning("Đăng nhập để thực hiện yêu cầu này!");
     }
-    getPaginateComment(task._id,page,limit)
+    getPaginateComment(task._id, page, limit);
   };
 
   const handleKeyDown = () => {
@@ -251,7 +249,7 @@ const KabanDetail = ({ task, handleClose }) => {
                       </div>
                     ))}
                   {totalPage > 1 && (
-                    <Stack spacing={2} sx={{textAlign:"center"}}>
+                    <Stack spacing={2} sx={{ textAlign: "center" }}>
                       <Pagination
                         count={totalPage}
                         page={page}

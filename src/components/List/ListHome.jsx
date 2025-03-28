@@ -1,14 +1,9 @@
 // src/components/ListHome/ListHome.jsx
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { useSearchParams } from "react-router-dom";
-import { updateIssueData, updateIssueDataStatus } from "../../apis/Issue";
-import {
-  getByIndexParanation,
-  getListTaskByProjectIdRedux,
-  changePage,
-  changeRowPerPage,
-} from "../../redux/taskSlice";
+import { updateIssueDataStatus } from "../../apis/Issue";
+import { getByIndexParanation, changePage } from "../../redux/taskSlice";
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
 import TableCell from "@mui/material/TableCell";
@@ -27,13 +22,13 @@ import KabanDetail from "../../components/kabanDetail/KabanDetail";
 import CommentModal from "../../components/commentModal/CommentModal";
 import MemberListContent from "../../components/memberList/MemberList";
 import MemberListContentAdd from "../../components/memberListAdd/MemberListAdd";
-import EditForm from "../../components/editForm/EditForm";
 import "./ListHome.scss";
 import TablePagination from "@mui/material/TablePagination";
 import Loading from "../../components/Loading/Loading";
 import addProblem from "../../../public/image/addProberm.png";
 import IssueForm from "../../components/IssueForm/IssueForm";
 import { debounce } from "lodash";
+import EditFormv2 from "../editFormv2/editFormv2";
 
 export default function ListHome({
   selectedTasks = [],
@@ -78,12 +73,6 @@ export default function ListHome({
     getList();
   }, [idProject, Page, Limit]);
 
-  const inputRef = useRef(null);
-
-  const [editingTaskId, setEditingTaskId] = useState(null);
-  const [editingLinkTaskId, setEditingLinkTaskId] = useState(null);
-  const [editedTaskName, setEditedTaskName] = useState("");
-  const [editedTaskLink, setEditedTaskLink] = useState("");
   const [anchorElMemberTask, setAnchorElMemberTask] = useState(null);
   const [anchorElMemberAdd, setAnchorElMemberAdd] = useState(null);
   const [selectedTaskId, setSelectedTaskId] = useState(null);
@@ -99,71 +88,20 @@ export default function ListHome({
     dispatch(changePage(newPage));
   };
 
-  const handleChangeRowsPerPage = (event) => {
-    const newLimit = parseInt(event.target.value, 10);
-    dispatch(changeRowPerPage(newLimit));
-  };
-
-  const handleEditClick = (taskId, currentName) => {
-    setEditingTaskId(taskId);
-    setEditedTaskName(currentName);
-    setTimeout(() => inputRef.current?.focus(), 0);
-  };
-
-  const handleEditClickLink = (taskId, currentName) => {
-    setEditingLinkTaskId(taskId);
-    setEditedTaskLink(currentName);
-    setTimeout(() => inputRef.current?.focus(), 0);
-  };
-
-  const handleBlurOrEnter = async (event, task) => {
-    if (event.type === "keydown" && event.key !== "Enter") return;
-    const { _id, ...taskWithoutId } = task;
-
-    const response = await updateIssueData(task._id, {
-      ...taskWithoutId,
-      assigneeId: task.assigneeId?.map((i) => i._id),
-      assignerId: task.assignerId?._id,
-      title: editedTaskName,
-    });
-    if (response.message === "Nhiệm vụ cập nhật thành công") {
-      getList();
-      toast.success(response.message, { autoClose: 3000 });
-    } else {
-      toast.error(response.message, { autoClose: 3000 });
-    }
-    setEditedTaskName("");
-    setEditingTaskId(null);
-  };
-
-  const handleBlurOrEnterLink = async (event, task) => {
-    if (event.type === "keydown" && event.key !== "Enter") return;
-    const { _id, ...taskWithoutId } = task;
-    const response = await updateIssueData(task._id, {
-      ...taskWithoutId,
-      assigneeId: task.assigneeId?.map((i) => i._id),
-      assignerId: task.assignerId?._id,
-      link: editedTaskLink,
-    });
-    if (response.message === "Nhiệm vụ cập nhật thành công") {
-      getList();
-      toast.success(response.message, { autoClose: 3000 });
-    } else {
-      toast.error(response.message, { autoClose: 3000 });
-    }
-    setEditedTaskLink("");
-    setEditingLinkTaskId(null);
-  };
-
   const handleStatusChange = async (taskId, newStatus) => {
-    const response = await updateIssueDataStatus(taskId, {
-      status: newStatus,
-    });
-    if (response.message === "Thay đổi trạng thái task thành công") {
-      getList();
-      toast.success(response.message, { autoClose: 3000 });
-    } else {
-      toast.error(response.message, { autoClose: 3000 });
+    try {
+      const response = await updateIssueDataStatus(taskId, {
+        status: newStatus,
+      });
+      if (response.success) {
+        getList();
+        toast.success(response.message);
+      } else {
+        toast.error(response.message);
+      }
+    } catch (e) {
+      toast.error("Cập nhật trạng thái thất bại");
+      throw new Error(e);
     }
   };
 
@@ -364,72 +302,69 @@ export default function ListHome({
                         )}
                       </TableCell>
                       <TableCell className="table-cell">
-                        {editingTaskId === task._id ? (
-                          <Input
-                            ref={inputRef}
-                            type="text"
-                            value={editedTaskName}
-                            onChange={(e) => setEditedTaskName(e.target.value)}
-                            onBlur={(e) => handleBlurOrEnter(e, task)}
-                            onKeyDown={(e) => handleBlurOrEnter(e, task)}
-                            className="edit-input"
+                        <div className="task-name">
+                          <img
+                            src="image/Pen.png"
+                            alt="edit"
+                            className="edit-icon"
                           />
-                        ) : (
-                          <div className="task-name">
-                            <img
-                              src="image/Pen.png"
-                              alt="edit"
-                              className="edit-icon"
-                              onClick={() =>
-                                handleEditClick(task._id, task.title)
-                              }
-                            />
-                            <p className="text-truncate">{task.title}</p>
-                          </div>
-                        )}
+                          <p className="text-truncate" title={task.title}>
+                            {task.title}
+                          </p>
+                        </div>
                       </TableCell>
                       <TableCell
                         className="table-cell assignees"
                         align="center"
                       >
                         <div className="task-icons1">
-                          {task.assigneeId?.slice(0, 2).map((avatar, i) => (
-                            <Avatar src={avatar} key={i} className="avatar" />
-                          ))}
-                          {task.assigneeId?.length > 2 && (
-                            <>
-                              <img
-                                src="image/dot.png"
-                                className="more-icon"
-                                onClick={(e) =>
-                                  handleClickMemberTask(e, task._id)
-                                }
+                          <div className="avatar-icon">
+                            {task.assigneeId?.slice(0, 2).map((avatar, i) => (
+                              <Avatar
+                                title={avatar.userName}
+                                src={avatar.avatar}
+                                key={i}
+                                className="avatar"
+                                style={{
+                                  cursor: "pointer",
+                                }}
                               />
-                              {selectedTaskId === task._id && (
-                                <Popover
-                                  open={Boolean(anchorElMemberTask)}
-                                  anchorEl={anchorElMemberTask}
-                                  onClose={handleCloseMemberTask}
-                                  anchorOrigin={{
-                                    vertical: "bottom",
-                                    horizontal: "left",
-                                  }}
-                                  transformOrigin={{
-                                    vertical: "top",
-                                    horizontal: "left",
-                                  }}
-                                  sx={{ mt: 1 }}
-                                >
-                                  <div className="all-member-in-task">
-                                    <MemberListContent
-                                      members={task.assigneeId}
-                                      onClose={handleCloseMemberTask}
-                                    />
-                                  </div>
-                                </Popover>
-                              )}
-                            </>
-                          )}
+                            ))}
+                            {task.assigneeId?.length > 2 && (
+                              <>
+                                <img
+                                  src="image/dot.png"
+                                  className="more-icon"
+                                  onClick={(e) =>
+                                    handleClickMemberTask(e, task._id)
+                                  }
+                                />
+                                {selectedTaskId === task._id && (
+                                  <Popover
+                                    open={Boolean(anchorElMemberTask)}
+                                    anchorEl={anchorElMemberTask}
+                                    onClose={handleCloseMemberTask}
+                                    anchorOrigin={{
+                                      vertical: "bottom",
+                                      horizontal: "left",
+                                    }}
+                                    transformOrigin={{
+                                      vertical: "top",
+                                      horizontal: "left",
+                                    }}
+                                    sx={{ mt: 1 }}
+                                  >
+                                    <div className="all-member-in-task">
+                                      <MemberListContent
+                                        members={task.assigneeId}
+                                        onClose={handleCloseMemberTask}
+                                      />
+                                    </div>
+                                  </Popover>
+                                )}
+                              </>
+                            )}
+                          </div>
                           <button
                             className="add-user"
                             onClick={(e) => handleClickMemberAdd(e, task._id)}
@@ -486,7 +421,9 @@ export default function ListHome({
                         align="center"
                       >
                         <div className="date-cell">
-                          {dayjs(task.startDate).format("DD/MM/YYYY")}
+                          <div className="date000">
+                            {dayjs(task.startDate).format("DD/MM/YYYY")}
+                          </div>
                         </div>
                       </TableCell>
                       <TableCell
@@ -494,7 +431,9 @@ export default function ListHome({
                         align="center"
                       >
                         <div className="date-cell">
-                          {dayjs(task.endDate).format("DD/MM/YYYY")}
+                          <div className="date000">
+                            {dayjs(task.endDate).format("DD/MM/YYYY")}
+                          </div>
                         </div>
                       </TableCell>
                       <TableCell className="table-cell status-cell">
@@ -512,33 +451,16 @@ export default function ListHome({
                         </select>
                       </TableCell>
                       <TableCell className="table-cell">
-                        {editingLinkTaskId === task._id ? (
-                          <Input
-                            ref={inputRef}
-                            type="text"
-                            value={editedTaskLink}
-                            onChange={(e) => setEditedTaskLink(e.target.value)}
-                            onBlur={(e) => handleBlurOrEnterLink(e, task)}
-                            onKeyDown={(e) => handleBlurOrEnterLink(e, task)}
-                            className="edit-input"
-                          />
-                        ) : (
-                          <div className="date-cell">
-                            <a
-                              href={task.link}
-                              target="_blank"
-                              className="link-text text-truncate"
-                            >
-                              {task.link}
-                            </a>
-                            <LinkIcon
-                              className="action-icon"
-                              onClick={() =>
-                                handleEditClickLink(task._id, task.link)
-                              }
-                            />
-                          </div>
-                        )}
+                        <div className="date-cell">
+                          <a
+                            href={task.link}
+                            target="_blank"
+                            className="link-text text-truncate"
+                          >
+                            {task.link}
+                          </a>
+                          <LinkIcon className="action-icon" />
+                        </div>
                       </TableCell>
                       <TableCell className="table-cell">
                         <Button
@@ -567,7 +489,7 @@ export default function ListHome({
             page={Page - 1}
             onPageChange={handleChangePage}
             rowsPerPage={Limit}
-            onRowsPerPageChange={handleChangeRowsPerPage}
+            // onRowsPerPageChange={handleChangeRowsPerPage}
           />
         </Paper>
       )}

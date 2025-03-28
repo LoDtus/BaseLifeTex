@@ -13,11 +13,16 @@ import {
   deleteManyTasksRedux,
   getListTaskByProjectIdRedux,
   searchTasksInProject,
+  getByIndexParanation,
 } from "../../redux/taskSlice";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { toast } from "react-toastify";
 
 export default function Home() {
   const dispatch = useDispatch();
+  let Page = useSelector((state) => state.task.page);
+  let Limit = useSelector((state) => state.task.limit);
+  let Total = useSelector((state) => state.task.total);
   const [anchorEl, setAnchorEl] = useState(null);
   const [searchParams] = useSearchParams();
   const idProject = searchParams.get("idProject") || "";
@@ -86,14 +91,14 @@ export default function Home() {
 
   const handleDeleteSelected = async () => {
     if (selectedTasks.length === 0) {
-      alert("Vui lòng chọn ít nhất một task để xóa!");
+      toast.warning("Vui lòng chọn vấn đề muốn xóa !");
       return;
     }
 
-    const confirmDelete = window.confirm(
-      `Bạn có chắc muốn xóa ${selectedTasks.length} task không?`
-    );
-    if (!confirmDelete) return;
+    // const confirmDelete = window.confirm(
+    //   `Bạn có chắc muốn xóa ${selectedTasks.length} task không?`
+    // );
+    // if (!confirmDelete) return;
 
     try {
       const result = await dispatch(
@@ -101,15 +106,21 @@ export default function Home() {
       ).unwrap();
 
       if (result && result.length > 0) {
-        alert("✅ Xóa thành công!");
-        setSelectedTasks([]); // Reset danh sách chọn
-        dispatch(getListTaskByProjectIdRedux(idProject));
+        // alert("✅ Xóa thành công!");
+        setSelectedTasks([]);
+        dispatch(
+          getByIndexParanation({
+            projectId: idProject,
+            page: Page,
+            pageSize: Limit,
+          })
+        );
+        toast.success("Xóa thành công.");
       } else {
-        alert("Xóa thất bại!");
+        toast.error("Xóa thất bại!");
       }
     } catch (error) {
-      console.log(error);
-      alert("Lỗi hệ thống, vui lòng thử lại!");
+      toast.error("Xóa thất bại!");
     }
   };
   const openFilter = Boolean(anchorElFilter);
@@ -240,9 +251,7 @@ export default function Home() {
         </div>
       </div>
 
-      <div>
-        
-      </div>
+      <div></div>
       {/* Content Section */}
       <div className="content-section">
         {viewMode === "kanban" ? (
