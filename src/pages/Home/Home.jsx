@@ -68,7 +68,12 @@ export default function Home() {
 
   useEffect(() => {
     if (!idProject) return;
-    dispatch(searchTasksInProject({ searchQuery: debouncedKeyword, idProject: idProject }));
+    dispatch(
+      searchTasksInProject({
+        searchQuery: debouncedKeyword,
+        idProject: idProject,
+      })
+    );
   }, [debouncedKeyword, idProject, dispatch]);
 
   const handleClick = (event) => {
