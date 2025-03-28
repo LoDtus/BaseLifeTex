@@ -58,7 +58,7 @@ export const searchTasksInProject = createAsyncThunk(
       if (!searchQuery) {
         result = await getTasksByProject(idProject);
       } else {
-        result = await searchTasks(searchQuery);
+        result = await searchTasks(searchQuery, idProject); // Thêm idProject vào API tìm kiếm
       }
 
       if (result.success) {
@@ -72,15 +72,16 @@ export const searchTasksInProject = createAsyncThunk(
   }
 );
 
+
 const taskSlice = createSlice({
   name: "task",
   initialState: {
     listTask: [],
-    listComment: [],
+    searchQuery: "",  // Thêm searchQuery để lưu từ khóa tìm kiếm
     isFetching: false,
-    total:0,
-    limit:5,
-    page:1,
+    total: 0,
+    limit: 5,
+    page: 1,
     error: null,
   },
   reducers: {
@@ -151,6 +152,7 @@ const taskSlice = createSlice({
       .addCase(searchTasksInProject.fulfilled, (state, action) => {
         state.isFetching = false;
         state.listTask = action.payload;
+        state.searchQuery = action.meta.arg.searchQuery; // Lưu lại từ khóa tìm kiếm
       })
       .addCase(searchTasksInProject.rejected, (state, action) => {
         state.isFetching = false;

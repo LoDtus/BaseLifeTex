@@ -27,7 +27,7 @@ import "./ListHome.scss";
 import TablePagination from "@mui/material/TablePagination";
 import Loading from "../../components/Loading/Loading"
 
-export default function ListHome({  selectedTasks = [], setSelectedTasks }) {
+export default function ListHome({  selectedTasks = [], setSelectedTasks,searchTerm}) {
   const [searchParams] = useSearchParams();
   const idProject = searchParams.get("idProject");
   const listTask = useSelector((state) => state.task.listTask);
@@ -209,6 +209,12 @@ export default function ListHome({  selectedTasks = [], setSelectedTasks }) {
 
     setSelectedTasks(updatedSelection);
   };
+  
+  
+  // Lọc danh sách công việc theo searchTerm
+  const filteredTasks = listTask.filter((task) =>
+    task.title.toLowerCase().includes(searchTerm.toLowerCase())
+  );
   return (
     <div className="list-home-wrapper">
       {loading ?<Loading /> : 
@@ -284,7 +290,17 @@ export default function ListHome({  selectedTasks = [], setSelectedTasks }) {
               </TableRow>
             </TableHead>
             <TableBody>
-              {listTask?.map((task, index) => (
+            {filteredTasks.length === 0 ? (
+            <TableRow>
+            <TableCell colSpan={10} align="center" style={{ textAlign: "center" }}>
+              <h6 style={{ fontSize: "18px", fontWeight: "bold", margin: 0 }}>
+                Không có dữ liệu
+              </h6>
+            </TableCell>
+          </TableRow>
+          
+          ) : (
+              filteredTasks.map((task, index) => (
                 <TableRow
                   key={task._id}
                   className="table-row"
@@ -495,7 +511,8 @@ export default function ListHome({  selectedTasks = [], setSelectedTasks }) {
                     )}
                   </TableCell>
                 </TableRow>
-              ))}
+              ))
+            )}
             </TableBody>
           </Table>
         </TableContainer>
