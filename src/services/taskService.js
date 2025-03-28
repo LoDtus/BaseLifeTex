@@ -1,28 +1,33 @@
 import axiosInstance from "./apiService";
 
-const getTasks = async () => {
+export const getTasks = async () => {
   const response = await axiosInstance.get("/tasks");
   return response.data;
 };
 
-const getTasksByProject = async (projectId) => {
+export const getTasksByProject = async (projectId) => {
   const response = await axiosInstance.get(`/tasks/project/${projectId}`);
   return response.data;
 };
 
-const updateTaskStatus = async (taskId, status) => {
-  const response = await axiosInstance.put(`/tasks/${taskId}/status`, {
-    status,
-  });
-  return response.data;
+export const updateTaskStatus = async (taskId, oldStatus, newStatus) => {
+  try {
+    const response = await axiosInstance.put(`/tasks/${taskId}/status`, {
+      oldStatus: oldStatus,
+      newStatus: newStatus,
+    });
+    return response.data;
+  } catch (error) {
+    console.log("Cập nhật trạng thái công việc thất bại", error.response?.data || error);
+    throw error;
+  }
 };
-
-const getTaskDetailById = async (id) => {
+export const getTaskDetailById = async (id) => {
   const response = await axiosInstance.get(`/tasks/${id}`);
   return response.data;
 };
 
-const filterTask = async (idProject, data) => {
+export const filterTask = async (idProject, data) => {
   const response = await axiosInstance.post(`/tasks/filter/${idProject}`, data);
   return response.data;
 };
@@ -32,10 +37,28 @@ export const getlistUserInProjects = async (id) => {
   return response;
 };
 
-export {
-  getTasks,
-  getTasksByProject,
-  updateTaskStatus,
-  getTaskDetailById,
-  filterTask,
+export const deleteManyTasks = async (ids) => {
+  try {
+    const response = await axiosInstance.delete(`/tasks/`, {
+      data: { ids },
+    });
+    return { success: true, data: response.data };
+  } catch (error) {
+    return {
+      success: false,
+      error: error.response?.data || "Lỗi khi xóa task!",
+    };
+  }
+};
+
+export const searchTasks = async(searchQuery) => {
+  const response = await axiosInstance.get(`/tasks/search`, {
+    params: { search: searchQuery }
+  });
+  return response.data;
+}
+
+export const getTaskByPagination = async (projectId,page,pageSize) => {
+  const response = await axiosInstance.get(`/tasks/project/${projectId}?page=${page}&limit=${pageSize}`);
+  return response.data;
 };

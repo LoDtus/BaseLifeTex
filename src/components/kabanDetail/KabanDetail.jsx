@@ -20,7 +20,7 @@ import Zoom from "react-medium-image-zoom";
 import "react-medium-image-zoom/dist/styles.css";
 import imageAvatar from "../../assets/image/image_5.png";
 import { getlistUser } from "../../services/userService";
-import { updateIssueData } from "../../apis/Issue";
+import { updateIssueData } from "../../services/issueService";
 import { getTaskDetailById } from "../../services/taskService";
 import {
   getListCommentByTask,
@@ -28,6 +28,7 @@ import {
 } from "../../services/commentService";
 import { getListTaskByProjectIdRedux } from "../../redux/taskSlice";
 import { useDispatch, useSelector } from "react-redux";
+import CloseIcon from '@mui/icons-material/Close';
 
 const ITEM_HEIGHT = 48;
 const ITEM_PADDING_TOP = 8;
@@ -78,7 +79,7 @@ const KabanDetail = ({ task, handleClose }) => {
     comment: "Bình luận không được để trống!",
   };
 
-  const [data, setData] = useState();
+  const [data, setData] = useState({});
   const [onlyRead, setOnlyRead] = useState(readOnlyDefault);
   const [comment, setComment] = useState("");
   const [comments, setComments] = useState();
@@ -91,7 +92,7 @@ const KabanDetail = ({ task, handleClose }) => {
   const getMemberByProject = async (projectId) => {
     const response = await getlistUser(projectId);
     if (response.success === true) {
-      setListMember(response.data && response.data.members);
+      setListMember(response.data && response.data);
     }
   };
 
@@ -142,16 +143,17 @@ const KabanDetail = ({ task, handleClose }) => {
           ...data,
           assigneeId: data.assigneeId.map((i) => i._id),
           assignerId: data?.assignerId?._id,
+          projectId: task?.projectId,
           [type]: value,
         });
-        if (res && res.success) {
-          toast.error(res.message);
+        if (res && res.success === true) {
+          toast.success(res.message);
           setData({});
           setErrorData(errorsDefault);
           getDetailtask(task._id);
           setOnlyRead(readOnlyDefault);
         } else {
-          toast.success(res.message);
+          toast.error(res.message);
           setData({});
           setErrorData(errorsDefault);
           getDetailtask(task._id);
@@ -367,7 +369,7 @@ const KabanDetail = ({ task, handleClose }) => {
               <EventAvailableIcon /> kan-1
             </p>
             <button className="close-btn" onClick={handleClose}>
-              ✖
+              <CloseIcon/>
             </button>
           </div>
           <div className="content">
@@ -381,7 +383,7 @@ const KabanDetail = ({ task, handleClose }) => {
                   maxRows={1}
                   error={errorData.title}
                   placeholder="Nhập vấn đề..."
-                  value={data?.title}
+                  value={data?.title ?? ""}
                   onFocus={() => handleFocus("title")}
                   onBlur={(e) => handleBlurChange("title", data?.title, e)}
                   onChange={(e) => handleChangeInput("title", e.target.value)}
@@ -399,7 +401,7 @@ const KabanDetail = ({ task, handleClose }) => {
                   maxRows={10}
                   sx={{ marginTop: "8px" }}
                   placeholder="Nhập nội dung..."
-                  value={data?.description}
+                  value={data?.description ?? ""}
                   error={errorData.description}
                   onFocus={() => handleFocus("description")}
                   onBlur={(e) =>
@@ -550,7 +552,7 @@ const KabanDetail = ({ task, handleClose }) => {
                               mb: 1,
                             }}
                           >
-                            {listMember.map((person) => (
+                            {listMember.length > 0 && listMember.map((person) => (
                               <MenuItem key={person._id} value={person._id}>
                                 <Checkbox
                                   checked={
@@ -611,7 +613,7 @@ const KabanDetail = ({ task, handleClose }) => {
                     maxRows={1}
                     error={errorData.link}
                     placeholder="Nhập link..."
-                    value={data?.link}
+                    value={data?.link ?? ""}
                     onFocus={() => handleFocus("link")}
                     onBlur={(e) => handleBlurChange("link", data?.link, e)}
                     onChange={(e) => handleChangeInput("link", e.target.value)}
@@ -623,7 +625,7 @@ const KabanDetail = ({ task, handleClose }) => {
               </div>
               <div className="kaban-description image">
                 <p>Hình ảnh:</p>
-                <p className="kaban-descrition-image">
+                <div className="kaban-descrition-image">
                   <Zoom>
                     <img
                       src={
@@ -633,7 +635,7 @@ const KabanDetail = ({ task, handleClose }) => {
                       alt="image"
                     />
                   </Zoom>
-                </p>
+                </div>
               </div>
               <div className="kaban-description">
                 <p>Trạng thái:</p>

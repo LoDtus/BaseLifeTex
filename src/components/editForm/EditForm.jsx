@@ -19,7 +19,7 @@ import {
 import CloseIcon from "@mui/icons-material/Close";
 import { useForm, Controller } from "react-hook-form";
 import UploadImageButton from "../UploadDownloadImage/UploadDownloadImage";
-import { getlistUser } from "../../apis/use";
+import { getlistUser } from "../../services/userService";
 import { updateIssueDataImage } from "../../apis/Issue";
 import { ToastContainer, toast } from "react-toastify";
 

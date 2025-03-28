@@ -1,36 +1,75 @@
 // src/pages/Home/Home.jsx
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import "./Home.scss";
 import { useSearchParams } from "react-router-dom";
-import { Popover } from "@mui/material";
+import { Avatar, Popover } from "@mui/material";
 import MemberListContent from "../../components/memberList/MemberList";
 import KanbanBoard from "../../components/Kanban/KanbanBoard";
 import ListHome from "../../components/List/ListHome";
 import { getProjectId } from "../../services/projectService";
+import { getlistUser } from "../../services/userService";
+import FilterDialog from "../../components/FilterForm/FilterDialog";
+import {
+  deleteManyTasksRedux,
+  getListTaskByProjectIdRedux,
+  searchTasksInProject,
+} from "../../redux/taskSlice";
+import { useDispatch } from "react-redux";
 
 export default function Home() {
+  const dispatch = useDispatch();
   const [anchorEl, setAnchorEl] = useState(null);
   const [searchParams] = useSearchParams();
-  const idProject = searchParams.get("idProject");
+  const idProject = searchParams.get("idProject") || "";
   const [viewMode, setViewMode] = useState("kanban");
   const [nameProject, setNameProject] = useState("Phần mềm đánh giá"); // Giá trị mặc định
+  const [anchorElFilter, setAnchorElFilter] = useState(null);
+  const [listMember, setListMember] = useState([]);
+  const [selectedTasks, setSelectedTasks] = useState([]);
+  const [keyword, setKeyword] = useState("");
+  const [debouncedKeyword, setDebouncedKeyword] = useState("");
+
+  const getMemberByProject = useCallback(async () => {
+    const response = await getlistUser(idProject);
+    if (response.success) {
+      setListMember(response.data);
+    }
+  }, [idProject]);
+
+  async function fetchProjectData(idPrj) {
+    try {
+      const response = await getProjectId(idPrj);
+      if (response.success) {
+        setNameProject(response.data.name);
+      }
+    } catch (error) {
+      setNameProject("Phần mềm đánh giá");
+      throw error;
+    }
+  }
 
   useEffect(() => {
     if (idProject) {
-      const fetchProjectData = async () => {
-        try {
-          const response = await getProjectId(idProject);
-          if (response.success) {
-            setNameProject(response.data.name);
-          }
-        } catch (error) {
-          setNameProject("Phần mềm đánh giá");
-          throw error;
-        }
-      };
-      fetchProjectData();
+      fetchProjectData(idProject);
+      getMemberByProject();
     }
-  }, [idProject]);
+  }, [idProject, getMemberByProject]);
+
+  useEffect(() => {
+    if (!idProject) return;
+
+    // Đợi 300ms mới cập nhật keyword mới, tránh cho server quá tải request
+    const handler = setTimeout(() => {
+      setDebouncedKeyword(keyword);
+    }, 300);
+
+    return () => clearTimeout(handler); // Hủy timeout nếu keyword thay đổi
+  }, [keyword, idProject]);
+
+  useEffect(() => {
+    if (!idProject) return;
+    dispatch(searchTasksInProject({ searchQuery: debouncedKeyword, idProject: idProject }));
+  }, [debouncedKeyword, idProject, dispatch]);
 
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
@@ -40,34 +79,58 @@ export default function Home() {
     setAnchorEl(null);
   };
 
-  const handleSwitchToKanban = () => {
-    setViewMode("kanban");
-  };
+  const handleDeleteSelected = async () => {
+    if (selectedTasks.length === 0) {
+      alert("Vui lòng chọn ít nhất một task để xóa!");
+      return;
+    }
 
-  const handleSwitchToList = () => {
-    setViewMode("list");
-  };
+    const confirmDelete = window.confirm(
+      `Bạn có chắc muốn xóa ${selectedTasks.length} task không?`
+    );
+    if (!confirmDelete) return;
 
+    try {
+      const result = await dispatch(
+        deleteManyTasksRedux(selectedTasks)
+      ).unwrap();
+
+      if (result && result.length > 0) {
+        alert("✅ Xóa thành công!");
+        setSelectedTasks([]); // Reset danh sách chọn
+        dispatch(getListTaskByProjectIdRedux(idProject));
+      } else {
+        alert("Xóa thất bại!");
+      }
+    } catch (error) {
+      console.log(error);
+      alert("Lỗi hệ thống, vui lòng thử lại!");
+    }
+  };
+  const openFilter = Boolean(anchorElFilter);
+  const openMember = Boolean(anchorEl);
+  const filterId = openFilter ? "filter-popover" : undefined;
+  const memberId = openMember ? "member-popover" : undefined;
   return (
     <div className="home-container">
       {/* Header Section */}
       <div className="header-section">
         <div className="header-container">
           <div className="project-info">
-            <p className="project-path">Dự án / {nameProject}</p>
+            <p className="project-path">{nameProject}</p>
           </div>
           <div className="view-toggle">
             <img
               src="image/Column.png"
               alt="Kanban View"
               className={`view-icon ${viewMode === "kanban" ? "active" : ""}`}
-              onClick={handleSwitchToKanban}
+              onClick={() => setViewMode("kanban")}
             />
             <img
               src="image/List.png"
               alt="List View"
               className={`view-icon ${viewMode === "list" ? "active" : ""}`}
-              onClick={handleSwitchToList}
+              onClick={() => setViewMode("list")}
             />
           </div>
         </div>
@@ -94,16 +157,18 @@ export default function Home() {
             type="text"
             placeholder="Tìm kiếm..."
             className="search-input"
+            onChange={(e) => setKeyword(e.target.value.trim())}
           />
           <div className="avatar-group">
-            {[
-              "image/image_4.png",
-              "image/image_5.png",
-              "image/image_6.png",
-              "image/image_7.png",
-              "image/image_8.png",
-              "image/dot.png",
-            ].map((avatar, index) => (
+            {listMember?.map((member, index) => (
+              <Avatar
+                key={index}
+                src={member.avatar}
+                alt={`Avatar ${index + 1}`}
+                className="avatar"
+              />
+            ))}
+            {["image/dot.png"].map((avatar, index) => (
               <img
                 onClick={handleClick}
                 key={index}
@@ -116,27 +181,61 @@ export default function Home() {
         </div>
 
         <Popover
-          open={Boolean(anchorEl)}
+          id={memberId}
+          open={openMember}
           anchorEl={anchorEl}
           onClose={handleClose}
           anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
           transformOrigin={{ vertical: "top", horizontal: "left" }}
           sx={{ mt: 1 }}
         >
-          <MemberListContent onClose={handleClose} />
+          <MemberListContent onClose={handleClose} members={listMember} />
         </Popover>
 
         <div className="task-header">
           <div className="task-icons">
-            <img src="image/Trash.png" alt="Delete" className="tool-icon" />
-            <img src="image/Filter.png" alt="Filter" className="tool-icon" />
+            <img
+              src="image/Trash.png"
+              alt="Delete"
+              className="tool-icon"
+              onClick={handleDeleteSelected}
+            />
+            <img
+              src="image/Filter.png"
+              alt="Filter"
+              className="tool-icon"
+              onClick={(e) => setAnchorElFilter(e.currentTarget)} // Mở Popover Filter
+              aria-describedby={filterId}
+            />
+            <Popover
+              id={filterId}
+              open={openFilter}
+              anchorEl={anchorElFilter}
+              onClose={() => setAnchorElFilter(null)}
+              anchorOrigin={{
+                vertical: "bottom",
+                horizontal: "left",
+              }}
+            >
+              <FilterDialog idProject={idProject} />
+            </Popover>
           </div>
         </div>
       </div>
 
       {/* Content Section */}
       <div className="content-section">
-        {viewMode === "kanban" ? <KanbanBoard /> : <ListHome />}
+        {viewMode === "kanban" ? (
+          <KanbanBoard
+            setSelectedTasks={setSelectedTasks}
+            selectedTasks={selectedTasks}
+          />
+        ) : (
+          <ListHome
+            setSelectedTasks={setSelectedTasks}
+            selectedTasks={selectedTasks}
+          />
+        )}
       </div>
     </div>
   );

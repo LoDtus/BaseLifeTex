@@ -3,7 +3,7 @@ import { useState, useEffect, useRef } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { useSearchParams } from "react-router-dom";
 import { updateIssueData, updateIssueDataStatus } from "../../apis/Issue";
-import { getListTaskByProjectIdRedux } from "../../redux/taskSlice";
+import { getByIndexParanation, getListTaskByProjectIdRedux, changePage, changeRowPerPage } from "../../redux/taskSlice";
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
 import TableCell from "@mui/material/TableCell";
@@ -25,16 +25,41 @@ import MemberListContentAdd from "../../components/memberListAdd/MemberListAdd";
 import EditForm from "../../components/editForm/EditForm";
 import "./ListHome.scss";
 import TablePagination from "@mui/material/TablePagination";
+import Loading from "../../components/Loading/Loading"
 
-const ListHome = () => {
+export default function ListHome({  selectedTasks = [], setSelectedTasks }) {
   const [searchParams] = useSearchParams();
   const idProject = searchParams.get("idProject");
-  const { listTask } = useSelector((state) => state.task);
+  const listTask = useSelector((state) => state.task.listTask);
   const dispatch = useDispatch();
+  let Page = useSelector((state)=>state.task.page);
+  let Limit = useSelector((state)=>state.task.limit);
+  let Total = useSelector((state)=>state.task.total);
 
   useEffect(() => {
     dispatch(getListTaskByProjectIdRedux(idProject));
   }, [idProject, dispatch]);
+
+  const [loading, setLoading] = useState(false);
+  
+  const getList = async ()=>{
+    setLoading(true)
+    try {
+      if (idProject) {
+        await dispatch(getByIndexParanation({ projectId: idProject, page: Page, pageSize: Limit }));
+      }
+    } catch (error) {
+      toast.error("Tạo nhiệm vụ thất bại", error);
+      throw error;
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  useEffect(() => {
+    getList();
+  }, [idProject, Page, Limit]);
+  
 
   const inputRef = useRef(null);
 
@@ -51,18 +76,16 @@ const ListHome = () => {
   const [idOpenComment, setIdOpenComment] = useState(null);
   const [editModal, setEditModal] = useState(false);
   const [idEditModal, setIdEditModal] = useState(null);
-
-  const [page, setPage] = useState(2);
-  const [rowsPerPage, setRowsPerPage] = useState(10);
-
+  
   const handleChangePage = (event, newPage) => {
-    setPage(newPage);
+    dispatch(changePage(newPage));
   };
-
+  
   const handleChangeRowsPerPage = (event) => {
-    setRowsPerPage(parseInt(event.target.value, 10));
-    setPage(0);
+    const newLimit = parseInt(event.target.value, 10);
+    dispatch(changeRowPerPage(newLimit));
   };
+  
 
   const handleEditClick = (taskId, currentName) => {
     setEditingTaskId(taskId);
@@ -179,16 +202,22 @@ const ListHome = () => {
     setIdEditModal(null);
     dispatch(getListTaskByProjectIdRedux(idProject));
   };
+  const handleSelectTask = (taskId) => {
+    const updatedSelection = selectedTasks.includes(taskId)
+      ? selectedTasks.filter((id) => id !== taskId)
+      : [...selectedTasks, taskId];
 
+    setSelectedTasks(updatedSelection);
+  };
   return (
     <div className="list-home-wrapper">
-      <ToastContainer />
+      {loading ?<Loading /> : 
       <Paper className="table-paper" sx={{ width: "100%", overflow: "hidden" }}>
         <TableContainer className="table-container">
           <Table className="task-table" aria-label="sticky table">
             <TableHead>
               <TableRow>
-                <TableCell className="table-header-cell"></TableCell>{" "}
+                <TableCell className="table-header-cell"></TableCell>
                 {/* Checkbox */}
                 <TableCell className="table-header-cell" align="center">
                   STT
@@ -203,33 +232,49 @@ const ListHome = () => {
                 <TableCell
                   className="table-header-cell"
                   align="left"
-                  style={{ minWidth: "150px" }}
+                  style={{ minWidth: "200px" }}
                 >
                   Tên công việc
                 </TableCell>
                 <TableCell
                   className="table-header-cell"
                   align="left"
-                  style={{ minWidth: "150px" }}
+                  style={{ minWidth: "200px" }}
                 >
                   Người nhận việc
                 </TableCell>
-                <TableCell className="table-header-cell" align="center">
+                <TableCell
+                  className="table-header-cell"
+                  align="center"
+                  style={{ minWidth: "150px" }}
+                >
                   Bình luận
                 </TableCell>
-                <TableCell className="table-header-cell" align="center">
+                <TableCell
+                  className="table-header-cell"
+                  align="center"
+                  style={{ minWidth: "150px" }}
+                >
                   Ngày bắt đầu
                 </TableCell>
-                <TableCell className="table-header-cell" align="center">
+                <TableCell
+                  className="table-header-cell"
+                  align="center"
+                  style={{ minWidth: "150px" }}
+                >
                   Ngày kết thúc
                 </TableCell>
-                <TableCell className="table-header-cell" align="center">
+                <TableCell
+                  className="table-header-cell"
+                  align="center"
+                  style={{ minWidth: "150px" }}
+                >
                   Trạng thái
                 </TableCell>
                 <TableCell
                   className="table-header-cell"
                   align="left"
-                  style={{ minWidth: "250px" }}
+                  style={{ minWidth: "200px" }}
                 >
                   Link
                 </TableCell>
@@ -246,7 +291,12 @@ const ListHome = () => {
                   sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
                 >
                   <TableCell className="table-cell">
-                    <input type="checkbox" className="checkbox-input" />
+                    <input
+                      type="checkbox"
+                      className="checkbox-input"
+                      checked={selectedTasks.includes(task._id)}
+                      onChange={() => handleSelectTask(task._id)}
+                    />
                   </TableCell>
                   <TableCell className="table-cell" align="center">
                     {index + 1}
@@ -450,15 +500,17 @@ const ListHome = () => {
           </Table>
         </TableContainer>
         <TablePagination
-          component="div"
-          count={100}
-          page={page}
-          onPageChange={handleChangePage}
-          rowsPerPage={rowsPerPage}
-          onRowsPerPageChange={handleChangeRowsPerPage}
-        />
+      component="div"
+      count={Total}
+      page={Page-1}
+      onPageChange={handleChangePage}
+      rowsPerPage={Limit}
+      onRowsPerPageChange={handleChangeRowsPerPage}
+    />     
       </Paper>
+      }
     </div>
+
   );
 };
 
@@ -481,5 +533,3 @@ const styleSheet = document.createElement("style");
 styleSheet.type = "text/css";
 styleSheet.innerText = styles;
 document.head.appendChild(styleSheet);
-
-export default ListHome;
