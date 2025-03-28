@@ -1,3 +1,4 @@
+// src/components/memberListAdd/MemberListAdd.jsx
 import React, { useEffect, useState } from "react";
 import {
   Avatar,
@@ -14,22 +15,22 @@ import CloseIcon from "@mui/icons-material/Close";
 import { addMemberTask } from "../../apis/Issue";
 import { getlistUserInProjects } from "../../services/taskService";
 
-const MemberListContentAdd = ({ onClose, idProject, task, toast }) => {
+const MemberListContentAdd = ({ onClose, idProject, task, fetchApi, toast }) => {
   const [listMember, setListMember] = useState([]);
+  const [checkedItems, setCheckedItems] = useState([]);
 
   const getMemberByProject = async () => {
     const response = await getlistUserInProjects(idProject);
-
     if (response.data.success === true) {
-      setListMember(response.data.data.members);
+      setListMember(response.data.data);
     }
   };
-  const [checkedItems, setCheckedItems] = useState([]);
 
   useEffect(() => {
     getMemberByProject();
-    setCheckedItems(task?.assigneeId.map((i) => i._id));
-  }, [idProject]);
+    setCheckedItems(task?.assigneeId.map((i) => i._id) || []);
+  }, [idProject, task]);
+
   const handleCheckboxChange = (item) => {
     setCheckedItems((prev) =>
       prev.includes(item) ? prev.filter((i) => i !== item) : [...prev, item]
@@ -37,14 +38,14 @@ const MemberListContentAdd = ({ onClose, idProject, task, toast }) => {
   };
 
   const addMember = async () => {
-    const respone = await addMemberTask(task._id, {
+    const response = await addMemberTask(task._id, {
       userId: checkedItems,
     });
-    // console.log(respone);
-    if (respone.message === "Thêm người dùng vào task thành công") {
-      toast.success(respone.message, { autoClose: 3000 });
+    if (response.message === "Thêm người dùng vào task thành công") {
+      toast.success(response.message, { autoClose: 3000 });
+      fetchApi();
     } else {
-      toast.error(respone.message, { autoClose: 3000 });
+      toast.error(response.message, { autoClose: 3000 });
     }
     onClose();
   };
@@ -74,7 +75,6 @@ const MemberListContentAdd = ({ onClose, idProject, task, toast }) => {
       >
         Danh sách thành viên
       </Typography>
-      {/* Danh sách thành viên */}
       <FormGroup>
         {listMember?.map((member, index) => (
           <FormControlLabel
@@ -86,10 +86,10 @@ const MemberListContentAdd = ({ onClose, idProject, task, toast }) => {
               />
             }
             label={
-              <>
+              <Box sx={{ display: "flex", alignItems: "center" }}>
                 <Avatar src={member?.avatar} />
                 <Typography sx={{ ml: 1 }}>{member.userName}</Typography>
-              </>
+              </Box>
             }
           />
         ))}

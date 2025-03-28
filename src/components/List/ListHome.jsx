@@ -31,6 +31,9 @@ import EditForm from "../../components/editForm/EditForm";
 import "./ListHome.scss";
 import TablePagination from "@mui/material/TablePagination";
 import Loading from "../../components/Loading/Loading";
+import addProblem from "../../../public/image/addProberm.png";
+import IssueForm from "../../components/IssueForm/IssueForm";
+import { debounce } from "lodash";
 
 export default function ListHome({ selectedTasks = [], setSelectedTasks }) {
   const [searchParams] = useSearchParams();
@@ -43,7 +46,7 @@ export default function ListHome({ selectedTasks = [], setSelectedTasks }) {
 
   const [loading, setLoading] = useState(false);
 
-  const getList = async () => {
+  const debouncedGetList = debounce(async () => {
     setLoading(true);
     try {
       if (idProject) {
@@ -61,11 +64,15 @@ export default function ListHome({ selectedTasks = [], setSelectedTasks }) {
     } finally {
       setLoading(false);
     }
+  });
+
+  const getList = () => {
+    debouncedGetList();
   };
 
   useEffect(() => {
     getList();
-  }, [idProject]);
+  }, [idProject, Page, Limit]);
 
   const inputRef = useRef(null);
 
@@ -82,6 +89,7 @@ export default function ListHome({ selectedTasks = [], setSelectedTasks }) {
   const [idOpenComment, setIdOpenComment] = useState(null);
   const [editModal, setEditModal] = useState(false);
   const [idEditModal, setIdEditModal] = useState(null);
+  const [open, setOpen] = useState(false);
 
   const handleChangePage = (event, newPage) => {
     dispatch(changePage(newPage));
@@ -115,7 +123,6 @@ export default function ListHome({ selectedTasks = [], setSelectedTasks }) {
       title: editedTaskName,
     });
     if (response.message === "Nhiệm vụ cập nhật thành công") {
-      // dispatch(getListTaskByProjectIdRedux(idProject));
       getList();
       toast.success(response.message, { autoClose: 3000 });
     } else {
@@ -135,7 +142,6 @@ export default function ListHome({ selectedTasks = [], setSelectedTasks }) {
       link: editedTaskLink,
     });
     if (response.message === "Nhiệm vụ cập nhật thành công") {
-      // dispatch(getListTaskByProjectIdRedux(idProject));
       getList();
       toast.success(response.message, { autoClose: 3000 });
     } else {
@@ -150,7 +156,6 @@ export default function ListHome({ selectedTasks = [], setSelectedTasks }) {
       status: newStatus,
     });
     if (response.message === "Thay đổi trạng thái task thành công") {
-      // dispatch(getListTaskByProjectIdRedux(idProject));
       getList();
       toast.success(response.message, { autoClose: 3000 });
     } else {
@@ -197,6 +202,7 @@ export default function ListHome({ selectedTasks = [], setSelectedTasks }) {
 
   const handleCloseMemberAdd = () => {
     setAnchorElMemberAdd(null);
+    setAnchorElMemberTask(null); // Đặt lại anchorElMemberTask
     setSelectedTaskId(null);
   };
 
@@ -208,18 +214,22 @@ export default function ListHome({ selectedTasks = [], setSelectedTasks }) {
   const editModalClose = async () => {
     setEditModal(false);
     setIdEditModal(null);
-    // dispatch(getListTaskByProjectIdRedux(idProject));
     getList();
   };
+
   const handleSelectTask = (taskId) => {
     const updatedSelection = selectedTasks.includes(taskId)
       ? selectedTasks.filter((id) => id !== taskId)
       : [...selectedTasks, taskId];
-
     setSelectedTasks(updatedSelection);
   };
+
   return (
     <div className="list-home-wrapper">
+      <div className="add-job" onClick={() => setOpen(true)}>
+        <img src={addProblem} alt="add" />
+        <p>Thêm công việc</p>
+      </div>
       {loading ? (
         <Loading />
       ) : (
@@ -232,7 +242,6 @@ export default function ListHome({ selectedTasks = [], setSelectedTasks }) {
               <TableHead>
                 <TableRow>
                   <TableCell className="table-header-cell"></TableCell>
-                  {/* Checkbox */}
                   <TableCell className="table-header-cell" align="center">
                     STT
                   </TableCell>
@@ -367,27 +376,29 @@ export default function ListHome({ selectedTasks = [], setSelectedTasks }) {
                                 handleClickMemberTask(e, task._id)
                               }
                             />
-                            <Popover
-                              open={Boolean(anchorElMemberTask)}
-                              anchorEl={anchorElMemberTask}
-                              onClose={handleCloseMemberTask}
-                              anchorOrigin={{
-                                vertical: "bottom",
-                                horizontal: "left",
-                              }}
-                              transformOrigin={{
-                                vertical: "top",
-                                horizontal: "left",
-                              }}
-                              sx={{ mt: 1 }}
-                            >
-                              <div className="all-member-in-task">
-                                <MemberListContent
-                                  members={task.assigneeId}
-                                  onClose={handleCloseMemberTask}
-                                />
-                              </div>
-                            </Popover>
+                            {selectedTaskId === task._id && (
+                              <Popover
+                                open={Boolean(anchorElMemberTask)}
+                                anchorEl={anchorElMemberTask}
+                                onClose={handleCloseMemberTask}
+                                anchorOrigin={{
+                                  vertical: "bottom",
+                                  horizontal: "left",
+                                }}
+                                transformOrigin={{
+                                  vertical: "top",
+                                  horizontal: "left",
+                                }}
+                                sx={{ mt: 1 }}
+                              >
+                                <div className="all-member-in-task">
+                                  <MemberListContent
+                                    members={task.assigneeId}
+                                    onClose={handleCloseMemberTask}
+                                  />
+                                </div>
+                              </Popover>
+                            )}
                           </>
                         )}
                         <button
@@ -416,10 +427,7 @@ export default function ListHome({ selectedTasks = [], setSelectedTasks }) {
                             onClose={handleCloseMemberAdd}
                             idProject={idProject}
                             task={task}
-                            fetchApi={() =>
-                              // dispatch(getListTaskByProjectIdRedux(idProject))
-                              getList()
-                            }
+                            fetchApi={() => getList()}
                             toast={toast}
                           />
                         </Popover>
@@ -534,6 +542,8 @@ export default function ListHome({ selectedTasks = [], setSelectedTasks }) {
           />
         </Paper>
       )}
+      {open && <IssueForm isOpen={open} onClose={() => setOpen(false)} />}
+      <ToastContainer />
     </div>
   );
 }
