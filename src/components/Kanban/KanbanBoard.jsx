@@ -1,7 +1,7 @@
 
 // KanbanBoard.jsx
 import { closestCorners, DndContext } from "@dnd-kit/core";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import KanbanColumn from "./KanbanColumn";
 import KanbanTaskCard from "./KanbanTaskCard";
 import { updateTaskStatus } from "../../services/taskService";
@@ -70,20 +70,15 @@ function getStatusTitle(status) {
 function KanbanBoard({ selectedTasks, setSelectedTasks }) {
   const dispatch = useDispatch();
   const listTask = useSelector((state) => state.task.listTask);
-
-  useSelector(() => {
-    console.log("list: ", listTask);
-    
-  }, [listTask]);
   
   const [columns, setColumns] = useState({});
   const [searchParams] = useSearchParams();
   const [taskToUpdate, setTaskToUpdate] = useState(null);
   const idProject = searchParams.get("idProject");
 
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     dispatch(getListTaskByProjectIdRedux(idProject));
-  };
+  }, [idProject, dispatch]);
 
   useEffect(() => {
     if (listTask && listTask.length > 0) {
@@ -96,7 +91,7 @@ function KanbanBoard({ selectedTasks, setSelectedTasks }) {
     if (idProject) {
       fetchData();
     }
-  }, [idProject, dispatch]);
+  }, [idProject, dispatch, fetchData]);
 
   const onDragEnd = (event) => {
     const { active, over } = event;

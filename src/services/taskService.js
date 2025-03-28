@@ -12,12 +12,10 @@ export const getTasksByProject = async (projectId) => {
 
 export const updateTaskStatus = async (taskId, oldStatus, newStatus) => {
   try {
-    console.log("Dữ liệu gửi đi:", { taskId, oldStatus, newStatus });
     const response = await axiosInstance.put(`/tasks/${taskId}/status`, {
       oldStatus: oldStatus,
       newStatus: newStatus,
     });
-    console.log("Phản hồi từ server:", response.data);
     return response.data;
   } catch (error) {
     console.log("Cập nhật trạng thái công việc thất bại", error.response?.data || error);
@@ -41,7 +39,6 @@ export const getlistUserInProjects = async (id) => {
 
 export const deleteManyTasks = async (ids) => {
   try {
-    console.log("Gửi request xóa:", ids); // Debug
     const response = await axiosInstance.delete(`/tasks/`, {
       data: { ids },
     });

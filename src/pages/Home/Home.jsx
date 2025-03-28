@@ -1,5 +1,5 @@
 // src/pages/Home/Home.jsx
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import "./Home.scss";
 import { useSearchParams } from "react-router-dom";
 import { Avatar, Popover } from "@mui/material";
@@ -15,7 +15,6 @@ import {
   searchTasksInProject,
 } from "../../redux/taskSlice";
 import { useDispatch } from "react-redux";
-import { searchTasks, getTasksByProject } from "../../services/taskService";
 
 export default function Home() {
   const dispatch = useDispatch();
@@ -26,15 +25,17 @@ export default function Home() {
   const [nameProject, setNameProject] = useState("Phần mềm đánh giá"); // Giá trị mặc định
   const [anchorElFilter, setAnchorElFilter] = useState(null);
   const [listMember, setListMember] = useState([]);
+  const [selectedTasks, setSelectedTasks] = useState([]);
   const [keyword, setKeyword] = useState("");
   const [debouncedKeyword, setDebouncedKeyword] = useState("");
 
-  const getMemberByProject = async () => {
+  const getMemberByProject = useCallback(async () => {
     const response = await getlistUser(idProject);
-    if (response.success === true) {
+    if (response.success) {
       setListMember(response.data);
     }
-  };
+  }, [idProject]);
+
   async function fetchProjectData(idPrj) {
     try {
       const response = await getProjectId(idPrj);
@@ -52,25 +53,23 @@ export default function Home() {
       fetchProjectData(idProject);
       getMemberByProject();
     }
-  }, [idProject]);
+  }, [idProject, getMemberByProject]);
 
   useEffect(() => {
     if (!idProject) return;
 
-    // Đợi 300ms mới cập nhật keyword mới, tránh cho server quá tải request, gây lỗi 500
+    // Đợi 300ms mới cập nhật keyword mới, tránh cho server quá tải request
     const handler = setTimeout(() => {
       setDebouncedKeyword(keyword);
-    }, 200);
+    }, 300);
 
     return () => clearTimeout(handler); // Hủy timeout nếu keyword thay đổi
   }, [keyword, idProject]);
 
   useEffect(() => {
     if (!idProject) return;
-
-    console.log(debouncedKeyword);
     dispatch(searchTasksInProject({ searchQuery: debouncedKeyword, idProject: idProject }));
-  }, [debouncedKeyword, idProject]);
+  }, [debouncedKeyword, idProject, dispatch]);
 
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
@@ -80,22 +79,6 @@ export default function Home() {
     setAnchorEl(null);
   };
 
-  const handleSwitchToKanban = () => {
-    setViewMode("kanban");
-  };
-
-  const handleSwitchToList = () => {
-    setViewMode("list");
-  };
-
-  const handleClickFilter = (event) => {
-    setAnchorElFilter(event.currentTarget); // Mở Popover Filter
-  };
-
-  const handleCloseFilter = () => {
-    setAnchorElFilter(null); // Đóng Popover Filter
-  };
-  const [selectedTasks, setSelectedTasks] = useState([]);
   const handleDeleteSelected = async () => {
     if (selectedTasks.length === 0) {
       alert("Vui lòng chọn ít nhất một task để xóa!");
@@ -112,8 +95,6 @@ export default function Home() {
         deleteManyTasksRedux(selectedTasks)
       ).unwrap();
 
-      console.log("Kết quả xóa từ Redux:", result); // Debug
-
       if (result && result.length > 0) {
         alert("✅ Xóa thành công!");
         setSelectedTasks([]); // Reset danh sách chọn
@@ -122,6 +103,7 @@ export default function Home() {
         alert("Xóa thất bại!");
       }
     } catch (error) {
+      console.log(error);
       alert("Lỗi hệ thống, vui lòng thử lại!");
     }
   };
@@ -142,13 +124,13 @@ export default function Home() {
               src="image/Column.png"
               alt="Kanban View"
               className={`view-icon ${viewMode === "kanban" ? "active" : ""}`}
-              onClick={handleSwitchToKanban}
+              onClick={() => setViewMode("kanban")}
             />
             <img
               src="image/List.png"
               alt="List View"
               className={`view-icon ${viewMode === "list" ? "active" : ""}`}
-              onClick={handleSwitchToList}
+              onClick={() => setViewMode("list")}
             />
           </div>
         </div>
@@ -222,14 +204,14 @@ export default function Home() {
               src="image/Filter.png"
               alt="Filter"
               className="tool-icon"
-              onClick={handleClickFilter}
+              onClick={(e) => setAnchorElFilter(e.currentTarget)} // Mở Popover Filter
               aria-describedby={filterId}
             />
             <Popover
               id={filterId}
               open={openFilter}
               anchorEl={anchorElFilter}
-              onClose={handleCloseFilter}
+              onClose={() => setAnchorElFilter(null)}
               anchorOrigin={{
                 vertical: "bottom",
                 horizontal: "left",
