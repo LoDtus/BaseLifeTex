@@ -124,9 +124,10 @@ function KanbanBoard({ selectedTasks, setSelectedTasks }) {
       const oldIndex = sourceColumn.tasks.findIndex(
         (task) => task.id === active.id
       );
-      const newIndex = over.id in columns ? 0 : sourceColumn.tasks.findIndex(
-        (task) => task.id === over.id
-      );
+      const newIndex =
+        over.id in columns
+          ? 0
+          : sourceColumn.tasks.findIndex((task) => task.id === over.id);
 
       if (oldIndex === newIndex) return;
 
@@ -171,9 +172,10 @@ function KanbanBoard({ selectedTasks, setSelectedTasks }) {
       const oldIndex = sourceColumn.tasks.findIndex(
         (task) => task.id === active.id
       );
-      const newIndex = over.id in columns ? 0 : sourceColumn.tasks.findIndex(
-        (task) => task.id === over.id
-      );
+      const newIndex =
+        over.id in columns
+          ? 0
+          : sourceColumn.tasks.findIndex((task) => task.id === over.id);
 
       if (oldIndex === newIndex) return;
 
@@ -211,9 +213,9 @@ function KanbanBoard({ selectedTasks, setSelectedTasks }) {
 
     setColumns((prev) => {
       const newColumns = { ...prev };
-      newColumns[sourceColumnKey].tasks = newColumns[sourceColumnKey].tasks.filter(
-        (task) => task.id !== active.id
-      );
+      newColumns[sourceColumnKey].tasks = newColumns[
+        sourceColumnKey
+      ].tasks.filter((task) => task.id !== active.id);
       newColumns[destinationColumnKey].tasks = [
         taskToMove,
         ...newColumns[destinationColumnKey].tasks,
@@ -223,11 +225,11 @@ function KanbanBoard({ selectedTasks, setSelectedTasks }) {
 
     try {
       await updateTaskStatus(taskToMove.id, oldStatus, newStatus);
-      toast.success("Cập nhật trạng thái công việc thành công", { autoClose: 3000 });
+      toast.success("Cập nhật trạng thái công việc thành công");
       fetchData();
     } catch (error) {
       setColumns(previousColumns);
-      toast.error("Cập nhật trạng thái công việc thất bại", { autoClose: 3000 });
+      toast.error("Cập nhật trạng thái công việc thất bại");
       throw error;
     }
   };
