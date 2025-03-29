@@ -15,7 +15,13 @@ import CloseIcon from "@mui/icons-material/Close";
 import { addMemberTask } from "../../apis/Issue";
 import { getlistUserInProjects } from "../../services/taskService";
 
-const MemberListContentAdd = ({ onClose, idProject, task, fetchApi, toast }) => {
+const MemberListContentAdd = ({
+  onClose,
+  idProject,
+  task,
+  fetchApi,
+  toast,
+}) => {
   const [listMember, setListMember] = useState([]);
   const [checkedItems, setCheckedItems] = useState([]);
 
@@ -39,13 +45,13 @@ const MemberListContentAdd = ({ onClose, idProject, task, fetchApi, toast }) => 
 
   const addMember = async () => {
     const response = await addMemberTask(task._id, {
-      userId: checkedItems,
+      assigneeId: checkedItems,
     });
     if (response.message === "Thêm người dùng vào task thành công") {
-      toast.success(response.message, { autoClose: 3000 });
+      toast.success(response.message);
       fetchApi();
     } else {
-      toast.error(response.message, { autoClose: 3000 });
+      toast.error(response.message);
     }
     onClose();
   };
