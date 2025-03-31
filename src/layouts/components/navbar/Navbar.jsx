@@ -42,7 +42,6 @@ const filteredProjects = lstProject.filter((project) =>
   project.name.toLowerCase().includes(searchTerm.toLowerCase())
 );
 
-
   return (
     <div className={styles.navbar}>
       <div className={styles.headerNavbar}>

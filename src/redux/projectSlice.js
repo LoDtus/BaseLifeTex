@@ -1,5 +1,5 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import { getLstProject } from "../services/projectService";
+import { deleteProjectById, getLstProject } from "../services/projectService";
 
 export const getListProjectByUser = createAsyncThunk(
   "/project/list",
@@ -35,6 +35,18 @@ export const searchProjects = createAsyncThunk(
   }
 );
 
+export const deleteProject = createAsyncThunk(
+  "project/delete",
+  async (projectId, { rejectWithValue }) => {
+    try {
+      await deleteProjectById(projectId); // Gửi request xóa
+      return projectId; // Trả về projectId để cập nhật Redux
+    } catch (error) {
+      return rejectWithValue(error.message);
+    }
+  }
+);
+
 const projectSlice = createSlice({
   name: "project",
   initialState: {
@@ -61,13 +73,21 @@ const projectSlice = createSlice({
       .addCase(searchProjects.pending, (state) => {
               state.isFetching = true;
             })
-            .addCase(searchProjects.fulfilled, (state, action) => {
+      .addCase(searchProjects.fulfilled, (state, action) => {
               state.isFetching = false;
               state.listProject= action.payload;
               state.searchQuery = action.meta.arg.searchQuery; // Lưu lại từ khóa tìm kiếm
             })
-            .addCase(searchProjects.rejected, (state, action) => {
+      .addCase(searchProjects.rejected, (state, action) => {
               state.isFetching = false;
+              state.error = action.payload;
+            })
+      .addCase(deleteProject.fulfilled, (state, action) => {
+              state.listProject = state.listProject.filter(
+                (project) => project._id !== action.payload
+              );
+            })
+      .addCase(deleteProject.rejected, (state, action) => {
               state.error = action.payload;
             });
   },
