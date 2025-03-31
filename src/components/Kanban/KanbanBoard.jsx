@@ -15,8 +15,11 @@ function transformTasksData(tasks) {
       const statusMap = {
         1: "PREPARE", // Công việc mới
         2: "IN_PROGRESS", // Đang thực hiện
-        3: "FINISH", // Hoàn thành
-        4: "NOT_DO", // Khóa công việc
+        3: "TEST",
+        4: "FINISH", // Hoàn thành
+        5: "CLOSE",
+        6: "PAUSE",
+        7: "NOT_DO", // Khóa công việc
       };
 
       const columnKey = statusMap[task.status] || "PREPARE";
@@ -47,7 +50,10 @@ function transformTasksData(tasks) {
     {
       PREPARE: { title: "Công việc mới", tasks: [] },
       IN_PROGRESS: { title: "Đang thực hiện", tasks: [] },
+      TEST: {title: "Kiểm thử", tasks: []},
       FINISH: { title: "Hoàn thành", tasks: [] },
+      CLOSE: { title: "Đóng công việc", tasks: [] },
+      PAUSE: { title: "Tạm dừng", tasks: [] },
       NOT_DO: { title: "Khóa công việc", tasks: [] },
     }
   );
@@ -58,7 +64,10 @@ function getStatusTitle(status) {
   const titles = {
     PREPARE: "Công việc mới",
     IN_PROGRESS: "Đang thực hiện",
+    TEST: "Kiểm thử",
     FINISH: "Hoàn thành",
+    CLOSE: "Đóng công việc",
+    PAUSE: "Tạm dừng",
     NOT_DO: "Khóa công việc",
   };
   return titles[status] || "Công việc khác";
@@ -124,9 +133,10 @@ function KanbanBoard({ selectedTasks, setSelectedTasks }) {
       const oldIndex = sourceColumn.tasks.findIndex(
         (task) => task.id === active.id
       );
-      const newIndex = over.id in columns ? 0 : sourceColumn.tasks.findIndex(
-        (task) => task.id === over.id
-      );
+      const newIndex =
+        over.id in columns
+          ? 0
+          : sourceColumn.tasks.findIndex((task) => task.id === over.id);
 
       if (oldIndex === newIndex) return;
 
@@ -171,9 +181,10 @@ function KanbanBoard({ selectedTasks, setSelectedTasks }) {
       const oldIndex = sourceColumn.tasks.findIndex(
         (task) => task.id === active.id
       );
-      const newIndex = over.id in columns ? 0 : sourceColumn.tasks.findIndex(
-        (task) => task.id === over.id
-      );
+      const newIndex =
+        over.id in columns
+          ? 0
+          : sourceColumn.tasks.findIndex((task) => task.id === over.id);
 
       if (oldIndex === newIndex) return;
 
@@ -200,8 +211,11 @@ function KanbanBoard({ selectedTasks, setSelectedTasks }) {
     const statusMapReverse = {
       PREPARE: 1,
       IN_PROGRESS: 2,
-      FINISH: 3,
-      NOT_DO: 4,
+      TEST: 3,
+      FINISH: 4,
+      CLOSE: 5,
+      PAUSE: 6,
+      NOT_DO: 7,
     };
 
     const oldStatus = taskToMove.status;
@@ -211,9 +225,9 @@ function KanbanBoard({ selectedTasks, setSelectedTasks }) {
 
     setColumns((prev) => {
       const newColumns = { ...prev };
-      newColumns[sourceColumnKey].tasks = newColumns[sourceColumnKey].tasks.filter(
-        (task) => task.id !== active.id
-      );
+      newColumns[sourceColumnKey].tasks = newColumns[
+        sourceColumnKey
+      ].tasks.filter((task) => task.id !== active.id);
       newColumns[destinationColumnKey].tasks = [
         taskToMove,
         ...newColumns[destinationColumnKey].tasks,
@@ -223,11 +237,11 @@ function KanbanBoard({ selectedTasks, setSelectedTasks }) {
 
     try {
       await updateTaskStatus(taskToMove.id, oldStatus, newStatus);
-      toast.success("Cập nhật trạng thái công việc thành công", { autoClose: 3000 });
+      toast.success("Cập nhật trạng thái công việc thành công");
       fetchData();
     } catch (error) {
       setColumns(previousColumns);
-      toast.error("Cập nhật trạng thái công việc thất bại", { autoClose: 3000 });
+      toast.error("Cập nhật trạng thái công việc thất bại");
       throw error;
     }
   };
@@ -257,3 +271,4 @@ function KanbanBoard({ selectedTasks, setSelectedTasks }) {
 }
 
 export default KanbanBoard;
+
