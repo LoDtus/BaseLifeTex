@@ -13,12 +13,35 @@ export const getListProjectByUser = createAsyncThunk(
   }
 );
 
+export const searchProjects = createAsyncThunk(
+  "project/search",
+  async ({ searchQuery, idProject }, { rejectWithValue }) => {
+    try {
+      let result;
+      if (!searchQuery) {
+        result = await getTasksByProject(idProject);
+      } else {
+        result = await searchTasks(searchQuery, idProject); // Thêm idProject vào API tìm kiếm
+      }
+
+      if (result.success) {
+        return result.data;
+      } else {
+        return rejectWithValue(result.error);
+      }
+    } catch (error) {
+      return rejectWithValue(error.message);
+    }
+  }
+);
+
 const projectSlice = createSlice({
   name: "project",
   initialState: {
     listProject: [],
     error: null,
     isFetching: false,
+    searchQuery: "",
   },
   reducers: {},
   extraReducers: (builder) => {
@@ -34,7 +57,19 @@ const projectSlice = createSlice({
       .addCase(getListProjectByUser.rejected, (state, action) => {
         state.isFetching = false;
         state.error = action.payload;
-      });
+      })
+      .addCase(searchProjects.pending, (state) => {
+              state.isFetching = true;
+            })
+            .addCase(searchProjects.fulfilled, (state, action) => {
+              state.isFetching = false;
+              state.listProject= action.payload;
+              state.searchQuery = action.meta.arg.searchQuery; // Lưu lại từ khóa tìm kiếm
+            })
+            .addCase(searchProjects.rejected, (state, action) => {
+              state.isFetching = false;
+              state.error = action.payload;
+            });
   },
 });
 

@@ -9,3 +9,10 @@ export const getProjectId = async (projectId) => {
   const response = await axiosInstance.get(`/projects/${projectId}`);
   return response.data;
 };
+
+export const searchProjects = async (searchQuery, projectId) => {
+  const response = await axiosInstance.get(`/projects/search`, {
+    params: { search: searchQuery, projectId },
+  });
+  return response.data;
+};

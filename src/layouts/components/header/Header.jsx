@@ -6,13 +6,21 @@ import NotificationPopup from "../../../components/notificationPopup/Notificatio
 import { logoutUser } from "../../../services/authService";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
+import { useSearchParams } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { searchProjects } from "../../../redux/projectSlice"
+import Navbar from "../navbar/Navbar";
 
-export default function Header() {
+export default function Header({ setSearchTerm }) {
   const user = useSelector((state) => state.auth.login.currentUser);
   const userName = user?.data?.user?.userName || "Khách";
   const avatar = user?.data?.user?.avatar;
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const idProject = searchParams.get("idProject") || "";
+  const [keyword, setKeyword] = useState("");
+    const [debouncedKeyword, setDebouncedKeyword] = useState("");
 
   const handleLogout = async () => {
     const accessToken = user?.data?.accessToken;
@@ -23,6 +31,26 @@ export default function Header() {
     }
     await logoutUser(dispatch, navigate, accessToken);
   };
+  
+    useEffect(() => {
+      if (!idProject) return;
+      dispatch(
+        searchProjects({
+          searchQuery: debouncedKeyword,
+          idProject: idProject,
+        })
+      );
+    }, [debouncedKeyword, idProject, dispatch]);
+
+    const [searchText, setSearchText] = useState("");
+
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setSearchTerm(searchText); // Cập nhật giá trị tìm kiếm lên MainLayout
+    }, 300);
+
+    return () => clearTimeout(handler);
+  }, [searchText]);
 
   return (
     <div>
@@ -31,13 +59,14 @@ export default function Header() {
           <img src="/image/image.png" alt="LIFETEK" className="logo-img" />
           <span className="logo-text">LIFETEK</span>
         </div>
-
         <div className="user-profile">
           <div className="search-bar" style={{ position: "relative" }}>
             <input
               type="text"
               placeholder="Tìm kiếm dự án..."
               className="search-input"
+              value={searchText}
+              onChange={(e) => setSearchText(e.target.value)}
             />
             <SearchIcon
               sx={{
