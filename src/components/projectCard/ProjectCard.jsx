@@ -4,8 +4,11 @@ import Popover from "@mui/material/Popover";
 import ContactCard from "../contactCard/ContactCard";
 import { toolCvStatus } from "../../tools/toolsCvStatus";
 import { toolsCvDateYMD } from "../../tools/toolsCvDate";
+import { useDispatch } from "react-redux";
+import { deleteProject } from "../../redux/projectSlice";
 
 const ProjectCard = ({ project }) => {
+  const dispatch = useDispatch();
   const [anchorEl, setAnchorEl] = useState(null);
   const open = Boolean(anchorEl);
   const id = open ? "simple-popper" : undefined;
@@ -30,7 +33,18 @@ const ProjectCard = ({ project }) => {
     event.stopPropagation(); // Ngăn chặn sự kiện lan lên cha
     setAnchorEl(null);
   };
-
+  const handleDelete = () => {
+    if (!project?._id) {
+      console.error("Lỗi: projectId không hợp lệ!", project);
+      return;
+    }
+  
+    if (window.confirm("Bạn có chắc chắn muốn xóa dự án này?")) {
+      dispatch(deleteProject(project._id));
+    }
+  };
+  
+  
   return (
     <div className={styles.projectCard}>
       <div className={styles.projectHeader}>
@@ -79,6 +93,9 @@ const ProjectCard = ({ project }) => {
           src="image/e10ebdc6f22af020d1cdd58a063bf347.png"
           alt=""
         />
+        <button className={styles.deleteBtn} onClick={handleDelete}>
+          Xóa
+        </button>
         <button
           style={{
             borderRadius: 20,

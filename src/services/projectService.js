@@ -16,3 +16,9 @@ export const searchProjects = async (searchQuery, projectId) => {
   });
   return response.data;
 };
+
+export const deleteProjectById = async (projectId) => {
+  const response = await axiosInstance.delete(`/projects/${projectId}`);
+  return response.data;
+};
+

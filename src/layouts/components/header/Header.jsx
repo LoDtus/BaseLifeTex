@@ -17,10 +17,6 @@ export default function Header({ setSearchTerm }) {
   const avatar = user?.data?.user?.avatar;
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
-  const idProject = searchParams.get("idProject") || "";
-  const [keyword, setKeyword] = useState("");
-    const [debouncedKeyword, setDebouncedKeyword] = useState("");
 
   const handleLogout = async () => {
     const accessToken = user?.data?.accessToken;
@@ -31,16 +27,6 @@ export default function Header({ setSearchTerm }) {
     }
     await logoutUser(dispatch, navigate, accessToken);
   };
-  
-    useEffect(() => {
-      if (!idProject) return;
-      dispatch(
-        searchProjects({
-          searchQuery: debouncedKeyword,
-          idProject: idProject,
-        })
-      );
-    }, [debouncedKeyword, idProject, dispatch]);
 
     const [searchText, setSearchText] = useState("");
 
