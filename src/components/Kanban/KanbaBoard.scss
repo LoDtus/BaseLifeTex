@@ -1,25 +1,27 @@
 .kanban-wrapper {
   flex: 1;
-  overflow-x: auto;
-  overflow-y: hidden;
+  overflow-x: auto; // Enable horizontal scrolling
+  overflow-y: hidden; // Prevent vertical scrolling on the wrapper
   padding: 20px;
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
-  height: 100vh; // Đảm bảo wrapper chiếm toàn bộ chiều cao màn hình
+  height: 100vh; // Ensure wrapper takes full height
 }
 
 .kanban-container {
   display: flex;
   gap: 10px;
   align-items: flex-start;
-  min-width: fit-content;
+  min-width: fit-content; // Ensure the container is wide enough for all columns
   height: auto;
+  flex-shrink: 0; // Prevent the container from shrinking
 }
 
 .kanban-column {
   background: #f7f8f9;
-  width: 280px;
+  width: 280px; // Fixed width for all columns
+  min-width: 280px; // Ensure the column doesn't shrink below 280px
   height: calc(100vh - 150px);
   border-radius: 8px;
   box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
@@ -28,6 +30,7 @@
   flex-direction: column;
   gap: 10px;
   box-sizing: border-box;
+  flex-shrink: 0; // Prevent the column from shrinking
 
   h3 {
     font-size: 16px;
@@ -54,17 +57,19 @@
   border-radius: 3px;
   padding: 20px;
   text-align: center;
-  color: #5e6c84; // Màu chữ giống Trello
+  color: #5e6c84;
   font-size: 14px;
   background-color: transparent;
   min-height: 40px;
+  width: 100%; // Ensure placeholder takes full column width
+  box-sizing: border-box;
 }
 
 .add-task {
   background: transparent;
   border: none;
   font-size: 14px;
-  color: #5e6c84; // Màu chữ giống Trello
+  color: #5e6c84;
   cursor: pointer;
   padding: 8px;
   text-align: left;
@@ -76,7 +81,6 @@
     color: #172b4d;
   }
 }
-
 .kanban-card {
   min-height: 60px;
   display: flex;

@@ -20,8 +20,11 @@ export default function KanbanColumn({
   const statusMapReverse = {
     PREPARE: 1,
     IN_PROGRESS: 2,
-    FINISH: 3,
-    NOT_DO: 4,
+    TEST: 3,
+    FINISH: 4,
+    CLOSE: 5,
+    PAUSE: 6,
+    NOT_DO: 7,
   };
 
   const statusValue = statusMapReverse[columnId];
