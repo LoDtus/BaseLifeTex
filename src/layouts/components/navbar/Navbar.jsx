@@ -1,13 +1,12 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom"; // Import useNavigate for navigation
-
+import { useNavigate, useSearchParams } from "react-router-dom"; // Import useNavigate for navigation
 import styles from "./Navbar.module.scss";
 import ProjectCard from "../../../components/projectCard/ProjectCard";
 import Loading from "../../../components/Loading/Loading";
 import { useDispatch, useSelector } from "react-redux";
 import { getListProjectByUser } from "../../../redux/projectSlice";
 
-export default function Navbar() {
+export default function Navbar({searchTerm}) {
   const lstProject = useSelector((state) => state.project.listProject);
   const [loading, setLoading] = useState(true); // State for loading
   const navigate = useNavigate(); // Initialize navigate
@@ -38,6 +37,11 @@ export default function Navbar() {
       navigate(`${currentUrl.pathname}${currentUrl.search}`);
     }
   }, [lstProject]);
+
+const filteredProjects = lstProject.filter((project) =>
+  project.name.toLowerCase().includes(searchTerm.toLowerCase())
+);
+
 
   return (
     <div className={styles.navbar}>
@@ -78,20 +82,19 @@ export default function Navbar() {
         <div className={styles.projectListTitle}>Danh sách dự án tham gia</div>
       </div>
       <div className={styles.bodyNavbar}>
-        {loading ? (
-          <Loading />
-        ) : (
-          lstProject.map((project, index) => (
-            <div
-              key={index}
-              onClick={() => handleProjectClick(project._id)} // Add onClick handler
-              style={{ cursor: "pointer" }}
-            >
-              <ProjectCard project={project} />
-            </div>
-          ))
-        )}
+  {loading ? (
+    <Loading />
+  ) : filteredProjects.length > 0 ? (
+    filteredProjects.map((project, index) => (
+      <div key={index} onClick={() => handleProjectClick(project._id)} style={{ cursor: "pointer" }}>
+        <ProjectCard project={project} />
       </div>
+    ))
+  ) : (
+    <p>❌ Không tìm thấy dự án nào!</p> // Thông báo rõ ràng hơn
+  )}
+</div>
+
     </div>
   );
 }
