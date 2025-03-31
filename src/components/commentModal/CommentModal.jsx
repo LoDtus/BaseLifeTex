@@ -27,7 +27,6 @@ const CommentModal = ({ open, handleClose, task }) => {
           content: comment,
         });
         if (res && res.success === true) {
-          toast.success(res.message);
           setComment("");
         } else {
           toast.error(res.message);

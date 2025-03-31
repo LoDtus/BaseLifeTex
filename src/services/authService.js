@@ -18,7 +18,7 @@ const backendUrl = import.meta.env.VITE_BACKEND_URL;
 export const loginUser = async (user, dispatch, navigate) => {
   dispatch(loginStart());
   try {
-    const res = await axios.post(`${backendUrl}/auth/login`, user);
+    const res = await axiosInstance.post(`${backendUrl}/auth/login`, user);
     dispatch(loginSuccess(res.data));
     setTimeout(() => {
       navigate("/home");

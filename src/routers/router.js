@@ -4,6 +4,7 @@ import Home from "../pages/Home/Home";
 import Login from "../pages/Login/Login";
 import Register from "../pages/Register/Register";
 import KabanDetail from "../components/kabanDetail/KabanDetail";
+import VerifyEmail from "../components/verifyEmail/VerifyEmail";
 const publicRoutes = [
   {
     path: "/home",
@@ -23,6 +24,11 @@ const publicRoutes = [
   {
     path: "/KabanDetail",
     component: KabanDetail,
+    layout: LoginLayout,
+  },
+  {
+    path: "/verify-email",
+    component: VerifyEmail,
     layout: LoginLayout,
   },
 ];

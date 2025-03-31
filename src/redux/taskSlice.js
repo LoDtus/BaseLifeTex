@@ -72,15 +72,14 @@ export const searchTasksInProject = createAsyncThunk(
   }
 );
 
-
 const taskSlice = createSlice({
   name: "task",
   initialState: {
     listTask: [],
-    searchQuery: "",  // Thêm searchQuery để lưu từ khóa tìm kiếm
+    searchQuery: "", // Thêm searchQuery để lưu từ khóa tìm kiếm
     isFetching: false,
     total: 0,
-    limit: 10,
+    limit: 5,
     page: 1,
     error: null,
   },
