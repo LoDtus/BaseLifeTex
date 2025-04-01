@@ -29,7 +29,11 @@ import IssueForm from "../form/IssueForm";
 import { debounce } from "lodash";
 import EditFormv2 from "../form/EditFormv2";
 
-export default function ListHome({ selectedTasks = [], setSelectedTasks, searchTerm }) {
+export default function ListHome({
+  selectedTasks = [],
+  setSelectedTasks,
+  searchTerm,
+}) {
   const [searchParams] = useSearchParams();
   const idProject = searchParams.get("idProject");
   const listTask = useSelector((state) => state.task.listTask);
@@ -489,7 +493,6 @@ export default function ListHome({ selectedTasks = [], setSelectedTasks, searchT
         </Paper>
       )}
       {open && <IssueForm isOpen={open} onClose={() => setOpen(false)} />}
-      <ToastContainer />
     </div>
   );
 }
