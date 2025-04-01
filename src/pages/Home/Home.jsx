@@ -3,18 +3,18 @@ import { useCallback, useEffect, useState } from "react";
 import "./Home.scss";
 import { useSearchParams } from "react-router-dom";
 import { Avatar, Popover } from "@mui/material";
-import MemberListContent from "../../components/memberList/MemberList";
-import KanbanBoard from "../../components/Kanban/KanbanBoard";
-import ListHome from "../../components/List/ListHome";
-import { getProjectId } from "../../services/projectService";
-import { getlistUser } from "../../services/userService";
-import FilterDialog from "../../components/FilterForm/FilterDialog";
+import MemberListContent from "@/components/tasks/components/list-view/MemberList";
+import KanbanBoard from "@/components/tasks/components/kanban-view/KanbanView";
+import ListHome from "@/components/tasks/components/list-view/ListView";
+import { getProjectId } from "@/services/projectService";
+import { getlistUser } from "@/services/userService";
+import FilterDialog from "@/components/tasks/FilterDialog";
 import {
   deleteManyTasksRedux,
   getListTaskByProjectIdRedux,
   searchTasksInProject,
   getByIndexParanation,
-} from "../../redux/taskSlice";
+} from "@/redux/taskSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
 
