@@ -1,7 +1,7 @@
 import { Backdrop, CircularProgress } from '@mui/material';
 import { useSelector } from 'react-redux';
 
-function FullPageLoader() {
+export default function FullPageLoader() {
     const isLoading = useSelector((state) => state.loading.isLoading);
     return (
         <Backdrop
@@ -11,6 +11,4 @@ function FullPageLoader() {
             <p>Đang tải.....</p>
         </Backdrop>
     )
-}
-
-export default FullPageLoader
+};

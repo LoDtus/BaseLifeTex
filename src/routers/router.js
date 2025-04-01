@@ -1,36 +1,37 @@
-import MainLayout from "../layouts/mainLayout/MainLayout";
-import LoginLayout from "../layouts/loginLayout/LoginLayout";
+import MainLayout from "../layouts/components/HomeLayout";
+import AccessLayout from "../layouts/components/AccessLayout";
 import Home from "../pages/Home/Home";
-import Login from "../pages/Login/Login";
-import Register from "../pages/Register/Register";
-import KabanDetail from "../components/kabanDetail/KabanDetail";
-import VerifyEmail from "../components/verifyEmail/VerifyEmail";
+import Login from "../pages/sign-in/SignIn";
+import Register from "../pages/sign-up/SignUp";
+import TaskDetailView from "@/components/tasks/components/task-details/TaskDetailView";
+import VerifyEmail from "@/components/access/components/VerifyEmail";
+
 const publicRoutes = [
-  {
-    path: "/home",
-    component: Home,
-    layout: MainLayout,
-  },
-  {
-    path: "/",
-    component: Login,
-    layout: LoginLayout,
-  },
-  {
-    path: "/register",
-    component: Register,
-    layout: LoginLayout,
-  },
-  {
-    path: "/KabanDetail",
-    component: KabanDetail,
-    layout: LoginLayout,
-  },
-  {
-    path: "/verify-email",
-    component: VerifyEmail,
-    layout: LoginLayout,
-  },
+    {
+        path: "/",
+        component: Login,
+        layout: AccessLayout,
+    },
+    {
+        path: "/register",
+        component: Register,
+        layout: AccessLayout,
+    },
+    {
+        path: "/verify-email",
+        component: VerifyEmail,
+        layout: AccessLayout,
+    },
+    {
+        path: "/kanban-detail",
+        component: TaskDetailView,
+        layout: AccessLayout,
+    },
+    {
+        path: "/home",
+        component: Home,
+        layout: MainLayout,
+    },
 ];
 
-export { publicRoutes };
+export default publicRoutes;
