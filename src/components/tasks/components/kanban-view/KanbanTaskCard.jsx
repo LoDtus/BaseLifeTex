@@ -52,6 +52,7 @@ function KanbanTaskCard({ selectedTasks, setSelectedTasks, task }) {
       : [];
   const handleSelectTask = (event, taskId) => {
     event.stopPropagation();
+    event.preventDefault();
     const updatedSelection = selectedTasks.includes(taskId)
       ? selectedTasks.filter((id) => id !== taskId)
       : [...selectedTasks, taskId];

@@ -4,7 +4,7 @@ import {
   getTasksByProject,
   deleteManyTasks,
   getTaskByPagination,
-  searchTasks,
+  searchTasks
 } from "../services/taskService";
 
 export const getListTaskByProjectIdRedux = createAsyncThunk(
@@ -38,6 +38,7 @@ export const deleteManyTasksRedux = createAsyncThunk(
     }
   }
 );
+
 export const getByIndexParanation = createAsyncThunk(
   "task/getByIndexParanation",
   async ({ projectId, page, pageSize }, { rejectWithValue }) => {
@@ -66,18 +67,6 @@ export const searchTasksInProject = createAsyncThunk(
       } else {
         return rejectWithValue(result.error);
       }
-    } catch (error) {
-      return rejectWithValue(error.message);
-    }
-  }
-);
-
-export const updateTaskStatus = createAsyncThunk(
-  "task/updateTaskStatus",
-  async ({ taskId, newColumnId }, { rejectWithValue }) => {
-    try {
-      const response = await updateTaskStatusAPI(taskId, newColumnId);
-      return { taskId, newColumnId };
     } catch (error) {
       return rejectWithValue(error.message);
     }
@@ -168,21 +157,6 @@ const taskSlice = createSlice({
         state.isFetching = false;
         state.error = action.payload;
       })
-      .addCase(updateTaskStatus.pending, (state) => {
-        state.isFetching = true;
-      })
-      .addCase(updateTaskStatus.fulfilled, (state, action) => {
-        state.isFetching = false;
-        const { taskId, newColumnId } = action.payload;
-        const task = state.listTask.find((task) => task.id === taskId);
-        if (task) {
-          task.status = newColumnId;
-        }
-      })
-      .addCase(updateTaskStatus.rejected, (state, action) => {
-        state.isFetching = false;
-        state.error = action.payload;
-      });
   },
 });
 

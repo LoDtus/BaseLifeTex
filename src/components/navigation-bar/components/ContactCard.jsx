@@ -12,7 +12,7 @@ const ContactCard = ({ onClose, contact }) => {
           style={{
             width: "16px",
           }}
-          src="image\X.png"
+          src="/icons/x-icon.png"
           alt="avatar"
         />
       </div>
@@ -26,12 +26,12 @@ const ContactCard = ({ onClose, contact }) => {
       </div>
 
       <div className={styles.contactItem}>
-        <img src="image\phone.png" alt="phone" className={styles.icon} />
+        <img src="/icons/phone.png" alt="phone" className={styles.icon} />
         <span className={styles.text}>{contact?.phone}</span>
       </div>
 
       <div className={styles.contactItem}>
-        <img src="image\Email.png" alt="email" className={styles.icon} />
+        <img src="/icons/email-icon.png" alt="email" className={styles.icon} />
         <span className={styles.text}>{contact?.email}</span>
       </div>
     </div>
