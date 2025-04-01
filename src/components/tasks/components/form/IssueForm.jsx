@@ -152,7 +152,7 @@ const IssueForm = ({ isOpen, onClose, status }) => {
                       mr: 1.5,
                     }}
                   >
-                    Tên vấn đề:
+                    Tên công việc:
                   </Typography>
                   <Box sx={{ width: "100%" }}>
                     <TextField
