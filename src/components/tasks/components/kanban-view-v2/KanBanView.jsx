@@ -7,6 +7,23 @@ export default function KanBanView() {
     const boardRef = useRef(null);
     const columnRefs = useRef([]);
 
+    const columnList = [
+        "Công việc mới",
+        "Đang thực hiện",
+        "Kiểm thử",
+        "Hoàn thành",
+        "Đóng công việc",
+        "Tạm dừng",
+        "Khóa công việc",
+    ]
+
+    const initialTaskList = [
+        { id: 1, content: "Task 1", column: "Công việc mới" },
+        { id: 2, content: "Task 2", column: "Công việc mới" },
+        { id: 3, content: "Task 3", column: "Đang thực hiện" },
+        { id: 4, content: "Task 4", column: "Hoàn thành" },
+    ];
+
     useEffect(() => {
         const columnGrids = columnRefs.current.map((container) => {
             return new Muuri(container, {
@@ -53,7 +70,31 @@ export default function KanBanView() {
         <div>
             <div className="drag-container" ref={dragContainerRef}></div>
             <div className="board" ref={boardRef}>
-                <div className="board-column todo">
+                { columnList.map((column, i) => (
+                    <div className="board-column todo">
+                        <div className="board-column-container">
+                            <div className="board-column-header">{column}</div>
+                            <div className="board-column-content-wrapper">
+                                <div
+                                    className="board-column-content"
+                                    ref={(el) => (columnRefs.current[i] = el)}
+                                >
+                                    {initialTaskList.map((task, j) => (
+                                        <div
+                                            className="board-item"
+                                            key={`${i}-${task.id}`}
+                                        >
+                                            <div className="board-item-content">
+                                                <span>Item #</span>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                ))}
+                {/* <div className="board-column todo">
                     <div className="board-column-container">
                         <div className="board-column-header">Todo</div>
                         <div className="board-column-content-wrapper">
@@ -61,14 +102,13 @@ export default function KanBanView() {
                                 className="board-column-content"
                                 ref={(el) => (columnRefs.current[0] = el)}
                             >
-                                {[1, 2, 3, 4, 5].map((num) => (
+                                {initialTaskList.map((task, j) => (
                                     <div
                                         className="board-item"
-                                        key={`todo-${num}`}
+                                        key={`todo-${task.id}`}
                                     >
                                         <div className="board-item-content">
-                                            <span>Item #</span>
-                                            {num}
+                                            <span>Item </span>
                                         </div>
                                     </div>
                                 ))}
@@ -85,14 +125,13 @@ export default function KanBanView() {
                                 className="board-column-content"
                                 ref={(el) => (columnRefs.current[1] = el)}
                             >
-                                {[6, 7, 8, 9, 10].map((num) => (
+                                {initialTaskList.map((task, j) => (
                                     <div
                                         className="board-item"
-                                        key={`working-${num}`}
+                                        key={`working-${task.id}`}
                                     >
                                         <div className="board-item-content">
                                             <span>Item #</span>
-                                            {num}
                                         </div>
                                     </div>
                                 ))}
@@ -109,21 +148,21 @@ export default function KanBanView() {
                                 className="board-column-content"
                                 ref={(el) => (columnRefs.current[2] = el)}
                             >
-                                {[11, 12, 13, 14, 15].map((num) => (
+                                {initialTaskList.map((task, j) => (
                                     <div
                                         className="board-item"
-                                        key={`done-${num}`}
+                                        key={`done-${task.id}`}
                                     >
                                         <div className="board-item-content">
                                             <span>Item #</span>
-                                            {num}
                                         </div>
                                     </div>
                                 ))}
                             </div>
                         </div>
                     </div>
-                </div>
+                </div> */}
+
             </div>
         </div>
     );

@@ -1,16 +1,4 @@
 /* src/components/KanbanBoard.css */
-* {
-    box-sizing: border-box;
-}
-
-html,
-body {
-    position: relative;
-    width: 100%;
-    height: 100%;
-    font-family: Helvetica, Arial, sans-serif;
-}
-
 body {
     margin: 0;
     padding: 20px 10px;
@@ -25,6 +13,10 @@ body {
 
 .board {
     position: relative;
+    width: 100%;
+    display: flex;
+    flex-wrap: nowrap;
+    overflow-x: auto;
 }
 
 .board-column {
@@ -32,7 +24,7 @@ body {
     left: 0;
     top: 0;
     padding: 0 10px;
-    width: calc(100% / 3);
+    flex-basis: calc(100% / 7); /* Mỗi cột chiếm 1/7 chiều rộng, không co lại dưới mức này */
     z-index: 1;
 }
 
@@ -64,24 +56,6 @@ body {
     font-weight: bold;
     letter-spacing: 0.5px;
     text-transform: uppercase;
-}
-
-@media (max-width: 600px) {
-    .board-column-header {
-        text-indent: -1000px;
-    }
-}
-
-.board-column.todo .board-column-header {
-    background: #4A9FF9;
-}
-
-.board-column.working .board-column-header {
-    background: #f9944a;
-}
-
-.board-column.done .board-column-header {
-    background: #2ac06d;
 }
 
 .board-column-content-wrapper {
@@ -135,5 +109,13 @@ body {
 
     .board-item-content span {
         display: none;
+    }
+}
+
+/* Điều chỉnh khi ít hơn 7 cột */
+@media (max-width: 1400px) { /* Giả sử mỗi cột cần khoảng 200px */
+    .board-column {
+      flex: 1; /* Cho phép mở rộng để lấp đầy */
+      max-width: none; /* Bỏ giới hạn max-width */
     }
 }
