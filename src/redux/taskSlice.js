@@ -72,6 +72,18 @@ export const searchTasksInProject = createAsyncThunk(
   }
 );
 
+export const updateTaskStatus = createAsyncThunk(
+  "task/updateTaskStatus",
+  async ({ taskId, newColumnId }, { rejectWithValue }) => {
+    try {
+      const response = await updateTaskStatusAPI(taskId, newColumnId);
+      return { taskId, newColumnId };
+    } catch (error) {
+      return rejectWithValue(error.message);
+    }
+  }
+);
+
 const taskSlice = createSlice({
   name: "task",
   initialState: {
@@ -153,6 +165,21 @@ const taskSlice = createSlice({
         state.searchQuery = action.meta.arg.searchQuery; // Lưu lại từ khóa tìm kiếm
       })
       .addCase(searchTasksInProject.rejected, (state, action) => {
+        state.isFetching = false;
+        state.error = action.payload;
+      })
+      .addCase(updateTaskStatus.pending, (state) => {
+        state.isFetching = true;
+      })
+      .addCase(updateTaskStatus.fulfilled, (state, action) => {
+        state.isFetching = false;
+        const { taskId, newColumnId } = action.payload;
+        const task = state.listTask.find((task) => task.id === taskId);
+        if (task) {
+          task.status = newColumnId;
+        }
+      })
+      .addCase(updateTaskStatus.rejected, (state, action) => {
         state.isFetching = false;
         state.error = action.payload;
       });
