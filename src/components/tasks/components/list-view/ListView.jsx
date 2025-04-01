@@ -29,11 +29,7 @@ import IssueForm from "../form/IssueForm";
 import { debounce } from "lodash";
 import EditFormv2 from "../form/EditFormv2";
 
-export default function ListHome({
-  selectedTasks = [],
-  setSelectedTasks,
-  searchTerm,
-}) {
+export default function ListHome({ selectedTasks = [], setSelectedTasks }) {
   const [searchParams] = useSearchParams();
   const idProject = searchParams.get("idProject");
   const listTask = useSelector((state) => state.task.listTask);
@@ -164,14 +160,11 @@ export default function ListHome({
       : [...selectedTasks, taskId];
     setSelectedTasks(updatedSelection);
   };
-  // Lọc danh sách công việc theo searchTerm
-  const filteredTasks = listTask.filter((task) =>
-    task.title.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+
   return (
     <div className="list-home-wrapper">
       <div className="add-job" onClick={() => setOpen(true)}>
-        <img src={""} alt="add" />
+        <img src={"/icons/add-icon-1.png"} alt="add" />
         <p>Thêm công việc</p>
       </div>
       {loading ? (
@@ -251,7 +244,7 @@ export default function ListHome({
                 </TableRow>
               </TableHead>
               <TableBody>
-                {filteredTasks.length === 0 ? (
+                {listTask.length === 0 ? (
                   <TableRow>
                     <TableCell
                       colSpan={10}
@@ -270,7 +263,7 @@ export default function ListHome({
                     </TableCell>
                   </TableRow>
                 ) : (
-                  filteredTasks.map((task, index) => (
+                  listTask.map((task, index) => (
                     <TableRow
                       key={task._id}
                       className="table-row"
@@ -303,7 +296,7 @@ export default function ListHome({
                       <TableCell className="table-cell">
                         <div className="task-name">
                           <img
-                            src="image/Pen.png"
+                            src="/icons/pen-icon.png"
                             alt="edit"
                             className="edit-icon"
                           />
@@ -332,7 +325,7 @@ export default function ListHome({
                             {task.assigneeId?.length > 2 && (
                               <>
                                 <img
-                                  src="image/dot.png"
+                                  src="/icons/dot.png"
                                   className="more-icon"
                                   onClick={(e) =>
                                     handleClickMemberTask(e, task._id)
@@ -402,7 +395,7 @@ export default function ListHome({
                         style={{ minWidth: "100px" }}
                       >
                         <img
-                          src="image/Chat_.png"
+                          src="/icons/chat.png"
                           alt="comments"
                           className="comment-icon"
                           onClick={() => onOpenComment(task._id)}

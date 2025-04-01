@@ -1,2 +1,0 @@
-Mỗi pages sẽ đại diện cho 1 router. Layout thì sẽ là thành phần dùng chung, bên trong có nhiều components khác nhau
-thậm chí là nhiều pages đều sẽ có thể dùng chung 1 layout

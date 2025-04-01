@@ -4,15 +4,13 @@ import "./Home.scss";
 import { useSearchParams } from "react-router-dom";
 import { Avatar, Popover } from "@mui/material";
 import MemberListContent from "@/components/tasks/components/list-view/MemberList";
-import KanbanBoard from "@/components/tasks/components/kanban-view/KanbanView";
+import KanbanBoard from "@/components/tasks/components/kanban-view/KanbanBoard";
 import ListHome from "@/components/tasks/components/list-view/ListView";
 import { getProjectId } from "@/services/projectService";
 import { getlistUser } from "@/services/userService";
 import FilterDialog from "@/components/tasks/FilterDialog";
 import {
   deleteManyTasksRedux,
-  getListTaskByProjectIdRedux,
-  searchTasksInProject,
   getByIndexParanation,
 } from "@/redux/taskSlice";
 import { useDispatch, useSelector } from "react-redux";
@@ -31,8 +29,25 @@ export default function Home() {
   const [anchorElFilter, setAnchorElFilter] = useState(null);
   const [listMember, setListMember] = useState([]);
   const [selectedTasks, setSelectedTasks] = useState([]);
-  const [keyword, setKeyword] = useState("");
-  const [debouncedKeyword, setDebouncedKeyword] = useState("");
+
+  const openFilter = Boolean(anchorElFilter);
+  const openMember = Boolean(anchorEl);
+  const filterId = openFilter ? "filter-popover" : undefined;
+  const memberId = openMember ? "member-popover" : undefined;
+
+  const [searchTerm, setSearchTerm] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedSearch(searchTerm.trim().toLowerCase());
+    }, 200);
+
+    return () => clearTimeout(handler);
+  }, [searchTerm]);
+
+  useEffect(() => {
+
+  }, [searchTerm]);
 
   const getMemberByProject = useCallback(async () => {
     const response = await getlistUser(idProject);
@@ -59,27 +74,6 @@ export default function Home() {
       getMemberByProject();
     }
   }, [idProject, getMemberByProject]);
-
-  useEffect(() => {
-    if (!idProject) return;
-
-    // Đợi 300ms mới cập nhật keyword mới, tránh cho server quá tải request
-    const handler = setTimeout(() => {
-      setDebouncedKeyword(keyword);
-    }, 300);
-
-    return () => clearTimeout(handler); // Hủy timeout nếu keyword thay đổi
-  }, [keyword, idProject]);
-
-  useEffect(() => {
-    if (!idProject) return;
-    dispatch(
-      searchTasksInProject({
-        searchQuery: debouncedKeyword,
-        idProject: idProject,
-      })
-    );
-  }, [debouncedKeyword, idProject, dispatch]);
 
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
@@ -120,23 +114,11 @@ export default function Home() {
         toast.error("Xóa thất bại!");
       }
     } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
       toast.error("Xóa thất bại!");
     }
   };
-  const openFilter = Boolean(anchorElFilter);
-  const openMember = Boolean(anchorEl);
-  const filterId = openFilter ? "filter-popover" : undefined;
-  const memberId = openMember ? "member-popover" : undefined;
-
-  const [searchTerm, setSearchTerm] = useState("");
-  const [debouncedSearch, setDebouncedSearch] = useState("");
-  useEffect(() => {
-    const handler = setTimeout(() => {
-      setDebouncedSearch(searchTerm);
-    }, 500); // Delay 300ms
-
-    return () => clearTimeout(handler); // Clear timeout nếu người dùng tiếp tục gõ
-  }, [searchTerm]);
 
   return (
     <div className="home-container">
@@ -148,13 +130,13 @@ export default function Home() {
           </div>
           <div className="view-toggle">
             <img
-              src="image/Column.png"
+              src="/icons/column-view.png"
               alt="Kanban View"
               className={`view-icon ${viewMode === "kanban" ? "active" : ""}`}
               onClick={() => setViewMode("kanban")}
             />
             <img
-              src="image/List.png"
+              src="/icons/list-view.png"
               alt="List View"
               className={`view-icon ${viewMode === "list" ? "active" : ""}`}
               onClick={() => setViewMode("list")}
@@ -196,7 +178,7 @@ export default function Home() {
                 className="avatar"
               />
             ))}
-            {["image/dot.png"].map((avatar, index) => (
+            {["/icons/dot.png"].map((avatar, index) => (
               <img
                 onClick={handleClick}
                 key={index}
@@ -223,13 +205,13 @@ export default function Home() {
         <div className="task-header">
           <div className="task-icons">
             <img
-              src="image/Trash.png"
+              src="/icons/trash-icon.png"
               alt="Delete"
               className="tool-icon"
               onClick={handleDeleteSelected}
             />
             <img
-              src="image/Filter.png"
+              src="/icons/filter-icon.png"
               alt="Filter"
               className="tool-icon"
               onClick={(e) => setAnchorElFilter(e.currentTarget)} // Mở Popover Filter
@@ -264,7 +246,6 @@ export default function Home() {
           <ListHome
             setSelectedTasks={setSelectedTasks}
             selectedTasks={selectedTasks}
-            searchTerm={debouncedSearch}
           />
         )}
       </div>

@@ -84,7 +84,7 @@ const projectSlice = createSlice({
       .addCase(searchProjects.fulfilled, (state, action) => {
         state.isFetching = false;
         state.listProject = action.payload;
-        state.searchQuery = action.meta.arg.searchQuery; // Lưu lại từ khóa tìm kiếm
+        state.searchQuery = action.meta.arg.searchQuery;
       })
       .addCase(searchProjects.rejected, (state, action) => {
         state.isFetching = false;
