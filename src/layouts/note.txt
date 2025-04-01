@@ -1,0 +1,1 @@
+Layout là thành phần dùng chung cho nhiều trang, nhiều pages, chứa nhiều components. Khác với pages, pages đại diện cho 1 router

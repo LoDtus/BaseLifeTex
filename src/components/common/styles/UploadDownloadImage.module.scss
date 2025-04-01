@@ -1,0 +1,35 @@
+.container {
+  display: flex;
+  // align-items: center;
+  min-height: 130px;
+  width: 100%;
+  gap: 10px;
+  justify-content: space-around;
+}
+
+.input {
+  display: none; /* Ẩn input file */
+}
+
+.uploadButton {
+  width: 50px;
+  height: 50px;
+  cursor: pointer;
+  border: 2px dashed #007bff;
+  padding: 5px;
+  border-radius: 5px;
+  transition: 0.3s;
+}
+
+.uploadButton:hover {
+  border-color: #0056b3;
+}
+
+.image {
+  width: 120px;
+  height: 120px;
+  object-fit: cover;
+  border-radius: 5px;
+  border: 2px solid #ddd;
+  margin-left: 70px;
+}
