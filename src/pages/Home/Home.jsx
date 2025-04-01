@@ -15,6 +15,7 @@ import {
 } from "@/redux/taskSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
+import KanBanView from "../../components/tasks/components/kanban-view-v2/KanBanView";
 
 export default function Home() {
   const dispatch = useDispatch();
@@ -45,60 +46,55 @@ export default function Home() {
     return () => clearTimeout(handler);
   }, [searchTerm]);
 
-  useEffect(() => {
+    const getMemberByProject = useCallback(async () => {
+        const response = await getlistUser(idProject);
+        if (response.success) {
+            setListMember(response.data);
+        }
+    }, [idProject]);
 
-  }, [searchTerm]);
-
-  const getMemberByProject = useCallback(async () => {
-    const response = await getlistUser(idProject);
-    if (response.success) {
-      setListMember(response.data);
+    async function fetchProjectData(idPrj) {
+        try {
+            const response = await getProjectId(idPrj);
+            if (response.success) {
+                setNameProject(response.data.name);
+            }
+        } catch (error) {
+            setNameProject("Phần mềm đánh giá");
+            throw error;
+        }
     }
-  }, [idProject]);
 
-  async function fetchProjectData(idPrj) {
-    try {
-      const response = await getProjectId(idPrj);
-      if (response.success) {
-        setNameProject(response.data.name);
-      }
-    } catch (error) {
-      setNameProject("Phần mềm đánh giá");
-      throw error;
-    }
-  }
-
-  useEffect(() => {
-    if (idProject) {
-      fetchProjectData(idProject);
-      getMemberByProject();
-    }
-  }, [idProject, getMemberByProject]);
+    useEffect(() => {
+        if (idProject) {
+            fetchProjectData(idProject);
+            getMemberByProject();
+        }
+    }, [idProject, getMemberByProject]);
 
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
   };
 
-  const handleClose = () => {
-    setAnchorEl(null);
-  };
+    const handleClose = () => {
+        setAnchorEl(null);
+    };
 
-  const handleDeleteSelected = async () => {
-    if (selectedTasks.length === 0) {
-      toast.warning("Vui lòng chọn vấn đề muốn xóa !");
-      return;
-    }
+    const handleDeleteSelected = async () => {
+        if (selectedTasks.length === 0) {
+            toast.warning("Vui lòng chọn vấn đề muốn xóa !");
+            return;
+        }
 
-    // const confirmDelete = window.confirm(
-    //   `Bạn có chắc muốn xóa ${selectedTasks.length} task không?`
-    // );
-    // if (!confirmDelete) return;
+        // const confirmDelete = window.confirm(
+        //   `Bạn có chắc muốn xóa ${selectedTasks.length} task không?`
+        // );
+        // if (!confirmDelete) return;
 
-    try {
-      const result = await dispatch(
-        deleteManyTasksRedux(selectedTasks)
-      ).unwrap();
-
+        try {
+            const result = await dispatch(
+                deleteManyTasksRedux(selectedTasks)
+            ).unwrap();
       if (result && result.length > 0) {
         // alert("✅ Xóa thành công!");
         setSelectedTasks([]);
@@ -189,19 +185,50 @@ export default function Home() {
             ))}
           </div>
         </div>
-
-        <Popover
-          id={memberId}
-          open={openMember}
-          anchorEl={anchorEl}
-          onClose={handleClose}
-          anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
-          transformOrigin={{ vertical: "top", horizontal: "left" }}
-          sx={{ mt: 1 }}
-        >
-          <MemberListContent onClose={handleClose} members={listMember} />
-        </Popover>
-
+            {/* Toolbar Section */}
+            <div className="toolbar-section">
+                <div className="search-container">
+                    <svg
+                        className="search-icon"
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                    >
+                        <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M21 21l-4.35-4.35m2.6-5.15a7 7 0 11-14 0 7 7 0 0114 0z"
+                        />
+                    </svg>
+                    <input
+                        type="text"
+                        placeholder="Tìm kiếm..."
+                        className="search-input"
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                    />
+                    <div className="avatar-group">
+                        {listMember?.map((member, index) => (
+                            <Avatar
+                                key={index}
+                                src={member.avatar}
+                                alt={`Avatar ${index + 1}`}
+                                className="avatar"
+                            />
+                        ))}
+                        {["/icons/dot.png"].map((avatar, index) => (
+                            <img
+                                onClick={handleClick}
+                                key={index}
+                                src={avatar}
+                                alt={`Avatar ${index + 1}`}
+                                className="avatar"
+                            />
+                        ))}
+                    </div>
+                </div>
         <div className="task-header">
           <div className="task-icons">
             <img

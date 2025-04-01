@@ -1,0 +1,11 @@
+.board-item-title {
+    font-weight: bold !important;
+}
+
+.board-item-check {
+    margin-left: 10px;
+}
+
+.board-item-date {
+    flex-grow: 1 !important;
+}
