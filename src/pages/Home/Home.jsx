@@ -17,6 +17,7 @@ import {
 } from "@/redux/taskSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
+import KanBanView from "../../components/tasks/components/kanban-view-v2/KanBanView";
 
 export default function Home() {
   const dispatch = useDispatch();
@@ -148,13 +149,13 @@ export default function Home() {
           </div>
           <div className="view-toggle">
             <img
-              src="image/Column.png"
+              src="/icons/column-view.png"
               alt="Kanban View"
               className={`view-icon ${viewMode === "kanban" ? "active" : ""}`}
               onClick={() => setViewMode("kanban")}
             />
             <img
-              src="image/List.png"
+              src="/icons/list-view.png"
               alt="List View"
               className={`view-icon ${viewMode === "list" ? "active" : ""}`}
               onClick={() => setViewMode("list")}
@@ -196,7 +197,7 @@ export default function Home() {
                 className="avatar"
               />
             ))}
-            {["image/dot.png"].map((avatar, index) => (
+            {["/icons/dot.png"].map((avatar, index) => (
               <img
                 onClick={handleClick}
                 key={index}
@@ -223,13 +224,13 @@ export default function Home() {
         <div className="task-header">
           <div className="task-icons">
             <img
-              src="image/Trash.png"
+              src="/icons/trash-icon.png"
               alt="Delete"
               className="tool-icon"
               onClick={handleDeleteSelected}
             />
             <img
-              src="image/Filter.png"
+              src="/icons/filter-icon.png"
               alt="Filter"
               className="tool-icon"
               onClick={(e) => setAnchorElFilter(e.currentTarget)} // Mở Popover Filter
@@ -252,13 +253,14 @@ export default function Home() {
       </div>
 
       <div></div>
+      {/* <KanbanBoard
+            setSelectedTasks={setSelectedTasks}
+            selectedTasks={selectedTasks}
+          /> */}
       {/* Content Section */}
       <div className="content-section">
         {viewMode === "kanban" ? (
-          <KanbanBoard
-            setSelectedTasks={setSelectedTasks}
-            selectedTasks={selectedTasks}
-          />
+          <KanBanView/>
         ) : (
           <ListHome
             setSelectedTasks={setSelectedTasks}

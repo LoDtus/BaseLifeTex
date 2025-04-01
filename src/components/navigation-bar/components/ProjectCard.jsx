@@ -82,14 +82,14 @@ const ProjectCard = ({ project }) => {
         </div>
         <img
           className={styles.avatar}
-          src="image/f8ad738c648cb0c7cc815d6ceda805b0.png"
+          src="/imgs/f8ad738c648cb0c7cc815d6ceda805b0.png"
           alt=""
         />
       </div>
       <div className={styles.projectFooter}>
         <img
           onClick={handleClick}
-          src="image/e10ebdc6f22af020d1cdd58a063bf347.png"
+          src="/imgs/e10ebdc6f22af020d1cdd58a063bf347.png"
           alt=""
         />
         <button className={styles.deleteBtn} onClick={handleDelete}>

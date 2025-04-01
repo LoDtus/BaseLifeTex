@@ -42,7 +42,7 @@ export default function HomeHeader({ setSearchTerm }) {
     <div>
       <header className="kanban-header">
         <div className="logo">
-          <img src="/image/image.png" alt="LIFETEK" className="logo-img" />
+          <img src="/imgs/image.png" alt="LIFETEK" className="logo-img" />
           <span className="logo-text">LIFETEK</span>
         </div>
         <div className="user-profile">

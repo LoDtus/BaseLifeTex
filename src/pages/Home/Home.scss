@@ -2,18 +2,17 @@
 #root,
 .app-container {
   width: 100%;
-  height: 100vh;
+  height: 100%;
   display: flex;
   flex-direction: column;
-  overflow: hidden;
 }
 
 .home-container {
   width: 100%;
-  height: 100vh;
+  height: 100%;
   display: flex;
   flex-direction: column;
-  overflow: hidden;
+  overflow-y: scroll;
 }
 
 .header-container {
@@ -152,7 +151,6 @@
 
 .content-section {
   flex: 1;
-  overflow: hidden;
 
   .kanban-wrapper {
     height: 100%;
