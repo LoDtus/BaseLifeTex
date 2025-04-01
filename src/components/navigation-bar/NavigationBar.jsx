@@ -4,10 +4,13 @@ import styles from "./styles/Navbar.module.scss";
 import ProjectCard from "./components/ProjectCard";
 import Loading from "@/components/common/Loading";
 import { useDispatch, useSelector } from "react-redux";
-import { getListProjectByUser } from "@/redux/projectSlice";
+import { getListProjectByUser, setSelectedProject } from "@/redux/projectSlice";
 
-export default function NavigationBar({searchTerm}) {
+export default function NavigationBar({ searchTerm }) {
   const lstProject = useSelector((state) => state.project.listProject);
+  const selectedProjectId = useSelector(
+    (state) => state.project.selectedProjectId
+  );
   const [loading, setLoading] = useState(true); // State for loading
   const navigate = useNavigate(); // Initialize navigate
   const dispatch = useDispatch();
@@ -21,6 +24,7 @@ export default function NavigationBar({searchTerm}) {
   };
 
   const handleProjectClick = (projectId) => {
+    dispatch(setSelectedProject(projectId));
     const currentUrl = new URL(window.location.href);
     currentUrl.searchParams.set("idProject", projectId); // Add or update idProject in URL
     navigate(`${currentUrl.pathname}${currentUrl.search}`); // Navigate to the updated URL
@@ -32,15 +36,16 @@ export default function NavigationBar({searchTerm}) {
   useEffect(() => {
     if (lstProject.length > 0) {
       const firstProjectId = lstProject[0]._id;
+      dispatch(setSelectedProject(firstProjectId));
       const currentUrl = new URL(window.location.href);
       currentUrl.searchParams.set("idProject", firstProjectId);
       navigate(`${currentUrl.pathname}${currentUrl.search}`);
     }
-  }, [lstProject]);
+  }, [lstProject, dispatch, navigate]);
 
-const filteredProjects = lstProject.filter((project) =>
-  project.name.toLowerCase().includes(searchTerm.toLowerCase())
-);
+  const filteredProjects = lstProject.filter((project) =>
+    project.name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   return (
     <div className={styles.navbar}>
@@ -81,19 +86,35 @@ const filteredProjects = lstProject.filter((project) =>
         <div className={styles.projectListTitle}>Danh sách dự án tham gia</div>
       </div>
       <div className={styles.bodyNavbar}>
-  {loading ? (
-    <Loading />
-  ) : filteredProjects.length > 0 ? (
-    filteredProjects.map((project, index) => (
-      <div key={index} onClick={() => handleProjectClick(project._id)} style={{ cursor: "pointer" }}>
-        <ProjectCard project={project} />
+        {loading ? (
+          <Loading />
+        ) : filteredProjects.length > 0 ? (
+          filteredProjects.map((project, index) => (
+            <div
+              key={index}
+              onClick={() => handleProjectClick(project._id)}
+              style={{ cursor: "pointer" }}
+            >
+              <ProjectCard
+                project={project}
+                isSelected={selectedProjectId === project._id}
+              />
+            </div>
+          ))
+        ) : (
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "center",
+              height: "50px",
+              borderTop: "1px solid black",
+              paddingTop: "12px",
+            }}
+          >
+            <p style={{ color: "black" }}>Bạn chưa thuộc dự án nào</p>
+          </div>
+        )}
       </div>
-    ))
-  ) : (
-    <p>❌ Không tìm thấy dự án nào!</p> // Thông báo rõ ràng hơn
-  )}
-</div>
-
     </div>
   );
-};
+}

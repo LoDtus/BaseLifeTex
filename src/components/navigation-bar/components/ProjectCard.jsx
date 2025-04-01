@@ -6,7 +6,7 @@ import { convertStatus, convertDateYMD } from "@/utils/convertUtils";
 import { useDispatch } from "react-redux";
 import { deleteProject } from "@/redux/projectSlice";
 
-const ProjectCard = ({ project }) => {
+const ProjectCard = ({ project, isSelected }) => {
   const dispatch = useDispatch();
   const [anchorEl, setAnchorEl] = useState(null);
   const open = Boolean(anchorEl);
@@ -37,15 +37,16 @@ const ProjectCard = ({ project }) => {
       console.error("Lỗi: projectId không hợp lệ!", project);
       return;
     }
-  
+
     if (window.confirm("Bạn có chắc chắn muốn xóa dự án này?")) {
       dispatch(deleteProject(project._id));
     }
   };
-  
-  
+
   return (
-    <div className={styles.projectCard}>
+    <div
+      className={`${styles.projectCard} ${isSelected ? styles.selected : ""}`}
+    >
       <div className={styles.projectHeader}>
         <div className={styles.right}>
           <h1 className={styles.nameProject} title={project.name}>
@@ -82,14 +83,14 @@ const ProjectCard = ({ project }) => {
         </div>
         <img
           className={styles.avatar}
-          src="image/f8ad738c648cb0c7cc815d6ceda805b0.png"
+          src="/imgs/f8ad738c648cb0c7cc815d6ceda805b0.png"
           alt=""
         />
       </div>
       <div className={styles.projectFooter}>
         <img
           onClick={handleClick}
-          src="image/e10ebdc6f22af020d1cdd58a063bf347.png"
+          src="/imgs/e10ebdc6f22af020d1cdd58a063bf347.png"
           alt=""
         />
         <button className={styles.deleteBtn} onClick={handleDelete}>
