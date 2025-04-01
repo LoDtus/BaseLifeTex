@@ -196,15 +196,17 @@ export default function Home() {
                 className="avatar"
               />
             ))}
-            {["image/dot.png"].map((avatar, index) => (
-              <img
-                onClick={handleClick}
-                key={index}
-                src={avatar}
-                alt={`Avatar ${index + 1}`}
-                className="avatar"
-              />
-            ))}
+            {listMember.length > 4 && 
+              ["icons/dot.png"].map((avatar, index) => (
+                <img
+                  onClick={handleClick}
+                  key={index}
+                  src={avatar}
+                  alt={`Avatar ${index + 1}`}
+                  className="avatar"
+                />
+              ))
+            }
           </div>
         </div>
 
