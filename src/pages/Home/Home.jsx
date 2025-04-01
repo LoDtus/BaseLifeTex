@@ -258,6 +258,7 @@ export default function Home() {
           <KanbanBoard
             setSelectedTasks={setSelectedTasks}
             selectedTasks={selectedTasks}
+            searchTerm={searchTerm}
           />
         ) : (
           <ListHome
