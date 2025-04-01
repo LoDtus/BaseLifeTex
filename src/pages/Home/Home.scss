@@ -19,16 +19,43 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 20px 30px;
+  padding: 0 30px;
 }
 
 .project-info {
+  display: flex;
+  align-items: center;
+
   .project-path {
     font-size: 23px;
     color: #485f7e;
     font-weight: 600;
     margin: 0;
   }
+
+  .project-info-icon {
+    padding: 8px;
+    width: 30px;
+    height: 30px;
+    border: none;
+    border-radius: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 10px;
+    cursor: pointer;
+    transition-duration: 200ms;
+    background-color: white;
+
+    &:hover {
+      background-color: #f0f0f4;
+    }
+    &:active {
+      scale: 90%;
+    }
+  }
+
+
 
   .view-title {
     font-size: 24px;
@@ -65,8 +92,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 15px 30px;
-  margin-bottom: 20px;
+  padding: 10px 30px;
 }
 
 .search-container { 
