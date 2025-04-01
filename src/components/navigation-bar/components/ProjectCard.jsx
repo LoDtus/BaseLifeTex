@@ -86,7 +86,7 @@ const ProjectCard = ({ project, isSelected }) => {
         </div>
         <img
           className={styles.avatar}
-          src="/imgs/f8ad738c648cb0c7cc815d6ceda805b0.png"
+          src={avatar}
           alt=""
         />
       </div>
