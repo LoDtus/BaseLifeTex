@@ -11,7 +11,6 @@ import { getlistUser } from "@/services/userService";
 import FilterDialog from "@/components/tasks/FilterDialog";
 import {
     deleteManyTasksRedux,
-    getListTaskByProjectIdRedux,
     searchTasksInProject,
     getByIndexParanation,
 } from "@/redux/taskSlice";
@@ -269,10 +268,6 @@ export default function Home() {
             </div>
 
             <div></div>
-            {/* <KanbanBoard
-            setSelectedTasks={setSelectedTasks}
-            selectedTasks={selectedTasks}
-          /> */}
             {/* Content Section */}
             <div className="content-section">
                 {viewMode === "kanban" ? (

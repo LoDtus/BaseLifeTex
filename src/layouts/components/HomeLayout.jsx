@@ -11,9 +11,9 @@ export default function HomeLayout({ children }) {
                 <HomeHeader setSearchTerm={setSearchTerm} />
             </div>
             <div className={styles.wrapContent}>
-                {/* <div className={styles.navbar}>
+                <div className={styles.navbar}>
                     <NavigationBar searchTerm={searchTerm} />
-                </div> */}
+                </div>
                 <div className={styles.content}>{children}</div>
             </div>
         </div>
