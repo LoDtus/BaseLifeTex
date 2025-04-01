@@ -1,0 +1,90 @@
+.drag-container {
+    position: fixed;
+    left: 0;
+    top: 0;
+    z-index: 1000;
+}
+
+.board {
+    position: relative;
+    overflow-x: auto;
+}
+
+.board-column {
+    width: calc(100% / 7);
+}
+
+.board-column.muuri-item-releasing {
+    z-index: 2;
+}
+
+.board-column.muuri-item-dragging {
+    z-index: 3;
+    cursor: move;
+}
+
+.board-column-container {
+    position: relative;
+    width: 100%;
+    height: 100%;
+}
+
+.board-column-content-wrapper {
+    position: relative;
+    height: calc(100vh - 90px);
+    overflow-y: auto;
+    border-radius: 0 0 5px 5px;
+}
+
+.board-column-content {
+    position: relative;
+    min-height: 100%;
+}
+
+.board-item {
+    position: absolute;
+    width: calc(100% - 16px);
+    margin: 3px 8px;
+}
+
+.board-item.muuri-item-releasing {
+    z-index: 9998;
+}
+
+.board-item.muuri-item-dragging {
+    z-index: 9999;
+    cursor: move;
+}
+
+.board-item.muuri-item-hidden {
+    z-index: 0;
+}
+
+.board-item-content {
+    position: relative;
+    padding: 20px;
+    background: #fff;
+    border-radius: 4px;
+    font-size: 17px;
+    cursor: pointer;
+    -webkit-box-shadow: 0px 1px 3px 0 rgba(0, 0, 0, 0.2);
+    box-shadow: 0px 1px 3px 0 rgba(0, 0, 0, 0.2);
+}
+
+@media (max-width: 600px) {
+    .board-item-content {
+        text-align: center;
+    }
+
+    .board-item-content span {
+        display: none;
+    }
+}
+
+/* Điều chỉnh khi ít hơn 7 cột */
+@media (max-width: 1400px) { /* Giả sử mỗi cột cần khoảng 200px */
+    .board-column {
+      flex: 1; /* Cho phép mở rộng để lấp đầy */
+      max-width: none; /* Bỏ giới hạn max-width */
+    }
+}
