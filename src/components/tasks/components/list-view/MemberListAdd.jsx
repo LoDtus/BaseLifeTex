@@ -47,8 +47,9 @@ export default function MemberListContentAdd({
 
     const addMember = async () => {
         const response = await addMemberTask(task._id, {
-            assigneeId: checkedItems,
+            "userId": checkedItems,
         });
+        console.log(response);
         if (response.message === "Thêm người dùng vào task thành công") {
             toast.success(response.message);
             fetchApi();

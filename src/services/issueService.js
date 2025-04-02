@@ -68,7 +68,7 @@ export const updateIssueDataStatus = async (id, data) => {
 
 export const addMemberTask = async (id, data) => {
   const response = await axiosInstance.post(
-    `${backendUrl}/tasks/${id}/add-user`,
+    `/tasks/${id}/add-user`,
     data
   );
   return response.data;
