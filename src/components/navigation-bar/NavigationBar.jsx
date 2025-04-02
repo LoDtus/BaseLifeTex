@@ -43,10 +43,25 @@ export default function NavigationBar({ searchTerm }) {
     }
   }, [lstProject, dispatch, navigate]);
 
-  const filteredProjects = lstProject.filter((project) =>
-    project.name.toLowerCase().includes(searchTerm.toLowerCase())
-  );
-
+  const removeAccentsAndSpaces = (str) => {
+    return str
+      ? str
+          .normalize("NFD") // Chuẩn hóa Unicode
+          .replace(/[\u0300-\u036f]/g, "") // Xóa dấu tiếng Việt
+          .replace(/\s+/g, "") // Xóa tất cả khoảng trắng thừa
+          .toLowerCase()
+      : "";
+  };
+  
+  const filteredProjects = lstProject?.filter((project) => {
+    if (!project?.name) return false; // Bỏ qua dự án không có tên
+  
+    const projectName = removeAccentsAndSpaces(project.name);
+    const searchKeyword = removeAccentsAndSpaces(searchTerm);
+  
+    return searchKeyword ? projectName.includes(searchKeyword) : true;
+  });
+  
   return (
     <div className={styles.navbar}>
       <div className={styles.headerNavbar}>

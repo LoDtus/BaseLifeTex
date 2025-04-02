@@ -11,6 +11,8 @@ import { getlistUser } from "@/services/userService";
 import FilterDialog from "@/components/tasks/FilterDialog";
 import {
     deleteManyTasksRedux,
+    getListTaskByProjectIdRedux,
+    searchTasksInProject,
     getByIndexParanation,
 } from "@/redux/taskSlice";
 import { useDispatch, useSelector } from "react-redux";
@@ -29,6 +31,8 @@ export default function Home() {
     const [anchorElFilter, setAnchorElFilter] = useState(null);
     const [listMember, setListMember] = useState([]);
     const [selectedTasks, setSelectedTasks] = useState([]);
+    const [keyword, setKeyword] = useState("");
+    const [debouncedKeyword, setDebouncedKeyword] = useState("");
 
     const openFilter = Boolean(anchorElFilter);
     const openMember = Boolean(anchorEl);
@@ -36,15 +40,14 @@ export default function Home() {
     const memberId = openMember ? "member-popover" : undefined;
 
     const [searchTerm, setSearchTerm] = useState("");
-    const [debouncedSearch, setDebouncedSearch] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedSearch(searchTerm);
+    }, 500); // Delay 300ms
 
-    // useEffect(() => {
-    //     const handler = setTimeout(() => {
-    //         setDebouncedSearch(searchTerm.trim().toLowerCase());
-    //     }, 200);
-
-    //     return () => clearTimeout(handler);
-    // }, [searchTerm]);
+    return () => clearTimeout(handler); // Clear timeout nếu người dùng tiếp tục gõ
+  }, [searchTerm]);
 
     const getMemberByProject = useCallback(async () => {
         const response = await getlistUser(idProject);
@@ -244,6 +247,7 @@ export default function Home() {
                     <ListHome
                         setSelectedTasks={setSelectedTasks}
                         selectedTasks={selectedTasks}
+                        searchTerm={debouncedSearch}
                     />
                 )}
             </div>

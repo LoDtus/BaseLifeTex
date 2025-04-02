@@ -1,10 +1,10 @@
-import { useSortable } from "@dnd-kit/sortable";
+import { useDraggable } from "@dnd-kit/core";
 import { CSS } from "@dnd-kit/utilities";
 import { Popover, IconButton } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import React, { useState } from "react";
 
-function KanbanTaskCard({ selectedTasks, setSelectedTasks, task }) {
+function KanbanTaskCard({ selectedTasks, setSelectedTasks, task, onMove }) {
   const {
     attributes,
     listeners,
@@ -12,19 +12,26 @@ function KanbanTaskCard({ selectedTasks, setSelectedTasks, task }) {
     transform,
     transition,
     isDragging,
-  } = useSortable({ id: task.id });
+  } = useDraggable({
+    id: task.id,
+    data: {
+      taskId: task.id, // Lưu dữ liệu taskId cho các mục đích cần thiết
+    },
+  });
 
+  // Cập nhật style với các thuộc tính đúng
   const style = {
-    transform: CSS.Transform.toString(transform),
-    transition,
-    opacity: isDragging ? 0.6 : 1, // Làm mờ nhẹ khi kéo, giống Trello
+    transform: transform ? CSS.Transform.toString(transform) : undefined,
+    transition: transition ? transition : "transform 200ms ease", // Đảm bảo có transition
+    opacity: isDragging ? 0.6 : 1, // Giảm opacity khi kéo thả
+    cursor: isDragging ? "grabbing" : "grab", // Đổi con trỏ khi kéo thả
   };
 
   const [anchorEl, setAnchorEl] = useState(null);
   const [isKanbaLabel, setIsKanbaLabel] = useState(false);
 
   const handleClick = (event) => {
-    // event.preventDefault();
+    event.preventDefault();
     event.stopPropagation();
     setAnchorEl((prev) => (prev ? null : event.currentTarget));
   };
@@ -50,6 +57,7 @@ function KanbanTaskCard({ selectedTasks, setSelectedTasks, task }) {
     task.assigneeUserNames && task.assigneeUserNames.length > 1
       ? task.assigneeUserNames.slice(1)
       : [];
+  
   const handleSelectTask = (event, taskId) => {
     event.stopPropagation();
     const updatedSelection = selectedTasks.includes(taskId)
@@ -58,12 +66,19 @@ function KanbanTaskCard({ selectedTasks, setSelectedTasks, task }) {
     setSelectedTasks(updatedSelection);
   };
 
+  const handleDragEnd = (event) => {
+    // Cập nhật trạng thái sau khi kéo thả xong
+    const newStatus = task.status; // Bạn có thể thay đổi trạng thái này dựa trên logic
+    onMove(task.id, newStatus); // Gọi hàm onMove để cập nhật trạng thái
+  };
+
   return (
     <div
       ref={setNodeRef}
       style={style}
       {...listeners}
       {...attributes}
+      onDragEnd={handleDragEnd}
       className={`kanban-card ${isDragging ? "dragging" : ""}`}
     >
       <div className="task-content">
@@ -73,9 +88,7 @@ function KanbanTaskCard({ selectedTasks, setSelectedTasks, task }) {
             type="checkbox"
             className="checkbox-input"
             checked={selectedTasks.includes(task._id)}
-            onChange={(e) => {
-              handleSelectTask(e, task._id);
-            }}
+            onChange={(e) => handleSelectTask(e, task._id)}
             onPointerDown={(e) => e.stopPropagation()}
           />
         </div>

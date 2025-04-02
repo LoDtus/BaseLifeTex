@@ -70,7 +70,7 @@ function getStatusTitle(status) {
   return titles[status] || "Công việc khác";
 }
 
-function KanbanBoard({ selectedTasks, setSelectedTasks }) {
+function KanbanBoard({ selectedTasks, setSelectedTasks, searchTerm }) {
   const dispatch = useDispatch();
   const listTask = useSelector((state) => state.task.listTask);
   const [columns, setColumns] = useState({});
@@ -258,6 +258,7 @@ function KanbanBoard({ selectedTasks, setSelectedTasks }) {
               column={column}
               setSelectedTasks={setSelectedTasks}
               selectedTasks={selectedTasks}
+              searchTerm={searchTerm}
             />
           ))}
         </div>

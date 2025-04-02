@@ -149,24 +149,22 @@
   }
 }
 .deleteBtn {
-  background-color: red;
-  color: white;
-  border: none;
-  padding: 1px 5px;
-  border-radius: 5px;
-  cursor: pointer;
-  font-weight: 600;
-  border-radius: 30px;
-  margin-left: 50px;
-
+  background: #e63946; // Example color for "Chưa hoàn thành"
+      color: white;
+      border: none;
+      padding: 5px 10px;
+      border-radius: 50px;
+      font-weight: 700;
+      font-size: 11px;
+      margin-left: 50px;
   &:hover {
-    background-color: darkred;
+    background-color: #e63946;
   }
 }
 
 .projectCard.selected {
-  background-color: #dcdcdc;
+  background-color: #adadad;
   /* Màu xanh highlight */
   color: white;
-  border-color: #dcdcdc;
+  border-color: #adadad;
 }
