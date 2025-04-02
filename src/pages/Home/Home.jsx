@@ -33,7 +33,7 @@ export default function Home() {
   const memberId = openMember ? "member-popover" : undefined;
 
   const [searchTerm, setSearchTerm] = useState("");
-  const [debouncedSearch, setDebouncedSearch] = useState("");
+  // const [debouncedSearch, setDebouncedSearch] = useState("");
 
   // useEffect(() => {
   //     const handler = setTimeout(() => {

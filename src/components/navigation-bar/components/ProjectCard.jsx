@@ -3,6 +3,7 @@ import styles from "../styles/ProjectCard.module.scss";
 import Popover from "@mui/material/Popover";
 import ContactCard from "./ContactCard";
 import { convertStatus, convertDateYMD } from "@/utils/convertUtils";
+import { useSelector } from "react-redux";
 // import { useDispatch } from "react-redux";
 // import { deleteProject } from "@/redux/projectSlice";
 

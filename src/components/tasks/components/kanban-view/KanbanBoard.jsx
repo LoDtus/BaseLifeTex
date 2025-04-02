@@ -96,6 +96,16 @@ function KanbanBoard({ selectedTasks, setSelectedTasks }) {
     if (listTask && listTask.length > 0) {
       const formattedData = transformTasksData(listTask);
       setColumns(formattedData);
+    } else {
+      setColumns({
+        PREPARE: { title: "Công việc mới", tasks: [] },
+        IN_PROGRESS: { title: "Đang thực hiện", tasks: [] },
+        TEST: { title: "Kiểm thử", tasks: [] },
+        FINISH: { title: "Hoàn thành", tasks: [] },
+        CLOSE: { title: "Đóng công việc", tasks: [] },
+        PAUSE: { title: "Tạm dừng", tasks: [] },
+        NOT_DO: { title: "Khóa công việc", tasks: [] },
+      });
     }
   }, [listTask]);
 
