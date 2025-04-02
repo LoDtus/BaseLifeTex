@@ -11,6 +11,8 @@ import { getlistUser } from "@/services/userService";
 import FilterDialog from "@/components/tasks/FilterDialog";
 import {
     deleteManyTasksRedux,
+    getListTaskByProjectIdRedux,
+    searchTasksInProject,
     getByIndexParanation,
 } from "@/redux/taskSlice";
 import { useDispatch, useSelector } from "react-redux";
@@ -29,22 +31,8 @@ export default function Home() {
     const [anchorElFilter, setAnchorElFilter] = useState(null);
     const [listMember, setListMember] = useState([]);
     const [selectedTasks, setSelectedTasks] = useState([]);
-
-    const openFilter = Boolean(anchorElFilter);
-    const openMember = Boolean(anchorEl);
-    const filterId = openFilter ? "filter-popover" : undefined;
-    const memberId = openMember ? "member-popover" : undefined;
-
-    const [searchTerm, setSearchTerm] = useState("");
-    const [debouncedSearch, setDebouncedSearch] = useState("");
-
-    // useEffect(() => {
-    //     const handler = setTimeout(() => {
-    //         setDebouncedSearch(searchTerm.trim().toLowerCase());
-    //     }, 200);
-
-    //     return () => clearTimeout(handler);
-    // }, [searchTerm]);
+    const [keyword, setKeyword] = useState("");
+    const [debouncedKeyword, setDebouncedKeyword] = useState("");
 
     const getMemberByProject = useCallback(async () => {
         const response = await getlistUser(idProject);
@@ -72,13 +60,26 @@ export default function Home() {
         }
     }, [idProject, getMemberByProject]);
 
-    const handleClick = (event) => {
-        setAnchorEl(event.currentTarget);
-    };
+    useEffect(() => {
+        if (!idProject) return;
 
-    const handleClose = () => {
-        setAnchorEl(null);
-    };
+        // Đợi 300ms mới cập nhật keyword mới, tránh cho server quá tải request
+        const handler = setTimeout(() => {
+            setDebouncedKeyword(keyword);
+        }, 300);
+
+        return () => clearTimeout(handler); // Hủy timeout nếu keyword thay đổi
+    }, [keyword, idProject]);
+
+    useEffect(() => {
+        if (!idProject) return;
+        dispatch(
+            searchTasksInProject({
+                searchQuery: debouncedKeyword,
+                idProject: idProject,
+            })
+        );
+    }, [debouncedKeyword, idProject, dispatch]);
 
     const handleDeleteSelected = async () => {
         if (selectedTasks.length === 0) {
@@ -86,10 +87,10 @@ export default function Home() {
             return;
         }
 
-        const confirmDelete = window.confirm(
-            `Bạn có chắc muốn xóa ${selectedTasks.length} task không?`
-        );
-        if (!confirmDelete) return;
+        // const confirmDelete = window.confirm(
+        //   `Bạn có chắc muốn xóa ${selectedTasks.length} task không?`
+        // );
+        // if (!confirmDelete) return;
 
         try {
             const result = await dispatch(
@@ -111,11 +112,23 @@ export default function Home() {
                 toast.error("Xóa thất bại!");
             }
         } catch (error) {
-            // eslint-disable-next-line no-console
-            console.log(error);
             toast.error("Xóa thất bại!");
         }
     };
+
+    const openFilter = Boolean(anchorElFilter);
+    const openMember = Boolean(anchorEl);
+    const filterId = openFilter ? "filter-popover" : undefined;
+    const memberId = openMember ? "member-popover" : undefined;
+
+    const [searchTerm, setSearchTerm] = useState("");
+    const [debouncedSearch, setDebouncedSearch] = useState("");
+    useEffect(() => {
+        const handler = setTimeout(() => {
+            setDebouncedSearch(searchTerm);
+        }, 500);
+        return () => clearTimeout(handler); // Clear timeout nếu người dùng tiếp tục gõ
+    }, [searchTerm]);
 
     return (
         <div className="home-container">
@@ -175,16 +188,16 @@ export default function Home() {
                                 className="avatar"
                             />
                         ))}
-                        {listMember.length > 5 && 
+                        {listMember.length > 5 &&
                             ["icons/dot.png"].map((avatar, index) => (
                                 <img
-                                onClick={handleClick}
-                                key={index}
-                                src={avatar}
-                                alt={`Avatar ${index + 1}`}
-                                className="avatar"
+                                    onClick={(e) => setAnchorEl(e.currentTarget)}
+                                    key={index}
+                                    src={avatar}
+                                    alt={`Avatar ${index + 1}`}
+                                    className="avatar"
                                 />
-                        ))}
+                            ))}
                     </div>
                 </div>
 
@@ -192,12 +205,12 @@ export default function Home() {
                     id={memberId}
                     open={openMember}
                     anchorEl={anchorEl}
-                    onClose={handleClose}
+                    onClose={() => setAnchorEl(null)}
                     anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
                     transformOrigin={{ vertical: "top", horizontal: "left" }}
                     sx={{ mt: 1 }}
                 >
-                    <MemberListContent onClose={handleClose} members={listMember} />
+                    <MemberListContent onClose={() => setAnchorEl(null)} members={listMember} />
                 </Popover>
 
                 <div className="task-header">
@@ -244,6 +257,7 @@ export default function Home() {
                     <ListHome
                         setSelectedTasks={setSelectedTasks}
                         selectedTasks={selectedTasks}
+                        searchTerm={debouncedSearch}
                     />
                 )}
             </div>

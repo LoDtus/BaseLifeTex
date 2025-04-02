@@ -52,7 +52,6 @@ export default function TaskDetailView({ task, handleClose }) {
   const [listMember, setListMember] = useState([]);
   const user = useSelector((state) => state.auth.login.currentUser);
   const [page, setPage] = useState(1);
-  const [limit, setLimit] = useState(2);
   const [totalPage, setTotalPage] = useState(0);
   const [loading, setLoading] = useState(false);
 
@@ -82,9 +81,9 @@ export default function TaskDetailView({ task, handleClose }) {
 
   useEffect(() => {
     if (task) {
-      getPaginateComment(task._id, page, limit);
+      getPaginateComment(task._id, page, 2);
     }
-  }, [task, page, limit]);
+  }, [task, page]);
 
   const getDetailtask = async (id) => {
     setLoading(true);
@@ -97,6 +96,7 @@ export default function TaskDetailView({ task, handleClose }) {
         toast.error(res.message);
       }
     } catch (e) {
+      // eslint-disable-next-line no-console
       console.error(e);
       throw e;
     } finally {
@@ -132,7 +132,7 @@ export default function TaskDetailView({ task, handleClose }) {
     } else {
       toast.warning("Đăng nhập để thực hiện yêu cầu này!");
     }
-    getPaginateComment(task._id, page, limit);
+    getPaginateComment(task._id, page, 2);
   };
 
   const handleKeyDown = () => {

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useDroppable } from "@dnd-kit/core";
 import {
   SortableContext,
@@ -6,9 +6,11 @@ import {
 } from "@dnd-kit/sortable";
 import React from "react";
 import KanbanTaskCard from "./KanbanTaskCard";
-import IssueForm from "@/components/tasks/components/form/IssueForm";
+import IssueForm from "../form/IssueForm";
+import { useSearchParams } from "react-router-dom";
+import {  useSelector } from "react-redux";
 
-export default function KanbanColumn({ columnId, column, selectedTasks = [], setSelectedTasks }) {
+export default function KanbanColumn({ columnId, column, selectedTasks = [], setSelectedTasks, searchTerm }) {
   const { setNodeRef, isOver } = useDroppable({ id: columnId });
   const [open, setOpen] = useState(false);
 
@@ -23,6 +25,26 @@ export default function KanbanColumn({ columnId, column, selectedTasks = [], set
   };
 
   const statusValue = statusMapReverse[columnId];
+  const [searchParams] = useSearchParams();
+  const idProject = searchParams.get("idProject");
+  const listTask = useSelector((state) => state.task.listTask);;
+
+  const removeAccents = (str) => {
+    return str
+      ? str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase()
+      : "";
+  };
+
+  const filteredTasks = useMemo(() => {
+    return listTask
+      .filter((task) => {
+        const taskTitle = removeAccents(task.title);
+        const searchKeyword = removeAccents(searchTerm);
+        return taskTitle.includes(searchKeyword);
+      })
+      .filter((task) => task.status === statusValue)
+      .sort((a, b) => a.order - b.order);
+  }, [listTask, searchTerm, statusValue]);
 
   return (
     <div

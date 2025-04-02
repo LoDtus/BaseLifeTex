@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom"; // Import useNavigate for navigation
+import { useNavigate } from "react-router-dom"; // Import useNavigate for navigation
 import styles from "./styles/Navbar.module.scss";
 import ProjectCard from "./components/ProjectCard";
 import Loading from "@/components/common/Loading";
@@ -43,9 +43,17 @@ export default function NavigationBar({ searchTerm }) {
     }
   }, [lstProject, dispatch, navigate]);
 
-  const filteredProjects = lstProject.filter((project) =>
-    project.name.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const removeAccents = (str) => {
+    return str ? str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase() : "";
+  };
+  
+  const filteredProjects = lstProject?.filter((project) => {
+    const projectName = removeAccents(project?.name);
+    const searchKeyword = removeAccents(searchTerm);
+  
+    // Nếu không có từ khóa tìm kiếm, hiển thị tất cả dự án
+    return searchKeyword ? projectName.includes(searchKeyword) : true;
+  });
 
   return (
     <div className={styles.navbar}>
