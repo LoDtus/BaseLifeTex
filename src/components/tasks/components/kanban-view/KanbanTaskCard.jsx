@@ -24,7 +24,7 @@ function KanbanTaskCard({ selectedTasks, setSelectedTasks, task }) {
   const [isKanbaLabel, setIsKanbaLabel] = useState(false);
 
   const handleClick = (event) => {
-    event.preventDefault();
+    // event.preventDefault();
     event.stopPropagation();
     setAnchorEl((prev) => (prev ? null : event.currentTarget));
   };

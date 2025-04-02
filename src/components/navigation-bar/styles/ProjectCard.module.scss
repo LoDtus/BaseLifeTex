@@ -164,3 +164,9 @@
   }
 }
 
+.projectCard.selected {
+  background-color: #dcdcdc;
+  /* Màu xanh highlight */
+  color: white;
+  border-color: #dcdcdc;
+}

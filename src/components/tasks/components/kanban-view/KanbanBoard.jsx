@@ -1,10 +1,10 @@
 import { closestCorners, DndContext } from "@dnd-kit/core";
 import React, { useEffect, useState } from "react";
 import KanbanColumn from "./KanbanColumn";
-import { updateTaskStatus } from "../../../../services/taskService";
+import { updateTaskStatus } from "@/services/taskService";
 import { useSearchParams } from "react-router-dom";
 import "../../styles/KanbaBoard.scss";
-import { getListTaskByProjectIdRedux } from "../../../../redux/taskSlice";
+import { getListTaskByProjectIdRedux } from "@/redux/taskSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
 
@@ -34,10 +34,7 @@ function transformTasksData(tasks) {
       acc[columnKey].tasks.push({
         ...task,
         id: task._id,
-        userName:
-          task.assigneeId.length > 0
-            ? task.assigneeId[0].userName
-            : "Chưa giao",
+        userName: task.assigneeId.length > 0 ? task.assigneeId[0].userName : "Chưa giao",
         assigneeUserNames: task.assigneeId.map((assignee) => assignee.userName),
         assigneeId: task.assigneeId.map((assignee) => ({
           ...assignee,
@@ -73,7 +70,7 @@ function getStatusTitle(status) {
   return titles[status] || "Công việc khác";
 }
 
-export default function KanbanView({ selectedTasks, setSelectedTasks }) {
+function KanbanBoard({ selectedTasks, setSelectedTasks }) {
   const dispatch = useDispatch();
   const listTask = useSelector((state) => state.task.listTask);
   const [columns, setColumns] = useState({});
@@ -101,10 +98,10 @@ export default function KanbanView({ selectedTasks, setSelectedTasks }) {
     }
   }, [idProject, dispatch]);
 
-  const onDragStart = (event) => {
-    const { active } = event;
-    // Có thể thêm logic nếu cần khi bắt đầu kéo
-  };
+  // const onDragStart = (event) => {
+  //   const { active } = event;
+  //   // Có thể thêm logic nếu cần khi bắt đầu kéo
+  // };
 
   const onDragOver = (event) => {
     const { active, over } = event;
@@ -133,10 +130,9 @@ export default function KanbanView({ selectedTasks, setSelectedTasks }) {
       const oldIndex = sourceColumn.tasks.findIndex(
         (task) => task.id === active.id
       );
-      const newIndex =
-        over.id in columns
-          ? 0
-          : sourceColumn.tasks.findIndex((task) => task.id === over.id);
+      const newIndex = over.id in columns
+        ? 0
+        : sourceColumn.tasks.findIndex((task) => task.id === over.id);
 
       if (oldIndex === newIndex) return;
 
@@ -250,7 +246,7 @@ export default function KanbanView({ selectedTasks, setSelectedTasks }) {
     <div className="kanban-wrapper">
       <DndContext
         collisionDetection={closestCorners}
-        onDragStart={onDragStart}
+        // onDragStart={onDragStart}
         onDragOver={onDragOver}
         onDragEnd={onDragEnd}
       >
@@ -268,4 +264,7 @@ export default function KanbanView({ selectedTasks, setSelectedTasks }) {
       </DndContext>
     </div>
   );
-};
+}
+
+export default KanbanBoard;
+
