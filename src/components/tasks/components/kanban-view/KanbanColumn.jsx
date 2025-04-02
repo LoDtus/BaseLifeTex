@@ -38,7 +38,7 @@ export default function KanbanColumn({
         {column.title}: {column.tasks.length}
       </h3>
       <button className="add-task" onClick={() => setOpen(true)}>
-        ➕ Thêm vấn đề
+        ➕ Thêm công việc
       </button>
       <div className="kanban-column-scroll">
         <SortableContext

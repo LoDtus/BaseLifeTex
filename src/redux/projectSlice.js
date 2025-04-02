@@ -1,5 +1,6 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { deleteProjectById, getLstProject } from "../services/projectService";
+import { getTasksByProject, searchTasks } from "../services/taskService";
 
 export const getListProjectByUser = createAsyncThunk(
   "/project/list",
@@ -54,8 +55,16 @@ const projectSlice = createSlice({
     error: null,
     isFetching: false,
     searchQuery: "",
+    selectedProjectId: null,
   },
-  reducers: {},
+  reducers: {
+    setListProjectByUser: (state, action) => {
+      state.listProject = action.payload;
+    },
+    setSelectedProject: (state, action) => {
+      state.selectedProjectId = action.payload;
+    },
+    },
   extraReducers: (builder) => {
     builder
       .addCase(getListProjectByUser.pending, (state) => {
@@ -71,8 +80,8 @@ const projectSlice = createSlice({
         state.error = action.payload;
       })
       .addCase(searchProjects.pending, (state) => {
-              state.isFetching = true;
-            })
+        state.isFetching = true;
+      })
       .addCase(searchProjects.fulfilled, (state, action) => {
               state.isFetching = false;
               state.listProject= action.payload;
@@ -92,5 +101,6 @@ const projectSlice = createSlice({
             });
   },
 });
-
+export const { setSelectedProject } = projectSlice.actions;
 export default projectSlice.reducer;
+
