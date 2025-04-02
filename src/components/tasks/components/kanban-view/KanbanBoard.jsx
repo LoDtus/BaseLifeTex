@@ -34,7 +34,10 @@ function transformTasksData(tasks) {
       acc[columnKey].tasks.push({
         ...task,
         id: task._id,
-        userName: task.assigneeId.length > 0 ? task.assigneeId[0].userName : "Chưa giao",
+        userName:
+          task.assigneeId.length > 0
+            ? task.assigneeId[0].userName
+            : "Chưa giao",
         assigneeUserNames: task.assigneeId.map((assignee) => assignee.userName),
         assigneeId: task.assigneeId.map((assignee) => ({
           ...assignee,
@@ -47,7 +50,7 @@ function transformTasksData(tasks) {
     {
       PREPARE: { title: "Công việc mới", tasks: [] },
       IN_PROGRESS: { title: "Đang thực hiện", tasks: [] },
-      TEST: {title: "Kiểm thử", tasks: []},
+      TEST: { title: "Kiểm thử", tasks: [] },
       FINISH: { title: "Hoàn thành", tasks: [] },
       CLOSE: { title: "Đóng công việc", tasks: [] },
       PAUSE: { title: "Tạm dừng", tasks: [] },
@@ -81,7 +84,11 @@ function KanbanBoard({ selectedTasks, setSelectedTasks }) {
     try {
       await dispatch(getListTaskByProjectIdRedux(idProject));
     } catch (error) {
-      toast.error("Lấy danh sách công việc thất bại", { autoClose: 3000 });
+      toast.error(
+        "Lấy danh sách công việc thất bại",
+        { autoClose: 3000 },
+        error
+      );
     }
   };
 
@@ -89,6 +96,16 @@ function KanbanBoard({ selectedTasks, setSelectedTasks }) {
     if (listTask && listTask.length > 0) {
       const formattedData = transformTasksData(listTask);
       setColumns(formattedData);
+    } else {
+      setColumns({
+        PREPARE: { title: "Công việc mới", tasks: [] },
+        IN_PROGRESS: { title: "Đang thực hiện", tasks: [] },
+        TEST: { title: "Kiểm thử", tasks: [] },
+        FINISH: { title: "Hoàn thành", tasks: [] },
+        CLOSE: { title: "Đóng công việc", tasks: [] },
+        PAUSE: { title: "Tạm dừng", tasks: [] },
+        NOT_DO: { title: "Khóa công việc", tasks: [] },
+      });
     }
   }, [listTask]);
 
@@ -130,9 +147,10 @@ function KanbanBoard({ selectedTasks, setSelectedTasks }) {
       const oldIndex = sourceColumn.tasks.findIndex(
         (task) => task.id === active.id
       );
-      const newIndex = over.id in columns
-        ? 0
-        : sourceColumn.tasks.findIndex((task) => task.id === over.id);
+      const newIndex =
+        over.id in columns
+          ? 0
+          : sourceColumn.tasks.findIndex((task) => task.id === over.id);
 
       if (oldIndex === newIndex) return;
 
@@ -267,4 +285,3 @@ function KanbanBoard({ selectedTasks, setSelectedTasks }) {
 }
 
 export default KanbanBoard;
-

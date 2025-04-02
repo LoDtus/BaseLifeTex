@@ -21,11 +21,11 @@ import { useForm, Controller } from "react-hook-form";
 import UploadImageButton from "../../../common/UploadDownloadImage";
 import { getlistUser } from "../../../../services/userService";
 import { updateIssueData } from "../../../../services/issueService";
-import { useSelector, useDispatch } from "react-redux";
+import { useSelector } from "react-redux";
 import "../../styles/EditFormv2.module.scss"
 import { toast } from "react-toastify";
 import Loading from "../../../common/Loading";
-import { getListTaskByProjectIdRedux } from "@/redux/taskSlice";
+//import { getListTaskByProjectIdRedux } from "@/redux/taskSlice";
 
 export default function EditFormv2({ isOpen, onClose, task }) {
   const ITEM_HEIGHT = 48;
@@ -41,7 +41,7 @@ export default function EditFormv2({ isOpen, onClose, task }) {
   const [selectedPerson, setSelectedPerson] = useState([]);
   const [loading, setLoading] = useState(false);
   const [image, setImage] = useState();
-  const dispatch = useDispatch();
+  //const dispatch = useDispatch();
 
   const user = useSelector((state) => state.auth.login.currentUser);
 

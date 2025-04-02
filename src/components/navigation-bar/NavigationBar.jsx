@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom"; // Import useNavigate for navigation
+import { useNavigate } from "react-router-dom"; // Import useNavigate for navigation
 import styles from "./styles/Navbar.module.scss";
 import ProjectCard from "./components/ProjectCard";
 import Loading from "@/components/common/Loading";
