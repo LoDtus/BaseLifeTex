@@ -3,11 +3,11 @@ import styles from "../styles/ProjectCard.module.scss";
 import Popover from "@mui/material/Popover";
 import ContactCard from "./ContactCard";
 import { convertStatus, convertDateYMD } from "@/utils/convertUtils";
-import { useDispatch } from "react-redux";
-import { deleteProject } from "@/redux/projectSlice";
+// import { useDispatch } from "react-redux";
+// import { deleteProject } from "@/redux/projectSlice";
 
-const ProjectCard = ({ project }) => {
-  const dispatch = useDispatch();
+const ProjectCard = ({ project, isSelected }) => {
+ // const dispatch = useDispatch();
   const [anchorEl, setAnchorEl] = useState(null);
   const open = Boolean(anchorEl);
   const id = open ? "simple-popper" : undefined;
@@ -32,20 +32,22 @@ const ProjectCard = ({ project }) => {
     event.stopPropagation(); // Ngăn chặn sự kiện lan lên cha
     setAnchorEl(null);
   };
-  const handleDelete = () => {
-    if (!project?._id) {
-      console.error("Lỗi: projectId không hợp lệ!", project);
-      return;
-    }
+  // const handleDelete = () => {
+  //   if (!project?._id) {
+  //     //console.error("Lỗi: projectId không hợp lệ!", project);
+  //     return;
+  //   }
   
-    if (window.confirm("Bạn có chắc chắn muốn xóa dự án này?")) {
-      dispatch(deleteProject(project._id));
-    }
-  };
+  //   if (window.confirm("Bạn có chắc chắn muốn xóa dự án này?")) {
+  //     dispatch(deleteProject(project._id));
+  //   }
+  // };
   
   
   return (
-    <div className={styles.projectCard}>
+    <div
+       className={`${styles.projectCard} ${isSelected ? styles.selected : ""}`}
+     >
       <div className={styles.projectHeader}>
         <div className={styles.right}>
           <h1 className={styles.nameProject} title={project.name}>
@@ -82,19 +84,19 @@ const ProjectCard = ({ project }) => {
         </div>
         <img
           className={styles.avatar}
-          src="image/f8ad738c648cb0c7cc815d6ceda805b0.png"
+          src="/imgs/image_5.png"
           alt=""
         />
       </div>
       <div className={styles.projectFooter}>
         <img
           onClick={handleClick}
-          src="image/e10ebdc6f22af020d1cdd58a063bf347.png"
+          src="/imgs/image_6.png"
           alt=""
         />
-        <button className={styles.deleteBtn} onClick={handleDelete}>
+        {/* <button className={styles.deleteBtn} onClick={handleDelete}>
           Xóa
-        </button>
+        </button> */}
         <button
           style={{
             borderRadius: 20,

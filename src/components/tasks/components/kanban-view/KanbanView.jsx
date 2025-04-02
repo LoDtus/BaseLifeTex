@@ -84,7 +84,7 @@ export default function KanbanView({ selectedTasks, setSelectedTasks }) {
     try {
       await dispatch(getListTaskByProjectIdRedux(idProject));
     } catch (error) {
-      toast.error("Lấy danh sách công việc thất bại", { autoClose: 3000 });
+      toast.error("Lấy danh sách công việc thất bại", { autoClose: 3000 }, error);
     }
   };
 
@@ -101,10 +101,10 @@ export default function KanbanView({ selectedTasks, setSelectedTasks }) {
     }
   }, [idProject, dispatch]);
 
-  const onDragStart = (event) => {
-    const { active } = event;
-    // Có thể thêm logic nếu cần khi bắt đầu kéo
-  };
+  // const onDragStart = (event) => {
+  //   const { active } = event;
+  //   // Có thể thêm logic nếu cần khi bắt đầu kéo
+  // };
 
   const onDragOver = (event) => {
     const { active, over } = event;
@@ -250,7 +250,7 @@ export default function KanbanView({ selectedTasks, setSelectedTasks }) {
     <div className="kanban-wrapper">
       <DndContext
         collisionDetection={closestCorners}
-        onDragStart={onDragStart}
+        // onDragStart={onDragStart}
         onDragOver={onDragOver}
         onDragEnd={onDragEnd}
       >

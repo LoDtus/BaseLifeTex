@@ -11,8 +11,6 @@ import { getlistUser } from "@/services/userService";
 import FilterDialog from "@/components/tasks/FilterDialog";
 import {
   deleteManyTasksRedux,
-  getListTaskByProjectIdRedux,
-  searchTasksInProject,
   getByIndexParanation,
 } from "@/redux/taskSlice";
 import { useDispatch, useSelector } from "react-redux";
@@ -31,8 +29,8 @@ export default function Home() {
   const [anchorElFilter, setAnchorElFilter] = useState(null);
   const [listMember, setListMember] = useState([]);
   const [selectedTasks, setSelectedTasks] = useState([]);
-  const [keyword, setKeyword] = useState("");
-  const [debouncedKeyword, setDebouncedKeyword] = useState("");
+ // const [keyword, setKeyword] = useState("");
+  //const [debouncedKeyword, setDebouncedKeyword] = useState("");
 
   const getMemberByProject = useCallback(async () => {
     const response = await getlistUser(idProject);
@@ -60,26 +58,26 @@ export default function Home() {
     }
   }, [idProject, getMemberByProject]);
 
-  useEffect(() => {
-    if (!idProject) return;
+  // useEffect(() => {
+  //   if (!idProject) return;
 
-    // Đợi 300ms mới cập nhật keyword mới, tránh cho server quá tải request
-    const handler = setTimeout(() => {
-      setDebouncedKeyword(keyword);
-    }, 300);
+  //   // Đợi 300ms mới cập nhật keyword mới, tránh cho server quá tải request
+  //   const handler = setTimeout(() => {
+  //     setDebouncedKeyword(keyword);
+  //   }, 300);
 
-    return () => clearTimeout(handler); // Hủy timeout nếu keyword thay đổi
-  }, [keyword, idProject]);
+  //   return () => clearTimeout(handler); // Hủy timeout nếu keyword thay đổi
+  // }, [keyword, idProject]);
 
-  useEffect(() => {
-    if (!idProject) return;
-    dispatch(
-      searchTasksInProject({
-        searchQuery: debouncedKeyword,
-        idProject: idProject,
-      })
-    );
-  }, [debouncedKeyword, idProject, dispatch]);
+  // useEffect(() => {
+  //   if (!idProject) return;
+  //   dispatch(
+  //     searchTasksInProject({
+  //       searchQuery: debouncedKeyword,
+  //       idProject: idProject,
+  //     })
+  //   );
+  // }, [debouncedKeyword, idProject, dispatch]);
 
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
@@ -120,7 +118,7 @@ export default function Home() {
         toast.error("Xóa thất bại!");
       }
     } catch (error) {
-      toast.error("Xóa thất bại!");
+      toast.error("Xóa thất bại!" , error);
     }
   };
   const openFilter = Boolean(anchorElFilter);
@@ -196,15 +194,17 @@ export default function Home() {
                 className="avatar"
               />
             ))}
-            {["image/dot.png"].map((avatar, index) => (
-              <img
-                onClick={handleClick}
-                key={index}
-                src={avatar}
-                alt={`Avatar ${index + 1}`}
-                className="avatar"
-              />
-            ))}
+            {listMember.length > 5 && 
+              ["icons/dot.png"].map((avatar, index) => (
+                <img
+                  onClick={handleClick}
+                  key={index}
+                  src={avatar}
+                  alt={`Avatar ${index + 1}`}
+                  className="avatar"
+                />
+              ))
+            }
           </div>
         </div>
 
