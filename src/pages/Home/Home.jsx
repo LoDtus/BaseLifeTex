@@ -36,7 +36,7 @@ export default function Home() {
     const memberId = openMember ? "member-popover" : undefined;
 
     const [searchTerm, setSearchTerm] = useState("");
-    const [debouncedSearch, setDebouncedSearch] = useState("");
+
 
     // useEffect(() => {
     //     const handler = setTimeout(() => {
@@ -86,10 +86,10 @@ export default function Home() {
             return;
         }
 
-        // const confirmDelete = window.confirm(
-        //   `Bạn có chắc muốn xóa ${selectedTasks.length} task không?`
-        // );
-        // if (!confirmDelete) return;
+        const confirmDelete = window.confirm(
+          `Bạn có chắc muốn xóa ${selectedTasks.length} task không?`
+        );
+        if (!confirmDelete) return;
 
         try {
             const result = await dispatch(
