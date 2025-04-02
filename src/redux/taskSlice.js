@@ -123,7 +123,7 @@ const taskSlice = createSlice({
       .addCase(deleteManyTasksRedux.fulfilled, (state, action) => {
         state.isFetching = false;
         state.listTask = state.listTask.filter(
-          (task) => !action.payload.includes(task.id)
+          (task) => !action.payload.includes(task._id)
         );
       })
       .addCase(deleteManyTasksRedux.rejected, (state, action) => {

@@ -50,7 +50,7 @@ function transformTasksData(tasks) {
     {
       PREPARE: { title: "Công việc mới", tasks: [] },
       IN_PROGRESS: { title: "Đang thực hiện", tasks: [] },
-      TEST: {title: "Kiểm thử", tasks: []},
+      TEST: { title: "Kiểm thử", tasks: [] },
       FINISH: { title: "Hoàn thành", tasks: [] },
       CLOSE: { title: "Đóng công việc", tasks: [] },
       PAUSE: { title: "Tạm dừng", tasks: [] },
@@ -268,4 +268,4 @@ export default function KanbanView({ selectedTasks, setSelectedTasks }) {
       </DndContext>
     </div>
   );
-};
+}
