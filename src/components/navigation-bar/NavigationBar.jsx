@@ -43,10 +43,18 @@ export default function NavigationBar({ searchTerm }) {
     }
   }, [lstProject, dispatch, navigate]);
 
-  const filteredProjects = lstProject.filter((project) =>
-    project.name.toLowerCase().includes(searchTerm.toLowerCase())
-  );
-
+  const removeAccents = (str) => {
+    return str ? str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase() : "";
+  };
+  
+  const filteredProjects = lstProject?.filter((project) => {
+    const projectName = removeAccents(project?.name);
+    const searchKeyword = removeAccents(searchTerm);
+  
+    // Nếu không có từ khóa tìm kiếm, hiển thị tất cả dự án
+    return searchKeyword ? projectName.includes(searchKeyword) : true;
+  });
+  
   return (
     <div className={styles.navbar}>
       <div className={styles.headerNavbar}>

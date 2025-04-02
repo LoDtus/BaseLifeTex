@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useDroppable } from "@dnd-kit/core";
 import {
   SortableContext,
@@ -6,9 +6,17 @@ import {
 } from "@dnd-kit/sortable";
 import React from "react";
 import KanbanTaskCard from "./KanbanTaskCard";
-import IssueForm from "@/components/tasks/components/form/IssueForm";
+import IssueForm from "../form/IssueForm";
+import { useSearchParams } from "react-router-dom";
+import {  useSelector } from "react-redux";
 
-export default function KanbanColumn({ columnId, column, selectedTasks = [], setSelectedTasks }) {
+export default function KanbanColumn({
+  columnId,
+  column,
+  selectedTasks = [],
+  setSelectedTasks,
+  searchTerm,
+}) {
   const { setNodeRef, isOver } = useDroppable({ id: columnId });
   const [open, setOpen] = useState(false);
 
@@ -23,32 +31,50 @@ export default function KanbanColumn({ columnId, column, selectedTasks = [], set
   };
 
   const statusValue = statusMapReverse[columnId];
+  const [searchParams] = useSearchParams();
+  const idProject = searchParams.get("idProject");
+  const listTask = useSelector((state) => state.task.listTask);;
+
+  const removeAccents = (str) => {
+    return str
+      ? str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase()
+      : "";
+  };
+
+  const filteredTasks = useMemo(() => {
+    return listTask
+      .filter((task) => {
+        const taskTitle = removeAccents(task.title);
+        const searchKeyword = removeAccents(searchTerm);
+        return taskTitle.includes(searchKeyword);
+      })
+      .filter((task) => task.status === statusValue)
+      .sort((a, b) => a.order - b.order);
+  }, [listTask, searchTerm, statusValue]);
+
 
   return (
-    <div
-      ref={setNodeRef}
-      className={`kanban-column ${isOver ? "kanban-column-over" : ""}`}
-    >
+    <div ref={setNodeRef} className={`kanban-column ${isOver ? "kanban-column-over" : ""}`}>
       <h3>
-        {column.title}: {column.tasks.length}
+        {column.title}: {filteredTasks.length}
       </h3>
       <button className="add-task" onClick={() => setOpen(true)}>
         ➕ Thêm vấn đề
       </button>
       <div className="kanban-column-scroll">
-        <SortableContext
+      <SortableContext
           id={columnId}
-          items={column.tasks.map((task) => task.id)}
+          items={filteredTasks.map((task) => task.id)}
           strategy={verticalListSortingStrategy}
         >
-          {column.tasks.length === 0 ? (
+          {filteredTasks.length === 0 ? (
             <div className="empty-column-placeholder">
               Kéo thả công việc vào đây
             </div>
           ) : (
-            column.tasks.map((task) => (
+            filteredTasks.map((task, index) => (
               <KanbanTaskCard
-                key={task.id}
+                key={task.id ? `${task.id}-${columnId}` : `fallback-${index}-${columnId}`}
                 task={task}
                 selectedTasks={selectedTasks}
                 setSelectedTasks={setSelectedTasks}
@@ -57,13 +83,7 @@ export default function KanbanColumn({ columnId, column, selectedTasks = [], set
           )}
         </SortableContext>
       </div>
-      {open && (
-        <IssueForm
-          isOpen={open}
-          onClose={() => setOpen(false)}
-          status={statusValue}
-        />
-      )}
+      {open && <IssueForm isOpen={open} onClose={() => setOpen(false)} status={statusValue} />}
     </div>
   );
 }

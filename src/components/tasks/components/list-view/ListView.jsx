@@ -29,7 +29,7 @@ import IssueForm from "../form/IssueForm";
 import { debounce } from "lodash";
 import EditFormv2 from "../form/EditFormv2";
 
-export default function ListHome({ selectedTasks = [], setSelectedTasks }) {
+export default function ListHome({ selectedTasks = [], setSelectedTasks, searchTerm }) {
   const [searchParams] = useSearchParams();
   const idProject = searchParams.get("idProject");
   const listTask = useSelector((state) => state.task.listTask);
@@ -160,7 +160,20 @@ export default function ListHome({ selectedTasks = [], setSelectedTasks }) {
       : [...selectedTasks, taskId];
     setSelectedTasks(updatedSelection);
   };
-
+  
+  // Lọc danh sách công việc theo searchTerm
+  const removeAccents = (str) => {
+    return str ? str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase() : "";
+  };
+  
+  const filteredTasks = listTask?.filter((task) => {
+    const taskName = removeAccents(task?.title);
+    const searchKeyword = removeAccents(searchTerm);
+  
+    // Nếu không có từ khóa tìm kiếm, hiển thị tất cả dự án
+    return searchKeyword ? taskName.includes(searchKeyword) : true;
+  });
+  
   return (
     <div className="list-home-wrapper">
       <div className="add-job" onClick={() => setOpen(true)}>
@@ -244,7 +257,7 @@ export default function ListHome({ selectedTasks = [], setSelectedTasks }) {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {listTask.length === 0 ? (
+                {filteredTasks.length === 0 ? (
                   <TableRow>
                     <TableCell
                       colSpan={10}
@@ -263,7 +276,7 @@ export default function ListHome({ selectedTasks = [], setSelectedTasks }) {
                     </TableCell>
                   </TableRow>
                 ) : (
-                  listTask.map((task, index) => (
+                  filteredTasks.map((task, index) => (
                     <TableRow
                       key={task._id}
                       className="table-row"

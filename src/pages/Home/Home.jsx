@@ -10,112 +10,133 @@ import { getProjectId } from "@/services/projectService";
 import { getlistUser } from "@/services/userService";
 import FilterDialog from "@/components/tasks/FilterDialog";
 import {
-    deleteManyTasksRedux,
-    getByIndexParanation,
+  deleteManyTasksRedux,
+  getListTaskByProjectIdRedux,
+  searchTasksInProject,
+  getByIndexParanation,
 } from "@/redux/taskSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
 
 export default function Home() {
-    const dispatch = useDispatch();
-    let Page = useSelector((state) => state.task.page);
-    let Limit = useSelector((state) => state.task.limit);
-    let Total = useSelector((state) => state.task.total);
-    const [anchorEl, setAnchorEl] = useState(null);
-    const [searchParams] = useSearchParams();
-    const idProject = searchParams.get("idProject") || "";
-    const [viewMode, setViewMode] = useState("kanban");
-    const [nameProject, setNameProject] = useState("Phần mềm đánh giá"); // Giá trị mặc định
-    const [anchorElFilter, setAnchorElFilter] = useState(null);
-    const [listMember, setListMember] = useState([]);
-    const [selectedTasks, setSelectedTasks] = useState([]);
+  const dispatch = useDispatch();
+  let Page = useSelector((state) => state.task.page);
+  let Limit = useSelector((state) => state.task.limit);
+  let Total = useSelector((state) => state.task.total);
+  const [anchorEl, setAnchorEl] = useState(null);
+  const [searchParams] = useSearchParams();
+  const idProject = searchParams.get("idProject") || "";
+  const [viewMode, setViewMode] = useState("kanban");
+  const [nameProject, setNameProject] = useState("Phần mềm đánh giá"); // Giá trị mặc định
+  const [anchorElFilter, setAnchorElFilter] = useState(null);
+  const [listMember, setListMember] = useState([]);
+  const [selectedTasks, setSelectedTasks] = useState([]);
+  const [keyword, setKeyword] = useState("");
+  const [debouncedKeyword, setDebouncedKeyword] = useState("");
 
-    const openFilter = Boolean(anchorElFilter);
-    const openMember = Boolean(anchorEl);
-    const filterId = openFilter ? "filter-popover" : undefined;
-    const memberId = openMember ? "member-popover" : undefined;
+  const getMemberByProject = useCallback(async () => {
+    const response = await getlistUser(idProject);
+    if (response.success) {
+      setListMember(response.data);
+    }
+  }, [idProject]);
 
-    const [searchTerm, setSearchTerm] = useState("");
-    const [debouncedSearch, setDebouncedSearch] = useState("");
+  async function fetchProjectData(idPrj) {
+    try {
+      const response = await getProjectId(idPrj);
+      if (response.success) {
+        setNameProject(response.data.name);
+      }
+    } catch (error) {
+      setNameProject("Phần mềm đánh giá");
+      throw error;
+    }
+  }
 
-    // useEffect(() => {
-    //     const handler = setTimeout(() => {
-    //         setDebouncedSearch(searchTerm.trim().toLowerCase());
-    //     }, 200);
+  useEffect(() => {
+    if (idProject) {
+      fetchProjectData(idProject);
+      getMemberByProject();
+    }
+  }, [idProject, getMemberByProject]);
 
-    //     return () => clearTimeout(handler);
-    // }, [searchTerm]);
+  useEffect(() => {
+    if (!idProject) return;
 
-    const getMemberByProject = useCallback(async () => {
-        const response = await getlistUser(idProject);
-        if (response.success) {
-            setListMember(response.data);
-        }
-    }, [idProject]);
+    // Đợi 300ms mới cập nhật keyword mới, tránh cho server quá tải request
+    const handler = setTimeout(() => {
+      setDebouncedKeyword(keyword);
+    }, 300);
 
-    async function fetchProjectData(idPrj) {
-        try {
-            const response = await getProjectId(idPrj);
-            if (response.success) {
-                setNameProject(response.data.name);
-            }
-        } catch (error) {
-            setNameProject("Phần mềm đánh giá");
-            throw error;
-        }
+    return () => clearTimeout(handler); // Hủy timeout nếu keyword thay đổi
+  }, [keyword, idProject]);
+
+  useEffect(() => {
+    if (!idProject) return;
+    dispatch(
+      searchTasksInProject({
+        searchQuery: debouncedKeyword,
+        idProject: idProject,
+      })
+    );
+  }, [debouncedKeyword, idProject, dispatch]);
+
+  const handleClick = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
+
+  const handleDeleteSelected = async () => {
+    if (selectedTasks.length === 0) {
+      toast.warning("Vui lòng chọn vấn đề muốn xóa !");
+      return;
     }
 
-    useEffect(() => {
-        if (idProject) {
-            fetchProjectData(idProject);
-            getMemberByProject();
-        }
-    }, [idProject, getMemberByProject]);
+    // const confirmDelete = window.confirm(
+    //   `Bạn có chắc muốn xóa ${selectedTasks.length} task không?`
+    // );
+    // if (!confirmDelete) return;
 
-    const handleClick = (event) => {
-        setAnchorEl(event.currentTarget);
-    };
+    try {
+      const result = await dispatch(
+        deleteManyTasksRedux(selectedTasks)
+      ).unwrap();
 
-    const handleClose = () => {
-        setAnchorEl(null);
-    };
+      if (result && result.length > 0) {
+        // alert("✅ Xóa thành công!");
+        setSelectedTasks([]);
+        dispatch(
+          getByIndexParanation({
+            projectId: idProject,
+            page: Page,
+            pageSize: Limit,
+          })
+        );
+        toast.success("Xóa thành công.");
+      } else {
+        toast.error("Xóa thất bại!");
+      }
+    } catch (error) {
+      toast.error("Xóa thất bại!");
+    }
+  };
+  const openFilter = Boolean(anchorElFilter);
+  const openMember = Boolean(anchorEl);
+  const filterId = openFilter ? "filter-popover" : undefined;
+  const memberId = openMember ? "member-popover" : undefined;
 
-    const handleDeleteSelected = async () => {
-        if (selectedTasks.length === 0) {
-            toast.warning("Vui lòng chọn vấn đề muốn xóa !");
-            return;
-        }
+  const [searchTerm, setSearchTerm] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedSearch(searchTerm);
+    }, 500); // Delay 300ms
 
-        // const confirmDelete = window.confirm(
-        //   `Bạn có chắc muốn xóa ${selectedTasks.length} task không?`
-        // );
-        // if (!confirmDelete) return;
-
-        try {
-            const result = await dispatch(
-                deleteManyTasksRedux(selectedTasks)
-            ).unwrap();
-
-            if (result && result.length > 0) {
-                // alert("✅ Xóa thành công!");
-                setSelectedTasks([]);
-                dispatch(
-                    getByIndexParanation({
-                        projectId: idProject,
-                        page: Page,
-                        pageSize: Limit,
-                    })
-                );
-                toast.success("Xóa thành công.");
-            } else {
-                toast.error("Xóa thất bại!");
-            }
-        } catch (error) {
-            // eslint-disable-next-line no-console
-            console.log(error);
-            toast.error("Xóa thất bại!");
-        }
-    };
+    return () => clearTimeout(handler); // Clear timeout nếu người dùng tiếp tục gõ
+  }, [searchTerm]);
 
     return (
         <div className="home-container">
@@ -244,6 +265,7 @@ export default function Home() {
                     <ListHome
                         setSelectedTasks={setSelectedTasks}
                         selectedTasks={selectedTasks}
+                        searchTerm={debouncedSearch}
                     />
                 )}
             </div>
