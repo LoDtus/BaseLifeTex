@@ -4,7 +4,7 @@ import {
   getTasksByProject,
   deleteManyTasks,
   getTaskByPagination,
-  searchTasks,
+  searchTasks
 } from "../services/taskService";
 
 export const getListTaskByProjectIdRedux = createAsyncThunk(
@@ -38,9 +38,12 @@ export const deleteManyTasksRedux = createAsyncThunk(
     }
   }
 );
+
 export const getByIndexParanation = createAsyncThunk(
   "task/getByIndexParanation",
   async ({ projectId, page, pageSize }, { rejectWithValue }) => {
+    console.log(projectId, page, pageSize);
+    
     const reponse = await getTaskByPagination(projectId, +page, +pageSize);
     if (reponse.success) {
       return reponse;
@@ -155,7 +158,7 @@ const taskSlice = createSlice({
       .addCase(searchTasksInProject.rejected, (state, action) => {
         state.isFetching = false;
         state.error = action.payload;
-      });
+      })
   },
 });
 

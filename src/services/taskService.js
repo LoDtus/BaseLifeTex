@@ -18,6 +18,7 @@ export const updateTaskStatus = async (taskId, oldStatus, newStatus) => {
     });
     return response.data;
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.log(
       "Cập nhật trạng thái công việc thất bại",
       error.response?.data || error
@@ -25,6 +26,7 @@ export const updateTaskStatus = async (taskId, oldStatus, newStatus) => {
     throw error;
   }
 };
+
 export const getTaskDetailById = async (id) => {
   const response = await axiosInstance.get(`/tasks/${id}`);
   return response.data;

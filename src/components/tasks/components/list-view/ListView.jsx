@@ -29,11 +29,7 @@ import IssueForm from "../form/IssueForm";
 import { debounce } from "lodash";
 import EditFormv2 from "../form/EditFormv2";
 
-export default function ListHome({
-  selectedTasks = [],
-  setSelectedTasks,
-  searchTerm,
-}) {
+export default function ListHome({ selectedTasks = [], setSelectedTasks }) {
   const [searchParams] = useSearchParams();
   const idProject = searchParams.get("idProject");
   const listTask = useSelector((state) => state.task.listTask);
@@ -41,6 +37,19 @@ export default function ListHome({
   let Page = useSelector((state) => state.task.page);
   let Limit = useSelector((state) => state.task.limit);
   let Total = useSelector((state) => state.task.total);
+
+  // const Page = useSelector((state) => {
+  //   console.log("Redux Page:", state.task.page);
+  //   return state.task.page;
+  // });
+  // const Limit = useSelector((state) => {
+  //   console.log("Redux Limit:", state.task.limit);
+  //   return state.task.limit;
+  // });
+  // const Total = useSelector((state) => {
+  //   console.log("Redux Limit:", state.task.total);
+  //   return state.task.total;
+  // });
 
   const [loading, setLoading] = useState(false);
 
@@ -64,13 +73,10 @@ export default function ListHome({
     }
   });
 
-  const getList = () => {
-    debouncedGetList();
-  };
-
   useEffect(() => {
-    getList();
-  }, [idProject, Page, Limit]);
+    if (!idProject || Page === undefined || Limit === undefined) return;
+    debouncedGetList();
+  }, [idProject]);
 
   const [anchorElMemberTask, setAnchorElMemberTask] = useState(null);
   const [anchorElMemberAdd, setAnchorElMemberAdd] = useState(null);
@@ -93,7 +99,7 @@ export default function ListHome({
         status: newStatus,
       });
       if (response.success) {
-        getList();
+        debouncedGetList();
         toast.success(response.message);
       } else {
         toast.error(response.message);
@@ -155,7 +161,7 @@ export default function ListHome({
   const editModalClose = async () => {
     setEditModal(false);
     setIdEditModal(null);
-    getList();
+    debouncedGetList();
   };
 
   const handleSelectTask = (taskId) => {
@@ -164,14 +170,11 @@ export default function ListHome({
       : [...selectedTasks, taskId];
     setSelectedTasks(updatedSelection);
   };
-  // Lọc danh sách công việc theo searchTerm
-  const filteredTasks = listTask.filter((task) =>
-    task.title.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+
   return (
     <div className="list-home-wrapper">
       <div className="add-job" onClick={() => setOpen(true)}>
-        <img src={""} alt="add" />
+        <img src={"/icons/add-icon-1.png"} alt="add" />
         <p>Thêm công việc</p>
       </div>
       {loading ? (
@@ -251,7 +254,7 @@ export default function ListHome({
                 </TableRow>
               </TableHead>
               <TableBody>
-                {filteredTasks.length === 0 ? (
+                {listTask.length === 0 ? (
                   <TableRow>
                     <TableCell
                       colSpan={10}
@@ -270,7 +273,7 @@ export default function ListHome({
                     </TableCell>
                   </TableRow>
                 ) : (
-                  filteredTasks.map((task, index) => (
+                  listTask.map((task, index) => (
                     <TableRow
                       key={task._id}
                       className="table-row"
@@ -303,7 +306,7 @@ export default function ListHome({
                       <TableCell className="table-cell">
                         <div className="task-name">
                           <img
-                            src="image/Pen.png"
+                            src="/icons/pen-icon.png"
                             alt="edit"
                             className="edit-icon"
                           />
@@ -332,7 +335,7 @@ export default function ListHome({
                             {task.assigneeId?.length > 2 && (
                               <>
                                 <img
-                                  src="image/dot.png"
+                                  src="/icons/dot.png"
                                   className="more-icon"
                                   onClick={(e) =>
                                     handleClickMemberTask(e, task._id)
@@ -390,7 +393,7 @@ export default function ListHome({
                               onClose={handleCloseMemberAdd}
                               idProject={idProject}
                               task={task}
-                              fetchApi={() => getList()}
+                              fetchApi={() => debouncedGetList()}
                               toast={toast}
                             />
                           </Popover>
@@ -402,7 +405,7 @@ export default function ListHome({
                         style={{ minWidth: "100px" }}
                       >
                         <img
-                          src="image/Chat_.png"
+                          src="/icons/chat.png"
                           alt="comments"
                           className="comment-icon"
                           onClick={() => onOpenComment(task._id)}

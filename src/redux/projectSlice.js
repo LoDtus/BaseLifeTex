@@ -64,7 +64,7 @@ const projectSlice = createSlice({
     setSelectedProject: (state, action) => {
       state.selectedProjectId = action.payload;
     },
-    },
+  },
   extraReducers: (builder) => {
     builder
       .addCase(getListProjectByUser.pending, (state) => {
@@ -83,24 +83,23 @@ const projectSlice = createSlice({
         state.isFetching = true;
       })
       .addCase(searchProjects.fulfilled, (state, action) => {
-              state.isFetching = false;
-              state.listProject= action.payload;
-              state.searchQuery = action.meta.arg.searchQuery; // Lưu lại từ khóa tìm kiếm
-            })
+        state.isFetching = false;
+        state.listProject = action.payload;
+        state.searchQuery = action.meta.arg.searchQuery;
+      })
       .addCase(searchProjects.rejected, (state, action) => {
-              state.isFetching = false;
-              state.error = action.payload;
-            })
+        state.isFetching = false;
+        state.error = action.payload;
+      })
       .addCase(deleteProject.fulfilled, (state, action) => {
-              state.listProject = state.listProject.filter(
-                (project) => project._id !== action.payload
-              );
-            })
+        state.listProject = state.listProject.filter(
+          (project) => project._id !== action.payload
+        );
+      })
       .addCase(deleteProject.rejected, (state, action) => {
-              state.error = action.payload;
-            });
+        state.error = action.payload;
+      });
   },
 });
 export const { setSelectedProject } = projectSlice.actions;
 export default projectSlice.reducer;
-

@@ -6,14 +6,9 @@ import {
 } from "@dnd-kit/sortable";
 import React from "react";
 import KanbanTaskCard from "./KanbanTaskCard";
-import IssueForm from "../form/IssueForm";
+import IssueForm from "@/components/tasks/components/form/IssueForm";
 
-export default function KanbanColumn({
-  columnId,
-  column,
-  selectedTasks = [],
-  setSelectedTasks,
-}) {
+export default function KanbanColumn({ columnId, column, selectedTasks = [], setSelectedTasks }) {
   const { setNodeRef, isOver } = useDroppable({ id: columnId });
   const [open, setOpen] = useState(false);
 

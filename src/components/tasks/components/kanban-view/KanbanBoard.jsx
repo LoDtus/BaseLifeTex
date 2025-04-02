@@ -1,10 +1,10 @@
 import { closestCorners, DndContext } from "@dnd-kit/core";
 import React, { useEffect, useState } from "react";
 import KanbanColumn from "./KanbanColumn";
-import { updateTaskStatus } from "../../../../services/taskService";
+import { updateTaskStatus } from "@/services/taskService";
 import { useSearchParams } from "react-router-dom";
 import "../../styles/KanbaBoard.scss";
-import { getListTaskByProjectIdRedux } from "../../../../redux/taskSlice";
+import { getListTaskByProjectIdRedux } from "@/redux/taskSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
 
@@ -73,7 +73,7 @@ function getStatusTitle(status) {
   return titles[status] || "Công việc khác";
 }
 
-export default function KanbanView({ selectedTasks, setSelectedTasks }) {
+function KanbanBoard({ selectedTasks, setSelectedTasks }) {
   const dispatch = useDispatch();
   const listTask = useSelector((state) => state.task.listTask);
   const [columns, setColumns] = useState({});
@@ -84,7 +84,11 @@ export default function KanbanView({ selectedTasks, setSelectedTasks }) {
     try {
       await dispatch(getListTaskByProjectIdRedux(idProject));
     } catch (error) {
-      toast.error("Lấy danh sách công việc thất bại", { autoClose: 3000 }, error);
+      toast.error(
+        "Lấy danh sách công việc thất bại",
+        { autoClose: 3000 },
+        error
+      );
     }
   };
 
@@ -269,3 +273,5 @@ export default function KanbanView({ selectedTasks, setSelectedTasks }) {
     </div>
   );
 }
+
+export default KanbanBoard;

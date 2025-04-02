@@ -317,7 +317,7 @@ export default function EditFormv2({ isOpen, onClose, task }) {
                                     }}
                                     src={
                                       person.avatar ||
-                                      "image\\f8ad738c648cb0c7cc815d6ceda805b0.png"
+                                      "/imgs/f8ad738c648cb0c7cc815d6ceda805b0.png"
                                     }
                                   ></Avatar>
                                   <Typography
