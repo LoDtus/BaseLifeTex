@@ -51,8 +51,8 @@ export default function HomeHeader({ setSearchTerm }) {
               type="text"
               placeholder="Tìm kiếm dự án..."
               className="search-input"
-              value={searchText}
-              onChange={(e) => setSearchText(e.target.value)}
+              // value={searchText}
+              onChange={(e) => setSearchText(e.target.value.trim())}
             />
             <SearchIcon
               sx={{
