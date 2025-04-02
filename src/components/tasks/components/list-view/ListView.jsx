@@ -38,6 +38,19 @@ export default function ListHome({ selectedTasks = [], setSelectedTasks }) {
   let Limit = useSelector((state) => state.task.limit);
   let Total = useSelector((state) => state.task.total);
 
+  // const Page = useSelector((state) => {
+  //   console.log("Redux Page:", state.task.page);
+  //   return state.task.page;
+  // });
+  // const Limit = useSelector((state) => {
+  //   console.log("Redux Limit:", state.task.limit);
+  //   return state.task.limit;
+  // });
+  // const Total = useSelector((state) => {
+  //   console.log("Redux Limit:", state.task.total);
+  //   return state.task.total;
+  // });
+
   const [loading, setLoading] = useState(false);
 
   const debouncedGetList = debounce(async () => {
@@ -60,13 +73,10 @@ export default function ListHome({ selectedTasks = [], setSelectedTasks }) {
     }
   });
 
-  const getList = () => {
-    debouncedGetList();
-  };
-
   useEffect(() => {
-    getList();
-  }, [idProject, Page, Limit]);
+    if (!idProject || Page === undefined || Limit === undefined) return;
+    debouncedGetList();
+  }, [idProject]);
 
   const [anchorElMemberTask, setAnchorElMemberTask] = useState(null);
   const [anchorElMemberAdd, setAnchorElMemberAdd] = useState(null);
@@ -89,7 +99,7 @@ export default function ListHome({ selectedTasks = [], setSelectedTasks }) {
         status: newStatus,
       });
       if (response.success) {
-        getList();
+        debouncedGetList();
         toast.success(response.message);
       } else {
         toast.error(response.message);
@@ -151,7 +161,7 @@ export default function ListHome({ selectedTasks = [], setSelectedTasks }) {
   const editModalClose = async () => {
     setEditModal(false);
     setIdEditModal(null);
-    getList();
+    debouncedGetList();
   };
 
   const handleSelectTask = (taskId) => {
@@ -383,7 +393,7 @@ export default function ListHome({ selectedTasks = [], setSelectedTasks }) {
                               onClose={handleCloseMemberAdd}
                               idProject={idProject}
                               task={task}
-                              fetchApi={() => getList()}
+                              fetchApi={() => debouncedGetList()}
                               toast={toast}
                             />
                           </Popover>

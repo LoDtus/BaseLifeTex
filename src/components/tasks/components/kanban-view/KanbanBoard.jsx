@@ -98,10 +98,10 @@ function KanbanBoard({ selectedTasks, setSelectedTasks }) {
     }
   }, [idProject, dispatch]);
 
-  const onDragStart = (event) => {
-    const { active } = event;
-    // Có thể thêm logic nếu cần khi bắt đầu kéo
-  };
+  // const onDragStart = (event) => {
+  //   const { active } = event;
+  //   // Có thể thêm logic nếu cần khi bắt đầu kéo
+  // };
 
   const onDragOver = (event) => {
     const { active, over } = event;
@@ -246,7 +246,7 @@ function KanbanBoard({ selectedTasks, setSelectedTasks }) {
     <div className="kanban-wrapper">
       <DndContext
         collisionDetection={closestCorners}
-        onDragStart={onDragStart}
+        // onDragStart={onDragStart}
         onDragOver={onDragOver}
         onDragEnd={onDragEnd}
       >
