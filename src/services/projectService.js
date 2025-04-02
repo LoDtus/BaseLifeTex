@@ -10,6 +10,11 @@ export const getProjectId = async (projectId) => {
   return response.data;
 };
 
+export const getMembers = async (prjId) => {
+  const response = await axiosInstance.get(`/projects/${prjId}/members`);
+  return response.data.data;
+}
+
 export const searchProjects = async (searchQuery, projectId) => {
   const response = await axiosInstance.get(`/projects/search`, {
     params: { search: searchQuery, projectId },

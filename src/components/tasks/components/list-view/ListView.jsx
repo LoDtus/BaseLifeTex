@@ -1,4 +1,3 @@
-// src/components/ListHome/ListHome.jsx
 import { useState, useEffect, useCallback } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { useSearchParams } from "react-router-dom";
@@ -28,11 +27,14 @@ import Loading from "@/components/common/Loading";
 import IssueForm from "../form/IssueForm";
 import { debounce } from "lodash";
 import EditFormv2 from "../form/EditFormv2";
+import { getMembers } from "../../../../services/projectService";
 
 export default function ListHome({ selectedTasks = [], setSelectedTasks }) {
   const [searchParams] = useSearchParams();
   const idProject = searchParams.get("idProject");
   const listTask = useSelector((state) => state.task.listTask);
+  const [ avatar, setAvatar ] = useState([]);
+  
   const dispatch = useDispatch();
   let Page = useSelector((state) => state.task.page);
   let Limit = useSelector((state) => state.task.limit);
@@ -42,6 +44,14 @@ export default function ListHome({ selectedTasks = [], setSelectedTasks }) {
 
   const debouncedGetList = async () => {
     setLoading(true);
+
+    const response = await getMembers(idProject);
+    response.map((e) => {
+      setAvatar((prev) => [...prev, {
+        "id": e._id,
+        "avatar": e.avatar,
+      }])});
+
     try {
       await dispatch(getByIndexParanation({
         projectId: idProject,
@@ -304,17 +314,21 @@ export default function ListHome({ selectedTasks = [], setSelectedTasks }) {
                       >
                         <div className="task-icons1">
                           <div className="avatar-icon">
-                            {task.assigneeId?.slice(0, 2).map((avatar, i) => (
-                              <Avatar
-                                title={avatar.userName}
-                                src={avatar.avatar}
-                                key={i}
-                                className="avatar"
-                                style={{
-                                  cursor: "pointer",
-                                }}
-                              />
-                            ))}
+                            {task.assigneeId?.slice(0, 2).map((member, i) => {
+                              let srcImg = '';
+                              avatar.map((e) => { srcImg = (e.id === member._id) ? e.avatar : '' })
+                              return (
+                                <Avatar
+                                  title={member.userName}
+                                  src={srcImg}
+                                  key={i}
+                                  className="avatar"
+                                  style={{
+                                    cursor: "pointer",
+                                  }}
+                                />
+                              )
+                            })}
                             {task.assigneeId?.length > 2 && (
                               <>
                                 <img
