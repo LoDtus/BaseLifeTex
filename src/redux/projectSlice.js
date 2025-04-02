@@ -1,5 +1,6 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { deleteProjectById, getLstProject } from "../services/projectService";
+import { getTasksByProject, searchTasks } from "../services/taskService";
 
 export const getListProjectByUser = createAsyncThunk(
   "/project/list",

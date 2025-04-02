@@ -43,15 +43,22 @@ export default function NavigationBar({ searchTerm }) {
     }
   }, [lstProject, dispatch, navigate]);
 
-  const removeAccents = (str) => {
-    return str ? str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase() : "";
+  const removeAccentsAndSpaces = (str) => {
+    return str
+      ? str
+          .normalize("NFD") // Chuẩn hóa Unicode
+          .replace(/[\u0300-\u036f]/g, "") // Xóa dấu tiếng Việt
+          .replace(/\s+/g, "") // Xóa tất cả khoảng trắng thừa
+          .toLowerCase()
+      : "";
   };
   
   const filteredProjects = lstProject?.filter((project) => {
-    const projectName = removeAccents(project?.name);
-    const searchKeyword = removeAccents(searchTerm);
+    if (!project?.name) return false; // Bỏ qua dự án không có tên
   
-    // Nếu không có từ khóa tìm kiếm, hiển thị tất cả dự án
+    const projectName = removeAccentsAndSpaces(project.name);
+    const searchKeyword = removeAccentsAndSpaces(searchTerm);
+  
     return searchKeyword ? projectName.includes(searchKeyword) : true;
   });
   

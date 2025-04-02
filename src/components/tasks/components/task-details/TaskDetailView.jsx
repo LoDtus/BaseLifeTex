@@ -11,7 +11,11 @@ import {
   Avatar,
   Typography,
 } from "@mui/material";
-import "../../../tasks/styles/TaskDetails.scss";
+
+import "../../styles/ListView.scss";
+
+import "../../styles/TaskDetails.scss"
+
 import EventAvailableIcon from "@mui/icons-material/EventAvailable";
 import { toast } from "react-toastify";
 import { convertDate, convertStatus } from "../../../../utils/convertUtils";

@@ -1,5 +1,5 @@
 // src/components/ListHome/ListHome.jsx
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { useSearchParams } from "react-router-dom";
 import { updateIssueDataStatus } from "@/services/issueService";
@@ -40,33 +40,26 @@ export default function ListHome({ selectedTasks = [], setSelectedTasks, searchT
 
   const [loading, setLoading] = useState(false);
 
-  const debouncedGetList = debounce(async () => {
+  const debouncedGetList = async () => {
     setLoading(true);
     try {
-      if (idProject) {
-        await dispatch(
-          getByIndexParanation({
-            projectId: idProject,
-            page: Page,
-            pageSize: Limit,
-          })
-        );
-      }
+      await dispatch(getByIndexParanation({
+        projectId: idProject,
+        page: Page,
+        pageSize: Limit,
+      }));
     } catch (error) {
       toast.error("Tạo nhiệm vụ thất bại", error);
       throw error;
     } finally {
       setLoading(false);
     }
-  });
-
-  const getList = () => {
-    debouncedGetList();
-  };
+  }
 
   useEffect(() => {
-    getList();
-  }, [idProject, Page, Limit]);
+    if (!idProject) return;
+    debouncedGetList();
+  }, [idProject]);
 
   const [anchorElMemberTask, setAnchorElMemberTask] = useState(null);
   const [anchorElMemberAdd, setAnchorElMemberAdd] = useState(null);
@@ -89,7 +82,7 @@ export default function ListHome({ selectedTasks = [], setSelectedTasks, searchT
         status: newStatus,
       });
       if (response.success) {
-        getList();
+        debouncedGetList();
         toast.success(response.message);
       } else {
         toast.error(response.message);
@@ -151,7 +144,7 @@ export default function ListHome({ selectedTasks = [], setSelectedTasks, searchT
   const editModalClose = async () => {
     setEditModal(false);
     setIdEditModal(null);
-    getList();
+    debouncedGetList();
   };
 
   const handleSelectTask = (taskId) => {
@@ -160,7 +153,7 @@ export default function ListHome({ selectedTasks = [], setSelectedTasks, searchT
       : [...selectedTasks, taskId];
     setSelectedTasks(updatedSelection);
   };
-  
+
   // Lọc danh sách công việc theo searchTerm
   const removeAccents = (str) => {
     return str ? str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase() : "";
@@ -173,7 +166,7 @@ export default function ListHome({ selectedTasks = [], setSelectedTasks, searchT
     // Nếu không có từ khóa tìm kiếm, hiển thị tất cả dự án
     return searchKeyword ? taskName.includes(searchKeyword) : true;
   });
-  
+
   return (
     <div className="list-home-wrapper">
       <div className="add-job" onClick={() => setOpen(true)}>
@@ -396,7 +389,7 @@ export default function ListHome({ selectedTasks = [], setSelectedTasks, searchT
                               onClose={handleCloseMemberAdd}
                               idProject={idProject}
                               task={task}
-                              fetchApi={() => getList()}
+                              fetchApi={() => debouncedGetList()}
                               toast={toast}
                             />
                           </Popover>
