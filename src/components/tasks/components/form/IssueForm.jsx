@@ -318,7 +318,7 @@ const IssueForm = ({ isOpen, onClose, status }) => {
                                     }}
                                     src={
                                       person.avatar ||
-                                      "image\\f8ad738c648cb0c7cc815d6ceda805b0.png"
+                                      "/imgs/f8ad738c648cb0c7cc815d6ceda805b0.png"
                                     }
                                   ></Avatar>
                                   <Typography

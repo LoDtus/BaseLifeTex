@@ -26,7 +26,7 @@ const UploadImageButton = ({ onImageChange, Image = null }) => {
       />
       <label htmlFor="fileInput">
         <img
-          src="image/downLoad.png"
+          src="/icons/upload-img.png"
           alt="Chọn ảnh"
           className={styles.uploadButton}
         />

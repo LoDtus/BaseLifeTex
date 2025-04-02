@@ -1,6 +1,6 @@
 import MainLayout from "../layouts/components/HomeLayout";
 import AccessLayout from "../layouts/components/AccessLayout";
-import Home from "../pages/Home/Home";
+import Home from "@/pages/Home/Home";
 import Login from "../pages/sign-in/SignIn";
 import Register from "../pages/sign-up/SignUp";
 import TaskDetailView from "@/components/tasks/components/task-details/TaskDetailView";
