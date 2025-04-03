@@ -25,7 +25,7 @@ import { useSearchParams } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { toast } from "react-toastify";
 import Loading from "../../../common/Loading";
-import { getListTaskByProjectIdRedux } from "../../../../redux/taskSlice";
+import { getListTaskByProjectId } from "../../../../redux/taskSlice";
 
 const IssueForm = ({ isOpen, onClose, status }) => {
   const ITEM_HEIGHT = 48;
@@ -68,7 +68,11 @@ const IssueForm = ({ isOpen, onClose, status }) => {
       });
       if (issueData) {
         toast.success("Tạo nhiệm vụ thành công");
-        dispatch(getListTaskByProjectIdRedux(idProject));
+        dispatch(getListTaskByProjectId({
+          projectId: idProject,
+          page: 1,
+          limit: 100,
+        }));
         onClose();
       }
     } catch (error) {

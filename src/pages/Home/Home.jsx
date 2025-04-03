@@ -11,12 +11,12 @@ import { getlistUser } from "@/services/userService";
 import FilterDialog from "@/components/tasks/FilterDialog";
 import {
     deleteManyTasksRedux,
-    getListTaskByProjectIdRedux,
     searchTasksInProject,
-    getByIndexParanation,
+    getListTaskByProjectId
 } from "@/redux/taskSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
+import { normalizeString } from '@/utils/textUtils';
 
 export default function Home() {
     const dispatch = useDispatch();
@@ -32,7 +32,18 @@ export default function Home() {
     const [listMember, setListMember] = useState([]);
     const [selectedTasks, setSelectedTasks] = useState([]);
     const [keyword, setKeyword] = useState("");
-    const [debouncedKeyword, setDebouncedKeyword] = useState("");
+    const [timer, setTimer] = useState(null);
+
+    useEffect(() => {
+        if (!idProject) return;
+        if (timer) clearTimeout(timer);
+        const newTimer = setTimeout(() => {
+            dispatch(searchTasksInProject({ keyword: normalizeString(keyword), idProject: idProject }));
+        }, 300);
+
+        setTimer(newTimer);
+        return () => clearTimeout(newTimer);
+    }, [keyword, idProject, dispatch]); 
 
     const getMemberByProject = useCallback(async () => {
         const response = await getlistUser(idProject);
@@ -60,27 +71,6 @@ export default function Home() {
         }
     }, [idProject, getMemberByProject]);
 
-    useEffect(() => {
-        if (!idProject) return;
-
-        // Đợi 300ms mới cập nhật keyword mới, tránh cho server quá tải request
-        const handler = setTimeout(() => {
-            setDebouncedKeyword(keyword);
-        }, 300);
-
-        return () => clearTimeout(handler); // Hủy timeout nếu keyword thay đổi
-    }, [keyword, idProject]);
-
-    useEffect(() => {
-        if (!idProject) return;
-        dispatch(
-            searchTasksInProject({
-                searchQuery: debouncedKeyword,
-                idProject: idProject,
-            })
-        );
-    }, [debouncedKeyword, idProject, dispatch]);
-
     const handleDeleteSelected = async () => {
         if (selectedTasks.length === 0) {
             toast.warning("Vui lòng chọn vấn đề muốn xóa !");
@@ -101,10 +91,10 @@ export default function Home() {
                 // alert("✅ Xóa thành công!");
                 setSelectedTasks([]);
                 dispatch(
-                    getByIndexParanation({
+                    getListTaskByProjectId({
                         projectId: idProject,
                         page: Page,
-                        pageSize: Limit,
+                        limit: Limit,
                     })
                 );
                 toast.success("Xóa thành công.");
@@ -112,6 +102,8 @@ export default function Home() {
                 toast.error("Xóa thất bại!");
             }
         } catch (error) {
+            // eslint-disable-next-line no-console
+            console.log(error);
             toast.error("Xóa thất bại!");
         }
     };
@@ -120,15 +112,6 @@ export default function Home() {
     const openMember = Boolean(anchorEl);
     const filterId = openFilter ? "filter-popover" : undefined;
     const memberId = openMember ? "member-popover" : undefined;
-
-    const [searchTerm, setSearchTerm] = useState("");
-    const [debouncedSearch, setDebouncedSearch] = useState("");
-    useEffect(() => {
-        const handler = setTimeout(() => {
-            setDebouncedSearch(searchTerm);
-        }, 500);
-        return () => clearTimeout(handler); // Clear timeout nếu người dùng tiếp tục gõ
-    }, [searchTerm]);
 
     return (
         <div className="home-container">
@@ -176,8 +159,8 @@ export default function Home() {
                         type="text"
                         placeholder="Tìm kiếm..."
                         className="search-input"
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
+                        value={keyword}
+                        onChange={(e) => setKeyword(e.target.value)}
                     />
                     <div className="avatar-group">
                         {listMember?.slice(0,5)?.map((member, index) => (
@@ -251,13 +234,11 @@ export default function Home() {
                     <KanbanBoard
                         setSelectedTasks={setSelectedTasks}
                         selectedTasks={selectedTasks}
-                        searchTerm={searchTerm}
                     />
                 ) : (
                     <ListHome
                         setSelectedTasks={setSelectedTasks}
                         selectedTasks={selectedTasks}
-                        searchTerm={debouncedSearch}
                     />
                 )}
             </div>

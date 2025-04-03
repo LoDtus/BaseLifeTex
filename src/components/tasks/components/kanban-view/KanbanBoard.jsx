@@ -4,7 +4,7 @@ import KanbanColumn from "./KanbanColumn";
 import { updateTaskStatus } from "@/services/taskService";
 import { useSearchParams } from "react-router-dom";
 import "../../styles/KanbaBoard.scss";
-import { getListTaskByProjectIdRedux } from "@/redux/taskSlice";
+import { getListTaskByProjectId } from "@/redux/taskSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
 
@@ -17,10 +17,6 @@ const STATUS_MAP = {
     6: "PAUSE",
     7: "NOT_DO",
 };
-
-const REVERSE_STATUS_MAP = Object.fromEntries(
-    Object.entries(STATUS_MAP).map(([key, value]) => [value, Number(key)])
-);
 
 const INITIAL_COLUMNS = Object.keys(STATUS_MAP).reduce((acc, key) => {
     acc[STATUS_MAP[key]] = { title: getStatusTitle(STATUS_MAP[key]), tasks: [] };
@@ -92,45 +88,39 @@ function getStatusTitle(status) {
     return titles[status] || "Công việc khác";
 }
 
-function KanbanBoard({ selectedTasks, setSelectedTasks, searchTerm }) {
+function KanbanBoard({ selectedTasks, setSelectedTasks }) {
     const dispatch = useDispatch();
     const listTask = useSelector((state) => state.task.listTask);
     const [columns, setColumns] = useState(INITIAL_COLUMNS);
     const [searchParams] = useSearchParams();
     const idProject = searchParams.get("idProject");
 
-    // const fetchData = async () => {
-    //     try {
-    //         await dispatch(getListTaskByProjectIdRedux(idProject));
-    //     } catch (error) {
-    //         toast.error(
-    //             "Lấy danh sách công việc thất bại",
-    //             { autoClose: 3000 },
-    //             error
-    //         );
-    //     }
-    // };
-
-  useEffect(() => {
-    if (listTask && listTask.length > 0) {
-      const formattedData = transformTasksData(listTask);
-      setColumns(formattedData);
-    } else {
-      setColumns({
-        PREPARE: { title: "Công việc mới", tasks: [] },
-        IN_PROGRESS: { title: "Đang thực hiện", tasks: [] },
-        TEST: { title: "Kiểm thử", tasks: [] },
-        FINISH: { title: "Hoàn thành", tasks: [] },
-        CLOSE: { title: "Đóng công việc", tasks: [] },
-        PAUSE: { title: "Tạm dừng", tasks: [] },
-        NOT_DO: { title: "Khóa công việc", tasks: [] },
-      });
-    }
-  }, [listTask]);
+    useEffect(() => {
+        if (listTask && listTask.length > 0) {
+            const formattedData = transformTasksData(listTask);
+            console.log(listTask);
+            
+            setColumns(formattedData);
+        } else {
+            setColumns({
+                PREPARE: { title: "Công việc mới", tasks: [] },
+                IN_PROGRESS: { title: "Đang thực hiện", tasks: [] },
+                TEST: { title: "Kiểm thử", tasks: [] },
+                FINISH: { title: "Hoàn thành", tasks: [] },
+                CLOSE: { title: "Đóng công việc", tasks: [] },
+                PAUSE: { title: "Tạm dừng", tasks: [] },
+                NOT_DO: { title: "Khóa công việc", tasks: [] },
+            });
+        }
+    }, [listTask]);
 
     useEffect(() => {
         if (idProject) {
-            dispatch(getListTaskByProjectIdRedux(idProject));
+            dispatch(getListTaskByProjectId({
+                projectId: idProject,
+                page: 1,
+                limit: 100,
+            }));
         }
     }, [idProject, dispatch]);
 
@@ -261,8 +251,12 @@ function KanbanBoard({ selectedTasks, setSelectedTasks, searchTerm }) {
                 await updateTaskStatus(taskToMove.id, taskToMove.status, newStatus);
                 toast.success("Cập nhật trạng thái thành công");
                 setTimeout(() => {
-                    dispatch(getListTaskByProjectIdRedux(idProject));
-                }, 500);
+                    dispatch(getListTaskByProjectId({
+                        projectId: idProject,
+                        page: 1,
+                        limit: 100,
+                    }));
+                }, 100);
             }
         } catch (error) {
             setColumns(previousColumns);
@@ -287,7 +281,6 @@ function KanbanBoard({ selectedTasks, setSelectedTasks, searchTerm }) {
                             column={column}
                             setSelectedTasks={setSelectedTasks}
                             selectedTasks={selectedTasks}
-                            searchTerm={searchTerm}
                         />
                     ))}
                 </div>

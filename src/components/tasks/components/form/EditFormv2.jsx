@@ -41,7 +41,6 @@ export default function EditFormv2({ isOpen, onClose, task }) {
   const [selectedPerson, setSelectedPerson] = useState([]);
   const [loading, setLoading] = useState(false);
   const [image, setImage] = useState();
-  //const dispatch = useDispatch();
 
   const user = useSelector((state) => state.auth.login.currentUser);
 
