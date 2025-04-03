@@ -1,7 +1,6 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import {
     filterTask,
-    getTasksByProject,
     deleteManyTasks,
     getTaskByPagination,
     searchTasks,
@@ -12,8 +11,6 @@ export const getListTaskByProjectId = createAsyncThunk(
     async ({ projectId, page, limit }, { rejectWithValue }) => {
         const response = await getTaskByPagination(projectId, +page, +limit);
         if (response.success) {
-            console.log(response.data);
-            
             return response.data;
         } else {
             return rejectWithValue(response.error);
