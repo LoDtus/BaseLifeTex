@@ -1,8 +1,8 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { useSearchParams } from "react-router-dom";
 import { updateIssueDataStatus } from "@/services/issueService";
-import { getByIndexParanation, changePage } from "@/redux/taskSlice";
+import { getListTaskByProjectId, changePage } from "@/redux/taskSlice";
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
 import TableCell from "@mui/material/TableCell";
@@ -25,11 +25,10 @@ import "../../styles/ListView.scss";
 import TablePagination from "@mui/material/TablePagination";
 import Loading from "@/components/common/Loading";
 import IssueForm from "../form/IssueForm";
-import { debounce } from "lodash";
 import EditFormv2 from "../form/EditFormv2";
 import { getMembers } from "../../../../services/projectService";
 
-export default function ListHome({ selectedTasks = [], setSelectedTasks, searchTerm }) {
+export default function ListHome({ selectedTasks = [], setSelectedTasks }) {
     const [searchParams] = useSearchParams();
     const idProject = searchParams.get("idProject");
     const listTask = useSelector((state) => state.task.listTask);
@@ -39,18 +38,6 @@ export default function ListHome({ selectedTasks = [], setSelectedTasks, searchT
     let Page = useSelector((state) => state.task.page);
     let Limit = useSelector((state) => state.task.limit);
     let Total = useSelector((state) => state.task.total);
-
-    const removeAccents = (str) => {
-        return str ? str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase() : "";
-    };
-
-    const filteredTasks = listTask?.filter((task) => {
-        const taskName = removeAccents(task?.title);
-        const searchKeyword = removeAccents(searchTerm);
-
-        // Nếu không có từ khóa tìm kiếm, hiển thị tất cả dự án
-        return searchKeyword ? taskName.includes(searchKeyword) : true;
-    });
 
     const [loading, setLoading] = useState(false);
 
@@ -66,10 +53,10 @@ export default function ListHome({ selectedTasks = [], setSelectedTasks, searchT
         });
 
         try {
-            await dispatch(getByIndexParanation({
+            await dispatch(getListTaskByProjectId({
                 projectId: idProject,
                 page: Page,
-                pageSize: Limit,
+                limit: Limit,
             }));
         } catch (error) {
             toast.error("Tạo nhiệm vụ thất bại", error);
@@ -260,7 +247,7 @@ export default function ListHome({ selectedTasks = [], setSelectedTasks, searchT
                                 </TableRow>
                             </TableHead>
                             <TableBody>
-                                {filteredTasks.length === 0 ? (
+                                {listTask.length === 0 ? (
                                     <TableRow>
                                         <TableCell
                                             colSpan={10}
@@ -279,7 +266,7 @@ export default function ListHome({ selectedTasks = [], setSelectedTasks, searchT
                                         </TableCell>
                                     </TableRow>
                                 ) : (
-                                    filteredTasks.map((task, index) => (
+                                    listTask.map((task, index) => (
                                         <TableRow
                                             key={task._id}
                                             className="table-row"
