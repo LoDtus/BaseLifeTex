@@ -59,12 +59,19 @@ export const getLisTaskById = async (id) => {
 };
 
 export const updateIssueDataStatus = async (id, data) => {
-  const response = await axiosInstance.put(
-    `${backendUrl}/tasks/${id}/status`,
-    data
-  );
-  return response.data;
+  try {
+    const response = await axiosInstance.put(
+      `${backendUrl}/tasks/${id}/status`,
+      data,
+      { headers: { "Content-Type": "application/json" } } // Quan trọng!
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Lỗi từ API:", error.response?.data || error.message);
+    throw error;
+  }
 };
+
 
 export const addMemberTask = async (id, data) => {
   const response = await axiosInstance.post(

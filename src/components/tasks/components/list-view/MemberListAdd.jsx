@@ -60,56 +60,53 @@ export default function MemberListContentAdd({
     };
 
     return (
-        <Box
-            sx={{
-                width: "343px",
-                position: "relative",
-                paddingLeft: "14px",
-                paddingBottom: "30px",
-            }}
-        >
-            <Box sx={{ position: "absolute", right: "10px", top: "-13px" }}>
-                <IconButton size="small" onClick={onClose}>
-                    <CloseIcon />
-                </IconButton>
-            </Box>
-            <Typography
-                sx={{
-                    marginTop: "28px",
-                    color: "#485F7E",
-                    fontSize: "18px",
-                    marginBottom: "15px",
-                }}
-                fontWeight="bold"
-            >
-                Danh sách thành viên
-            </Typography>
-            <FormGroup>
-                {listMember?.map((member, index) => (
-                    <FormControlLabel
-                        key={index}
-                        control={
-                            <Checkbox
-                                checked={checkedItems.includes(member._id)}
-                                onChange={() =>
-                                    handleCheckboxChange(member._id)
-                                }
-                            />
-                        }
-                        label={
-                            <Box sx={{ display: "flex", alignItems: "center" }}>
-                                <Avatar src={member?.avatar} />
-                                <Typography sx={{ ml: 1 }}>
-                                    {member.userName}
-                                </Typography>
-                            </Box>
-                        }
-                    />
-                ))}
-                <Button variant="contained" onClick={addMember}>
-                    Chọn
-                </Button>
-            </FormGroup>
+      <Box
+        sx={{
+          width: "343px",
+          position: "relative",
+          paddingLeft: "14px",
+          paddingBottom: "60px",
+          height: "550px",
+        }}
+      >
+        <Box sx={{ position: "absolute", right: "10px", top: "-13px" }}>
+          <IconButton size="small" onClick={onClose}>
+            <CloseIcon />
+          </IconButton>
         </Box>
+        <Typography
+          sx={{
+            marginTop: "28px",
+            color: "#485F7E",
+            fontSize: "18px",
+            marginBottom: "15px",
+          }}
+          fontWeight="bold"
+        >
+          Danh sách thành viên
+        </Typography>
+        <FormGroup>
+          {listMember?.map((member, index) => (
+            <FormControlLabel
+              key={index}
+              control={
+                <Checkbox
+                  checked={checkedItems.includes(member._id)}
+                  onChange={() => handleCheckboxChange(member._id)}
+                />
+              }
+              label={
+                <Box sx={{ display: "flex", alignItems: "center" }}>
+                  <Avatar src={member?.avatar} />
+                  <Typography sx={{ ml: 1 }}>{member.userName}</Typography>
+                </Box>
+              }
+            />
+          ))}
+          <Button variant="contained" onClick={addMember} style={{marginBottom:"20px"}}>
+            Chọn
+          </Button>
+        </FormGroup>
+      </Box>
     );
 }
