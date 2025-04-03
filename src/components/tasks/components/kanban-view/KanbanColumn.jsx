@@ -30,7 +30,7 @@ export default function KanbanColumn({ columnId, column, selectedTasks = [], set
     return (
         <div
             ref={setNodeRef}
-            className={`kanban-column ${isOver ? "kanban-column-over" : ""}`}
+            className={`kanban-column ${isOver ? "kanban-column-over !bg-[#f5f7f9]" : "!bg-[#f5f7f9]"}`}
         >
             <h3>
                 {column.title}: {column.tasks.length}

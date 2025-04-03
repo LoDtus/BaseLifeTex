@@ -172,7 +172,6 @@ export default function ListHome({ selectedTasks = [], setSelectedTasks }) {
       : [...selectedTasks, taskId];
     setSelectedTasks(updatedSelection);
   };
-
   return (
     <div className="list-home-wrapper">
       <div className="add-job" onClick={() => setOpen(true)}>
