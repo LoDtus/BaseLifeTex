@@ -1,7 +1,6 @@
 .kanban-wrapper {
   flex: 1;
   overflow-x: auto; // Enable horizontal scrolling
-  overflow-y: hidden; // Prevent vertical scrolling on the wrapper
   padding: 20px;
   box-sizing: border-box;
   display: flex;
@@ -24,7 +23,6 @@
   min-width: 280px; // Ensure the column doesn't shrink below 280px
   height: calc(100vh - 150px);
   border-radius: 8px;
-  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
   padding: 15px;
   display: flex;
   flex-direction: column;
@@ -43,10 +41,10 @@
 .kanban-column-scroll {
   overflow-y: auto;
   flex-grow: 1;
-  margin-bottom: 60px;
   overscroll-behavior: contain;
   scrollbar-width: none;
   -ms-overflow-style: none;
+
   &::-webkit-scrollbar {
     display: none;
   }
@@ -85,19 +83,16 @@
   min-height: 60px;
   display: flex;
   flex-direction: column;
-  background: #ffffff; // Màu card giống Trello
-  border-radius: 3px;
-  box-shadow: 0 1px 0 rgba(9, 30, 66, 0.25); // Bóng giống Trello
+  background: #ffffff;
   cursor: grab;
   overflow: hidden;
   position: relative;
-  transition: transform 0.1s ease, box-shadow 0.1s ease;
-  margin-bottom: 8px; // Khoảng cách giữa các card
+  transition: transform 0.1s ease;
+  margin: 6px 0 !important;
 
   &.dragging {
     opacity: 0.9;
     transform: rotate(4deg); // Xoay nhẹ giống Trello
-    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2); // Bóng đậm hơn khi kéo
     z-index: 9999;
     border: 1px solid #091e4221;
   }
@@ -123,7 +118,7 @@
     align-items: center;
     gap: 8px;
     flex-grow: 1;
-    padding: 8px;
+    // padding: 8px;
 
     input[type="checkbox"] {
       width: 16px;
@@ -135,7 +130,6 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-top: 10px;
     flex-shrink: 0;
   }
 

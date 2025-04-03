@@ -1,10 +1,11 @@
-import { closestCorners, DndContext } from "@dnd-kit/core";
+import { closestCorners, DndContext, useSensors, useSensor, PointerSensor, KeyboardSensor } from "@dnd-kit/core";
+import { arrayMove, sortableKeyboardCoordinates } from "@dnd-kit/sortable";
 import React, { useEffect, useState } from "react";
 import KanbanColumn from "./KanbanColumn";
 import { updateTaskStatus } from "@/services/taskService";
 import { useSearchParams } from "react-router-dom";
 import "../../styles/KanbaBoard.scss";
-import { getListTaskByProjectIdRedux } from "@/redux/taskSlice";
+import { getListTaskByProjectId } from "@/redux/taskSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
 
@@ -18,14 +19,31 @@ const STATUS_MAP = {
     7: "NOT_DO",
 };
 
-const REVERSE_STATUS_MAP = Object.fromEntries(
-    Object.entries(STATUS_MAP).map(([key, value]) => [value, Number(key)])
-);
+// Hàm lấy tiêu đề cho từng trạng thái
+function getStatusTitle(status) {
+    const titles = {
+        PREPARE: "Công việc mới",
+        IN_PROGRESS: "Đang thực hiện",
+        TEST: "Kiểm thử",
+        FINISH: "Hoàn thành",
+        CLOSE: "Đóng công việc",
+        PAUSE: "Tạm dừng",
+        NOT_DO: "Khóa công việc",
+    };
+    return titles[status] || "Công việc khác";
+}
 
 const INITIAL_COLUMNS = Object.keys(STATUS_MAP).reduce((acc, key) => {
     acc[STATUS_MAP[key]] = { title: getStatusTitle(STATUS_MAP[key]), tasks: [] };
     return acc;
 }, {});
+
+const statusList = ["PREPARE", "IN_PROGRESS", "TEST", "FINISH", "CLOSE", "PAUSE", "NOT_DO"];
+const initialCols = statusList.map(status => ({
+    id: status,
+    title: getStatusTitle(status),
+    task: []
+}));
 
 // Hàm ánh xạ dữ liệu từ server sang các cột Kanban
 function transformTasksData(tasks) {
@@ -42,7 +60,6 @@ function transformTasksData(tasks) {
             };
 
             const columnKey = statusMap[task.status] || "PREPARE";
-
             if (!acc[columnKey]) {
                 acc[columnKey] = {
                     title: getStatusTitle(columnKey),
@@ -63,7 +80,6 @@ function transformTasksData(tasks) {
                     id: assignee._id,
                 })),
             });
-
             return acc;
         },
         {
@@ -78,59 +94,45 @@ function transformTasksData(tasks) {
     );
 }
 
-// Hàm lấy tiêu đề cho từng trạng thái
-function getStatusTitle(status) {
-    const titles = {
-        PREPARE: "Công việc mới",
-        IN_PROGRESS: "Đang thực hiện",
-        TEST: "Kiểm thử",
-        FINISH: "Hoàn thành",
-        CLOSE: "Đóng công việc",
-        PAUSE: "Tạm dừng",
-        NOT_DO: "Khóa công việc",
-    };
-    return titles[status] || "Công việc khác";
-}
-
-function KanbanBoard({ selectedTasks, setSelectedTasks, searchTerm }) {
+function KanbanBoard({ selectedTasks, setSelectedTasks }) {
     const dispatch = useDispatch();
     const listTask = useSelector((state) => state.task.listTask);
     const [columns, setColumns] = useState(INITIAL_COLUMNS);
+    // const [columns, setColumns] = useState(initialCols);
     const [searchParams] = useSearchParams();
     const idProject = searchParams.get("idProject");
 
-    // const fetchData = async () => {
-    //     try {
-    //         await dispatch(getListTaskByProjectIdRedux(idProject));
-    //     } catch (error) {
-    //         toast.error(
-    //             "Lấy danh sách công việc thất bại",
-    //             { autoClose: 3000 },
-    //             error
-    //         );
-    //     }
-    // };
+    // console.log(initialCols);
 
-  useEffect(() => {
-    if (listTask && listTask.length > 0) {
-      const formattedData = transformTasksData(listTask);
-      setColumns(formattedData);
-    } else {
-      setColumns({
-        PREPARE: { title: "Công việc mới", tasks: [] },
-        IN_PROGRESS: { title: "Đang thực hiện", tasks: [] },
-        TEST: { title: "Kiểm thử", tasks: [] },
-        FINISH: { title: "Hoàn thành", tasks: [] },
-        CLOSE: { title: "Đóng công việc", tasks: [] },
-        PAUSE: { title: "Tạm dừng", tasks: [] },
-        NOT_DO: { title: "Khóa công việc", tasks: [] },
-      });
-    }
-  }, [listTask]);
+    // useEffect(() => {
+    //     console.log(columns);
+        
+    // }, [columns]);
+
+    useEffect(() => {
+        if (listTask && listTask.length > 0) {
+            const formattedData = transformTasksData(listTask);
+            setColumns(formattedData);
+        } else {
+            setColumns({
+                PREPARE: { title: "Công việc mới", tasks: [] },
+                IN_PROGRESS: { title: "Đang thực hiện", tasks: [] },
+                TEST: { title: "Kiểm thử", tasks: [] },
+                FINISH: { title: "Hoàn thành", tasks: [] },
+                CLOSE: { title: "Đóng công việc", tasks: [] },
+                PAUSE: { title: "Tạm dừng", tasks: [] },
+                NOT_DO: { title: "Khóa công việc", tasks: [] },
+            });
+        }
+    }, [listTask]);
 
     useEffect(() => {
         if (idProject) {
-            dispatch(getListTaskByProjectIdRedux(idProject));
+            dispatch(getListTaskByProjectId({
+                projectId: idProject,
+                page: 1,
+                limit: 100,
+            }));
         }
     }, [idProject, dispatch]);
 
@@ -139,15 +141,35 @@ function KanbanBoard({ selectedTasks, setSelectedTasks, searchTerm }) {
     //   // Có thể thêm logic nếu cần khi bắt đầu kéo
     // };
 
+    // function findColumn(unique) {
+    //     if (!unique) {
+    //         return null;
+    //     }
+        
+    //     if (columns.some((c) => c.id === unique)) {
+    //         return columns.find((c) => c.id === unique) ?? null;
+    //     }
+    //     const id = unique;
+    //     const itemWithColumnId = columns.flatMap((c) => {
+    //         const columnId = c.id;
+    //         return c.cards.map((i) => ({ itemId: i.id, columnId: columnId }));
+    //     });
+    //     const columnId = itemWithColumnId.find((i) => i.itemId === id)?.columnId;
+    //     return columns.find((c) => c.id === columnId) ?? null;
+    // };
+
     const onDragOver = (event) => {
-        const { active, over } = event;
+        const { active, over, delta } = event;
+        const activeId = active.id;
+        const overId = over ? over.id : null;
+        // const activeColumn = findColumn(activeId);
+        // const overColumn = findColumn(overId);
 
-        if (!over) return;
+        if (!over) {
+            return null;
+        }
 
-        const sourceColumnKey = Object.keys(columns).find((key) =>
-            columns[key].tasks.some((task) => task.id === active.id)
-        );
-
+        const sourceColumnKey = Object.keys(columns).find((key) => columns[key].tasks.some((task) => task.id === active.id));
         if (!sourceColumnKey) return;
         const destinationColumnKey = Object.keys(columns).includes(over.id)
             ? over.id
@@ -156,7 +178,6 @@ function KanbanBoard({ selectedTasks, setSelectedTasks, searchTerm }) {
             );
 
         if (!destinationColumnKey) return;
-
         if (sourceColumnKey === destinationColumnKey) {
             const sourceColumn = columns[sourceColumnKey];
             const oldIndex = sourceColumn.tasks.findIndex(
@@ -168,7 +189,6 @@ function KanbanBoard({ selectedTasks, setSelectedTasks, searchTerm }) {
                     : sourceColumn.tasks.findIndex((task) => task.id === over.id);
 
             if (oldIndex === newIndex) return;
-
             const newTasks = [...sourceColumn.tasks];
             const [movedTask] = newTasks.splice(oldIndex, 1);
             newTasks.splice(newIndex, 0, movedTask);
@@ -181,6 +201,26 @@ function KanbanBoard({ selectedTasks, setSelectedTasks, searchTerm }) {
                 },
             }));
         }
+
+        // if (!activeColumn || !overColumn || activeColumn !== overColumn) {
+        //     return null;
+        // }
+
+        // const activeIndex = activeColumn.cards.findIndex((i) => i.id === activeId);
+        // const overIndex = overColumn.cards.findIndex((i) => i.id === overId);
+
+        // if (activeIndex !== overIndex) {
+        //     setColumns((prevState) => {
+        //         return prevState.map((column) => {
+        //             if (column.id === activeColumn.id) {
+        //                 column.cards = arrayMove(overColumn.cards, activeIndex, overIndex);
+        //                 return column;
+        //             } else {
+        //                 return column;
+        //             }
+        //         });
+        //     });
+        // }
     };
 
     const onDragEnd = async (event) => {
@@ -261,8 +301,12 @@ function KanbanBoard({ selectedTasks, setSelectedTasks, searchTerm }) {
                 await updateTaskStatus(taskToMove.id, taskToMove.status, newStatus);
                 toast.success("Cập nhật trạng thái thành công");
                 setTimeout(() => {
-                    dispatch(getListTaskByProjectIdRedux(idProject));
-                }, 500);
+                    dispatch(getListTaskByProjectId({
+                        projectId: idProject,
+                        page: 1,
+                        limit: 100,
+                    }));
+                }, 100);
             }
         } catch (error) {
             setColumns(previousColumns);
@@ -271,9 +315,17 @@ function KanbanBoard({ selectedTasks, setSelectedTasks, searchTerm }) {
         }
     };
 
+    const sensors = useSensors(
+        useSensor(PointerSensor),
+        useSensor(KeyboardSensor, {
+            coordinateGetter: sortableKeyboardCoordinates
+        })
+    );
+
     return (
         <div className="kanban-wrapper">
             <DndContext
+                sensors={sensors}
                 collisionDetection={closestCorners}
                 // onDragStart={onDragStart}
                 onDragOver={onDragOver}
@@ -287,7 +339,6 @@ function KanbanBoard({ selectedTasks, setSelectedTasks, searchTerm }) {
                             column={column}
                             setSelectedTasks={setSelectedTasks}
                             selectedTasks={selectedTasks}
-                            searchTerm={searchTerm}
                         />
                     ))}
                 </div>

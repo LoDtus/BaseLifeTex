@@ -12,7 +12,7 @@ export const postIssueData = async (data) => {
   formData.append("description", data.description);
   formData.append("startDate", data.startDate);
   formData.append("endDate", data.endDate);
-  formData.append("status", + convertTaskStatus(data.status));
+  formData.append("status", +convertTaskStatus(data.status));
   formData.append("projectId", data.idProject);
   formData.append("assignerId", data.assignerId);
 
@@ -34,7 +34,7 @@ export const updateIssueData = async (id, data) => {
   formData.append("description", data.description);
   formData.append("startDate", data.startDate);
   formData.append("endDate", data.endDate);
-  formData.append("status", + convertTaskStatus(data.status));
+  formData.append("status", +convertTaskStatus(data.status));
   formData.append("projectId", data.projectId);
   formData.append("assignerId", data.assignerId);
   const response = await axiosInstance.put(`/tasks/${id}`, formData, {
@@ -67,10 +67,7 @@ export const updateIssueDataStatus = async (id, data) => {
 };
 
 export const addMemberTask = async (id, data) => {
-  const response = await axiosInstance.post(
-    `${backendUrl}/tasks/${id}/add-user`,
-    data
-  );
+  const response = await axiosInstance.post(`/tasks/${id}/add-user`, data);
   return response.data;
 };
 
