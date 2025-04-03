@@ -1,7 +1,6 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import {
     filterTask,
-    getTasksByProject,
     deleteManyTasks,
     getTaskByPagination,
     searchTasks,
