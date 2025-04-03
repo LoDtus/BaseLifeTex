@@ -3,6 +3,8 @@ import { CSS } from "@dnd-kit/utilities";
 import { Popover, IconButton } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import React, { useState } from "react";
+import dayjs from "dayjs";
+import Tooltip from "@mui/material/Tooltip";
 
 function KanbanTaskCard({ selectedTasks, setSelectedTasks, task }) {
   const {
@@ -14,11 +16,11 @@ function KanbanTaskCard({ selectedTasks, setSelectedTasks, task }) {
     isDragging,
   } = useSortable({ id: task.id });
 
-  // const style = {
-  //     transform: CSS.Transform.toString(transform),
-  //     transition,
-  //     opacity: isDragging ? 0.6 : 1, // Làm mờ nhẹ khi kéo, giống Trello
-  // };
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.6 : 1, // Làm mờ nhẹ khi kéo, giống Trello
+  };
 
   const [anchorEl, setAnchorEl] = useState(null);
   const [isKanbaLabel, setIsKanbaLabel] = useState(false);
@@ -57,13 +59,7 @@ function KanbanTaskCard({ selectedTasks, setSelectedTasks, task }) {
       : [...selectedTasks, taskId];
     setSelectedTasks(updatedSelection);
   };
-  const style = {
-    transform: transform
-      ? `translate3d(${transform.x}px, ${transform.y}px, 0)`
-      : undefined,
-    opacity: isDragging ? 0.6 : 1,
-    transition: "transform 0.s ease",
-  };
+
   return (
     <div
       ref={setNodeRef}
@@ -74,7 +70,19 @@ function KanbanTaskCard({ selectedTasks, setSelectedTasks, task }) {
     >
       <div className="task-content">
         <div style={{ display: "flex", width: "100%" }}>
-          <p style={{ width: "70%", marginRight: "auto" }}>{task.title}</p>
+          <Tooltip
+            title={task.title}
+            placement="top"
+            arrow
+            classes={{ tooltip: "custom-tooltip" }}
+          >
+            <p
+              className="truncate"
+              style={{ width: "70%", marginRight: "auto" }}
+            >
+              {task.title}
+            </p>
+          </Tooltip>
           <input
             type="checkbox"
             className="checkbox-input"
@@ -93,8 +101,8 @@ function KanbanTaskCard({ selectedTasks, setSelectedTasks, task }) {
           style={{ cursor: "pointer" }}
         >
           {isKanbaLabel
-            ? `Kanba ${task.id}`
-            : `📅 ${task.endDate || "Chưa giao"}`}
+            ? `Kanban ${task.id}`
+            : `📅 ${dayjs(task.endDate).format("DD/MM/YYYY") || "Chưa giao"}`}
         </span>
         <div style={{ display: "flex", alignItems: "center" }}>
           <strong>{primaryUserName}</strong>

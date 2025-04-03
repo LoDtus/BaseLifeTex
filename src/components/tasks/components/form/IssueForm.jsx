@@ -74,11 +74,9 @@ const IssueForm = ({ isOpen, onClose, status }) => {
           limit: 100,
         }));
         onClose();
-      } else {
-        toast.error("Tạo nhiệm vụ thất bại");
       }
     } catch (error) {
-      toast.error("Tạo nhiệm vụ thất bại", error);
+      toast.error(error.response.data.message);
       throw error;
     } finally {
       reset();
