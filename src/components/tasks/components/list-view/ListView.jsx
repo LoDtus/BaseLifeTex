@@ -328,8 +328,7 @@ export default function ListHome({ selectedTasks = [], setSelectedTasks, searchT
                                                 <div className="task-icons1">
                                                     <div className="avatar-icon">
                                                         {task.assigneeId?.slice(0, 2).map((member, i) => {
-                                                            let srcImg = '';
-                                                            avatar.map((e) => { srcImg = (e.id === member._id) ? e.avatar : '' })
+                                                            let srcImg = avatar.find((e) => e.id === member._id)?.avatar || '/path/to/default-avatar.jpg';
                                                             return (
                                                                 <Avatar
                                                                     title={member.userName}
