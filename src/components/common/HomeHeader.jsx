@@ -29,9 +29,8 @@ export default function HomeHeader({ setSearchTerm }) {
 
     useEffect(() => {
         const handler = setTimeout(() => {
-            setSearchTerm(searchText);
+            setSearchTerm(searchText); // Cập nhật giá trị tìm kiếm lên MainLayout
         }, 300);
-
         return () => clearTimeout(handler);
     }, [searchText]);
 

@@ -16,7 +16,6 @@ import {
 } from "@/redux/taskSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
-import { normalizeString } from '@/utils/textUtils';
 
 export default function Home() {
     const dispatch = useDispatch();
@@ -38,8 +37,8 @@ export default function Home() {
         if (!idProject) return;
         if (timer) clearTimeout(timer);
         const newTimer = setTimeout(() => {
-            dispatch(searchTasksInProject({ keyword: normalizeString(keyword), idProject: idProject }));
-        }, 300);
+            dispatch(searchTasksInProject({ keyword, idProject }));
+        }, 100);
 
         setTimer(newTimer);
         return () => clearTimeout(newTimer);

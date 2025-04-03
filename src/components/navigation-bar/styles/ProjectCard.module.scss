@@ -1,5 +1,5 @@
 .projectCard {
-  padding-left: 23px;
+  padding: 15px;
   font-style: normal;
   background: #f5f5f5;
   transition: background-color 0.3s ease-in-out;
@@ -9,15 +9,12 @@
   }
 
   .projectHeader {
-    padding-top: 10px;
     display: flex;
     justify-content: space-between;
-    align-items: flex-start;
   }
 
   .nameProject {
     color: #000;
-    font-family: Inter;
     font-size: 16px;
     font-style: normal;
     font-weight: 600;
@@ -34,12 +31,12 @@
 
   .projectDates {
     color: #000;
-    font-family: Inter;
     font-size: 12px;
     font-style: normal;
     font-weight: 400;
     line-height: normal;
     margin-right: 8px;
+
     p {
       display: flex;
       width: 78px;
@@ -49,6 +46,7 @@
       flex-shrink: 0;
       margin-top: 12px;
     }
+
     .endDate {
       padding-top: 20px;
     }
@@ -56,23 +54,21 @@
 
   .projectId {
     color: #000;
-    font-family: Inter;
     font-size: 12px;
     font-style: normal;
     font-weight: 700;
     line-height: normal;
-    margin-top: 14px;
-    white-space: nowrap; /* Không cho xuống dòng */
-    overflow: hidden; /* Ẩn phần dư */
-    text-overflow: ellipsis; /* Hiển thị dấu "..." */
-    max-width: 115px; /* Giới hạn chiều rộng */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 115px;
   }
 
   .projectResponsible {
     color: #000;
     display: flex;
     justify-content: space-between;
-    margin-top: 26px;
+    margin-top: 10px;
 
     .avatar {
       width: 42px;
@@ -89,9 +85,9 @@
       overflow: hidden; /* Ẩn phần dư */
       text-overflow: ellipsis; /* Hiển thị dấu "..." */
       max-width: 150px; /* Giới hạn chiều rộng */
+
       span {
         color: #000;
-        font-family: Inter;
         font-size: 13px;
         font-style: normal;
         font-weight: 400;
@@ -108,8 +104,8 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-top: 15px;
-    margin-right: 10px;
+    margin-top: 10px;
+
     img {
       width: 36px;
       border-radius: 225px;
