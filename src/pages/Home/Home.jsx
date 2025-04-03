@@ -38,7 +38,7 @@ export default function Home() {
         if (timer) clearTimeout(timer);
         const newTimer = setTimeout(() => {
             dispatch(searchTasksInProject({ keyword, idProject }));
-        }, 300);
+        }, 100);
 
         setTimer(newTimer);
         return () => clearTimeout(newTimer);
