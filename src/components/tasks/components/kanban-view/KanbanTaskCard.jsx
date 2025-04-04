@@ -76,12 +76,7 @@ function KanbanTaskCard({ selectedTasks, setSelectedTasks, task }) {
                         arrow
                         classes={{ tooltip: "custom-tooltip" }}
                     >
-                        <p
-                            className="truncate"
-                            style={{ width: "70%", marginRight: "auto" }}
-                        >
-                            {task.title}
-                        </p>
+                        <p className="truncate !mr-2">{task.title}</p>
                     </Tooltip>
                     <input
                         type="checkbox"

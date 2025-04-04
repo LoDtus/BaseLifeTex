@@ -190,67 +190,67 @@ export default function ListHome({ selectedTasks = [], setSelectedTasks }) {
                         <Table className="task-table" aria-label="sticky table">
                             <TableHead>
                                 <TableRow>
-                                    <TableCell className="table-header-cell"></TableCell>
-                                    <TableCell className="table-header-cell" align="center">
+                                    <TableCell className="table-header-cell !py-1"></TableCell>
+                                    <TableCell className="table-header-cell !py-1" align="center">
                                         STT
                                     </TableCell>
                                     <TableCell
-                                        className="table-header-cell"
+                                        className="table-header-cell !py-1"
                                         align="center"
                                         style={{ minWidth: "100px" }}
                                     >
                                         Chi tiết
                                     </TableCell>
                                     <TableCell
-                                        className="table-header-cell"
+                                        className="table-header-cell !py-1"
                                         align="left"
                                         style={{ minWidth: "200px" }}
                                     >
                                         Tên công việc
                                     </TableCell>
                                     <TableCell
-                                        className="table-header-cell"
+                                        className="table-header-cell !py-1"
                                         align="left"
                                         style={{ minWidth: "200px" }}
                                     >
                                         Người nhận việc
                                     </TableCell>
                                     <TableCell
-                                        className="table-header-cell"
+                                        className="table-header-cell !py-1"
                                         align="center"
                                         style={{ minWidth: "150px" }}
                                     >
                                         Bình luận
                                     </TableCell>
                                     <TableCell
-                                        className="table-header-cell"
+                                        className="table-header-cell !py-1"
                                         align="center"
                                         style={{ minWidth: "150px" }}
                                     >
                                         Ngày bắt đầu
                                     </TableCell>
                                     <TableCell
-                                        className="table-header-cell"
+                                        className="table-header-cell !py-1"
                                         align="center"
                                         style={{ minWidth: "150px" }}
                                     >
                                         Ngày kết thúc
                                     </TableCell>
                                     <TableCell
-                                        className="table-header-cell"
+                                        className="table-header-cell !py-1"
                                         align="center"
                                         style={{ minWidth: "150px" }}
                                     >
                                         Trạng thái
                                     </TableCell>
                                     <TableCell
-                                        className="table-header-cell"
+                                        className="table-header-cell !py-1"
                                         align="left"
                                         style={{ minWidth: "200px" }}
                                     >
                                         Link
                                     </TableCell>
-                                    <TableCell className="table-header-cell" align="left">
+                                    <TableCell className="table-header-cell !py-1" align="left">
                                         Actions
                                     </TableCell>
                                 </TableRow>
@@ -283,7 +283,7 @@ export default function ListHome({ selectedTasks = [], setSelectedTasks }) {
                                                 "&:last-child td, &:last-child th": { border: 0 },
                                             }}
                                         >
-                                            <TableCell className="table-cell">
+                                            <TableCell className="table-cell !py-1">
                                                 <input
                                                     type="checkbox"
                                                     className="checkbox-input"
@@ -291,10 +291,10 @@ export default function ListHome({ selectedTasks = [], setSelectedTasks }) {
                                                     onChange={() => handleSelectTask(task._id)}
                                                 />
                                             </TableCell>
-                                            <TableCell className="table-cell" align="center">
+                                            <TableCell className="table-cell !py-1" align="center">
                                                 {(Page - 1) * Limit + index + 1}
                                             </TableCell>
-                                            <TableCell className="table-cell" align="center">
+                                            <TableCell className="table-cell !py-1" align="center">
                                                 <InfoOutlinedIcon
                                                     className="action-icon"
                                                     onClick={() => onOpenDetail(task._id)}
@@ -307,7 +307,7 @@ export default function ListHome({ selectedTasks = [], setSelectedTasks }) {
                                                     />
                                                 )}
                                             </TableCell>
-                                            <TableCell className="table-cell">
+                                            <TableCell className="table-cell !py-1">
                                                 <div className="task-name">
                                                     <img
                                                         src="/icons/pen-icon.png"
@@ -320,7 +320,7 @@ export default function ListHome({ selectedTasks = [], setSelectedTasks }) {
                                                 </div>
                                             </TableCell>
                                             <TableCell
-                                                className="table-cell assignees"
+                                                className="table-cell !py-1"
                                                 align="center"
                                             >
                                                 <div className="task-icons1">
@@ -407,7 +407,7 @@ export default function ListHome({ selectedTasks = [], setSelectedTasks }) {
                                                 )}
                                             </TableCell>
                                             <TableCell
-                                                className="table-cell comment-cell"
+                                                className="table-cell !py-1 comment-cell"
                                                 align="center"
                                                 style={{ minWidth: "100px" }}
                                             >
@@ -426,7 +426,7 @@ export default function ListHome({ selectedTasks = [], setSelectedTasks }) {
                                                 )}
                                             </TableCell>
                                             <TableCell
-                                                className="table-cell comment-cell"
+                                                className="table-cell !py-1 comment-cell"
                                                 align="center"
                                             >
                                                 <div className="date-cell">
@@ -436,7 +436,7 @@ export default function ListHome({ selectedTasks = [], setSelectedTasks }) {
                                                 </div>
                                             </TableCell>
                                             <TableCell
-                                                className="table-cell comment-cell"
+                                                className="table-cell !py-1 comment-cell"
                                                 align="center"
                                             >
                                                 <div className="date-cell">
@@ -445,7 +445,7 @@ export default function ListHome({ selectedTasks = [], setSelectedTasks }) {
                                                     </div>
                                                 </div>
                                             </TableCell>
-                                            <TableCell className="table-cell status-cell">
+                                            <TableCell className="table-cell !py-1 status-cell">
                                                 <select
                                                     value={task.status}
                                                     onChange={(e) =>
@@ -466,7 +466,7 @@ export default function ListHome({ selectedTasks = [], setSelectedTasks }) {
                                                     <option value={7}>Khóa công việc</option>
                                                 </select>
                                             </TableCell>
-                                            <TableCell className="table-cell">
+                                            <TableCell className="table-cell !py-1">
                                                 <div className="date-cell">
                                                     <a
                                                         href={task.link}
@@ -478,7 +478,7 @@ export default function ListHome({ selectedTasks = [], setSelectedTasks }) {
                                                     <LinkIcon className="action-icon" />
                                                 </div>
                                             </TableCell>
-                                            <TableCell className="table-cell">
+                                            <TableCell className="table-cell !py-1">
                                                 <Button
                                                     className="edit-button"
                                                     onClick={() => editModalOpen(task._id)}
