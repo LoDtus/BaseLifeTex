@@ -70,11 +70,13 @@
     justify-content: space-between;
     margin-top: 10px;
 
-    .avatar {
+    .avatarUser {
       width: 42px;
       height: 42px;
-      border-radius: 225px;
       // margin-right: 21px;
+      object-fit: cover;
+      border-radius: 50%;
+      overflow: hidden;
 
       position: relative;
       top: 0;
@@ -112,8 +114,10 @@
 
     img {
       width: 36px;
-      border-radius: 225px;
-      cursor: pointer;
+      height: 36px;
+      object-fit: cover;
+      border-radius: 50%;
+      overflow: hidden;
     }
 
     .statusBtnInProgress {
