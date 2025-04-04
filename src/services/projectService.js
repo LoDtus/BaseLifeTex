@@ -22,3 +22,7 @@ export const deleteProjectById = async (projectId) => {
   return response.data;
 };
 
+export const createNewProject = async (projectData) => {
+  const response = await axiosInstance.post(`/projects`, projectData);
+  return response.data;
+};
