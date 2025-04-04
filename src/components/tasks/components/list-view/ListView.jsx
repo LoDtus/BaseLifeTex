@@ -74,8 +74,8 @@ export default function ListHome({ selectedTasks = [], setSelectedTasks }) {
 
   useEffect(() => {
     if (!idProject) return;
-    debouncedGetList(); // Lấy lại danh sách nhiệm vụ khi trang hoặc các tham số khác thay đổi
-}, [idProject, Page, Limit]); // Theo dõi sự thay đổi của trang và giới hạn
+    debouncedGetList();
+  }, [idProject, Page, Limit]);
 
   const [anchorElMemberTask, setAnchorElMemberTask] = useState(null);
   const [anchorElMemberAdd, setAnchorElMemberAdd] = useState(null);
@@ -88,7 +88,7 @@ export default function ListHome({ selectedTasks = [], setSelectedTasks }) {
   const [idEditModal, setIdEditModal] = useState(null);
   const [open, setOpen] = useState(false);
 
-  const handleChangeRowsPerPage = (event) => {
+    const handleChangeRowsPerPage = (event) => {
     const newLimit = parseInt(event.target.value, 10);
     dispatch(changeRowPerPage(newLimit)); // Cập nhật Redux state
 };
