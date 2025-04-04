@@ -27,3 +27,7 @@ export const deleteProjectById = async (projectId) => {
   return response.data;
 };
 
+export const countTasks = async (projectId) => {
+  const response = await axiosInstance.get(`/projects/${projectId}/countTask`);
+  return response.data;
+};
