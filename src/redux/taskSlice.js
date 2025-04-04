@@ -10,14 +10,13 @@ import {
 export const getListTaskByProjectId = createAsyncThunk(
     "task/list",
     async ({ projectId, page, limit }, { rejectWithValue }) => {
-        const total = await getTasksByProject(projectId);
         const response = await getTaskByPagination(projectId, +page, +limit);
         if (response.success) {
             return {
                 listTask: response.data,
                 page: page,
                 limit: limit,
-                total: total.total,
+                total: response.total,
             };
         } else {
             return rejectWithValue(response.message);
