@@ -20,12 +20,11 @@ export const loginUser = async (user, dispatch, navigate) => {
   try {
     const res = await axiosInstance.post(`${backendUrl}/auth/login`, user);
     const userRole = res.data.data.user.role;
-    console.log("role", userRole);
-    dispatch(loginSuccess(res.data)); // Gửi dữ liệu người dùng vào Redux
+    dispatch(loginSuccess(res.data));
     setTimeout(() => {
       navigate("/home");
       toast.success("Đăng nhập thành công");
-    }, 2000);
+    }, 1000);
     return { success: true, role: userRole };
   } catch (err) {
     dispatch(loginFail());

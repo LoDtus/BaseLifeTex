@@ -17,7 +17,6 @@ function KanbanTaskCard({ selectedTasks, setSelectedTasks, task }) {
     transition,
     isDragging,
   } = useSortable({ id: task.id });
-
   const style = {
     transform: CSS.Transform.toString(transform),
     transition: "transform 0.2s ease, opacity 0.2s ease", // Thêm transition cho transform và opacity
@@ -79,7 +78,7 @@ function KanbanTaskCard({ selectedTasks, setSelectedTasks, task }) {
         className={`kanban-card ${isDragging ? "dragging" : ""}`}
       >
         <div className="task-content">
-          <div style={{ display: "flex", width: "100%", alignItems:"center" }}>
+          <div style={{ display: "flex", width: "100%", alignItems: "center" }}>
             <Tooltip
               title={task.title}
               placement="top"
@@ -217,5 +216,4 @@ function KanbanTaskCard({ selectedTasks, setSelectedTasks, task }) {
     </>
   );
 }
-
 export default KanbanTaskCard;

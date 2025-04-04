@@ -11,9 +11,14 @@ export const getListTaskByProjectId = createAsyncThunk(
     async ({ projectId, page, limit }, { rejectWithValue }) => {
         const response = await getTaskByPagination(projectId, +page, +limit);
         if (response.success) {
-            return response.data;
+            return {
+                listTask: response.data,
+                page: page,
+                limit: limit,
+                total: response.total,
+            };
         } else {
-            return rejectWithValue(response.error);
+            return rejectWithValue(response.message);
         }
     }
 );
@@ -25,6 +30,7 @@ export const filterTaskInProject = createAsyncThunk(
         return response.data;
     }
 );
+
 export const deleteManyTasksRedux = createAsyncThunk(
     "task/deleteMany",
     async (ids, { rejectWithValue }) => {
@@ -44,7 +50,7 @@ export const searchTasksInProject = createAsyncThunk(
         try {
             let result;
             if (!keyword) {
-                result = await getTaskByPagination(idProject, 1, 100);
+                result = await getTaskByPagination(idProject, 1, 20);
             } else {
                 result = await searchTasks(keyword, idProject);
             }
@@ -67,13 +73,13 @@ const taskSlice = createSlice({
         searchQuery: "", // Thêm searchQuery để lưu từ khóa tìm kiếm
         isFetching: false,
         total: 0,
-        limit: 10,
+        limit: 20,
         page: 1,
         error: null,
     },
     reducers: {
         changePage: (state, action) => {
-            state.page = action.payload + 1; // Chuyển từ 0-based sang 1-based
+            state.page = action.payload + 1;
         },
         changeRowPerPage: (state, action) => {
             (state.limit = action.payload), (state.page = 1);
@@ -87,7 +93,9 @@ const taskSlice = createSlice({
             })
             .addCase(getListTaskByProjectId.fulfilled, (state, action) => {
                 state.isFetching = false;
-                state.listTask = action.payload;
+                state.listTask = action.payload.listTask;
+                state.limit = action.payload.limit;
+                state.total = action.payload.total;
             })
             .addCase(getListTaskByProjectId.rejected, (state, action) => {
                 state.isFetching = false;
