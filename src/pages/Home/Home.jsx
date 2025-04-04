@@ -164,7 +164,7 @@ export default function Home() {
             onChange={(e) => setSearchTerm(e.target.value)}
           />
           <div className="avatar-group">
-            {listMember?.map((member, index) => (
+            {listMember?.slice(0, 5)?.map((member, index) => (
               <Avatar
                 key={index}
                 src={member.avatar}

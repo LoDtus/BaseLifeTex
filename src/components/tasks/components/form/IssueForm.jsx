@@ -48,6 +48,12 @@ const IssueForm = ({ isOpen, onClose, status }) => {
 
   const user = useSelector((state) => state.auth.login.currentUser);
 
+  const priorityOptions = [
+    { value: "low", label: "Low" },
+    { value: "medium", label: "Medium" },
+    { value: "high", label: "High" },
+  ];
+
   const {
     register,
     handleSubmit,
@@ -65,6 +71,7 @@ const IssueForm = ({ isOpen, onClose, status }) => {
         status,
         idProject,
         assignerId: user.data.user._id,
+        priority: data.priority,
       });
       if (issueData) {
         toast.success("Tạo nhiệm vụ thành công");

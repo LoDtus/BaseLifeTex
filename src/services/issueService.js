@@ -12,7 +12,7 @@ export const postIssueData = async (data) => {
   formData.append("description", data.description);
   formData.append("startDate", data.startDate);
   formData.append("endDate", data.endDate);
-  formData.append("status", + convertTaskStatus(data.status));
+  formData.append("status", +convertTaskStatus(data.status));
   formData.append("projectId", data.idProject);
   formData.append("assignerId", data.assignerId);
 
@@ -34,9 +34,10 @@ export const updateIssueData = async (id, data) => {
   formData.append("description", data.description);
   formData.append("startDate", data.startDate);
   formData.append("endDate", data.endDate);
-  formData.append("status", + convertTaskStatus(data.status));
+  formData.append("status", +convertTaskStatus(data.status));
   formData.append("projectId", data.projectId);
   formData.append("assignerId", data.assignerId);
+  formData.append("priority", data.priority);
   const response = await axiosInstance.put(`/tasks/${id}`, formData, {
     headers: {
       "Content-Type": "multipart/form-data",
