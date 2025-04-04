@@ -6,6 +6,7 @@ import { convertStatus, convertDateYMD } from "@/utils/convertUtils";
 import { useDispatch } from "react-redux";
 import { deleteProject } from "@/redux/projectSlice";
 import { useSelector } from "react-redux";
+import TotalProjectMember from "./TotalProjectMember";
 
 const ProjectCard = ({ project, isSelected }) => {
   const dispatch = useDispatch();
@@ -30,6 +31,9 @@ const ProjectCard = ({ project, isSelected }) => {
       default:
         return styles.statusBtnNotCompleted; // Default to "Chưa hoàn thành"
     }
+  };
+  const renderProjectMembersBubble = ({ idProject }) => {
+    return <TotalProjectMember idProject={idProject} />;
   };
   const handleClick = (event) => {
     event.stopPropagation(); // Ngăn chặn sự kiện lan lên cha
@@ -90,6 +94,7 @@ const ProjectCard = ({ project, isSelected }) => {
           </div>
         </div>
         <img className={styles.avatar} src="/imgs/image_5.png" alt="" />
+        <span>{renderProjectMembersBubble({ idProject: project._id })}</span>
       </div>
       <div className={styles.projectFooter}>
         <img onClick={handleClick} src="/imgs/image_6.png" alt="" />
