@@ -164,7 +164,7 @@ export default function ListHome({ selectedTasks = [], setSelectedTasks }) {
     const editModalClose = async () => {
         setEditModal(false);
         setIdEditModal(null);
-        debouncedGetList();
+        debouncedGetList(); // thêm điều kiện cho cái này, không phải lúc nào đóng cũng load lại trang
     };
 
     const handleSelectTask = (taskId) => {
@@ -325,7 +325,7 @@ export default function ListHome({ selectedTasks = [], setSelectedTasks }) {
                                             >
                                                 <div className="task-icons1">
                                                     <div className="avatar-icon">
-                                                        {task.assigneeId?.slice(0, 2).map((member, i) => {
+                                                        {task.assigneeId?.slice(0, 3).map((member, i) => {
                                                             let srcImg = avatar.find((e) => e.id === member._id)?.avatar || '/path/to/default-avatar.jpg';
                                                             return (
                                                                 <Avatar
@@ -339,7 +339,7 @@ export default function ListHome({ selectedTasks = [], setSelectedTasks }) {
                                                                 />
                                                             );
                                                         })}
-                                                        {task.assigneeId?.length > 2 && (
+                                                        {task.assigneeId?.length > 3 && (
                                                             <>
                                                                 <img
                                                                     src="/icons/dot.png"
@@ -490,6 +490,8 @@ export default function ListHome({ selectedTasks = [], setSelectedTasks }) {
                                                         isOpen={editModal}
                                                         onClose={editModalClose}
                                                         task={task}
+                                                        setEditModal={setEditModal}
+                                                        setIdEditModal={setIdEditModal}
                                                     />
                                                 )}
                                             </TableCell>
