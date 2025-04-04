@@ -32,6 +32,8 @@ export default function KanbanColumn({
   const [searchParams] = useSearchParams();
   const idProject = searchParams.get("idProject");
 
+  const sortedTasks = [...column.tasks].sort((a, b) => b.priority - a.priority); // Tạo một bản sao của mảng tasks và sắp xếp theo độ ưu tiên (giảm dần)
+
   return (
     <div
       ref={setNodeRef}
@@ -48,15 +50,15 @@ export default function KanbanColumn({
       <div className="kanban-column-scroll">
         <SortableContext
           id={columnId}
-          items={column.tasks.map((task) => task.id)}
+          items={sortedTasks.map((task) => task.id)} // Sử dụng sortedTasks ở đây
           strategy={verticalListSortingStrategy}
         >
-          {column.tasks.length === 0 ? (
+          {sortedTasks.length === 0 ? ( // Sử dụng sortedTasks ở đây
             <div className="empty-column-placeholder">
               Kéo thả công việc vào đây
             </div>
           ) : (
-            column.tasks.map((task) => (
+            sortedTasks.map((task) => (
               <KanbanTaskCard
                 key={task.id}
                 task={task}
