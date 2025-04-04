@@ -131,7 +131,7 @@ function KanbanBoard({ selectedTasks, setSelectedTasks }) {
             dispatch(getListTaskByProjectId({
                 projectId: idProject,
                 page: 1,
-                limit: 100,
+                limit: 20,
             }));
         }
     }, [idProject, dispatch]);
@@ -304,7 +304,7 @@ function KanbanBoard({ selectedTasks, setSelectedTasks }) {
                     dispatch(getListTaskByProjectId({
                         projectId: idProject,
                         page: 1,
-                        limit: 100,
+                        limit: 20,
                     }));
                 }, 100);
             }

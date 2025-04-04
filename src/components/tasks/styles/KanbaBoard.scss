@@ -113,24 +113,11 @@
   }
 
   .task-content {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 8px;
-    flex-grow: 1;
-    // padding: 8px;
-
     input[type="checkbox"] {
       width: 16px;
       height: 16px;
       cursor: pointer;
     }
-  }
-  .card-footer {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    flex-shrink: 0;
   }
 
   .project-label {
