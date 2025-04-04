@@ -49,9 +49,9 @@ const IssueForm = ({ isOpen, onClose, status }) => {
   const user = useSelector((state) => state.auth.login.currentUser);
 
   const priorityOptions = [
-    { value: "low", label: "Low" },
-    { value: "medium", label: "Medium" },
-    { value: "high", label: "High" },
+    { value: 0, label: "Low" },
+    { value: 1, label: "Medium" },
+    { value: 2, label: "High" },
   ];
 
   const {
@@ -63,7 +63,7 @@ const IssueForm = ({ isOpen, onClose, status }) => {
   } = useForm();
 
   const onSubmit = async (data) => {
-    setLoading(true); // Bắt đầu loading
+    setLoading(true);
     try {
       const issueData = await postIssueData({
         ...data,
@@ -387,6 +387,51 @@ const IssueForm = ({ isOpen, onClose, status }) => {
                         onImageChange={(file) => setImage(file)}
                       />
                     </Box>
+                  </Box>
+                </Box>
+                <Box sx={{ display: "flex", gap: 4 }}>
+                  <Typography
+                    variant="subtitle2"
+                    sx={{
+                      mb: 1,
+                      color: "#666",
+                      whiteSpace: "nowrap",
+                      fontWeight: "bold",
+                    }}
+                  >
+                    Độ ưu tiên:
+                  </Typography>
+                  <Box sx={{ width: "100%" }}>
+                    <FormControl fullWidth size="small">
+                      <Controller
+                        name="priority"
+                        control={control}
+                        defaultValue="" // Giá trị mặc định
+                        rules={{ required: "Vui lòng chọn độ ưu tiên" }}
+                        render={({ field }) => (
+                          <Select
+                            {...field}
+                            variant="outlined"
+                            size="small"
+                            sx={{ mb: 1 }}
+                          >
+                            {priorityOptions.map((option) => (
+                              <MenuItem key={option.value} value={option.value}>
+                                {option.label}
+                              </MenuItem>
+                            ))}
+                          </Select>
+                        )}
+                      />
+                      {errors.priority && (
+                        <Typography
+                          variant="span"
+                          sx={{ color: "red", fontSize: "small" }}
+                        >
+                          {errors.priority.message}
+                        </Typography>
+                      )}
+                    </FormControl>
                   </Box>
                 </Box>
               </Grid>

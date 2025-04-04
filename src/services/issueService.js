@@ -15,6 +15,7 @@ export const postIssueData = async (data) => {
   formData.append("status", +convertTaskStatus(data.status));
   formData.append("projectId", data.idProject);
   formData.append("assignerId", data.assignerId);
+  formData.append("priority", data.priority);
 
   const response = await axiosInstance.post(`/tasks`, formData, {
     headers: {
