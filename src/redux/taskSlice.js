@@ -11,7 +11,7 @@ export const getListTaskByProjectId = createAsyncThunk(
     async ({ projectId, page, limit }, { rejectWithValue }) => {
         const response = await getTaskByPagination(projectId, +page, +limit);
         if (response.success) {
-            return response.data;
+            return response;
         } else {
             return rejectWithValue(response.error);
         }
@@ -67,7 +67,7 @@ const taskSlice = createSlice({
         searchQuery: "", // Thêm searchQuery để lưu từ khóa tìm kiếm
         isFetching: false,
         total: 0,
-        limit: 10,
+        limit: 5,
         page: 1,
         error: null,
     },
@@ -76,18 +76,21 @@ const taskSlice = createSlice({
             state.page = action.payload + 1; // Chuyển từ 0-based sang 1-based
         },
         changeRowPerPage: (state, action) => {
-            (state.limit = action.payload), (state.page = 1);
+            state.limit = action.payload;
+            state.page = 1;
         },
     },
     extraReducers: (builder) => {
         builder // Get List Task
             .addCase(getListTaskByProjectId.pending, (state) => {
                 state.isFetching = true;
-                state.error = null;
             })
             .addCase(getListTaskByProjectId.fulfilled, (state, action) => {
                 state.isFetching = false;
-                state.listTask = action.payload;
+                state.listTask = action.payload.data;
+                state.page = action.payload.page;
+                state.limit = action.payload.limit;
+                state.total = action.payload.total;
             })
             .addCase(getListTaskByProjectId.rejected, (state, action) => {
                 state.isFetching = false;

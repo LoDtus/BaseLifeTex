@@ -27,6 +27,7 @@ import Loading from "@/components/common/Loading";
 import IssueForm from "../form/IssueForm";
 import EditFormv2 from "../form/EditFormv2";
 import { getMembers } from "../../../../services/projectService";
+import { changeRowPerPage } from "../../../../redux/taskSlice";
 
 export default function ListHome({ selectedTasks = [], setSelectedTasks }) {
   const [searchParams] = useSearchParams();
@@ -73,8 +74,8 @@ export default function ListHome({ selectedTasks = [], setSelectedTasks }) {
 
   useEffect(() => {
     if (!idProject) return;
-    debouncedGetList();
-  }, [idProject]);
+    debouncedGetList(); // Lấy lại danh sách nhiệm vụ khi trang hoặc các tham số khác thay đổi
+}, [idProject, Page, Limit]); // Theo dõi sự thay đổi của trang và giới hạn
 
   const [anchorElMemberTask, setAnchorElMemberTask] = useState(null);
   const [anchorElMemberAdd, setAnchorElMemberAdd] = useState(null);
@@ -87,6 +88,11 @@ export default function ListHome({ selectedTasks = [], setSelectedTasks }) {
   const [idEditModal, setIdEditModal] = useState(null);
   const [open, setOpen] = useState(false);
 
+  const handleChangeRowsPerPage = (event) => {
+    const newLimit = parseInt(event.target.value, 10);
+    dispatch(changeRowPerPage(newLimit)); // Cập nhật Redux state
+};
+  
   const handleChangePage = (event, newPage) => {
     dispatch(changePage(newPage));
   };
@@ -291,7 +297,7 @@ export default function ListHome({ selectedTasks = [], setSelectedTasks }) {
                         />
                       </TableCell>
                       <TableCell className="table-cell" align="center">
-                        {index + 1}
+                      {(Page - 1) * Limit + index + 1}
                       </TableCell>
                       <TableCell className="table-cell" align="center">
                         <InfoOutlinedIcon
@@ -325,7 +331,10 @@ export default function ListHome({ selectedTasks = [], setSelectedTasks }) {
                         <div className="task-icons1">
                           <div className="avatar-icon">
                             {task.assigneeId?.slice(0, 2).map((member, i) => {
-                              let srcImg = avatar.find((e) => e.id === member._id)?.avatar || '/path/to/default-avatar.jpg';
+                              let srcImg = "";
+                              avatar.map((e) => {
+                                srcImg = e.id === member._id ? e.avatar : "";
+                              });
                               return (
                                 <Avatar
                                   title={member.userName}
@@ -499,13 +508,15 @@ export default function ListHome({ selectedTasks = [], setSelectedTasks }) {
             </Table>
           </TableContainer>
           <TablePagination
-            component="div"
-            count={Total}
-            page={Page - 1}
-            onPageChange={handleChangePage}
-            rowsPerPage={Limit}
-            // onRowsPerPageChange={handleChangeRowsPerPage}
-          />
+  component="div"
+  count={Total}
+  page={Page - 1} // Bắt đầu từ 1
+  onPageChange={handleChangePage}
+  rowsPerPage={Limit}
+  onRowsPerPageChange={handleChangeRowsPerPage}
+  rowsPerPageOptions={[5, 10, 20, 50]} // Các tùy chọn số trang
+  labelRowsPerPage="Số trang"
+/>
         </Paper>
       )}
       {open && <IssueForm isOpen={open} onClose={() => setOpen(false)} />}
