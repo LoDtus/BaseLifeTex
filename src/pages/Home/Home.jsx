@@ -109,7 +109,7 @@ export default function Home() {
     return (
         <div className="home-container">
             {/* Header Section */}
-            <div className="header-section">
+            <div className="header-section !mt-2">
                 <div className="header-container">
                     <div className="w-[30px] h-[30px] p-2 rounded-md
                         cursor-pointer duration-200 hover:bg-[#f0f0f4] active:scale-90">
