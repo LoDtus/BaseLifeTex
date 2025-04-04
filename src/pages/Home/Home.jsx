@@ -1,4 +1,3 @@
-// src/pages/Home/Home.jsx
 import { useCallback, useEffect, useState } from "react";
 import "./Home.scss";
 import { useSearchParams } from "react-router-dom";
@@ -241,4 +240,4 @@ export default function Home() {
             </div>
         </div>
     );
-}   
+};
