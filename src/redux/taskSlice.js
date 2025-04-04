@@ -1,6 +1,5 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import {
-    getTasksByProject,
     filterTask,
     deleteManyTasks,
     getTaskByPagination,
@@ -10,14 +9,13 @@ import {
 export const getListTaskByProjectId = createAsyncThunk(
     "task/list",
     async ({ projectId, page, limit }, { rejectWithValue }) => {
-        const total = await getTasksByProject(projectId);
         const response = await getTaskByPagination(projectId, +page, +limit);
         if (response.success) {
             return {
                 listTask: response.data,
                 page: page,
                 limit: limit,
-                total: total.total,
+                total: response.total,
             };
         } else {
             return rejectWithValue(response.message);
@@ -75,7 +73,7 @@ const taskSlice = createSlice({
         searchQuery: "", // Thêm searchQuery để lưu từ khóa tìm kiếm
         isFetching: false,
         total: 0,
-        limit: 5,
+        limit: 20,
         page: 1,
         error: null,
     },
@@ -96,7 +94,6 @@ const taskSlice = createSlice({
             .addCase(getListTaskByProjectId.fulfilled, (state, action) => {
                 state.isFetching = false;
                 state.listTask = action.payload.listTask;
-                // state.page = action.payload.page;
                 state.limit = action.payload.limit;
                 state.total = action.payload.total;
             })

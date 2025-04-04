@@ -11,8 +11,8 @@ import TableContainer from "@mui/material/TableContainer";
 import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import Paper from "@mui/material/Paper";
-import { Input, Avatar, Button, Popover } from "@mui/material";
-import { ToastContainer, toast } from "react-toastify";
+import { Avatar, Button, Popover } from "@mui/material";
+import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import dayjs from "dayjs";
 import LinkIcon from "@mui/icons-material/Link";
@@ -40,7 +40,6 @@ export default function ListHome({ selectedTasks = [], setSelectedTasks }) {
     let Page = useSelector((state) => state.task.page);
     let Limit = useSelector((state) => state.task.limit);
     let Total = useSelector((state) => state.task.total);
-    console.log(Page, Limit, Total);
 
     const [loading, setLoading] = useState(false);
 
@@ -99,8 +98,8 @@ export default function ListHome({ selectedTasks = [], setSelectedTasks }) {
         const newStatusNumber = Number(newStatus);
         try {
             const response = await updateIssueDataStatus(taskId, {
-                oldStatus, // Gửi cả oldStatus lên server
-                newStatus: newStatusNumber, // Gửi newStatus như hiện tại
+                oldStatus,
+                newStatus: newStatusNumber,
             });
 
             if (response.success) {
