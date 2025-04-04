@@ -1,4 +1,3 @@
-// src/pages/Home/Home.jsx
 import { useCallback, useEffect, useState } from "react";
 import "./Home.scss";
 import { useSearchParams } from "react-router-dom";
@@ -21,7 +20,6 @@ export default function Home() {
     const dispatch = useDispatch();
     let Page = useSelector((state) => state.task.page);
     let Limit = useSelector((state) => state.task.limit);
-    let Total = useSelector((state) => state.task.total);
     const [anchorEl, setAnchorEl] = useState(null);
     const [searchParams] = useSearchParams();
     const idProject = searchParams.get("idProject") || "";
@@ -242,4 +240,4 @@ export default function Home() {
             </div>
         </div>
     );
-}   
+};
