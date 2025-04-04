@@ -82,7 +82,8 @@ const taskSlice = createSlice({
             state.page = action.payload + 1;
         },
         changeRowPerPage: (state, action) => {
-            (state.limit = action.payload), (state.page = 1);
+            state.limit = action.payload;
+            state.page = 1;
         },
     },
     extraReducers: (builder) => {

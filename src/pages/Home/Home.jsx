@@ -39,7 +39,7 @@ export default function Home() {
         }, 100);
         setTimer(newTimer);
         return () => clearTimeout(newTimer);
-    }, [keyword, idProject, dispatch]); 
+    }, [keyword, idProject, dispatch]);
 
     const getMemberByProject = useCallback(async () => {
         const response = await getlistUser(idProject);
@@ -81,7 +81,6 @@ export default function Home() {
         try {
             const result = await dispatch(deleteManyTasksRedux(selectedTasks)).unwrap();
             if (result && result.length > 0) {
-                // alert("✅ Xóa thành công!");
                 setSelectedTasks([]);
                 dispatch(
                     getListTaskByProjectId({
@@ -226,7 +225,6 @@ export default function Home() {
                 </div>
             </div>
 
-            <div></div>
             {/* Content Section */}
             <div className="content-section">
                 {viewMode === "kanban" ? (

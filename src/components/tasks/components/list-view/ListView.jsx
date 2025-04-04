@@ -37,7 +37,7 @@ export default function ListHome({ selectedTasks = [], setSelectedTasks }) {
 
     const dispatch = useDispatch();
     let Page = useSelector((state) => state.task.page);
-    let Limit = useSelector((state) => state.task.limit);
+    let limit = useSelector((state) => state.task.limit);
     let Total = useSelector((state) => state.task.total);
 
     const [loading, setLoading] = useState(false);
@@ -61,7 +61,7 @@ export default function ListHome({ selectedTasks = [], setSelectedTasks }) {
                 getListTaskByProjectId({
                     projectId: idProject,
                     page: Page,
-                    limit: Limit,
+                    limit: 20,
                 })
             );
         } catch (error) {
@@ -70,12 +70,16 @@ export default function ListHome({ selectedTasks = [], setSelectedTasks }) {
         } finally {
             setLoading(false);
         }
-    }, [idProject, Page, Limit, dispatch]);
+    }, [idProject, Page, dispatch]);
 
     useEffect(() => {
         if (!idProject) return;
+        dispatch(changeRowPerPage(20));
+    }, [idProject, dispatch]);
+
+    useEffect(() => {
         debouncedGetList();
-    }, [idProject, Page, Limit, Total, debouncedGetList]);
+    }, [limit, debouncedGetList]);
 
     const [anchorElMemberTask, setAnchorElMemberTask] = useState(null);
     const [anchorElMemberAdd, setAnchorElMemberAdd] = useState(null);
@@ -292,7 +296,7 @@ export default function ListHome({ selectedTasks = [], setSelectedTasks }) {
                                                 />
                                             </TableCell>
                                             <TableCell className="table-cell !py-1" align="center">
-                                                {(Page - 1) * Limit + index + 1}
+                                                {(Page - 1) * limit + index + 1}
                                             </TableCell>
                                             <TableCell className="table-cell !py-1" align="center">
                                                 <InfoOutlinedIcon
@@ -506,7 +510,7 @@ export default function ListHome({ selectedTasks = [], setSelectedTasks }) {
                         count={Total}
                         page={Page - 1} // Bắt đầu từ 1
                         onPageChange={(e, newPage) => dispatch(changePage(newPage))}
-                        rowsPerPage={Limit}
+                        rowsPerPage={limit}
                         onRowsPerPageChange={handleChangeRowsPerPage}
                         rowsPerPageOptions={[5, 10, 20, 50]}
                         labelRowsPerPage="Số trang"

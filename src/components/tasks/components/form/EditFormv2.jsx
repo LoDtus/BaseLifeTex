@@ -76,7 +76,7 @@ export default function EditFormv2({ isOpen, onClose, task, setEditModal, setIdE
             onClose();
             throw error;
         } finally {
-            setLoading(false); // Kết thúc loading
+            setLoading(false);
         }
     };
 
