@@ -21,7 +21,6 @@ export default function Home() {
     const dispatch = useDispatch();
     let Page = useSelector((state) => state.task.page);
     let Limit = useSelector((state) => state.task.limit);
-    let Total = useSelector((state) => state.task.total);
     const [anchorEl, setAnchorEl] = useState(null);
     const [searchParams] = useSearchParams();
     const idProject = searchParams.get("idProject") || "";
