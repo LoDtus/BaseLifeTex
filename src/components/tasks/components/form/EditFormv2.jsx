@@ -21,8 +21,8 @@ import { useForm, Controller } from "react-hook-form";
 import UploadImageButton from "../../../common/UploadDownloadImage";
 import { getlistUser } from "../../../../services/userService";
 import { updateIssueData } from "../../../../services/issueService";
-import { useSelector } from "react-redux";
-import "../../styles/EditFormv2.module.scss"
+import { useSelector, useDispatch } from "react-redux";
+import "../../styles/EditFormv2.module.scss";
 import { toast } from "react-toastify";
 import Loading from "../../../common/Loading";
 //import { getListTaskByProjectIdRedux } from "@/redux/taskSlice";
@@ -150,7 +150,7 @@ export default function EditFormv2({ isOpen, onClose, task }) {
                       mr: 1.5,
                     }}
                   >
-                    Tên vấn đề:
+                    Tên công việc:
                   </Typography>
                   <Box sx={{ width: "100%" }}>
                     <TextField
@@ -483,4 +483,4 @@ export default function EditFormv2({ isOpen, onClose, task }) {
       )}
     </Dialog>
   );
-};
+}
