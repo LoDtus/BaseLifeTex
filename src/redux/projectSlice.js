@@ -1,5 +1,9 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import { deleteProjectById, getLstProject } from "../services/projectService";
+import {
+    deleteProjectById,
+    getLstProject,
+    createNewProject,
+} from "../services/projectService";
 import { getTasksByProject, searchTasks } from "../services/taskService";
 
 export const getListProjectByUser = createAsyncThunk(
@@ -42,6 +46,18 @@ export const deleteProject = createAsyncThunk(
         try {
             await deleteProjectById(projectId); // Gửi request xóa
             return projectId; // Trả về projectId để cập nhật Redux
+        } catch (error) {
+            return rejectWithValue(error.message);
+        }
+    }
+);
+
+export const createProject = createAsyncThunk(
+    "project/create",
+    async (payload, { rejectWithValue }) => {
+        try {
+            const res = await createNewProject(payload); // Gọi API tạo project
+            return res.data; // Trả về dữ liệu project mới
         } catch (error) {
             return rejectWithValue(error.message);
         }
@@ -98,8 +114,21 @@ const projectSlice = createSlice({
             })
             .addCase(deleteProject.rejected, (state, action) => {
                 state.error = action.payload;
+            })
+            .addCase(createProject.pending, (state) => {
+                state.isFetching = true;
+                state.error = null;
+            })
+            .addCase(createProject.fulfilled, (state, action) => {
+                state.isFetching = false;
+                state.listProject.push(action.payload); // Thêm project mới vào danh sách
+            })
+            .addCase(createProject.rejected, (state, action) => {
+                state.isFetching = false;
+                state.error = action.payload;
             });
     },
 });
+
 export const { setSelectedProject } = projectSlice.actions;
 export default projectSlice.reducer;

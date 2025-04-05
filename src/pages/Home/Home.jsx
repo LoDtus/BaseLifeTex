@@ -16,7 +16,7 @@ import {
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
 
-export default function Home() {
+export default function Home({toggleSidebar}) {
     const dispatch = useDispatch();
     let Page = useSelector((state) => state.task.page);
     let Limit = useSelector((state) => state.task.limit);
