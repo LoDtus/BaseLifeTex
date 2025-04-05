@@ -100,7 +100,7 @@ export default function NavigationBar({ searchTerm }) {
           className={styles.addProjectButton}
           onClick={handleAddProjectClick}
         >
-          +
+          <img src={"/icons/add-icon-1.png"} alt="add" />
         </button>
       </div>
       <div className={styles.bodyNavbar}>
