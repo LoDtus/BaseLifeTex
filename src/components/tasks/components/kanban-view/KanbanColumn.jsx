@@ -35,11 +35,11 @@ export default function KanbanColumn({
   return (
     <div
       ref={setNodeRef}
-      className={`kanban-column ${
+      className={`kanban-column border ${
         isOver ? "kanban-column-over !bg-[#f5f7f9]" : "!bg-[#f5f7f9]"
       }`}
     >
-      <h3>
+      <h3 className="!m-0">
         {column.title}: {column.tasks.length}
       </h3>
       <button className="add-task" onClick={() => setOpen(true)}>

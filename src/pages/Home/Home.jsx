@@ -39,7 +39,7 @@ export default function Home() {
         }, 100);
         setTimer(newTimer);
         return () => clearTimeout(newTimer);
-    }, [keyword, idProject, dispatch]); 
+    }, [keyword, idProject, dispatch]);
 
     const getMemberByProject = useCallback(async () => {
         const response = await getlistUser(idProject);
@@ -79,12 +79,8 @@ export default function Home() {
         // if (!confirmDelete) return;
 
         try {
-            const result = await dispatch(
-                deleteManyTasksRedux(selectedTasks)
-            ).unwrap();
-
+            const result = await dispatch(deleteManyTasksRedux(selectedTasks)).unwrap();
             if (result && result.length > 0) {
-                // alert("✅ Xóa thành công!");
                 setSelectedTasks([]);
                 dispatch(
                     getListTaskByProjectId({
@@ -112,10 +108,10 @@ export default function Home() {
     return (
         <div className="home-container">
             {/* Header Section */}
-            <div className="header-section">
+            <div className="header-section !mt-2">
                 <div className="header-container">
                     <div className="w-[30px] h-[30px] p-2 rounded-md
-                        cursor-pointer duration-200 hover:bg-[#f0f0f4]">
+                        cursor-pointer duration-200 hover:bg-[#f0f0f4] active:scale-90">
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
                             <path d="M64 144a48 48 0 1 0 0-96 48 48 0 1 0 0 96zM192 64c-17.7 0-32 14.3-32 32s14.3 32 32 32l288 0c17.7 0 32-14.3 32-32s-14.3-32-32-32L192 64zm0 160c-17.7 0-32 14.3-32 32s14.3 32 32 32l288 0c17.7 0 32-14.3 32-32s-14.3-32-32-32l-288 0zm0 160c-17.7 0-32 14.3-32 32s14.3 32 32 32l288 0c17.7 0 32-14.3 32-32s-14.3-32-32-32l-288 0zM64 464a48 48 0 1 0 0-96 48 48 0 1 0 0 96zm48-208a48 48 0 1 0 -96 0 48 48 0 1 0 96 0z"/>
                         </svg>
@@ -229,7 +225,6 @@ export default function Home() {
                 </div>
             </div>
 
-            <div></div>
             {/* Content Section */}
             <div className="content-section">
                 {viewMode === "kanban" ? (

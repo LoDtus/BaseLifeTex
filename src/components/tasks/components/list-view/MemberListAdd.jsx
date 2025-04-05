@@ -15,13 +15,7 @@ import CloseIcon from "@mui/icons-material/Close";
 import { addMemberTask } from "@/services/issueService";
 import { getlistUserInProjects } from "@/services/taskService";
 
-export default function MemberListContentAdd({
-    onClose,
-    idProject,
-    task,
-    fetchApi,
-    toast,
-}) {
+export default function MemberListContentAdd({ onClose, idProject, task, fetchApi, toast }) {
     const [listMember, setListMember] = useState([]);
     const [checkedItems, setCheckedItems] = useState([]);
 
@@ -49,10 +43,9 @@ export default function MemberListContentAdd({
         const response = await addMemberTask(task._id, {
             "userId": checkedItems,
         });
-        console.log(response);
-        if (response.message === "Thêm người dùng vào task thành công") {
+        if (response.success) {
             toast.success(response.message);
-            fetchApi();
+            fetchApi(); // Cập nhật lại danh sách
         } else {
             toast.error(response.message);
         }
@@ -60,53 +53,53 @@ export default function MemberListContentAdd({
     };
 
     return (
-      <Box
-        sx={{
-          width: "343px",
-          position: "relative",
-          paddingLeft: "14px",
-          paddingBottom: "60px",
-          height: "550px",
-        }}
-      >
-        <Box sx={{ position: "absolute", right: "10px", top: "-13px" }}>
-          <IconButton size="small" onClick={onClose}>
-            <CloseIcon />
-          </IconButton>
-        </Box>
-        <Typography
-          sx={{
-            marginTop: "28px",
-            color: "#485F7E",
-            fontSize: "18px",
-            marginBottom: "15px",
-          }}
-          fontWeight="bold"
+        <Box
+            sx={{
+                width: "343px",
+                position: "relative",
+                paddingLeft: "14px",
+                paddingBottom: "60px",
+                height: "550px",
+            }}
         >
-          Danh sách thành viên
-        </Typography>
-        <FormGroup>
-          {listMember?.map((member, index) => (
-            <FormControlLabel
-              key={index}
-              control={
-                <Checkbox
-                  checked={checkedItems.includes(member._id)}
-                  onChange={() => handleCheckboxChange(member._id)}
-                />
-              }
-              label={
-                <Box sx={{ display: "flex", alignItems: "center" }}>
-                  <Avatar src={member?.avatar} />
-                  <Typography sx={{ ml: 1 }}>{member.userName}</Typography>
-                </Box>
-              }
-            />
-          ))}
-          <Button variant="contained" onClick={addMember} style={{marginBottom:"20px"}}>
-            Chọn
-          </Button>
-        </FormGroup>
-      </Box>
+            <Box sx={{ position: "absolute", right: "10px", top: "-13px" }}>
+                <IconButton size="small" onClick={onClose}>
+                    <CloseIcon />
+                </IconButton>
+            </Box>
+            <Typography
+                sx={{
+                    marginTop: "28px",
+                    color: "#485F7E",
+                    fontSize: "18px",
+                    marginBottom: "15px",
+                }}
+                fontWeight="bold"
+            >
+                Danh sách thành viên
+            </Typography>
+            <FormGroup>
+                {listMember?.map((member, index) => (
+                    <FormControlLabel
+                        key={index}
+                        control={
+                            <Checkbox
+                                checked={checkedItems.includes(member._id)}
+                                onChange={() => handleCheckboxChange(member._id)}
+                            />
+                        }
+                        label={
+                            <Box sx={{ display: "flex", alignItems: "center" }}>
+                                <Avatar src={member?.avatar} />
+                                <Typography sx={{ ml: 1 }}>{member.userName}</Typography>
+                            </Box>
+                        }
+                    />
+                ))}
+                <Button variant="contained" onClick={addMember} style={{ marginBottom: "20px" }}>
+                    Chọn
+                </Button>
+            </FormGroup>
+        </Box>
     );
 }

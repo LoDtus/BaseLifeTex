@@ -7,7 +7,7 @@
 .headerNavbar {
   display: flex;
   justify-content: space-evenly;
-  padding: 26px 14px;
+  padding: 12px 14px;
   align-items: center;
   position: sticky;
   top: 0;
@@ -24,7 +24,6 @@
   .projectListTitle {
     color: #000;
     display: flex;
-    height: 30px;
     flex-direction: column;
     justify-content: center;
     flex-shrink: 0;

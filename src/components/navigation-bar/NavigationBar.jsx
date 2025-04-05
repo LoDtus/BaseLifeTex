@@ -12,6 +12,7 @@ export default function NavigationBar({ searchTerm }) {
     const [loading, setLoading] = useState(true); // State for loading
     const navigate = useNavigate(); // Initialize navigate
     const dispatch = useDispatch();
+
     const fetchProjects = async () => {
         setLoading(true); // Start loading
         try {
@@ -105,6 +106,7 @@ export default function NavigationBar({ searchTerm }) {
                             <ProjectCard
                                 project={project}
                                 isSelected={selectedProjectId === project._id}
+                                avatarManger={project?.managerId?.avatar}
                             />
                         </div>
                     ))
