@@ -5,15 +5,22 @@ import styles from "../styles/MainLayout.module.scss";
 
 export default function HomeLayout({ children }) {
     const [searchTerm, setSearchTerm] = useState("");
+    const [isSidebarOpen, setIsSidebarOpen] = useState(true); // ✅ THÊM DÒNG NÀY
+
     return (
-        <div>
+        <div className="">
             <div className={styles.header}>
-                <HomeHeader setSearchTerm={setSearchTerm} />
+            <HomeHeader
+                setSearchTerm={setSearchTerm}
+                toggleSidebar={() => setIsSidebarOpen(prev => !prev)} // ✅ truyền hàm toggle
+            />
             </div>
             <div className={styles.wrapContent}>
-                <div className={styles.navbar}>
-                    <NavigationBar searchTerm={searchTerm} />
-                </div>
+                {isSidebarOpen && ( // ✅ Kiểm tra biến đã khai báo
+                    <div className={styles.navbar}>
+                        <NavigationBar searchTerm={searchTerm} />
+                    </div>
+                )}
                 <div className={styles.content}>{children}</div>
             </div>
         </div>

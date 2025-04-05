@@ -5,13 +5,16 @@ import ProjectCard from "./components/ProjectCard";
 import Loading from "@/components/common/Loading";
 import { useDispatch, useSelector } from "react-redux";
 import { getListProjectByUser, setSelectedProject } from "@/redux/projectSlice";
+import AddProjectModal from "./components/AddProjectModal";
 
 export default function NavigationBar({ searchTerm }) {
     const lstProject = useSelector((state) => state.project.listProject);
     const selectedProjectId = useSelector((state) => state.project.selectedProjectId);
     const [loading, setLoading] = useState(true); // State for loading
+    const [isAddProjectModalOpen, setIsAddProjectModalOpen] = useState(false);
     const navigate = useNavigate(); // Initialize navigate
     const dispatch = useDispatch();
+
     const fetchProjects = async () => {
         setLoading(true); // Start loading
         try {
@@ -27,6 +30,28 @@ export default function NavigationBar({ searchTerm }) {
         currentUrl.searchParams.set("idProject", projectId); // Add or update idProject in URL
         navigate(`${currentUrl.pathname}${currentUrl.search}`); // Navigate to the updated URL
     };
+
+    const handleAddProjectClick = () => {
+        setIsAddProjectModalOpen(true); // Mở modal khi nút được click
+    };
+
+    const handleCloseAddProjectModal = () => {
+        setIsAddProjectModalOpen(false); // Đóng modal
+    };
+
+    useEffect(() => {
+        fetchProjects();
+    }, []);
+
+    useEffect(() => {
+        if (lstProject.length > 0) {
+            const firstProjectId = lstProject[0]._id;
+            dispatch(setSelectedProject(firstProjectId));
+            const currentUrl = new URL(window.location.href);
+            currentUrl.searchParams.set("idProject", firstProjectId);
+            navigate(`${currentUrl.pathname}${currentUrl.search}`);
+        }
+    }, [lstProject, dispatch, navigate]);
 
     useEffect(() => {
         fetchProjects();
@@ -91,6 +116,12 @@ export default function NavigationBar({ searchTerm }) {
                     </svg>
                 </div>
                 <div className={styles.projectListTitle}>Danh sách dự án tham gia</div>
+                <button
+                    className={styles.addProjectButton}
+                    onClick={handleAddProjectClick}
+                >
+                    +
+                </button>
             </div>
             <div className={styles.bodyNavbar}>
                 {loading ? (
@@ -105,6 +136,7 @@ export default function NavigationBar({ searchTerm }) {
                             <ProjectCard
                                 project={project}
                                 isSelected={selectedProjectId === project._id}
+                                avatarManger={project?.managerId?.avatar}
                             />
                         </div>
                     ))
@@ -122,6 +154,9 @@ export default function NavigationBar({ searchTerm }) {
                     </div>
                 )}
             </div>
+            {isAddProjectModalOpen && (
+                <AddProjectModal onClose={handleCloseAddProjectModal} />
+            )}
         </div>
     );
 }

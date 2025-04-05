@@ -70,13 +70,6 @@
     justify-content: space-between;
     margin-top: 10px;
 
-    .avatar {
-      width: 42px;
-      height: 42px;
-      border-radius: 225px;
-      margin-right: 21px;
-    }
-
     .responsibleInfo {
       display: flex;
       align-items: center;
@@ -179,7 +172,7 @@
   // align-items: center;
   border: 1px solid #e06872;
   color: #e63946;
-  font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+  font-family: "Franklin Gothic Medium", "Arial Narrow", Arial, sans-serif;
   font-size: 12px;
   font-weight: bold;
   text-transform: uppercase;

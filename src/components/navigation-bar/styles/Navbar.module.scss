@@ -7,7 +7,7 @@
 .headerNavbar {
   display: flex;
   justify-content: space-evenly;
-  padding: 26px 14px;
+  padding: 12px 14px;
   align-items: center;
   position: sticky;
   top: 0;
@@ -24,7 +24,6 @@
   .projectListTitle {
     color: #000;
     display: flex;
-    height: 30px;
     flex-direction: column;
     justify-content: center;
     flex-shrink: 0;
@@ -41,5 +40,25 @@
 
   &::-webkit-scrollbar {
     display: none;
+  }
+}
+
+.addProjectButton {
+  background-color: #579ad7;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+  font-size: 1.5rem;
+  line-height: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  outline: none;
+
+  &:hover {
+    background-color: #437abf;
   }
 }
