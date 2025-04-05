@@ -6,7 +6,8 @@ import {
 } from "@dnd-kit/sortable";
 import React from "react";
 import KanbanTaskCard from "./KanbanTaskCard";
-import IssueForm from "@/components/tasks/components/form/IssueForm";
+import IssueForm from "../form/IssueForm";
+import { useSearchParams } from "react-router-dom";
 
 export default function KanbanColumn({
   columnId,
@@ -28,15 +29,21 @@ export default function KanbanColumn({
   };
 
   const statusValue = statusMapReverse[columnId];
+  const [searchParams] = useSearchParams();
+  const idProject = searchParams.get("idProject");
+
+  const sortedTasks = [...column.tasks].sort((a, b) => b.priority - a.priority); // Tạo một bản sao của mảng tasks và sắp xếp theo độ ưu tiên (giảm dần)
 
   const sortedTasks = [...column.tasks].sort((a, b) => b.priority - a.priority); // Tạo một bản sao của mảng tasks và sắp xếp theo độ ưu tiên (giảm dần)
 
   return (
     <div
       ref={setNodeRef}
-      className={`kanban-column ${isOver ? "kanban-column-over" : ""}`}
+      className={`kanban-column border ${
+        isOver ? "kanban-column-over !bg-[#f5f7f9]" : "!bg-[#f5f7f9]"
+      }`}
     >
-      <h3>
+      <h3 className="!m-0">
         {column.title}: {column.tasks.length}
       </h3>
       <button className="add-task" onClick={() => setOpen(true)}>

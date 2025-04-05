@@ -15,13 +15,7 @@ import CloseIcon from "@mui/icons-material/Close";
 import { addMemberTask } from "@/services/issueService";
 import { getlistUserInProjects } from "@/services/taskService";
 
-export default function MemberListContentAdd({
-    onClose,
-    idProject,
-    task,
-    fetchApi,
-    toast,
-}) {
+export default function MemberListContentAdd({ onClose, idProject, task, fetchApi, toast }) {
     const [listMember, setListMember] = useState([]);
     const [checkedItems, setCheckedItems] = useState([]);
 
@@ -47,11 +41,11 @@ export default function MemberListContentAdd({
 
     const addMember = async () => {
         const response = await addMemberTask(task._id, {
-            assigneeId: checkedItems,
+            "userId": checkedItems,
         });
-        if (response.message === "Thêm người dùng vào task thành công") {
+        if (response.success) {
             toast.success(response.message);
-            fetchApi();
+            fetchApi(); // Cập nhật lại danh sách
         } else {
             toast.error(response.message);
         }
@@ -64,7 +58,8 @@ export default function MemberListContentAdd({
                 width: "343px",
                 position: "relative",
                 paddingLeft: "14px",
-                paddingBottom: "30px",
+                paddingBottom: "60px",
+                height: "550px",
             }}
         >
             <Box sx={{ position: "absolute", right: "10px", top: "-13px" }}>
@@ -90,22 +85,18 @@ export default function MemberListContentAdd({
                         control={
                             <Checkbox
                                 checked={checkedItems.includes(member._id)}
-                                onChange={() =>
-                                    handleCheckboxChange(member._id)
-                                }
+                                onChange={() => handleCheckboxChange(member._id)}
                             />
                         }
                         label={
                             <Box sx={{ display: "flex", alignItems: "center" }}>
                                 <Avatar src={member?.avatar} />
-                                <Typography sx={{ ml: 1 }}>
-                                    {member.userName}
-                                </Typography>
+                                <Typography sx={{ ml: 1 }}>{member.userName}</Typography>
                             </Box>
                         }
                     />
                 ))}
-                <Button variant="contained" onClick={addMember}>
+                <Button variant="contained" onClick={addMember} style={{ marginBottom: "20px" }}>
                     Chọn
                 </Button>
             </FormGroup>

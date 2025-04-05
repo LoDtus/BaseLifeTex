@@ -25,7 +25,7 @@ import { useSearchParams } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { toast } from "react-toastify";
 import Loading from "../../../common/Loading";
-import { getListTaskByProjectIdRedux } from "../../../../redux/taskSlice";
+import { getListTaskByProjectId } from "../../../../redux/taskSlice";
 
 const IssueForm = ({ isOpen, onClose, status }) => {
   const ITEM_HEIGHT = 48;
@@ -75,13 +75,15 @@ const IssueForm = ({ isOpen, onClose, status }) => {
       });
       if (issueData) {
         toast.success("Tạo nhiệm vụ thành công");
-        dispatch(getListTaskByProjectIdRedux(idProject));
+        dispatch(getListTaskByProjectId({
+          projectId: idProject,
+          page: 1,
+          limit: 100,
+        }));
         onClose();
-      } else {
-        toast.error("Tạo nhiệm vụ thất bại");
       }
     } catch (error) {
-      toast.error("Tạo nhiệm vụ thất bại", error);
+      toast.error(error.response.data.message);
       throw error;
     } finally {
       reset();
@@ -159,7 +161,7 @@ const IssueForm = ({ isOpen, onClose, status }) => {
                       mr: 1.5,
                     }}
                   >
-                    Tên vấn đề:
+                    Tên công việc:
                   </Typography>
                   <Box sx={{ width: "100%" }}>
                     <TextField

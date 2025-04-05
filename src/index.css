@@ -3,14 +3,37 @@
 :root {
   --White-color: #fff;
 }
+
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
   font-family: sans-serif !important;
 }
+
 body {
   padding: 0;
   margin: 0;
   overflow: hidden;
+}
+
+
+.truncate {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  width: 200px;
+}
+
+.custom-tooltip {
+  background-color: black !important;
+  color: white !important;
+  font-size: 14px !important;
+  padding: 8px 12px !important;
+  border-radius: 6px !important;
+}
+
+.custom-tooltip .MuiTooltip-arrow {
+  color: black !important;
+  /* Màu của mũi tên */
 }

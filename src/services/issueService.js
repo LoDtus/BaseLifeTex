@@ -15,7 +15,6 @@ export const postIssueData = async (data) => {
   formData.append("status", +convertTaskStatus(data.status));
   formData.append("projectId", data.idProject);
   formData.append("assignerId", data.assignerId);
-  formData.append("priority", data.priority);
 
   const response = await axiosInstance.post(`/tasks`, formData, {
     headers: {
@@ -38,7 +37,6 @@ export const updateIssueData = async (id, data) => {
   formData.append("status", +convertTaskStatus(data.status));
   formData.append("projectId", data.projectId);
   formData.append("assignerId", data.assignerId);
-  formData.append("priority", data.priority);
   const response = await axiosInstance.put(`/tasks/${id}`, formData, {
     headers: {
       "Content-Type": "multipart/form-data",
@@ -61,18 +59,22 @@ export const getLisTaskById = async (id) => {
 };
 
 export const updateIssueDataStatus = async (id, data) => {
-  const response = await axiosInstance.put(
-    `${backendUrl}/tasks/${id}/status`,
-    data
-  );
-  return response.data;
+  try {
+    const response = await axiosInstance.put(
+      `${backendUrl}/tasks/${id}/status`,
+      data,
+      { headers: { "Content-Type": "application/json" } } // Quan trọng!
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Lỗi từ API:", error.response?.data || error.message);
+    throw error;
+  }
 };
 
+
 export const addMemberTask = async (id, data) => {
-  const response = await axiosInstance.post(
-    `${backendUrl}/tasks/${id}/add-user`,
-    data
-  );
+  const response = await axiosInstance.post(`/tasks/${id}/add-user`, data);
   return response.data;
 };
 
