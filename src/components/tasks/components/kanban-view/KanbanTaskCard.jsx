@@ -8,7 +8,8 @@ import Tooltip from "@mui/material/Tooltip";
 import KanbanCards from "../../styles/KanbanCard.module.scss";
 import TaskDetailView from "../task-details/TaskDetailView";
 import ListIcon from "@mui/icons-material/List";
-function KanbanTaskCard({ selectedTasks, setSelectedTasks, task }) {
+
+export default function KanbanTaskCard({ selectedTasks, setSelectedTasks, task }) {
   const {
     attributes,
     listeners,
@@ -59,7 +60,6 @@ function KanbanTaskCard({ selectedTasks, setSelectedTasks, task }) {
   };
   const handleButtonClick = React.useCallback((event) => {
     event.stopPropagation();
-    console.log("Opening task detail modal");
     setIsModalOpen((prev) => !prev);
   }, []);
   const handleCloseModal = () => {
@@ -215,5 +215,4 @@ function KanbanTaskCard({ selectedTasks, setSelectedTasks, task }) {
       )}
     </>
   );
-}
-export default KanbanTaskCard;
+};
