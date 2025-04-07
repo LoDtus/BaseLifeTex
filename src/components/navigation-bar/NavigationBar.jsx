@@ -29,36 +29,35 @@ export default function NavigationBar({ searchTerm }) {
     currentUrl.searchParams.set("idProject", projectId); // Add or update idProject in URL
     navigate(`${currentUrl.pathname}${currentUrl.search}`); // Navigate to the updated URL
   };
+// <<<<<<< HEAD
+
+//   useEffect(() => {
+//     fetchProjects();
+//   }, []);
+// =======
+// >>>>>>> BaseLifeTex_ducthanhdev
+
+  const handleAddProjectClick = () => {
+    setIsAddProjectModalOpen(true); // Mở modal khi nút được click
+  };
+
+  const handleCloseAddProjectModal = () => {
+    setIsAddProjectModalOpen(false); // Đóng modal
+  };
 
   useEffect(() => {
     fetchProjects();
   }, []);
 
-    const handleAddProjectClick = () => {
-        setIsAddProjectModalOpen(true); // Mở modal khi nút được click
-    };
-
-    const handleCloseAddProjectModal = () => {
-        setIsAddProjectModalOpen(false); // Đóng modal
-    };
-
-    useEffect(() => {
-        fetchProjects();
-    }, []);
-
-    useEffect(() => {
-        if (lstProject.length > 0) {
-            const firstProjectId = lstProject[0]._id;
-            dispatch(setSelectedProject(firstProjectId));
-            const currentUrl = new URL(window.location.href);
-            currentUrl.searchParams.set("idProject", firstProjectId);
-            navigate(`${currentUrl.pathname}${currentUrl.search}`);
-        }
-    }, [lstProject, dispatch, navigate]);
-
-    useEffect(() => {
-        fetchProjects();
-    }, []);
+  useEffect(() => {
+    if (lstProject.length > 0) {
+      const firstProjectId = lstProject[0]._id;
+      dispatch(setSelectedProject(firstProjectId));
+      const currentUrl = new URL(window.location.href);
+      currentUrl.searchParams.set("idProject", firstProjectId);
+      navigate(`${currentUrl.pathname}${currentUrl.search}`);
+    }
+  }, [lstProject, dispatch, navigate]);
 
   useEffect(() => {
     if (lstProject.length > 0) {
@@ -127,14 +126,14 @@ export default function NavigationBar({ searchTerm }) {
           Danh sách dự án tham gia
           <span className={styles.notificationBadge}>
             {filteredProjects.length}
-          </span>
-          <button
-              className={styles.addProjectButton}
-              onClick={handleAddProjectClick}
-          >
-              +
-          </button>
+        </span>
         </div>
+        <button
+          className={styles.addProjectButton}
+          onClick={handleAddProjectClick}
+        >
+          <img src={"/icons/add-icon-1.png"} alt="add" />
+        </button>
       </div>
       <div className={styles.bodyNavbar}>
         {loading ? (
