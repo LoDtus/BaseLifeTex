@@ -41,7 +41,7 @@ export default function KanbanColumn({
                 ${isOver ? "kanban-column-over" : ""}`}
             style={{
                 height: 'calc(100vh - 150px)',
-                'max-width': '14.2%'
+                'width': '14.2%'
             }}
         >
             <h3 className="flex items-center mb-2">
