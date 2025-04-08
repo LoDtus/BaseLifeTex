@@ -12,8 +12,9 @@ export default function NavigationBar({ searchTerm }) {
     const selectedProjectId = useSelector((state) => state.project.selectedProjectId);
     const [loading, setLoading] = useState(true); // State for loading
     const [isAddProjectModalOpen, setIsAddProjectModalOpen] = useState(false);
-    const navigate = useNavigate(); // Initialize navigate
+    const navigate = useNavigate();
     const dispatch = useDispatch();
+    const userRole = useSelector((state) => state.auth.login.role);
 
     const fetchProjects = async () => {
         setLoading(true);
@@ -89,13 +90,13 @@ export default function NavigationBar({ searchTerm }) {
                         {filteredProjects.length}
                     </span>
                 </div>
-                <button className="w-full mb-1 border-1 !border-dashed border-gray !rounded-md flex justify-center items-center py-2 px-3
+                { userRole === 0 && <button className="w-full mb-1 border-1 !border-dashed border-gray !rounded-md flex justify-center items-center py-2 px-3
                     text-dark-gray font-semibold
                     cursor-pointer duration-200 hover:shadow-md hover:border-black hover:text-black active:scale-90"
                     onClick={handleAddProjectClick}
                 >
                     Thêm dự án mới
-                </button>
+                </button>}
             </div>
             <div className={styles.bodyNavbar}>
                 {loading

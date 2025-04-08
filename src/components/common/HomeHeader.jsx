@@ -70,7 +70,7 @@ export default function HomeHeader({ setSearchTerm }) {
                     <NotificationPopup />
                     <span className="user-name">{userName}</span>
                     <div className="avatar-container">
-                    <img 
+                        <img 
                             src={avatar} 
                             alt="avatar" 
                             className="user-icon" 
