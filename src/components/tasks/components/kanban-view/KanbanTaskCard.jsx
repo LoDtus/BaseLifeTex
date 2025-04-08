@@ -77,7 +77,10 @@ export default function KanbanTaskCard({ selectedTasks, setSelectedTasks, task }
         {...attributes}
         className={`kanban-card ${isDragging ? "dragging" : ""}`}
       >
-        <div className="task-content">
+        <div className="task-content"
+          onPointerDown={handlePointerDown}
+          onClick={handleButtonClick}
+        >
           <div style={{ display: "flex", width: "100%", alignItems: "center" }}>
             <Tooltip
               title={task.title}
@@ -92,13 +95,6 @@ export default function KanbanTaskCard({ selectedTasks, setSelectedTasks, task }
                 {task.title}
               </p>
             </Tooltip>
-            <button
-              onPointerDown={handlePointerDown}
-              onClick={handleButtonClick}
-              className={KanbanCards.buttonIcon}
-            >
-              <ListIcon className={KanbanCards.listIcon} />
-            </button>
             <input
               type="checkbox"
               className={KanbanCards.checkbox}
