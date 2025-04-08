@@ -5,6 +5,8 @@ import projectReducer from "./projectSlice";
 import { persistStore, persistReducer } from "redux-persist";
 import storage from "redux-persist/lib/storage";
 import loadingReducer from "./loadingSlice";
+import propertiesReducer from "./propertiesSlice";
+
 const persistConfig = {
   key: "root",
   storage,
@@ -15,7 +17,8 @@ const rootReducer = combineReducers({
   auth: authReducer,
   loading: loadingReducer,
   task: taskReducer,
-  project: projectReducer
+  project: projectReducer,
+  properties: propertiesReducer, 
 });
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);

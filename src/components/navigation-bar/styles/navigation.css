@@ -1,0 +1,33 @@
+@keyframes closeProjectMenu {
+    0% {
+        width: 300px;
+        opacity: 1;
+    }
+
+    100% {
+        width: 0;
+        opacity: 0;
+    }
+}
+
+.user-navigation-close {
+    animation: closeProjectMenu 0.3s forwards;
+    overflow: hidden;
+}
+
+@keyframes openProjectMenu {
+    0% {
+        width: 0;
+        opacity: 0;
+    }
+
+    100% {
+        width: 300px;
+        opacity: 1;
+    }
+}
+
+.user-navigation-open {
+    animation: openProjectMenu 0.3s forwards;
+    width: 300px;
+}

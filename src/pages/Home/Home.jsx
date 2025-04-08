@@ -15,6 +15,7 @@ import {
 } from "@/redux/taskSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
+import { setOpenProjectMenu } from '@/redux/propertiesSlice';
 
 export default function Home() {
     const dispatch = useDispatch();
@@ -30,6 +31,7 @@ export default function Home() {
     const [selectedTasks, setSelectedTasks] = useState([]);
     const [keyword, setKeyword] = useState("");
     const [timer, setTimer] = useState(null);
+    const openProjectMenu = useSelector((state) => state.properties.openProjectMenu);
 
     useEffect(() => {
         if (!idProject) return;
@@ -108,13 +110,18 @@ export default function Home() {
     return (
         <div className="home-container">
             {/* Header Section */}
-            <div className="header-section !mt-2">
-                <div className="header-container">
-                    <div className="w-[30px] h-[30px] p-2 rounded-md
-                        cursor-pointer duration-200 hover:bg-[#f0f0f4] active:scale-90">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+            <div className="px-1 pt-2">
+                <div className="flex">
+                    <div className="w-[30px] h-[30px] p-2 rounded-md border border-gray-border flex justify-center items-center
+                        cursor-pointer duration-200 hover:bg-[#f0f0f4] active:scale-90"
+                        onClick={() => dispatch(setOpenProjectMenu(!openProjectMenu))}
+                    >
+                        { openProjectMenu && <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512">
+                            <path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/>
+                        </svg> }
+                        { !openProjectMenu && <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
                             <path d="M64 144a48 48 0 1 0 0-96 48 48 0 1 0 0 96zM192 64c-17.7 0-32 14.3-32 32s14.3 32 32 32l288 0c17.7 0 32-14.3 32-32s-14.3-32-32-32L192 64zm0 160c-17.7 0-32 14.3-32 32s14.3 32 32 32l288 0c17.7 0 32-14.3 32-32s-14.3-32-32-32l-288 0zm0 160c-17.7 0-32 14.3-32 32s14.3 32 32 32l288 0c17.7 0 32-14.3 32-32s-14.3-32-32-32l-288 0zM64 464a48 48 0 1 0 0-96 48 48 0 1 0 0 96zm48-208a48 48 0 1 0 -96 0 48 48 0 1 0 96 0z"/>
-                        </svg>
+                        </svg>}
                     </div>
                     <div className="project-info !ml-3 grow">
                         <p className="project-path">{nameProject}</p>
@@ -137,7 +144,7 @@ export default function Home() {
             </div>
 
             {/* Toolbar Section */}
-            <div className="toolbar-section">
+            <div className="flex px-1">
                 <div className="search-container">
                     <svg
                         className="search-icon"
@@ -181,7 +188,7 @@ export default function Home() {
                             ))}
                     </div>
                 </div>
-
+                <div className='grow'></div>
                 <Popover
                     id={memberId}
                     open={openMember}
