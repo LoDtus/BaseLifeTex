@@ -3,7 +3,7 @@ import { createSlice } from "@reduxjs/toolkit";
 const propertiesSlice = createSlice({
     name: "properties",
     initialState: {
-        openProjectMenu: false,
+        openProjectMenu: true,
     },
     reducers: {
         setOpenProjectMenu: (state, action) => {
