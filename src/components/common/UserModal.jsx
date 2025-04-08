@@ -6,6 +6,14 @@ function UserModal({ user, onClose }) {
     const [activeTab, setActiveTab] = useState('info');
 
     if (!user) return null;
+    const roleMap = {
+        0: 'PM',
+        1: 'DEV',
+        2: 'TEST',
+        3: 'BA',
+        4: 'USER',
+      };
+      
 
     return (
         <div className="user-modal">
@@ -28,10 +36,16 @@ function UserModal({ user, onClose }) {
 
                 {activeTab === 'info' ? (
                     <div className="tab-content">
-                        <h2>{user.userName}</h2>
-                        <img src={user.avatar} alt="avatar" className="user-avatar" />
-                        <p>Email: {user.email}</p>
-                        <p>Phone: {user.phone}</p>
+                        <div>
+                            <h2>{user.userName}</h2>
+                            <img src={user.avatar} alt="avatar" className="user-avatar" />
+                        </div>
+                        <div>
+                            <p>Email: {user.email}</p>
+                            <p>Phone: {user.phone}</p>
+                            <p>Role: {roleMap[user.role] || 'Không xác định'}</p>
+                            <p>Created At: {new Date(user.createdAt).toLocaleDateString()}</p>
+                        </div>
                     </div>
                 ) : (
                     <UpdateUserForm user={user} onClose={onClose} />
