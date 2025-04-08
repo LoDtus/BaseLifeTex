@@ -26,6 +26,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { toast } from "react-toastify";
 import Loading from "../../../common/Loading";
 import { getListTaskByProjectId } from "../../../../redux/taskSlice";
+import { PRIORITY } from "../../../../config/priority";
 
 const IssueForm = ({ isOpen, onClose, status }) => {
   const ITEM_HEIGHT = 48;
@@ -48,12 +49,6 @@ const IssueForm = ({ isOpen, onClose, status }) => {
 
   const user = useSelector((state) => state.auth.login.currentUser);
 
-  const priorityOptions = [
-    { value: 0, label: "Low" },
-    { value: 1, label: "Medium" },
-    { value: 2, label: "High" },
-  ];
-
   const {
     register,
     handleSubmit,
@@ -72,14 +67,17 @@ const IssueForm = ({ isOpen, onClose, status }) => {
         idProject,
         assignerId: user.data.user._id,
         priority: data.priority,
+        type: data.type,
       });
       if (issueData) {
         toast.success("Tạo nhiệm vụ thành công");
-        dispatch(getListTaskByProjectId({
-          projectId: idProject,
-          page: 1,
-          limit: 100,
-        }));
+        dispatch(
+          getListTaskByProjectId({
+            projectId: idProject,
+            page: 1,
+            limit: 100,
+          })
+        );
         onClose();
       }
     } catch (error) {
@@ -93,7 +91,6 @@ const IssueForm = ({ isOpen, onClose, status }) => {
   useEffect(() => {
     const fetchData = async () => {
       const data = await getlistUser(idProject);
-
       setSelectedPerson(data.data);
     };
     fetchData();
@@ -174,10 +171,7 @@ const IssueForm = ({ isOpen, onClose, status }) => {
                     {errors.title && (
                       <Typography
                         variant="span"
-                        sx={{
-                          color: "red",
-                          fontSize: "small",
-                        }}
+                        sx={{ color: "red", fontSize: "small" }}
                       >
                         Trường này không được để trống.
                       </Typography>
@@ -192,8 +186,8 @@ const IssueForm = ({ isOpen, onClose, status }) => {
                     sx={{
                       mb: 1,
                       color: "#666",
-                      whiteSpace: "nowrap",
                       fontWeight: "bold",
+                      whiteSpace: "nowrap",
                     }}
                   >
                     Link:
@@ -209,10 +203,7 @@ const IssueForm = ({ isOpen, onClose, status }) => {
                     {errors.link && (
                       <Typography
                         variant="span"
-                        sx={{
-                          color: "red",
-                          fontSize: "small",
-                        }}
+                        sx={{ color: "red", fontSize: "small" }}
                       >
                         Trường này không được để trống.
                       </Typography>
@@ -229,8 +220,8 @@ const IssueForm = ({ isOpen, onClose, status }) => {
                     sx={{
                       mb: 1,
                       color: "#666",
-                      whiteSpace: "nowrap",
                       fontWeight: "bold",
+                      whiteSpace: "nowrap",
                     }}
                   >
                     Mô tả chi tiết:
@@ -247,10 +238,7 @@ const IssueForm = ({ isOpen, onClose, status }) => {
                     {errors.description && (
                       <Typography
                         variant="span"
-                        sx={{
-                          color: "red",
-                          fontSize: "small",
-                        }}
+                        sx={{ color: "red", fontSize: "small" }}
                       >
                         Trường này không được để trống.
                       </Typography>
@@ -350,10 +338,7 @@ const IssueForm = ({ isOpen, onClose, status }) => {
                       {errors.personName && (
                         <Typography
                           variant="span"
-                          sx={{
-                            color: "red",
-                            fontSize: "small",
-                          }}
+                          sx={{ color: "red", fontSize: "small" }}
                         >
                           {errors.personName.message}
                         </Typography>
@@ -377,7 +362,6 @@ const IssueForm = ({ isOpen, onClose, status }) => {
                         display: "flex",
                         alignItems: "center",
                         justifyContent: "center",
-                        // border: "1px dashed #ccc",
                         borderRadius: "5px",
                         p: 2,
                         mb: 2,
@@ -391,51 +375,6 @@ const IssueForm = ({ isOpen, onClose, status }) => {
                     </Box>
                   </Box>
                 </Box>
-                <Box sx={{ display: "flex", gap: 4 }}>
-                  <Typography
-                    variant="subtitle2"
-                    sx={{
-                      mb: 1,
-                      color: "#666",
-                      whiteSpace: "nowrap",
-                      fontWeight: "bold",
-                    }}
-                  >
-                    Độ ưu tiên:
-                  </Typography>
-                  <Box sx={{ width: "100%" }}>
-                    <FormControl fullWidth size="small">
-                      <Controller
-                        name="priority"
-                        control={control}
-                        defaultValue="" // Giá trị mặc định
-                        rules={{ required: "Vui lòng chọn độ ưu tiên" }}
-                        render={({ field }) => (
-                          <Select
-                            {...field}
-                            variant="outlined"
-                            size="small"
-                            sx={{ mb: 1 }}
-                          >
-                            {priorityOptions.map((option) => (
-                              <MenuItem key={option.value} value={option.value}>
-                                {option.label}
-                              </MenuItem>
-                            ))}
-                          </Select>
-                        )}
-                      />
-                      {errors.priority && (
-                        <Typography
-                          variant="span"
-                          sx={{ color: "red", fontSize: "small" }}
-                        >
-                          {errors.priority.message}
-                        </Typography>
-                      )}
-                    </FormControl>
-                  </Box>
-                </Box>
               </Grid>
 
               {/* Row 3: Ngày bắt đầu và Ngày kết thúc */}
@@ -446,8 +385,8 @@ const IssueForm = ({ isOpen, onClose, status }) => {
                     sx={{
                       mb: 1,
                       color: "#666",
-                      whiteSpace: "nowrap",
                       fontWeight: "bold",
+                      whiteSpace: "nowrap",
                     }}
                   >
                     Ngày bắt đầu:
@@ -467,10 +406,7 @@ const IssueForm = ({ isOpen, onClose, status }) => {
                     {errors.startDate && (
                       <Typography
                         variant="span"
-                        sx={{
-                          color: "red",
-                          fontSize: "small",
-                        }}
+                        sx={{ color: "red", fontSize: "small" }}
                       >
                         Trường này không được để trống.
                       </Typography>
@@ -485,8 +421,8 @@ const IssueForm = ({ isOpen, onClose, status }) => {
                     sx={{
                       mb: 1,
                       color: "#666",
-                      whiteSpace: "nowrap",
                       fontWeight: "bold",
+                      whiteSpace: "nowrap",
                     }}
                   >
                     Ngày kết thúc:
@@ -506,14 +442,95 @@ const IssueForm = ({ isOpen, onClose, status }) => {
                     {errors.endDate && (
                       <Typography
                         variant="span"
-                        sx={{
-                          color: "red",
-                          fontSize: "small",
-                        }}
+                        sx={{ color: "red", fontSize: "small" }}
                       >
                         Trường này không được để trống.
                       </Typography>
                     )}
+                  </Box>
+                </Box>
+              </Grid>
+              {/* Row 4: Độ ưu tiên và Phân loại */}
+              <Grid item xs={12} md={6}>
+                <Box sx={{ display: "flex", gap: 4 }}>
+                  <Typography
+                    variant="subtitle2"
+                    sx={{
+                      mb: 1,
+                      color: "#666",
+                      fontWeight: "bold",
+                      whiteSpace: "nowrap",
+                    }}
+                  >
+                    Độ ưu tiên:
+                  </Typography>
+                  <Box sx={{ width: "100%" }}>
+                    <FormControl fullWidth size="small">
+                      <Controller
+                        name="priority"
+                        control={control}
+                        defaultValue="" // Giá trị mặc định
+                        rules={{ required: "Vui lòng chọn độ ưu tiên" }}
+                        render={({ field }) => (
+                          <Select
+                            {...field}
+                            variant="outlined"
+                            size="small"
+                            sx={{ mb: 1 }}
+                          >
+                            {PRIORITY.map((option) => (
+                              <MenuItem key={option.value} value={option.value}>
+                                {option.label}
+                              </MenuItem>
+                            ))}
+                          </Select>
+                        )}
+                      />
+                      {errors.priority && (
+                        <Typography
+                          variant="span"
+                          sx={{ color: "red", fontSize: "small" }}
+                        >
+                          {errors.priority.message}
+                        </Typography>
+                      )}
+                    </FormControl>
+                  </Box>
+                </Box>
+              </Grid>
+              <Grid item xs={12} md={6}>
+                <Box sx={{ display: "flex", gap: 4 }}>
+                  <Typography
+                    variant="subtitle2"
+                    sx={{
+                      mb: 1,
+                      color: "#666",
+                      whiteSpace: "nowrap",
+                      fontWeight: "bold",
+                    }}
+                  >
+                    Phân loại:
+                  </Typography>
+                  <Box sx={{ width: "100%" }}>
+                    <FormControl fullWidth size="small">
+                      <Controller
+                        name="type"
+                        control={control}
+                        defaultValue=""
+                        rules={{ required: "Vui lòng chọn loại" }}
+                        render={({ field }) => (
+                          <Select
+                            {...field}
+                            variant="outlined"
+                            size="small"
+                            sx={{ mb: 1 }}
+                          >
+                            <MenuItem value="bug">Bug</MenuItem>
+                            <MenuItem value="new_request">Yêu cầu mới</MenuItem>
+                          </Select>
+                        )}
+                      />
+                    </FormControl>
                   </Box>
                 </Box>
               </Grid>
@@ -541,5 +558,3 @@ const IssueForm = ({ isOpen, onClose, status }) => {
 };
 
 export default IssueForm;
-
-// Example usage:
