@@ -59,6 +59,7 @@ const IssueForm = ({ isOpen, onClose, status }) => {
 
   const onSubmit = async (data) => {
     setLoading(true);
+    console.log("Dữ liệu form khi submit:", data);
     try {
       const issueData = await postIssueData({
         ...data,
