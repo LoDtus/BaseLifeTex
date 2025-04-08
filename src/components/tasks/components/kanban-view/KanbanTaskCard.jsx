@@ -8,6 +8,7 @@ import Tooltip from "@mui/material/Tooltip";
 // import KanbanCards from "../../styles/KanbanCard.module.scss";
 import TaskDetailView from "../task-details/TaskDetailView";
 import ListIcon from "@mui/icons-material/List";
+import { useEffect } from 'react';
 
 export default function KanbanTaskCard({ selectedTasks, setSelectedTasks, task }) {
     const {
@@ -18,6 +19,7 @@ export default function KanbanTaskCard({ selectedTasks, setSelectedTasks, task }
         transition,
         isDragging,
     } = useSortable({ id: task.id });
+
     const style = {
         transform: CSS.Transform.toString(transform),
         transition: "transform 0.2s ease, opacity 0.2s ease", // Thêm transition cho transform và opacity
@@ -121,91 +123,102 @@ export default function KanbanTaskCard({ selectedTasks, setSelectedTasks, task }
                             </svg>
                         </div>
                         <div className='grow'></div>
-                        <span className="font-semibold">{ primaryUserName }</span>
-                        {remainingUserNames.length > 0 && (
-                            <div
-                                className="assignee-toggle"
-                                style={{
-                                    cursor: "pointer",
-                                    marginLeft: "5px",
-                                    display: "flex",
-                                    alignItems: "center",
-                                }}
+                        { task.assigneeId.map((member, i) => {
+                            if (i < 3) {
+                                return (
+                                    <div>
+                                        <img
+                                            className='w-[25px] h-[25px] rounded-full cursor-pointer !ml-[2px]'
+                                            src={ member.avatar }
+                                            alt={ member.email }
+                                        />
+                                    </div>
+                                )
+                            }
+                        })}
+                        {/* <div
+                            className="assignee-toggle"
+                            style={{
+                                cursor: "pointer",
+                                marginLeft: "5px",
+                                display: "flex",
+                                alignItems: "center",
+                            }}
+                        >
+                            <span
+                                onClick={handleClick}
+                                onMouseDown={(e) => e.stopPropagation()}
+                                onPointerDown={(e) => e.stopPropagation()}
+                                style={{ fontSize: "12px" }}
                             >
-                                <span
-                                    onClick={handleClick}
-                                    onMouseDown={(e) => e.stopPropagation()}
-                                    onPointerDown={(e) => e.stopPropagation()}
-                                    style={{ fontSize: "12px" }}
+                                ▼
+                            </span>
+                            <Popover
+                                open={open}
+                                anchorEl={anchorEl}
+                                onClose={handleClose}
+                                anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
+                                transformOrigin={{ vertical: "top", horizontal: "left" }}
+                                sx={{ mt: 1 }}
+                            >
+                                <div
+                                    style={{
+                                        padding: "20px",
+                                        maxWidth: "250px",
+                                        position: "relative",
+                                    }}
                                 >
-                                    ▼
-                                </span>
-                                <Popover
-                                    open={open}
-                                    anchorEl={anchorEl}
-                                    onClose={handleClose}
-                                    anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
-                                    transformOrigin={{ vertical: "top", horizontal: "left" }}
-                                    sx={{ mt: 1 }}
-                                >
-                                    <div
+                                    <IconButton
+                                        aria-label="close"
+                                        onClick={handleClose}
+                                        onPointerDown={(e) => e.stopPropagation()}
                                         style={{
-                                            padding: "20px",
-                                            maxWidth: "250px",
-                                            position: "relative",
+                                            position: "absolute",
+                                            top: 10,
+                                            right: 10,
+                                            padding: "5px",
                                         }}
                                     >
-                                        <IconButton
-                                            aria-label="close"
-                                            onClick={handleClose}
-                                            onPointerDown={(e) => e.stopPropagation()}
+                                        <CloseIcon style={{ fontSize: "18px" }} />
+                                    </IconButton>
+                                    <div style={{ marginRight: "40px" }}>
+                                        <strong
                                             style={{
-                                                position: "absolute",
-                                                top: 10,
-                                                right: 10,
-                                                padding: "5px",
+                                                display: "block",
+                                                marginBottom: "10px",
+                                                fontSize: "14px",
                                             }}
                                         >
-                                            <CloseIcon style={{ fontSize: "18px" }} />
-                                        </IconButton>
-                                        <div style={{ marginRight: "40px" }}>
-                                            <strong
-                                                style={{
-                                                    display: "block",
-                                                    marginBottom: "10px",
-                                                    fontSize: "14px",
-                                                }}
-                                            >
-                                                Danh sách người tham gia:
-                                            </strong>
-                                            <ul
-                                                style={{
-                                                    margin: 0,
-                                                    paddingLeft: "20px",
-                                                    listStyleType: "disc",
-                                                }}
-                                            >
-                                                {remainingUserNames.map((userName, index) => (
-                                                    <li
-                                                        key={index}
-                                                        style={{
-                                                            marginBottom: "8px",
-                                                            lineHeight: "1.5",
-                                                            fontSize: "14px",
-                                                        }}
-                                                    >
-                                                        {userName}
-                                                    </li>
-                                                ))}
-                                            </ul>
-                                        </div>
+                                            Danh sách người tham gia:
+                                        </strong>
+                                        <ul
+                                            style={{
+                                                margin: 0,
+                                                paddingLeft: "20px",
+                                                listStyleType: "disc",
+                                            }}
+                                        >
+                                            {remainingUserNames.map((userName, index) => (
+                                                <li
+                                                    key={index}
+                                                    style={{
+                                                        marginBottom: "8px",
+                                                        lineHeight: "1.5",
+                                                        fontSize: "14px",
+                                                    }}
+                                                >
+                                                    {userName}
+                                                </li>
+                                            ))}
+                                        </ul>
                                     </div>
-                                </Popover>
-                            </div>
-                        )}
+                                </div>
+                            </Popover>
+                        </div> */}
                     </div>
                 </div>
             </div>
+            
             {isModalOpen && (
                 <TaskDetailView
                     isOpen={isModalOpen}

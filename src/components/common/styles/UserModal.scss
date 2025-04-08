@@ -108,7 +108,7 @@
   }
 
   /* UpdateUserForm styling */
-.update-form {
+  .update-form {
     display: flex;
     flex-direction: column;
     gap: 1rem;
@@ -121,6 +121,16 @@
       text-align: center;
       margin-bottom: 1rem;
       color: #333;
+    }
+  
+    .avatar-preview {
+      width: 120px;
+      height: 120px;
+      object-fit: cover;
+      border-radius: 50%;
+      border: 3px solid #007bff;
+      box-shadow: 0 2px 10px rgba(0, 123, 255, 0.2);
+      margin: 0 auto 12px;
     }
   
     input[type='file'] {
@@ -157,31 +167,11 @@
       &:hover {
         background-color: #0056b3;
       }
-    }
-  }
-  .update-form {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
   
-    .avatar-preview {
-      width: 120px;
-      height: 120px;
-      object-fit: cover;
-      border-radius: 50%;
-    }
-  
-    input[type="text"], input[type="file"] {
-      padding: 8px;
-      font-size: 16px;
-    }
-  
-    button {
-      padding: 10px;
-      background: #007bff;
-      color: white;
-      border: none;
-      cursor: pointer;
+      &:disabled {
+        background-color: #ccc;
+        cursor: not-allowed;
+      }
     }
   }
   

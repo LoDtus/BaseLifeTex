@@ -4,36 +4,24 @@ import { useSelector, useDispatch } from "react-redux";
 import { useSearchParams } from "react-router-dom";
 import { updateIssueDataStatus } from "@/services/issueService";
 import { getListTaskByProjectId, changePage } from "@/redux/taskSlice";
-import Table from "@mui/material/Table";
-import TableBody from "@mui/material/TableBody";
-import TableCell from "@mui/material/TableCell";
-import TableContainer from "@mui/material/TableContainer";
-import TableHead from "@mui/material/TableHead";
-import TableRow from "@mui/material/TableRow";
-import Paper from "@mui/material/Paper";
-import { Avatar, Button, Popover } from "@mui/material";
+import { Popover } from "@mui/material";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import dayjs from "dayjs";
-import LinkIcon from "@mui/icons-material/Link";
-import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
-import EditNoteIcon from "@mui/icons-material/EditNote";
 import KabanDetail from "../task-details/TaskDetailView";
-import CommentModal from "../task-details/CommentModal";
 import MemberListContent from "./MemberList";
 import MemberListContentAdd from "./MemberListAdd";
-import "../../styles/ListView.scss";
 import TablePagination from "@mui/material/TablePagination";
 import Loading from "@/components/common/Loading";
 import IssueForm from "../form/IssueForm";
-import EditFormv2 from "../form/EditFormv2";
 import { getMembers } from "../../../../services/projectService";
 import { changeRowPerPage } from "@/redux/taskSlice";
+import { convertDateYMD } from '@/utils/convertUtils';
+import EditFormv2 from '@/components/tasks/components/form/EditFormv2'
 
 export default function ListHome({ selectedTasks = [], setSelectedTasks }) {
     const [searchParams] = useSearchParams();
     const idProject = searchParams.get("idProject");
-    const listTask = useSelector((state) => state.task.listTask);
+    const taskList = useSelector((state) => state.task.listTask);
     const [avatar, setAvatar] = useState([]);
 
     const dispatch = useDispatch();
@@ -85,12 +73,8 @@ export default function ListHome({ selectedTasks = [], setSelectedTasks }) {
     const [anchorElMemberTask, setAnchorElMemberTask] = useState(null);
     const [anchorElMemberAdd, setAnchorElMemberAdd] = useState(null);
     const [selectedTaskId, setSelectedTaskId] = useState(null);
-    const [openDetail, setOpenDetail] = useState(false);
-    const [idOpenDetail, setIdOpenDetail] = useState(null);
-    const [openComment, setOpenComment] = useState(false);
-    const [idOpenComment, setIdOpenComment] = useState(null);
-    const [editModal, setEditModal] = useState(false);
-    const [idEditModal, setIdEditModal] = useState(null);
+    // const [openDetail, setOpenDetail] = useState(false);
+    // const [idOpenDetail, setIdOpenDetail] = useState(null);
     const [open, setOpen] = useState(false);
 
     const handleChangeRowsPerPage = (event) => {
@@ -118,25 +102,15 @@ export default function ListHome({ selectedTasks = [], setSelectedTasks }) {
         }
     };
 
-    const onOpenDetail = (taskId) => {
-        setIdOpenDetail(taskId);
-        setOpenDetail(true);
-    };
+    // const onOpenDetail = (taskId) => {
+    //     setIdOpenDetail(taskId);
+    //     setOpenDetail(true);
+    // };
 
-    const closeDetail = () => {
-        setIdOpenDetail(null);
-        setOpenDetail(false);
-    };
-
-    const onOpenComment = (taskId) => {
-        setIdOpenComment(taskId);
-        setOpenComment(true);
-    };
-
-    const closeComment = () => {
-        setIdOpenComment(null);
-        setOpenComment(false);
-    };
+    // const closeDetail = () => {
+    //     setIdOpenDetail(null);
+    //     setOpenDetail(false);
+    // };
 
     const handleClickMemberTask = (event, taskId) => {
         event.stopPropagation();
@@ -161,6 +135,8 @@ export default function ListHome({ selectedTasks = [], setSelectedTasks }) {
         setSelectedTaskId(null);
     };
 
+    const [editModal, setEditModal] = useState(false);
+    const [idEditModal, setIdEditModal] = useState(null);
     const editModalOpen = (taskId) => {
         setEditModal(true);
         setIdEditModal(taskId);
@@ -169,7 +145,6 @@ export default function ListHome({ selectedTasks = [], setSelectedTasks }) {
     const editModalClose = async () => {
         setEditModal(false);
         setIdEditModal(null);
-        debouncedGetList(); // thêm điều kiện cho cái này, không phải lúc nào đóng cũng load lại trang
     };
 
     const handleSelectTask = (taskId) => {
@@ -180,364 +155,154 @@ export default function ListHome({ selectedTasks = [], setSelectedTasks }) {
     };
     return (
         <div className="list-home-wrapper">
-            <div className="add-job" onClick={() => setOpen(true)}>
-                <img src={"/icons/add-icon-1.png"} alt="add" />
-                <p>Thêm công việc</p>
+            <div className="w-fit py-1 px-5 mb-1 flex items-center border rounded-md font-semibold
+                cursor-pointer duration-200 hover:bg-light-gray active:scale-90"
+                onClick={() => setOpen(true)}
+            >
+                <svg className='w-[15px] h-[15px] aspect-square !mr-2'
+                    xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512">
+                    <path d="M256 80c0-17.7-14.3-32-32-32s-32 14.3-32 32l0 144L48 224c-17.7 0-32 14.3-32 32s14.3 32 32 32l144 0 0 144c0 17.7 14.3 32 32 32s32-14.3 32-32l0-144 144 0c17.7 0 32-14.3 32-32s-14.3-32-32-32l-144 0 0-144z"/>
+                </svg>
+                <span>Thêm công việc</span>
             </div>
-            {loading ? (
-                <Loading />
-            ) : (
-                <Paper
-                    className="table-paper"
-                    sx={{ width: "100%", overflow: "hidden" }}
-                >
-                    <TableContainer className="table-container">
-                        <Table className="task-table" aria-label="sticky table">
-                            <TableHead>
-                                <TableRow>
-                                    <TableCell className="table-header-cell !py-1"></TableCell>
-                                    <TableCell className="table-header-cell !py-1" align="center">
-                                        STT
-                                    </TableCell>
-                                    <TableCell
-                                        className="table-header-cell !py-1"
-                                        align="center"
-                                        style={{ minWidth: "100px" }}
-                                    >
-                                        Chi tiết
-                                    </TableCell>
-                                    <TableCell
-                                        className="table-header-cell !py-1"
-                                        align="left"
-                                        style={{ minWidth: "200px" }}
-                                    >
-                                        Tên công việc
-                                    </TableCell>
-                                    <TableCell
-                                        className="table-header-cell !py-1"
-                                        align="left"
-                                        style={{ minWidth: "200px" }}
-                                    >
-                                        Người nhận việc
-                                    </TableCell>
-                                    <TableCell
-                                        className="table-header-cell !py-1"
-                                        align="center"
-                                        style={{ minWidth: "150px" }}
-                                    >
-                                        Bình luận
-                                    </TableCell>
-                                    <TableCell
-                                        className="table-header-cell !py-1"
-                                        align="center"
-                                        style={{ minWidth: "150px" }}
-                                    >
-                                        Ngày bắt đầu
-                                    </TableCell>
-                                    <TableCell
-                                        className="table-header-cell !py-1"
-                                        align="center"
-                                        style={{ minWidth: "150px" }}
-                                    >
-                                        Ngày kết thúc
-                                    </TableCell>
-                                    <TableCell
-                                        className="table-header-cell !py-1"
-                                        align="center"
-                                        style={{ minWidth: "150px" }}
-                                    >
-                                        Trạng thái
-                                    </TableCell>
-                                    <TableCell
-                                        className="table-header-cell !py-1"
-                                        align="left"
-                                        style={{ minWidth: "200px" }}
-                                    >
-                                        Link
-                                    </TableCell>
-                                    <TableCell className="table-header-cell !py-1" align="left">
-                                        Actions
-                                    </TableCell>
-                                </TableRow>
-                            </TableHead>
-                            <TableBody>
-                                {listTask.length === 0 ? (
-                                    <TableRow>
-                                        <TableCell
-                                            colSpan={10}
-                                            align="center"
-                                            style={{ textAlign: "center" }}
-                                        >
-                                            <h6
-                                                style={{
-                                                    fontSize: "18px",
-                                                    fontWeight: "bold",
-                                                    margin: 0,
-                                                }}
-                                            >
-                                                Không có dữ liệu
-                                            </h6>
-                                        </TableCell>
-                                    </TableRow>
-                                ) : (
-                                    listTask.map((task, index) => (
-                                        <TableRow
-                                            key={task._id}
-                                            className="table-row"
-                                            sx={{
-                                                "&:last-child td, &:last-child th": { border: 0 },
-                                            }}
-                                        >
-                                            <TableCell className="table-cell !py-1">
-                                                <input
-                                                    type="checkbox"
-                                                    className="checkbox-input"
-                                                    checked={selectedTasks.includes(task._id)}
-                                                    onChange={() => handleSelectTask(task._id)}
+                {loading ? (
+                    <Loading />
+                ) : (
+                    <div>
+                        <div className="flex items-center bg-[#f8fafc] border border-gray-border rounded-md py-1 mb-1 font-semibold text-dark-gray">
+                            <span className='basis-[2%] flex justify-center items-center border-r border-gray-border'>
+                                <input type='checkbox'/>
+                            </span>
+                            <span className='basis-[4%] flex justify-center items-center border-r border-gray-border'>STT</span>
+                            <span className='basis-[30%] flex justify-center items-center border-r border-gray-border'>Tên công việc</span>
+                            <span className='basis-[10%] flex justify-center items-center border-r border-gray-border'>Người nhận</span>
+                            <span className='basis-[10%] flex justify-center items-center border-r border-gray-border'>Bắt đầu</span>
+                            <span className='basis-[10%] flex justify-center items-center border-r border-gray-border'>Kết thúc</span>
+                            <span className='basis-[15%] flex justify-center items-center border-r border-gray-border'>Trạng thái</span>
+                            <span className='basis-[18%] flex justify-center items-center border-r border-gray-border'>Liên kết</span>
+                            <span className='basis-[5%] flex justify-center items-center'>Xem</span>
+                        </div>
+                        <div className="border-t border-x border-gray-border rounded-md">
+                            { taskList.map((task, i) => (
+                                <div key={i} className='flex items-center border-b border-gray-border py-1 duration-200 hover:bg-light-gray'>
+                                    <div className='basis-[2%] flex justify-center items-center'>
+                                        <input type="checkbox"
+                                            checked={selectedTasks.includes(task._id)}
+                                            onChange={() => handleSelectTask(task._id)}
+                                        />
+                                    </div>
+                                    <div className='basis-[4%] flex justify-center items-center text-dark-gray'>{(Page - 1) * limit + i + 1}</div>
+                                    <div className='basis-[30%] line-clamp-2'>{ task.title }</div>
+                                    <div className='basis-[10%] flex'>
+                                        {task.assigneeId?.slice(0, 3).map((member) => {
+                                            let srcImg = avatar.find((e) => e.id === member._id)?.avatar || '/path/to/default-avatar.jpg';
+                                            return ( <img
+                                                className='w-[25px] h-[25px] aspect-square rounded-full !mr-[2px]'
+                                                src={srcImg}
+                                                title={member.userName}
+                                            />);
+                                        })}
+                                        {task.assigneeId?.length > 2 && (
+                                            <div>
+                                                <img
+                                                    className='!w-[25px] !h-[25px] cursor-pointer duration-200 active:scale-90 !mr-1'
+                                                    src="/icons/dot.png"
+                                                    onClick={(e) => handleClickMemberTask(e, task._id)}
                                                 />
-                                            </TableCell>
-                                            <TableCell className="table-cell !py-1" align="center">
-                                                {(Page - 1) * limit + index + 1}
-                                            </TableCell>
-                                            <TableCell className="table-cell !py-1" align="center">
-                                                <InfoOutlinedIcon
-                                                    className="action-icon"
-                                                    onClick={() => onOpenDetail(task._id)}
-                                                />
-                                                {idOpenDetail === task._id && (
-                                                    <KabanDetail
-                                                        open={openDetail}
-                                                        handleClose={closeDetail}
-                                                        task={task}
-                                                    />
-                                                )}
-                                            </TableCell>
-                                            <TableCell className="table-cell !py-1">
-                                                <div className="task-name">
-                                                    <img
-                                                        src="/icons/pen-icon.png"
-                                                        alt="edit"
-                                                        className="edit-icon"
-                                                    />
-                                                    <p className="text-truncate" title={task.title}>
-                                                        {task.title}
-                                                    </p>
-                                                </div>
-                                            </TableCell>
-                                            <TableCell
-                                                className="table-cell !py-1"
-                                                align="center"
-                                            >
-                                                <div className="task-icons1">
-                                                    <div className="avatar-icon">
-                                                        {task.assigneeId?.slice(0, 3).map((member, i) => {
-                                                            let srcImg = avatar.find((e) => e.id === member._id)?.avatar || '/path/to/default-avatar.jpg';
-                                                            return (
-                                                                <Avatar
-                                                                    title={member.userName}
-                                                                    src={srcImg}
-                                                                    key={i}
-                                                                    className="avatar"
-                                                                    style={{
-                                                                        cursor: "pointer",
-                                                                    }}
-                                                                />
-                                                            );
-                                                        })}
-                                                        {task.assigneeId?.length > 3 && (
-                                                            <>
-                                                                <img
-                                                                    src="/icons/dot.png"
-                                                                    className="more-icon"
-                                                                    onClick={(e) =>
-                                                                        handleClickMemberTask(e, task._id)
-                                                                    }
-                                                                />
-                                                                {selectedTaskId === task._id && (
-                                                                    <Popover
-                                                                        open={Boolean(anchorElMemberTask)}
-                                                                        anchorEl={anchorElMemberTask}
-                                                                        onClose={handleCloseMemberTask}
-                                                                        anchorOrigin={{
-                                                                            vertical: "bottom",
-                                                                            horizontal: "left",
-                                                                        }}
-                                                                        transformOrigin={{
-                                                                            vertical: "top",
-                                                                            horizontal: "left",
-                                                                        }}
-                                                                        sx={{ mt: 1 }}
-                                                                    >
-                                                                        <div className="all-member-in-task">
-                                                                            <MemberListContent
-                                                                                members={task.assigneeId}
-                                                                                onClose={handleCloseMemberTask}
-                                                                            />
-                                                                        </div>
-                                                                    </Popover>
-                                                                )}
-                                                            </>
-                                                        )}
-                                                    </div>
-                                                    <button
-                                                        className="add-user"
-                                                        onClick={(e) => handleClickMemberAdd(e, task._id)}
-                                                    >
-                                                        +
-                                                    </button>
-                                                </div>
                                                 {selectedTaskId === task._id && (
                                                     <Popover
-                                                        open={Boolean(anchorElMemberAdd)}
-                                                        anchorEl={anchorElMemberAdd}
-                                                        onClose={handleCloseMemberAdd}
-                                                        anchorOrigin={{
-                                                            vertical: "bottom",
-                                                            horizontal: "left",
-                                                        }}
-                                                        transformOrigin={{
-                                                            vertical: "top",
-                                                            horizontal: "left",
-                                                        }}
+                                                        open={Boolean(anchorElMemberTask)}
+                                                        anchorEl={anchorElMemberTask}
+                                                        onClose={handleCloseMemberTask}
+                                                        anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
+                                                        transformOrigin={{ vertical: "top", horizontal: "left" }}
                                                         sx={{ mt: 1 }}
                                                     >
-                                                        <MemberListContentAdd
-                                                            onClose={handleCloseMemberAdd}
-                                                            idProject={idProject}
-                                                            task={task}
-                                                            fetchApi={() => debouncedGetList()}
-                                                            toast={toast}
-                                                        />
+                                                        <div className="all-member-in-task">
+                                                            <MemberListContent
+                                                                members={task.assigneeId}
+                                                                onClose={handleCloseMemberTask}
+                                                            />
+                                                        </div>
                                                     </Popover>
                                                 )}
-                                            </TableCell>
-                                            <TableCell
-                                                className="table-cell !py-1 comment-cell"
-                                                align="center"
-                                                style={{ minWidth: "100px" }}
+                                            </div>
+                                        )}
+                                        <button className="w-[25px] h-[25px] aspect-square border !rounded-full cursor-pointer duration-200"
+                                            onClick={(e) => handleClickMemberAdd(e, task._id)}>+</button>
+                                        {selectedTaskId === task._id && (
+                                            <Popover
+                                                open={Boolean(anchorElMemberAdd)}
+                                                anchorEl={anchorElMemberAdd}
+                                                onClose={handleCloseMemberAdd}
+                                                anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
+                                                transformOrigin={{ vertical: "top", horizontal: "left" }}
+                                                sx={{ mt: 1 }}
                                             >
-                                                <img
-                                                    src="/icons/chat.png"
-                                                    alt="comments"
-                                                    className="comment-icon"
-                                                    onClick={() => onOpenComment(task._id)}
+                                                <MemberListContentAdd
+                                                    onClose={handleCloseMemberAdd}
+                                                    idProject={idProject}
+                                                    task={task}
+                                                    fetchApi={() => debouncedGetList()}
+                                                    toast={toast}
                                                 />
-                                                {idOpenComment === task._id && (
-                                                    <CommentModal
-                                                        open={openComment}
-                                                        handleClose={closeComment}
-                                                        task={task}
-                                                    />
-                                                )}
-                                            </TableCell>
-                                            <TableCell
-                                                className="table-cell !py-1 comment-cell"
-                                                align="center"
-                                            >
-                                                <div className="date-cell">
-                                                    <div className="date000">
-                                                        {dayjs(task.startDate).format("DD/MM/YYYY")}
-                                                    </div>
-                                                </div>
-                                            </TableCell>
-                                            <TableCell
-                                                className="table-cell !py-1 comment-cell"
-                                                align="center"
-                                            >
-                                                <div className="date-cell">
-                                                    <div className="date000">
-                                                        {dayjs(task.endDate).format("DD/MM/YYYY")}
-                                                    </div>
-                                                </div>
-                                            </TableCell>
-                                            <TableCell className="table-cell !py-1 status-cell">
-                                                <select
-                                                    value={task.status}
-                                                    onChange={(e) =>
-                                                        handleStatusChange(
-                                                            task._id,
-                                                            task.status,
-                                                            e.target.value
-                                                        )
-                                                    }
-                                                    className="status-select"
-                                                >
-                                                    <option value={1}>Công việc mới</option>
-                                                    <option value={2}>Đang thực hiện</option>
-                                                    <option value={3}>Kiểm thử</option>
-                                                    <option value={4}>Hoàn thành</option>
-                                                    <option value={5}>Đóng công việc</option>
-                                                    <option value={6}>Tạm dừng</option>
-                                                    <option value={7}>Khóa công việc</option>
-                                                </select>
-                                            </TableCell>
-                                            <TableCell className="table-cell !py-1">
-                                                <div className="date-cell">
-                                                    <a
-                                                        href={task.link}
-                                                        target="_blank"
-                                                        className="link-text text-truncate"
-                                                    >
-                                                        {task.link}
-                                                    </a>
-                                                    <LinkIcon className="action-icon" />
-                                                </div>
-                                            </TableCell>
-                                            <TableCell className="table-cell !py-1">
-                                                <Button
-                                                    className="edit-button"
-                                                    onClick={() => editModalOpen(task._id)}
-                                                >
-                                                    <EditNoteIcon className="action-icon" />
-                                                </Button>
-                                                {idEditModal === task._id && (
-                                                    <EditFormv2
-                                                        isOpen={editModal}
-                                                        onClose={editModalClose}
-                                                        task={task}
-                                                        setEditModal={setEditModal}
-                                                        setIdEditModal={setIdEditModal}
-                                                    />
-                                                )}
-                                            </TableCell>
-                                        </TableRow>
-                                    ))
-                                )}
-                            </TableBody>
-                        </Table>
-                    </TableContainer>
-                    <TablePagination
-                        component="div"
-                        count={Total}
-                        page={Page - 1} // Bắt đầu từ 1
-                        onPageChange={(e, newPage) => dispatch(changePage(newPage))}
-                        rowsPerPage={limit}
-                        onRowsPerPageChange={handleChangeRowsPerPage}
-                        rowsPerPageOptions={[5, 10, 20, 50]}
-                        labelRowsPerPage="Số trang"
-                    />
-                </Paper>
-            )}
-            {open && <IssueForm isOpen={open} onClose={() => setOpen(false)} />}
+                                            </Popover>
+                                        )}
+                                    </div>
+                                    <div className='basis-[10%] flex justify-center items-center text-dark-gray'>{ convertDateYMD(task.startDate) }</div>
+                                    <div className='basis-[10%] flex justify-center items-center text-dark-gray'>{ convertDateYMD(task.endDate) }</div>
+                                    <div className='basis-[15%] flex justify-center'>
+                                        <select
+                                            value={task.status}
+                                            onChange={(e) => handleStatusChange( task._id, task.status, e.target.value )}
+                                            className="status-select"
+                                        >
+                                            <option value={1}>Công việc mới</option>
+                                            <option value={2}>Đang thực hiện</option>
+                                            <option value={3}>Kiểm thử</option>
+                                            <option value={4}>Hoàn thành</option>
+                                            <option value={5}>Đóng công việc</option>
+                                            <option value={6}>Tạm dừng</option>
+                                            <option value={7}>Khóa công việc</option>
+                                        </select>
+                                    </div>
+                                    <div className='basis-[18%] line-clamp-1'>
+                                        <a href={`task.link`} target="_blank" rel="noopener noreferrer" className="text-blue">{ task.link }</a>
+                                    </div>
+                                    <div className='basis-[5%] flex justify-center'>
+                                        <svg className='w-[15px] h-[15px] aspect-square text-dark-gray cursor-pointer duration-200 hover:text-black active:scale-90'
+                                            // onClick={() => onOpenDetail(task._id)}
+                                            onClick={() => editModalOpen(task._id)}
+                                            xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+                                            <path d="M256 512A256 256 0 1 0 256 0a256 256 0 1 0 0 512zM216 336l24 0 0-64-24 0c-13.3 0-24-10.7-24-24s10.7-24 24-24l48 0c13.3 0 24 10.7 24 24l0 88 8 0c13.3 0 24 10.7 24 24s-10.7 24-24 24l-80 0c-13.3 0-24-10.7-24-24s10.7-24 24-24zm40-208a32 32 0 1 1 0 64 32 32 0 1 1 0-64z"/>
+                                        </svg>
+                                        { idEditModal === task._id && (
+                                            <EditFormv2
+                                                isOpen={editModal}
+                                                onClose={editModalClose}
+                                                task={task}
+                                            />
+                                        )}
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                )}
+                <TablePagination
+                    component="div"
+                    count={Total}
+                    page={Page - 1} // Bắt đầu từ 1
+                    onPageChange={(e, newPage) => dispatch(changePage(newPage))}
+                    rowsPerPage={limit}
+                    onRowsPerPageChange={handleChangeRowsPerPage}
+                    rowsPerPageOptions={[5, 10, 20, 50]}
+                    labelRowsPerPage="Số trang"
+                />
+            {open && <IssueForm
+                isOpen={open}
+                onClose={() => setOpen(false)}
+            />}
         </div>
     );
-}
-
-const styles = `
-    .status-select {
-        padding: 4px 8px;
-        border: 1px solid #d1d5db;
-        border-radius: 4px;
-        background: #fff;
-        font-size: 14px;
-        cursor: pointer;
-        outline: none;
-    }
-    .status-select:hover {
-        border-color: #9ca3af;
-}`;
-
-const styleSheet = document.createElement("style");
-styleSheet.type = "text/css";
-styleSheet.innerText = styles;
-document.head.appendChild(styleSheet);
+};

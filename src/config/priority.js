@@ -1,5 +1,5 @@
-export const PRIORITY = {
-  LOW: 0,
-  MEDIUM: 1,
-  HIGH: 2,
-};
+export const PRIORITY = [
+  { value: 0, label: "Thấp" },
+  { value: 1, label: "Trung bình" },
+  { value: 2, label: "Cao" },
+];

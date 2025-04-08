@@ -15,6 +15,8 @@ export const postIssueData = async (data) => {
   formData.append("status", +convertTaskStatus(data.status));
   formData.append("projectId", data.idProject);
   formData.append("assignerId", data.assignerId);
+  formData.append("priority", data.priority);
+  formData.append("type", data.type);
 
   const response = await axiosInstance.post(`/tasks`, formData, {
     headers: {
@@ -71,7 +73,6 @@ export const updateIssueDataStatus = async (id, data) => {
     throw error;
   }
 };
-
 
 export const addMemberTask = async (id, data) => {
   const response = await axiosInstance.post(`/tasks/${id}/add-user`, data);

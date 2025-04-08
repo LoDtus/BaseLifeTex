@@ -18,7 +18,7 @@ const ContactCard = ({ onClose, contact }) => {
       </div>
       <div className={styles.contactItem}>
         <img
-          src={avatar}
+          src={contact?.avatar}
           alt="avatar"
           className={styles.icon}
         />

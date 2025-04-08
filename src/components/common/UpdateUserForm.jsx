@@ -1,17 +1,18 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { updateUserInfo } from '../../services/authService';
 import { toast } from 'react-toastify';
 
 export default function UpdateUserForm({ onClose }) {
   const dispatch = useDispatch();
-  const user = useSelector((state) => state.auth.user);
-  const accessToken = useSelector((state) => state.auth.accessToken);
+  const user = useSelector(state => state.auth.login.currentUser.data.user);
+  const accessToken = useSelector(state => state.auth.login.currentUser.data.accessToken);
+  const isUpdating = useSelector(state => state.auth.login.isFetching);
 
   const [formData, setFormData] = useState({
+    avatar: user.avatar || '',
     userName: user.userName || '',
     phone: user.phone || '',
-    avatar: null,
   });
 
   const [preview, setPreview] = useState(user.avatar);
@@ -19,10 +20,9 @@ export default function UpdateUserForm({ onClose }) {
   const handleChange = (e) => {
     const { name, value, files } = e.target;
     if (name === 'avatar') {
-      const file = files[0];
-      if (file) {
-        setFormData({ ...formData, avatar: file });
-        setPreview(URL.createObjectURL(file));
+      if (files && files[0]) {
+        setFormData({ ...formData, avatar: files[0] });
+        setPreview(URL.createObjectURL(files[0])); // Hiển thị ảnh preview
       }
     } else {
       setFormData({ ...formData, [name]: value });
@@ -31,31 +31,49 @@ export default function UpdateUserForm({ onClose }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    const data = new FormData();
-    data.append('userName', formData.userName);
-    data.append('phone', formData.phone);
-    if (formData.avatar) {
-      data.append('avatar', formData.avatar);
+  
+    const updatedFormData = new FormData();
+    updatedFormData.append("userName", formData.userName);
+    updatedFormData.append("phone", formData.phone);
+    if (formData.avatar instanceof File) {
+      updatedFormData.append("avatar", formData.avatar); // Nếu là file mới
     }
-
+  
+    console.log("🔍 FormData chuẩn bị gửi lên:");
+    for (let pair of updatedFormData.entries()) {
+      console.log(`${pair[0]}:`, pair[1]);
+    }
+  
     try {
-      await dispatch(updateUserInfo({ data, accessToken })).unwrap();
-      toast.success('Cập nhật thành công!');
-      onClose();
-    } catch (err) {
-      toast.error('Cập nhật thất bại!');
-      console.error(err);
+      console.log("🚀 Dispatching updateUserInfo...");
+      const res = await dispatch(updateUserInfo({ data: updatedFormData, accessToken }));
+  
+      if (res.payload?.data) {
+        toast.success("Cập nhật thành công!");
+        onClose();
+      } else {
+        toast.error("Cập nhật thất bại!");
+      }
+    } catch (error) {
+      console.error("❌ Dispatch thất bại:", error);
+      toast.error("Lỗi khi cập nhật!");
     }
   };
-
+  
   return (
     <form onSubmit={handleSubmit} className="update-form">
       <h2>Cập nhật thông tin</h2>
 
       <div className="form-group">
-        {preview && <img src={preview} alt="avatar preview" className="avatar-preview" />}
-        <input type="file" name="avatar" accept="image/*" onChange={handleChange} />
+        {preview && (
+          <img src={preview} alt="avatar preview" className="avatar-preview" />
+        )}
+        <input
+          type="file"
+          name="avatar"
+          accept="image/*"
+          onChange={handleChange}
+        />
       </div>
 
       <input
@@ -75,8 +93,10 @@ export default function UpdateUserForm({ onClose }) {
         placeholder="Số điện thoại"
         required
       />
+<button type="submit" disabled={isUpdating}>
+  {isUpdating ? 'Đang lưu...' : 'Lưu'}
+</button>
 
-      <button type="submit">Lưu</button>
     </form>
   );
 }
