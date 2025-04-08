@@ -45,6 +45,7 @@ const IssueForm = ({ isOpen, onClose, status }) => {
   const [loading, setLoading] = useState(false);
   const idProject = searchParams.get("idProject");
   const [image, setImage] = useState();
+  const [imageUrl, setImageUrl] = useState(null);
   const dispatch = useDispatch();
 
   const user = useSelector((state) => state.auth.login.currentUser);
@@ -78,13 +79,13 @@ const IssueForm = ({ isOpen, onClose, status }) => {
             limit: 100,
           })
         );
+        reset();
         onClose();
       }
     } catch (error) {
       toast.error(error.response.data.message);
       throw error;
     } finally {
-      reset();
       setLoading(false); // Kết thúc loading
     }
   };
@@ -96,6 +97,27 @@ const IssueForm = ({ isOpen, onClose, status }) => {
     fetchData();
   }, [searchParams, idProject]);
 
+  const handleImageChange = (file) => {
+    setImage(file);
+    if (file) {
+      const imageUrl = URL.createObjectURL(file);
+      setImageUrl(imageUrl); // Lưu URL tạm thời
+    } else {
+      setImageUrl(null);
+    }
+  };
+
+  const labelStyle = {
+    fontWeight: "bold",
+    color: "#333",
+    marginBottom: "4px",
+    display: "block",
+  };
+
+  const inputStyle = {
+    marginBottom: "8px",
+  };
+
   return (
     <Dialog
       open={isOpen}
@@ -104,24 +126,25 @@ const IssueForm = ({ isOpen, onClose, status }) => {
       fullWidth
       PaperProps={{
         style: {
-          borderRadius: "10px",
-          padding: "10px",
-          maxHeight: "100vh",
+          borderRadius: "8px",
+          padding: "24px",
+          maxHeight: "95vh",
+          overflowY: "auto",
         },
       }}
     >
       <DialogTitle
         sx={{
           position: "relative",
-          borderBottom: "1px solid #e0e0e0",
-          m: 0,
-          p: 2,
+          borderBottom: "1px solid #eee",
+          padding: "16px 24px",
+          marginBottom: "24px",
         }}
       >
         <Typography
-          variant="h6"
+          variant="h5"
           component="div"
-          sx={{ color: "#1976d2", fontWeight: "bold" }}
+          sx={{ color: "#1976d2", fontWeight: "600" }}
         >
           Tạo công việc
         </Typography>
@@ -130,8 +153,8 @@ const IssueForm = ({ isOpen, onClose, status }) => {
           onClick={onClose}
           sx={{
             position: "absolute",
-            right: 8,
-            top: 8,
+            right: 16,
+            top: 16,
             color: (theme) => theme.palette.grey[500],
           }}
         >
@@ -143,409 +166,328 @@ const IssueForm = ({ isOpen, onClose, status }) => {
         <Loading />
       ) : (
         <form onSubmit={handleSubmit(onSubmit)}>
-          <DialogContent>
-            <Grid container spacing={3} sx={{ mt: 1 }}>
-              {/* Row 1: Tên vấn đề và Link */}
+          <DialogContent sx={{ padding: "0 24px" }}>
+            <Grid container spacing={3}>
+              {/* Row 1: Tên công việc và Link */}
               <Grid item xs={12} md={6}>
-                <Box sx={{ display: "flex", gap: 4 }}>
-                  <Typography
-                    variant="subtitle2"
-                    sx={{
-                      mb: 1,
-                      color: "#666",
-                      fontWeight: "bold",
-                      whiteSpace: "nowrap",
-                      mr: 1.5,
-                    }}
-                  >
+                <FormControl fullWidth sx={inputStyle}>
+                  <label htmlFor="title" style={labelStyle}>
                     Tên công việc:
-                  </Typography>
-                  <Box sx={{ width: "100%" }}>
-                    <TextField
-                      fullWidth
-                      variant="outlined"
-                      {...register("title", { required: true })}
-                      size="small"
-                      sx={{ mb: 1 }}
-                    />
-                    {errors.title && (
-                      <Typography
-                        variant="span"
-                        sx={{ color: "red", fontSize: "small" }}
-                      >
-                        Trường này không được để trống.
-                      </Typography>
-                    )}
-                  </Box>
-                </Box>
+                  </label>
+                  <TextField
+                    id="title"
+                    variant="outlined"
+                    {...register("title", {
+                      required: "Tên công việc không được để trống.",
+                    })}
+                    size="small"
+                    error={!!errors.title}
+                    helperText={errors.title?.message}
+                  />
+                </FormControl>
               </Grid>
               <Grid item xs={12} md={6}>
-                <Box sx={{ display: "flex", gap: 4 }}>
-                  <Typography
-                    variant="subtitle2"
-                    sx={{
-                      mb: 1,
-                      color: "#666",
-                      fontWeight: "bold",
-                      whiteSpace: "nowrap",
-                    }}
-                  >
+                <FormControl fullWidth sx={inputStyle}>
+                  <label htmlFor="link" style={labelStyle}>
                     Link:
-                  </Typography>
-                  <Box sx={{ width: "100%" }}>
-                    <TextField
-                      fullWidth
-                      variant="outlined"
-                      {...register("link", { required: true })}
-                      size="small"
-                      sx={{ mb: 1 }}
-                    />
-                    {errors.link && (
-                      <Typography
-                        variant="span"
-                        sx={{ color: "red", fontSize: "small" }}
-                      >
-                        Trường này không được để trống.
-                      </Typography>
-                    )}
-                  </Box>
-                </Box>
+                  </label>
+                  <TextField
+                    id="link"
+                    variant="outlined"
+                    {...register("link", {
+                      required: "Link không được để trống.",
+                    })}
+                    size="small"
+                    error={!!errors.link}
+                    helperText={errors.link?.message}
+                  />
+                </FormControl>
               </Grid>
 
-              {/* Row 2: Mô tả chi tiết và Người nhận việc, Hình ảnh */}
-              <Grid item xs={12} md={6}>
-                <Box sx={{ display: "flex", gap: 4 }}>
-                  <Typography
-                    variant="subtitle2"
-                    sx={{
-                      mb: 1,
-                      color: "#666",
-                      fontWeight: "bold",
-                      whiteSpace: "nowrap",
-                    }}
-                  >
+              {/* Row 2: Mô tả chi tiết */}
+              <Grid item xs={12}>
+                <FormControl fullWidth sx={inputStyle}>
+                  <label htmlFor="description" style={labelStyle}>
                     Mô tả chi tiết:
-                  </Typography>
-                  <Box sx={{ width: "100%" }}>
-                    <TextField
-                      fullWidth
-                      variant="outlined"
-                      {...register("description", { required: true })}
-                      multiline
-                      rows={6}
-                      sx={{ mb: 1 }}
-                    />
-                    {errors.description && (
-                      <Typography
-                        variant="span"
-                        sx={{ color: "red", fontSize: "small" }}
-                      >
-                        Trường này không được để trống.
-                      </Typography>
-                    )}
-                  </Box>
-                </Box>
-              </Grid>
-              <Grid item xs={12} md={6}>
-                <Box sx={{ display: "flex", flexDirection: "column", gap: 4 }}>
-                  <Box sx={{ display: "flex", gap: 4 }}>
-                    <Typography
-                      variant="subtitle2"
-                      sx={{
-                        mb: 1,
-                        color: "#666",
-                        whiteSpace: "nowrap",
-                        fontWeight: "bold",
-                      }}
-                    >
-                      Người nhận việc:
+                  </label>
+                  <textarea
+                    id="description"
+                    style={{
+                      width: "100%",
+                      padding: "8px",
+                      border: "1px solid #ccc",
+                      borderRadius: "4px",
+                      fontFamily: "Roboto, sans-serif",
+                      fontSize: "0.875rem",
+                      lineHeight: 1.43,
+                      resize: "vertical",
+                      minHeight: "100px",
+                    }}
+                    rows={4}
+                    {...register("description", {
+                      required: "Mô tả chi tiết không được để trống.",
+                    })}
+                  />
+                  {errors.description && (
+                    <Typography variant="caption" color="error">
+                      {errors.description.message}
                     </Typography>
-                    <FormControl fullWidth size="small">
-                      <Controller
-                        name="personName"
-                        control={control}
-                        rules={{
-                          required: "Vui lòng chọn ít nhất một người nhận việc",
-                        }}
-                        render={({ field }) => (
-                          <Select
-                            {...field}
-                            labelId="demo-multiple-checkbox-label"
-                            id="demo-multiple-checkbox"
-                            multiple
-                            value={field.value || []}
-                            onChange={(event) =>
-                              field.onChange(event.target.value)
-                            }
-                            renderValue={(selected) =>
-                              selected
-                                ?.map(
-                                  (id) =>
-                                    selectedPerson.find(
-                                      (person) => person._id === id
-                                    )?.userName
-                                )
-                                .join(", ")
-                            }
-                            MenuProps={MenuProps}
-                            sx={{
-                              mb: 1,
-                            }}
-                          >
-                            {selectedPerson?.map((person) => (
-                              <MenuItem key={person._id} value={person._id}>
-                                <Checkbox
-                                  checked={
-                                    field.value?.includes(person._id) || false
-                                  }
-                                />
-                                <Box
-                                  display="flex"
-                                  alignItems="center"
-                                  sx={{
-                                    ml: 4,
-                                  }}
-                                >
-                                  <Avatar
-                                    sx={{
-                                      bgcolor: "purple",
-                                      width: 40,
-                                      height: 40,
-                                      marginRight: 2,
-                                    }}
-                                    src={
-                                      person.avatar ||
-                                      "/imgs/f8ad738c648cb0c7cc815d6ceda805b0.png"
-                                    }
-                                  ></Avatar>
-                                  <Typography
-                                    sx={{
-                                      fontWeight: 500,
-                                      width: "200px",
-                                      whiteSpace: "nowrap",
-                                      overflow: "hidden",
-                                      textOverflow: "ellipsis",
-                                    }}
-                                  >
-                                    {person.userName}
-                                  </Typography>
-                                </Box>
-                              </MenuItem>
-                            ))}
-                          </Select>
-                        )}
-                      />
-                      {errors.personName && (
-                        <Typography
-                          variant="span"
-                          sx={{ color: "red", fontSize: "small" }}
-                        >
-                          {errors.personName.message}
-                        </Typography>
-                      )}
-                    </FormControl>
-                  </Box>
-                  <Box sx={{ display: "flex", gap: 4, mt: 2 }}>
-                    <Typography
-                      variant="subtitle2"
-                      sx={{
-                        mb: 1,
-                        color: "#666",
-                        whiteSpace: "nowrap",
-                        fontWeight: "bold",
-                      }}
-                    >
-                      Hình ảnh:
-                    </Typography>
-                    <Box
-                      sx={{
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        borderRadius: "5px",
-                        p: 2,
-                        mb: 2,
-                        ml: 4.5,
-                        cursor: "pointer",
-                      }}
-                    >
-                      <UploadImageButton
-                        onImageChange={(file) => setImage(file)}
-                      />
-                    </Box>
-                  </Box>
-                </Box>
+                  )}
+                </FormControl>
               </Grid>
 
-              {/* Row 3: Ngày bắt đầu và Ngày kết thúc */}
+              {/* Row 3: Người nhận việc */}
               <Grid item xs={12} md={6}>
-                <Box sx={{ display: "flex", gap: 4 }}>
-                  <Typography
-                    variant="subtitle2"
+                <FormControl fullWidth sx={inputStyle}>
+                  <label htmlFor="personName" style={labelStyle}>
+                    Người nhận việc:
+                  </label>
+                  <Controller
+                    name="personName"
+                    control={control}
+                    rules={{
+                      required: "Vui lòng chọn ít nhất một người nhận việc",
+                    }}
+                    render={({ field }) => (
+                      <Select
+                        {...field}
+                        labelId="personName-label"
+                        id="personName"
+                        multiple
+                        value={field.value || []}
+                        onChange={(event) => field.onChange(event.target.value)}
+                        renderValue={(selected) =>
+                          selected
+                            ?.map(
+                              (id) =>
+                                selectedPerson.find(
+                                  (person) => person._id === id
+                                )?.userName
+                            )
+                            .join(", ")
+                        }
+                        MenuProps={MenuProps}
+                        size="small"
+                        error={!!errors.personName}
+                      >
+                        {selectedPerson?.map((person) => (
+                          <MenuItem key={person._id} value={person._id}>
+                            <Checkbox
+                              checked={
+                                field.value?.includes(person._id) || false
+                              }
+                            />
+                            <Box
+                              display="flex"
+                              alignItems="center"
+                              sx={{ ml: 1 }}
+                            >
+                              <Avatar
+                                sx={{
+                                  bgcolor: "purple",
+                                  width: 30,
+                                  height: 30,
+                                  marginRight: 1,
+                                }}
+                                src={
+                                  person.avatar ||
+                                  "/imgs/f8ad738c648cb0c7cc815d6ceda805b0.png"
+                                }
+                              />
+                              <Typography
+                                sx={{
+                                  fontWeight: 500,
+                                  width: "180px",
+                                  whiteSpace: "nowrap",
+                                  overflow: "hidden",
+                                  textOverflow: "ellipsis",
+                                }}
+                              >
+                                {person.userName}
+                              </Typography>
+                            </Box>
+                          </MenuItem>
+                        ))}
+                      </Select>
+                    )}
+                  />
+                  {errors.personName && (
+                    <Typography variant="caption" color="error">
+                      {errors.personName.message}
+                    </Typography>
+                  )}
+                </FormControl>
+              </Grid>
+
+              {/* Row 4: Hình ảnh */}
+              <Grid item xs={12} md={6}>
+                <FormControl fullWidth sx={inputStyle}>
+                  <label style={labelStyle}>Hình ảnh:</label>
+                  <Box
                     sx={{
-                      mb: 1,
-                      color: "#666",
-                      fontWeight: "bold",
-                      whiteSpace: "nowrap",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "flex-start",
+                      border: "1px dashed #ccc",
+                      borderRadius: "4px",
+                      padding: "8px",
+                      cursor: "pointer",
+                      "&:hover": {
+                        borderColor: "#999",
+                      },
                     }}
                   >
+                    <UploadImageButton
+                      onImageChange={handleImageChange}
+                      Image={imageUrl} // Truyền URL tạm thời xuống UploadImageButton
+                    />
+                    {image && (
+                      <Typography
+                        variant="caption"
+                        sx={{ ml: 2, color: "green" }}
+                      >
+                        Đã chọn ảnh
+                      </Typography>
+                    )}
+                    {!image && (
+                      <Typography variant="caption" color="textSecondary">
+                        Chọn hình ảnh liên quan đến công việc (tùy chọn)
+                      </Typography>
+                    )}
+                  </Box>
+                </FormControl>
+              </Grid>
+
+              {/* Row 5: Ngày bắt đầu */}
+              <Grid item xs={12} md={6}>
+                <FormControl fullWidth sx={inputStyle}>
+                  <label htmlFor="startDate" style={labelStyle}>
                     Ngày bắt đầu:
-                  </Typography>
-                  <Box sx={{ width: "100%" }}>
-                    <TextField
-                      fullWidth
-                      variant="outlined"
-                      type="date"
-                      {...register("startDate", { required: true })}
-                      size="small"
-                      InputLabelProps={{
-                        shrink: true,
-                      }}
-                      sx={{ mb: 1 }}
-                    />
-                    {errors.startDate && (
-                      <Typography
-                        variant="span"
-                        sx={{ color: "red", fontSize: "small" }}
-                      >
-                        Trường này không được để trống.
-                      </Typography>
-                    )}
-                  </Box>
-                </Box>
-              </Grid>
-              <Grid item xs={12} md={6}>
-                <Box sx={{ display: "flex", gap: 4 }}>
-                  <Typography
-                    variant="subtitle2"
-                    sx={{
-                      mb: 1,
-                      color: "#666",
-                      fontWeight: "bold",
-                      whiteSpace: "nowrap",
+                  </label>
+                  <TextField
+                    id="startDate"
+                    variant="outlined"
+                    type="date"
+                    {...register("startDate", {
+                      required: "Ngày bắt đầu không được để trống.",
+                    })}
+                    size="small"
+                    InputLabelProps={{
+                      shrink: true,
                     }}
-                  >
+                    error={!!errors.startDate}
+                    helperText={errors.startDate?.message}
+                  />
+                </FormControl>
+              </Grid>
+
+              {/* Row 6: Ngày kết thúc */}
+              <Grid item xs={12} md={6}>
+                <FormControl fullWidth sx={inputStyle}>
+                  <label htmlFor="endDate" style={labelStyle}>
                     Ngày kết thúc:
-                  </Typography>
-                  <Box sx={{ width: "100%" }}>
-                    <TextField
-                      fullWidth
-                      variant="outlined"
-                      type="date"
-                      {...register("endDate", { required: true })}
-                      size="small"
-                      InputLabelProps={{
-                        shrink: true,
-                      }}
-                      sx={{ mb: 1 }}
-                    />
-                    {errors.endDate && (
-                      <Typography
-                        variant="span"
-                        sx={{ color: "red", fontSize: "small" }}
-                      >
-                        Trường này không được để trống.
-                      </Typography>
-                    )}
-                  </Box>
-                </Box>
-              </Grid>
-              {/* Row 4: Độ ưu tiên và Phân loại */}
-              <Grid item xs={12} md={6}>
-                <Box sx={{ display: "flex", gap: 4 }}>
-                  <Typography
-                    variant="subtitle2"
-                    sx={{
-                      mb: 1,
-                      color: "#666",
-                      fontWeight: "bold",
-                      whiteSpace: "nowrap",
+                  </label>
+                  <TextField
+                    id="endDate"
+                    variant="outlined"
+                    type="date"
+                    {...register("endDate", {
+                      required: "Ngày kết thúc không được để trống.",
+                    })}
+                    size="small"
+                    InputLabelProps={{
+                      shrink: true,
                     }}
-                  >
+                    error={!!errors.endDate}
+                    helperText={errors.endDate?.message}
+                  />
+                </FormControl>
+              </Grid>
+
+              {/* Row 7: Độ ưu tiên */}
+              <Grid item xs={12} md={6}>
+                <FormControl fullWidth sx={inputStyle}>
+                  <label htmlFor="priority" style={labelStyle}>
                     Độ ưu tiên:
-                  </Typography>
-                  <Box sx={{ width: "100%" }}>
-                    <FormControl fullWidth size="small">
-                      <Controller
-                        name="priority"
-                        control={control}
-                        defaultValue="" // Giá trị mặc định
-                        rules={{ required: "Vui lòng chọn độ ưu tiên" }}
-                        render={({ field }) => (
-                          <Select
-                            {...field}
-                            variant="outlined"
-                            size="small"
-                            sx={{ mb: 1 }}
-                          >
-                            {PRIORITY.map((option) => (
-                              <MenuItem key={option.value} value={option.value}>
-                                {option.label}
-                              </MenuItem>
-                            ))}
-                          </Select>
-                        )}
-                      />
-                      {errors.priority && (
-                        <Typography
-                          variant="span"
-                          sx={{ color: "red", fontSize: "small" }}
-                        >
-                          {errors.priority.message}
-                        </Typography>
-                      )}
-                    </FormControl>
-                  </Box>
-                </Box>
+                  </label>
+                  <Controller
+                    name="priority"
+                    control={control}
+                    defaultValue=""
+                    rules={{ required: "Vui lòng chọn độ ưu tiên" }}
+                    render={({ field }) => (
+                      <Select
+                        {...field}
+                        variant="outlined"
+                        size="small"
+                        error={!!errors.priority}
+                      >
+                        {PRIORITY.map((option) => (
+                          <MenuItem key={option.value} value={option.value}>
+                            {option.label}
+                          </MenuItem>
+                        ))}
+                      </Select>
+                    )}
+                  />
+                  {errors.priority && (
+                    <Typography variant="caption" color="error">
+                      {errors.priority.message}
+                    </Typography>
+                  )}
+                </FormControl>
               </Grid>
+
+              {/* Row 8: Phân loại */}
               <Grid item xs={12} md={6}>
-                <Box sx={{ display: "flex", gap: 4 }}>
-                  <Typography
-                    variant="subtitle2"
-                    sx={{
-                      mb: 1,
-                      color: "#666",
-                      whiteSpace: "nowrap",
-                      fontWeight: "bold",
-                    }}
-                  >
+                <FormControl fullWidth sx={inputStyle}>
+                  <label htmlFor="type" style={labelStyle}>
                     Phân loại:
-                  </Typography>
-                  <Box sx={{ width: "100%" }}>
-                    <FormControl fullWidth size="small">
-                      <Controller
-                        name="type"
-                        control={control}
-                        defaultValue=""
-                        rules={{ required: "Vui lòng chọn loại" }}
-                        render={({ field }) => (
-                          <Select
-                            {...field}
-                            variant="outlined"
-                            size="small"
-                            sx={{ mb: 1 }}
-                          >
-                            <MenuItem value="bug">Bug</MenuItem>
-                            <MenuItem value="new_request">Yêu cầu mới</MenuItem>
-                          </Select>
-                        )}
-                      />
-                    </FormControl>
-                  </Box>
-                </Box>
+                  </label>
+                  <Controller
+                    name="type"
+                    control={control}
+                    defaultValue=""
+                    rules={{ required: "Vui lòng chọn loại" }}
+                    render={({ field }) => (
+                      <Select
+                        {...field}
+                        variant="outlined"
+                        size="small"
+                        error={!!errors.type}
+                      >
+                        <MenuItem value="bug">Bug</MenuItem>
+                        <MenuItem value="new_request">Yêu cầu mới</MenuItem>
+                      </Select>
+                    )}
+                  />
+                  {errors.type && (
+                    <Typography variant="caption" color="error">
+                      {errors.type.message}
+                    </Typography>
+                  )}
+                </FormControl>
               </Grid>
             </Grid>
           </DialogContent>
 
-          <DialogActions sx={{ justifyContent: "flex-end", p: 2 }}>
+          <DialogActions
+            sx={{ justifyContent: "flex-end", padding: "16px 24px" }}
+          >
+            <Button onClick={onClose} sx={{ textTransform: "none" }}>
+              Hủy
+            </Button>
             <Button
               variant="contained"
               type="submit"
               sx={{
                 bgcolor: "#1976d2",
-                borderRadius: "24px",
+                borderRadius: "4px",
                 textTransform: "none",
-                px: 8,
+                padding: "8px 20px",
+                "&:hover": {
+                  bgcolor: "#1565c0",
+                },
               }}
             >
               Tạo

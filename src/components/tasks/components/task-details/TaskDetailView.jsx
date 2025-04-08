@@ -15,6 +15,7 @@ import {
 import "../../styles/ListView.scss";
 import "../../styles/TaskDetails.scss"
 
+import EditFormv2 from '@/components/tasks/components/form/EditFormv2';
 import EventAvailableIcon from "@mui/icons-material/EventAvailable";
 import { toast } from "react-toastify";
 import { convertDate, convertStatus } from "../../../../utils/convertUtils";
@@ -55,6 +56,7 @@ export default function TaskDetailView({ task, handleClose }) {
     const [page, setPage] = useState(1);
     const [totalPage, setTotalPage] = useState(0);
     const [loading, setLoading] = useState(false);
+    const [ openEditForm, setOpenEditForm ] = useState(false);
 
     const getMemberByProject = async (projectId) => {
         const response = await getlistUser(projectId);
@@ -197,6 +199,13 @@ export default function TaskDetailView({ task, handleClose }) {
                                     />
                                 </div>
                                 <div className="comment-section">
+                                    <button
+                                        className='py-2 w-full border bg-blue text-white font-semibold !rounded-md
+                                            cursor-pointer duration-200 hover:bg-[#009be8] active:scale-90'
+                                        onClick={() => setOpenEditForm(true)}
+                                    >
+                                        Chỉnh sửa
+                                    </button>
                                     <h4>Bình luận</h4>
                                     {user && user.data && (
                                         <>
@@ -470,6 +479,9 @@ export default function TaskDetailView({ task, handleClose }) {
                     </Box>
                 )}
             </Modal>
+            { openEditForm && (
+                <EditFormv2/>
+            )}
         </div>
     );
 };
