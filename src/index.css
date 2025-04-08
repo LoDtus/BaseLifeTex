@@ -38,6 +38,11 @@ body {
   /* Màu của mũi tên */
 }
 
+.header-filter {
+  display: flex;
+  justify-content: space-between;
+}
+
 @theme {
   --color-black: #292929;
   --color-soft-black: #383838;
