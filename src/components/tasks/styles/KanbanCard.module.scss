@@ -1,0 +1,13 @@
+.buttonIcon{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid;
+    height: 18.5px;
+    width: 28px;
+    margin-right: 3px;
+    border-radius: 3px;
+}
+.buttonIcon:hover{
+    border: 1px solid red;
+}

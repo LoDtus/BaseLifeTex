@@ -90,6 +90,7 @@ const taskSlice = createSlice({
         builder // Get List Task
             .addCase(getListTaskByProjectId.pending, (state) => {
                 state.isFetching = true;
+                state.error = null;
             })
             .addCase(getListTaskByProjectId.fulfilled, (state, action) => {
                 state.isFetching = false;
