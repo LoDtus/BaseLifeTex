@@ -27,10 +27,10 @@ const TotalProjectMember = ({ idProject }) => {
 
   return (
     <div className={styles.members_container}>
-      <div className={styles.members_bubble}>
+      { taskCount > 0 && <div className={styles.members_bubble}>
         {/* Hiển thị số lượng thành viên */}
         <span>{taskCount}</span>
-      </div>
+      </div>}
     </div>
   );
 };
