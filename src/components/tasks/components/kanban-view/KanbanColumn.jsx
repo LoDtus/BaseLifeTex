@@ -37,24 +37,38 @@ export default function KanbanColumn({
   return (
     <div
       ref={setNodeRef}
-      className={`kanban-column border ${
-        isOver ? "kanban-column-over !bg-[#f5f7f9]" : "!bg-[#f5f7f9]"
-      }`}
+      className={`h-full !ml-1  p-2 border border-gray-border rounded-md bg-[#f4f5f7] overflow-y-auto overflow-x-hidden
+                ${isOver ? "kanban-column-over" : ""}`}
+      style={{
+        height: "calc(100vh - 150px)",
+        width: "14.2%",
+      }}
     >
-      <h3 className="!m-0">
-        {column.title}: {column.tasks.length}
+      <h3 className="flex items-center mb-2">
+        <span className="font-semibold !text-sm">{column.title}</span>
+        <div className="text-[10px] font-semibold py-[2px] bg-[#dbddde] px-1 rounded-full !ml-1">
+          <span>{column.tasks.length}</span>
+        </div>
       </h3>
-      <button className="add-task" onClick={() => setOpen(true)}>
-        ➕ Thêm công việc
+
+      <button
+        className="w-full py-1 px-2 bg-white text-dark-gray border border-dashed border-gray-border rounded-md
+                    cursor-pointer duration-200 hover:text-black hover:border-black active:scale-90"
+        onClick={() => setOpen(true)}
+      >
+        Thêm công việc
       </button>
-      <div className="kanban-column-scroll">
+      <div>
         <SortableContext
           id={columnId}
-          items={sortedTasks.map((task) => task.id)} // Sử dụng sortedTasks ở đây
+          items={sortedTasks.map((task) => task.id)}
           strategy={verticalListSortingStrategy}
         >
-          {sortedTasks.length === 0 ? ( // Sử dụng sortedTasks ở đây
-            <div className="empty-column-placeholder">
+          {sortedTasks.length === 0 ? (
+            <div
+              className="w-full p-2 mt-1 bg-white border !border-dashed border-black rounded-md
+                            flex justify-center items-center"
+            >
               Kéo thả công việc vào đây
             </div>
           ) : (

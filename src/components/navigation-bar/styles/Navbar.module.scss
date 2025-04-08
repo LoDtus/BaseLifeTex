@@ -2,6 +2,7 @@
   display: flex;
   flex-direction: column;
   height: 100vh; // Đặt chiều cao của navbar là 100% chiều cao của viewport
+  padding: 4px;
 }
 
 .headerNavbar {
@@ -27,6 +28,24 @@
     flex-direction: column;
     justify-content: center;
     flex-shrink: 0;
+    position: relative;
+    top: 0;
+    left: 5px;
+    display: inline-block;
+  }
+  .notificationBadge {
+    top: -5px;
+    right: -10px;
+    width: 15px;
+    height: 15px;
+    background-color: red;
+    color: white;
+    border-radius: 50%;
+    padding: 3px 6px;
+    font-size: 10px;
+    font-weight: bold;
+    text-align: center;
+    line-height: 15px;
   }
 }
 

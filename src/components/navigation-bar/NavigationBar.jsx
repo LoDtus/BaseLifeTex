@@ -9,14 +9,11 @@ import AddProjectModal from "./components/AddProjectModal";
 
 export default function NavigationBar({ searchTerm }) {
   const lstProject = useSelector((state) => state.project.listProject);
-  const selectedProjectId = useSelector(
-    (state) => state.project.selectedProjectId
-  );
+  const selectedProjectId = useSelector((state) => state.project.selectedProjectId);
   const [loading, setLoading] = useState(true); // State for loading
   const [isAddProjectModalOpen, setIsAddProjectModalOpen] = useState(false);
   const navigate = useNavigate(); // Initialize navigate
   const dispatch = useDispatch();
-
   const fetchProjects = async () => {
     setLoading(true); // Start loading
     try {
@@ -32,6 +29,13 @@ export default function NavigationBar({ searchTerm }) {
     currentUrl.searchParams.set("idProject", projectId); // Add or update idProject in URL
     navigate(`${currentUrl.pathname}${currentUrl.search}`); // Navigate to the updated URL
   };
+  // <<<<<<< HEAD
+
+  //   useEffect(() => {
+  //     fetchProjects();
+  //   }, []);
+  // =======
+  // >>>>>>> BaseLifeTex_ducthanhdev
 
   const handleAddProjectClick = () => {
     setIsAddProjectModalOpen(true); // Mở modal khi nút được click
@@ -55,9 +59,32 @@ export default function NavigationBar({ searchTerm }) {
     }
   }, [lstProject, dispatch, navigate]);
 
-  const filteredProjects = lstProject.filter((project) =>
-    project.name.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  useEffect(() => {
+    if (lstProject.length > 0) {
+      const firstProjectId = lstProject[0]._id;
+      dispatch(setSelectedProject(firstProjectId));
+      const currentUrl = new URL(window.location.href);
+      currentUrl.searchParams.set("idProject", firstProjectId);
+      navigate(`${currentUrl.pathname}${currentUrl.search}`);
+    }
+  }, [lstProject, dispatch, navigate]);
+
+  const removeAccents = (str) => {
+    return str
+      ? str
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .toLowerCase()
+      : "";
+  };
+
+  const filteredProjects = lstProject?.filter((project) => {
+    const projectName = removeAccents(project?.name);
+    const searchKeyword = removeAccents(searchTerm);
+
+    // Nếu không có từ khóa tìm kiếm, hiển thị tất cả dự án
+    return searchKeyword ? projectName.includes(searchKeyword) : true;
+  });
 
   return (
     <div className={styles.navbar}>
@@ -95,13 +122,20 @@ export default function NavigationBar({ searchTerm }) {
             </defs>
           </svg>
         </div>
-        <div className={styles.projectListTitle}>Danh sách dự án tham gia</div>
-        <button
-          className={styles.addProjectButton}
-          onClick={handleAddProjectClick}
-        >
-          <img src={"/icons/add-icon-1.png"} alt="add" />
-        </button>
+        <div className={styles.projectListTitle}>
+          Danh sách dự án tham gia
+          <span className={styles.notificationBadge}>
+            {filteredProjects.length}
+          </span>
+        </div>
+      </div>
+      <div className='py-2 px-3 mb-1 flex justify-center items-center border-1 border-dashed rounded-md font-semibold text-dark-gray
+        cursor-pointer duration-200 hover:border-black hover:text-black active:scale-90'
+        onClick={handleAddProjectClick}>
+        <svg className='w-[20px] h-[20px] aspect-square !mr-2' xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512">
+        <path d="M256 80c0-17.7-14.3-32-32-32s-32 14.3-32 32l0 144L48 224c-17.7 0-32 14.3-32 32s14.3 32 32 32l144 0 0 144c0 17.7 14.3 32 32 32s32-14.3 32-32l0-144 144 0c17.7 0 32-14.3 32-32s-14.3-32-32-32l-144 0 0-144z"/>
+        </svg>
+        Thêm dự án
       </div>
       <div className={styles.bodyNavbar}>
         {loading ? (
@@ -138,4 +172,4 @@ export default function NavigationBar({ searchTerm }) {
       )}
     </div>
   );
-}
+};

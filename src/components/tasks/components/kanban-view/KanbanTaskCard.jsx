@@ -5,8 +5,11 @@ import CloseIcon from "@mui/icons-material/Close";
 import React, { useState } from "react";
 import dayjs from "dayjs";
 import Tooltip from "@mui/material/Tooltip";
+// import KanbanCards from "../../styles/KanbanCard.module.scss";
+import TaskDetailView from "../task-details/TaskDetailView";
+import ListIcon from "@mui/icons-material/List";
 
-function KanbanTaskCard({ selectedTasks, setSelectedTasks, task }) {
+export default function KanbanTaskCard({ selectedTasks, setSelectedTasks, task }) {
     const {
         attributes,
         listeners,
@@ -15,16 +18,14 @@ function KanbanTaskCard({ selectedTasks, setSelectedTasks, task }) {
         transition,
         isDragging,
     } = useSortable({ id: task.id });
-
     const style = {
         transform: CSS.Transform.toString(transform),
         transition: "transform 0.2s ease, opacity 0.2s ease", // Thêm transition cho transform và opacity
         opacity: isDragging ? 0.6 : 1,
     };
-
     const [anchorEl, setAnchorEl] = useState(null);
     const [isKanbaLabel, setIsKanbaLabel] = useState(false);
-
+    const [isModalOpen, setIsModalOpen] = useState(false);
     const handleClick = (event) => {
         // event.preventDefault();
         event.stopPropagation();
@@ -37,12 +38,10 @@ function KanbanTaskCard({ selectedTasks, setSelectedTasks, task }) {
         }
         setAnchorEl(null);
     };
-
     const handleLabelClick = (event) => {
         event.stopPropagation();
         setIsKanbaLabel((prev) => !prev);
     };
-
     const open = Boolean(anchorEl);
     const primaryUserName =
         task.assigneeUserNames && task.assigneeUserNames.length > 0
@@ -59,28 +58,51 @@ function KanbanTaskCard({ selectedTasks, setSelectedTasks, task }) {
             : [...selectedTasks, taskId];
         setSelectedTasks(updatedSelection);
     };
-
+    const handleButtonClick = React.useCallback((event) => {
+        event.stopPropagation();
+        setIsModalOpen((prev) => !prev);
+    }, []);
+    const handleCloseModal = () => {
+        setIsModalOpen(false); // Đóng modal khi cần
+    };
+    const handlePointerDown = (event) => {
+        event.stopPropagation();
+    };
     return (
-        <div
-            ref={setNodeRef}
-            style={style}
-            {...listeners}
-            {...attributes}
-            className={`kanban-card border !h-[90px] flex flex-col justify-between ${isDragging ? "dragging" : ""}`}
-        >
-            <div className="task-content">
-                <div style={{ display: "flex", width: "100%" }}>
-                    <Tooltip
-                        title={task.title}
-                        placement="top"
-                        arrow
-                        classes={{ tooltip: "custom-tooltip" }}
-                    >
-                        <p className="truncate !mr-2">{task.title}</p>
-                    </Tooltip>
+        <div>
+            <div
+                ref={setNodeRef}
+                style={style}
+                {...listeners}
+                {...attributes}
+                // className={`kanban-card ${isDragging ? "dragging" : ""}`}
+                className='mt-1 bg-white border !border-gray-border rounded-md
+                cursor-grab active:cursor-grabbing'
+            >
+                <div className="flex items-start p-2 border-b border-gray-border"
+                >
+                    <div className='grow'>
+                        <Tooltip
+                            className='line-clamp-2 font-semibold'
+                            classes={{ tooltip: "custom-tooltip" }}
+                            title={task.title}
+                            placement="top"
+                            arrow
+                            onPointerDown={handlePointerDown}
+                            onClick={handleButtonClick}
+                        >
+                            {task.title}
+                        </Tooltip>
+                        <span
+                            className="text-[12px]"
+                            onClick={handleLabelClick}
+                        >
+                            {isKanbaLabel ? `Kanban ${task.id}` : `${dayjs(task.endDate).format("DD/MM/YYYY") || "Chưa giao"}`}
+                        </span>
+                    </div>
                     <input
                         type="checkbox"
-                        className="checkbox-input"
+                        // className={KanbanCards.checkbox}
                         checked={selectedTasks.includes(task._id)}
                         onChange={(e) => {
                             handleSelectTask(e, task._id);
@@ -88,104 +110,109 @@ function KanbanTaskCard({ selectedTasks, setSelectedTasks, task }) {
                         onPointerDown={(e) => e.stopPropagation()}
                     />
                 </div>
-            </div>
-            <div className="!m-0 flex justify-between">
-                <span
-                    className="project-label"
-                    onClick={handleLabelClick}
-                    style={{ cursor: "pointer" }}
-                >
-                    {isKanbaLabel
-                        ? `Kanban ${task.id}`
-                        : `📅 ${dayjs(task.endDate).format("DD/MM/YYYY") || "Chưa giao"}`}
-                </span>
-                <div style={{ display: "flex", alignItems: "center" }}>
-                    <strong>{primaryUserName}</strong>
-                    {remainingUserNames.length > 0 && (
-                        <div
-                            className="assignee-toggle"
-                            style={{
-                                cursor: "pointer",
-                                marginLeft: "5px",
-                                display: "flex",
-                                alignItems: "center",
-                            }}
-                        >
-                            <span
-                                onClick={handleClick}
-                                onMouseDown={(e) => e.stopPropagation()}
-                                onPointerDown={(e) => e.stopPropagation()}
-                                style={{ fontSize: "12px" }}
+                <div className="">
+                    <div className='flex items-center py-1 px-2'>
+                        <div className='!text-gray cursor-pointer duration-200 !hover:text-black !active:scale-90'>
+                            <svg
+                                xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"
+                                className='w-[20px] h-[20px] aspect-square '
                             >
-                                ▼
-                            </span>
-                            <Popover
-                                open={open}
-                                anchorEl={anchorEl}
-                                onClose={handleClose}
-                                anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
-                                transformOrigin={{ vertical: "top", horizontal: "left" }}
-                                sx={{ mt: 1 }}
+                                <path d="M256 512A256 256 0 1 0 256 0a256 256 0 1 0 0 512zM216 336l24 0 0-64-24 0c-13.3 0-24-10.7-24-24s10.7-24 24-24l48 0c13.3 0 24 10.7 24 24l0 88 8 0c13.3 0 24 10.7 24 24s-10.7 24-24 24l-80 0c-13.3 0-24-10.7-24-24s10.7-24 24-24zm40-208a32 32 0 1 1 0 64 32 32 0 1 1 0-64z"/>
+                            </svg>
+                        </div>
+                        <div className='grow'></div>
+                        <span className="font-semibold">{ primaryUserName }</span>
+                        {remainingUserNames.length > 0 && (
+                            <div
+                                className="assignee-toggle"
+                                style={{
+                                    cursor: "pointer",
+                                    marginLeft: "5px",
+                                    display: "flex",
+                                    alignItems: "center",
+                                }}
                             >
-                                <div
-                                    style={{
-                                        padding: "20px",
-                                        maxWidth: "250px",
-                                        position: "relative",
-                                    }}
+                                <span
+                                    onClick={handleClick}
+                                    onMouseDown={(e) => e.stopPropagation()}
+                                    onPointerDown={(e) => e.stopPropagation()}
+                                    style={{ fontSize: "12px" }}
                                 >
-                                    <IconButton
-                                        aria-label="close"
-                                        onClick={handleClose}
-                                        onPointerDown={(e) => e.stopPropagation()}
+                                    ▼
+                                </span>
+                                <Popover
+                                    open={open}
+                                    anchorEl={anchorEl}
+                                    onClose={handleClose}
+                                    anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
+                                    transformOrigin={{ vertical: "top", horizontal: "left" }}
+                                    sx={{ mt: 1 }}
+                                >
+                                    <div
                                         style={{
-                                            position: "absolute",
-                                            top: 10,
-                                            right: 10,
-                                            padding: "5px",
+                                            padding: "20px",
+                                            maxWidth: "250px",
+                                            position: "relative",
                                         }}
                                     >
-                                        <CloseIcon style={{ fontSize: "18px" }} />
-                                    </IconButton>
-                                    <div style={{ marginRight: "40px" }}>
-                                        <strong
+                                        <IconButton
+                                            aria-label="close"
+                                            onClick={handleClose}
+                                            onPointerDown={(e) => e.stopPropagation()}
                                             style={{
-                                                display: "block",
-                                                marginBottom: "10px",
-                                                fontSize: "14px",
+                                                position: "absolute",
+                                                top: 10,
+                                                right: 10,
+                                                padding: "5px",
                                             }}
                                         >
-                                            Danh sách người tham gia:
-                                        </strong>
-                                        <ul
-                                            style={{
-                                                margin: 0,
-                                                paddingLeft: "20px",
-                                                listStyleType: "disc",
-                                            }}
-                                        >
-                                            {remainingUserNames.map((userName, index) => (
-                                                <li
-                                                    key={index}
-                                                    style={{
-                                                        marginBottom: "8px",
-                                                        lineHeight: "1.5",
-                                                        fontSize: "14px",
-                                                    }}
-                                                >
-                                                    {userName}
-                                                </li>
-                                            ))}
-                                        </ul>
+                                            <CloseIcon style={{ fontSize: "18px" }} />
+                                        </IconButton>
+                                        <div style={{ marginRight: "40px" }}>
+                                            <strong
+                                                style={{
+                                                    display: "block",
+                                                    marginBottom: "10px",
+                                                    fontSize: "14px",
+                                                }}
+                                            >
+                                                Danh sách người tham gia:
+                                            </strong>
+                                            <ul
+                                                style={{
+                                                    margin: 0,
+                                                    paddingLeft: "20px",
+                                                    listStyleType: "disc",
+                                                }}
+                                            >
+                                                {remainingUserNames.map((userName, index) => (
+                                                    <li
+                                                        key={index}
+                                                        style={{
+                                                            marginBottom: "8px",
+                                                            lineHeight: "1.5",
+                                                            fontSize: "14px",
+                                                        }}
+                                                    >
+                                                        {userName}
+                                                    </li>
+                                                ))}
+                                            </ul>
+                                        </div>
                                     </div>
-                                </div>
-                            </Popover>
-                        </div>
-                    )}
+                                </Popover>
+                            </div>
+                        )}
+                    </div>
                 </div>
             </div>
+            {isModalOpen && (
+                <TaskDetailView
+                    isOpen={isModalOpen}
+                    handleClose={handleCloseModal}
+                    task={task}
+                />
+            )}
         </div>
     );
-}
-
-export default KanbanTaskCard;
+};
