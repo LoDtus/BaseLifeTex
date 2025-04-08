@@ -98,7 +98,8 @@ const ProjectCard = ({ project, isSelected, avatarManger }) => {
       <div className={styles.projectFooter}>
         <img
           className={styles.avatar}
-          src={project.managerId?.avatar || avatar}
+          src={project.managerId?.avatar}
+          onClick={handleClick}
           alt="Avatar"
         />
 
