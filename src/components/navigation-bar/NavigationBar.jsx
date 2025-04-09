@@ -12,15 +12,16 @@ export default function NavigationBar({ searchTerm }) {
     const selectedProjectId = useSelector((state) => state.project.selectedProjectId);
     const [loading, setLoading] = useState(true); // State for loading
     const [isAddProjectModalOpen, setIsAddProjectModalOpen] = useState(false);
-    const navigate = useNavigate(); // Initialize navigate
+    const navigate = useNavigate();
     const dispatch = useDispatch();
+    const userRole = useSelector((state) => state.auth.login.role);
 
     const fetchProjects = async () => {
-        setLoading(true); // Start loading
+        setLoading(true);
         try {
             dispatch(getListProjectByUser());
         } finally {
-            setLoading(false); // End loading
+            setLoading(false);
         }
     };
 
@@ -54,10 +55,6 @@ export default function NavigationBar({ searchTerm }) {
     }, [lstProject, dispatch, navigate]);
 
     useEffect(() => {
-        fetchProjects();
-    }, []);
-
-    useEffect(() => {
         if (lstProject.length > 0) {
             const firstProjectId = lstProject[0]._id;
             dispatch(setSelectedProject(firstProjectId));
@@ -68,7 +65,12 @@ export default function NavigationBar({ searchTerm }) {
     }, [lstProject, dispatch, navigate]);
 
     const removeAccents = (str) => {
-        return str ? str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase() : "";
+        return str
+            ? str
+                .normalize("NFD")
+                .replace(/[\u0300-\u036f]/g, "")
+                .toLowerCase()
+            : "";
     };
 
     const filteredProjects = lstProject?.filter((project) => {
@@ -80,83 +82,56 @@ export default function NavigationBar({ searchTerm }) {
     });
 
     return (
-        <div className={styles.navbar}>
-            <div className={styles.headerNavbar}>
-                <div className={styles.icon}>
-                    <svg
-                        width="27"
-                        height="30"
-                        viewBox="0 0 27 30"
-                        fill="none"
-                        xmlns="http://www.w3.org/2000/svg"
-                    >
-                        <g clipPath="url(#clip0_13_251)">
-                            <path
-                                d="M23.8359 7.03125V0H3.16406V3.51562H0V26.4844H3.16406V30H23.8359V26.4844H27V7.03125H23.8359ZM3.16406 24.7266H1.58203V8.78906H3.16406V24.7266ZM3.16406 7.03125H1.58203V5.27344H3.16406V7.03125ZM22.2539 28.2422H18.6265L22.2539 24.2117V28.2422ZM17.5078 26.9992V22.9688H21.1353L17.5078 26.9992ZM22.2539 21.2109H15.9258V28.2422H4.74609V1.75781H22.2539V21.2109ZM25.418 24.7266H23.8359V8.78906H25.418V24.7266Z"
-                                fill="#579AD7"
-                            />
-                            <path
-                                d="M19.0898 10.6055H7.91016V12.3633H19.0898V10.6055Z"
-                                fill="#579AD7"
-                            />
-                            <path
-                                d="M19.0898 14.1211H7.91016V15.8789H19.0898V14.1211Z"
-                                fill="#579AD7"
-                            />
-                            <path
-                                d="M19.0898 7.08984H7.91016V8.84766H19.0898V7.08984Z"
-                                fill="#579AD7"
-                            />
-                        </g>
-                        <defs>
-                            <clipPath id="clip0_13_251">
-                                <rect width="27" height="30" fill="white" />
-                            </clipPath>
-                        </defs>
-                    </svg>
+        <div className='p-2'>
+            <div className='w-full flex flex-col items-center flex-none'>
+                <div className='flex items-center mb-2'>
+                    <span className="font-semibold text-xl">CÁC DỰ ÁN</span>
+                    <span className='w-[20px] h-[20px] !ml-1 aspect-square rounded-full text-white font-semibold p-1 text-[12px] bg-red flex justify-center items-center'>
+                        {filteredProjects.length}
+                    </span>
                 </div>
-                <div className={styles.projectListTitle}>Danh sách dự án tham gia</div>
-                <button
-                    className={styles.addProjectButton}
+                { userRole === 0 && <button className="w-full mb-1 border-1 !border-dashed border-gray !rounded-md flex justify-center items-center py-2 px-3
+                    text-dark-gray font-semibold
+                    cursor-pointer duration-200 hover:shadow-md hover:border-black hover:text-black active:scale-90"
                     onClick={handleAddProjectClick}
                 >
-                    +
-                </button>
+                    Thêm dự án mới
+                </button>}
             </div>
             <div className={styles.bodyNavbar}>
-                {loading ? (
-                    <Loading />
-                ) : filteredProjects.length > 0 ? (
-                    filteredProjects.map((project, index) => (
+                {loading
+                    ? (
+                        <Loading />
+                    ) : filteredProjects.length > 0 ? (
+                        filteredProjects.map((project, index) => (
+                            <div
+                                key={index}
+                                onClick={() => handleProjectClick(project._id)}
+                                style={{ cursor: "pointer" }}
+                            >
+                                <ProjectCard
+                                    project={project}
+                                    isSelected={selectedProjectId === project._id}
+                                />
+                            </div>
+                        ))
+                    ) : (
                         <div
-                            key={index}
-                            onClick={() => handleProjectClick(project._id)}
-                            style={{ cursor: "pointer" }}
+                            style={{
+                                display: "flex",
+                                justifyContent: "center",
+                                height: "50px",
+                                borderTop: "1px solid black",
+                                paddingTop: "12px",
+                            }}
                         >
-                            <ProjectCard
-                                project={project}
-                                isSelected={selectedProjectId === project._id}
-                                avatarManger={project?.managerId?.avatar}
-                            />
+                            <p style={{ color: "black" }}>Bạn chưa thuộc dự án nào</p>
                         </div>
-                    ))
-                ) : (
-                    <div
-                        style={{
-                            display: "flex",
-                            justifyContent: "center",
-                            height: "50px",
-                            borderTop: "1px solid black",
-                            paddingTop: "12px",
-                        }}
-                    >
-                        <p style={{ color: "black" }}>Bạn chưa thuộc dự án nào</p>
-                    </div>
-                )}
-            </div>
+                    )}
+                </div>
             {isAddProjectModalOpen && (
                 <AddProjectModal onClose={handleCloseAddProjectModal} />
             )}
         </div>
     );
-}
+};
