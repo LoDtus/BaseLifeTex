@@ -8,6 +8,8 @@ import React from "react";
 import KanbanTaskCard from "./KanbanTaskCard";
 import IssueForm from "../form/IssueForm";
 import { useSearchParams } from "react-router-dom";
+import { setTaskForm } from '@/redux/propertiesSlice';
+import { useDispatch } from "react-redux";
 
 export default function KanbanColumn({
   columnId,
@@ -15,6 +17,7 @@ export default function KanbanColumn({
   selectedTasks = [],
   setSelectedTasks,
 }) {
+  const dispatch = useDispatch();
   const { setNodeRef, isOver } = useDroppable({ id: columnId });
   const [open, setOpen] = useState(false);
 
@@ -55,7 +58,8 @@ export default function KanbanColumn({
       <button
         className="w-full py-1 px-2 bg-white text-dark-gray border border-dashed border-gray-border rounded-md
                     cursor-pointer duration-200 hover:text-black hover:border-black active:scale-90"
-        onClick={() => setOpen(true)}
+        // onClick={() => setOpen(true)}
+        onClick={() => dispatch(setTaskForm('ADD'))}
       >
         Thêm công việc
       </button>
