@@ -6,6 +6,7 @@ import { useInputStates } from '@/hook/propertiesHook';
 import { useSearchParams } from "react-router-dom";
 import { setTaskForm } from '@/redux/propertiesSlice';
 import { getMembers } from '@/services/projectService';
+import { openSystemNoti } from '@/utils/systemUtils';
 
 const { TextArea } = Input;
 import customParseFormat from 'dayjs/plugin/customParseFormat';
@@ -123,14 +124,39 @@ export default function TaskForm() {
         }
     };
 
-    function saveTask() {
+    async function saveTask() {
         if (!taskName) setAlert(prev => prev.includes('TASK_NAME') ? prev : [...prev, 'TASK_NAME']);
+        else setAlert(prev => prev.filter(item => item !== 'TASK_NAME'));
         if (!link) setAlert(prev => prev.includes('LINK') ? prev : [...prev, 'LINK']);
+        else setAlert(prev => prev.filter(item => item !== 'LINK'));
+        if (!link.includes('http')) setAlert(prev => prev.includes('INVALID_LINK') ? prev : [...prev, 'INVALID_LINK']);
+        else setAlert(prev => prev.filter(item => item !== 'INVALID_LINK'));
         if (!description) setAlert(prev => prev.includes('DESCRIPTION') ? prev : [...prev, 'DESCRIPTION']);
+        else setAlert(prev => prev.filter(item => item !== 'DESCRIPTION'));
         if (asignee.length === 0) setAlert(prev => prev.includes('ASIGNEE') ? prev : [...prev, 'ASIGNEE']);
+        else setAlert(prev => prev.filter(item => item !== 'ASIGNEE'));
         if (!startDate || !endDate) setAlert(prev => prev.includes('DATE') ? prev : [...prev, 'DATE']);
+        else setAlert(prev => prev.filter(item => item !== 'DATE'));
         if (!img) setAlert(prev => prev.includes('IMG') ? prev : [...prev, 'IMG']);
+        else setAlert(prev => prev.filter(item => item !== 'IMG'));
+        if (!taskName || !link || !link.includes('http') || !description || asignee.length === 0 || !startDate || !endDate || !img) return;
+
+        // const newTaskId = await 
+        const newTaskId = '';
+        dispatch(setTaskForm(`PREVIEW_${newTaskId}`));
     }
+
+    useEffect(() => {
+        if (alert.length === 0) return;
+        if (alert.length > 3) return openSystemNoti('error', 'Bạn đang để trống quá nhiều thông tin bắt buộc');
+        if (alert.includes('TASK_NAME')) return openSystemNoti('error', 'Tên không được để trống');
+        if (alert.includes('DESCRIPTION')) return openSystemNoti('error', 'Mô tả không được để trống');
+        if (alert.includes('LINK')) return openSystemNoti('error', 'Đường dẫn không được để trống');
+        if (alert.includes('INVALID_LINK')) return openSystemNoti('error', 'Đường dẫn không hợp lệ');
+        if (alert.includes('ASIGNEE')) return openSystemNoti('error', 'Chưa có thành viên nào nhận việc này');
+        if (alert.includes('DATE')) return openSystemNoti('error', 'Thời hạn thực hiện không được để trống');
+        if (alert.includes('IMG')) return openSystemNoti('error', 'Hãy thêm ảnh mô tả');
+    }, [alert]);
 
     function deleteTask() {
 
@@ -164,7 +190,7 @@ export default function TaskForm() {
                                 cursor-text duration-200 group-focus-within:text-black group-focus-within:top-[-13px] group-focus-within:bg-white
                                 ${inpStates[0] ? `top-[-13px] bg-white` : `top-[9px]`}`}>
                                 <span className='text-red !mr-[2px]'>*</span>
-                                <span className={ alert === 'TASK_NAME' ? '!text-red' : ''}>Tên công việc</span>
+                                <span className={ alert.includes('TASK_NAME') ? '!text-red' : ''}>Tên công việc</span>
                             </label>
                             <Input id='form-taskName' className='!rounded-md'
                                 size='large' variant="filled" allowClear
@@ -177,7 +203,7 @@ export default function TaskForm() {
                                 cursor-text duration-200 group-focus-within:text-black group-focus-within:top-[-13px] group-focus-within:bg-white
                                 ${inpStates[1] ? `top-[-13px] bg-white` : `top-[9px]`}`}>
                                 <span className='text-red !mr-[2px]'>*</span>
-                                <span>Liên kết</span>
+                                <span className={ alert.includes('LINK') || alert.includes('INVALID_LINK') ? '!text-red' : ''}>Liên kết</span>
                             </label>
                             <Input id='form-link' className='!rounded-md'
                                 size='large' variant="filled" allowClear
@@ -191,7 +217,7 @@ export default function TaskForm() {
                                 ${inpStates[2] ? `top-[-13px] bg-white` : `top-[9px]`}`}
                                 htmlFor="signIn-email">
                                 <span className='text-red !mr-[2px]'>*</span>
-                                <span>Mô tả</span>
+                                <span className={ alert.includes('DESCRIPTION') ? '!text-red' : ''}>Mô tả</span>
                             </label>
                             <TextArea id='signIn-email' className='!rounded-md'
                                 size='large' variant="filled" allowClear autoSize={{ minRows: 5 }}
@@ -201,11 +227,9 @@ export default function TaskForm() {
                     </div>
                     <div className="basis-[25%]">
                         <div className="flex flex-col">
-                            <label className='!mr-1'
-                                htmlFor=""
-                            >
+                            <label className='!mr-1'>
                                 <span className='text-red !mr-[2px]'>*</span>
-                                <span className="font-semibold">Người nhận việc</span>
+                                <span className={ alert.includes('ASIGNEE') ? '!text-red' : 'font-semibold'}>Người nhận việc</span>
                             </label>
                             <Dropdown menu={{ items: asigneeList }} trigger={'click'} placement="bottom"
                                 open={visibleAsignee} onOpenChange={(flag) => {
@@ -216,11 +240,7 @@ export default function TaskForm() {
                         </div>
 
                         <div className="flex flex-col mt-2">
-                            <label className='!mr-1'
-                                htmlFor=""
-                            >
-                                <span className="font-semibold">Độ ưu tiên</span>
-                            </label>
+                            <span className="font-semibold">Độ ưu tiên</span>
                             <Dropdown trigger={'click'} placement="bottom"
                                 menu={{
                                     items: priorityList,
@@ -234,11 +254,7 @@ export default function TaskForm() {
                         </div>
 
                         <div className="flex flex-col mt-2">
-                            <label className='!mr-1'
-                                htmlFor=""
-                            >
-                                <span className="font-semibold">Phân loại</span>
-                            </label>
+                            <span className="font-semibold">Phân loại</span>
                             <Dropdown trigger={'click'} placement="bottom"
                                 menu={{
                                     items: typeList,
@@ -249,11 +265,9 @@ export default function TaskForm() {
                         </div>
 
                         <div className='flex flex-col mt-2'>
-                            <label className='!mr-1'
-                                htmlFor=""
-                            >
+                            <label className='!mr-1'>
                                 <span className='text-red !mr-[2px]'>*</span>
-                                <span className="font-semibold">Thời hạn</span>
+                                <span className={ alert.includes('DATE') ? '!text-red' : 'font-semibold'}>Thời hạn</span>
                             </label>
                             <DatePicker.RangePicker
                                 placeholder={['Ngày bắt đầu', 'Ngày kết thúc']} format={dateFormat}
@@ -273,12 +287,12 @@ export default function TaskForm() {
                             xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512">
                             <path d="M246.6 9.4c-12.5-12.5-32.8-12.5-45.3 0l-128 128c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0L192 109.3 192 320c0 17.7 14.3 32 32 32s32-14.3 32-32l0-210.7 73.4 73.4c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3l-128-128zM64 352c0-17.7-14.3-32-32-32s-32 14.3-32 32l0 64c0 53 43 96 96 96l256 0c53 0 96-43 96-96l0-64c0-17.7-14.3-32-32-32s-32 14.3-32 32l0 64c0 17.7-14.3 32-32 32L96 448c-17.7 0-32-14.3-32-32l0-64z" />
                         </svg>
-                        <span>Chọn ảnh mô tả</span>
+                        <span className={ alert.includes('IMG') ? '!text-red' : ''}>Chọn ảnh mô tả</span>
                     </div>
                     <input type="file" accept="image/*" id='form-upload' onChange={(e) => uploadImg(e)}/>
                 </label>
                 <label htmlFor='form-upload' className={ img ? 'grow w-full mt-2 !flex !flex-col !justify-center !items-center' : 'hidden'}>
-                    { img && <img className='!object-contain max-w-[40vw] border rounded-md'
+                    { img && <img className='!object-contain max-w-[40vw] border rounded-md cursor-pointer'
                         src={ img } alt='Image Task'
                     />}
                     { img && <span className='mt-2 text-dark-gray'>Ảnh mô tả</span> }
