@@ -17,6 +17,7 @@ import {
   Avatar,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
+import CircularProgress from "@mui/material/CircularProgress";
 import { useForm, Controller } from "react-hook-form";
 import UploadImageButton from "../../../common/UploadDownloadImage";
 import { getlistUser } from "../../../../services/userService";
@@ -59,7 +60,7 @@ const IssueForm = ({ isOpen, onClose, status }) => {
   } = useForm();
 
   const onSubmit = async (data) => {
-    console.log(data)
+    console.log(data);
     setLoading(true);
     try {
       const issueData = await postIssueData({
@@ -163,339 +164,337 @@ const IssueForm = ({ isOpen, onClose, status }) => {
         </IconButton>
       </DialogTitle>
 
-      {loading ? (
-        <Loading />
-      ) : (
-        <form onSubmit={handleSubmit(onSubmit)}>
-          <DialogContent sx={{ padding: "0 24px" }}>
-            <Grid container spacing={3}>
-              {/* Row 1: Tên công việc và Link */}
-              <Grid item xs={12} md={6}>
-                <FormControl fullWidth sx={inputStyle}>
-                  <label htmlFor="title" style={labelStyle}>
-                    Tên công việc:
-                  </label>
-                  <TextField
-                    id="title"
-                    variant="outlined"
-                    {...register("title", {
-                      required: "Tên công việc không được để trống.",
-                    })}
-                    size="small"
-                    error={!!errors.title}
-                    helperText={errors.title?.message}
-                  />
-                </FormControl>
-              </Grid>
-              <Grid item xs={12} md={6}>
-                <FormControl fullWidth sx={inputStyle}>
-                  <label htmlFor="link" style={labelStyle}>
-                    Link:
-                  </label>
-                  <TextField
-                    id="link"
-                    variant="outlined"
-                    {...register("link", {
-                      required: "Link không được để trống.",
-                    })}
-                    size="small"
-                    error={!!errors.link}
-                    helperText={errors.link?.message}
-                  />
-                </FormControl>
-              </Grid>
+      <form onSubmit={handleSubmit(onSubmit)}>
+        <DialogContent sx={{ padding: "0 24px" }}>
+          <Grid container spacing={3}>
+            {/* Row 1: Tên công việc và Link */}
+            <Grid item xs={12} md={6}>
+              <FormControl fullWidth sx={inputStyle}>
+                <label htmlFor="title" style={labelStyle}>
+                  Tên công việc:
+                </label>
+                <TextField
+                  id="title"
+                  variant="outlined"
+                  {...register("title", {
+                    required: "Tên công việc không được để trống.",
+                  })}
+                  size="small"
+                  error={!!errors.title}
+                  helperText={errors.title?.message}
+                />
+              </FormControl>
+            </Grid>
+            <Grid item xs={12} md={6}>
+              <FormControl fullWidth sx={inputStyle}>
+                <label htmlFor="link" style={labelStyle}>
+                  Link:
+                </label>
+                <TextField
+                  id="link"
+                  variant="outlined"
+                  {...register("link", {
+                    required: "Link không được để trống.",
+                  })}
+                  size="small"
+                  error={!!errors.link}
+                  helperText={errors.link?.message}
+                />
+              </FormControl>
+            </Grid>
 
-              {/* Row 2: Mô tả chi tiết */}
-              <Grid item xs={12}>
-                <FormControl fullWidth sx={inputStyle}>
-                  <label htmlFor="description" style={labelStyle}>
-                    Mô tả chi tiết:
-                  </label>
-                  <textarea
-                    id="description"
-                    style={{
-                      width: "100%",
-                      padding: "8px",
-                      border: "1px solid #ccc",
-                      borderRadius: "4px",
-                      fontFamily: "Roboto, sans-serif",
-                      fontSize: "0.875rem",
-                      lineHeight: 1.43,
-                      resize: "vertical",
-                      minHeight: "100px",
-                    }}
-                    rows={4}
-                    {...register("description", {
-                      required: "Mô tả chi tiết không được để trống.",
-                    })}
-                  />
-                  {errors.description && (
-                    <Typography variant="caption" color="error">
-                      {errors.description.message}
-                    </Typography>
-                  )}
-                </FormControl>
-              </Grid>
+            {/* Row 2: Mô tả chi tiết */}
+            <Grid item xs={12}>
+              <FormControl fullWidth sx={inputStyle}>
+                <label htmlFor="description" style={labelStyle}>
+                  Mô tả chi tiết:
+                </label>
+                <textarea
+                  id="description"
+                  style={{
+                    width: "100%",
+                    padding: "8px",
+                    border: "1px solid #ccc",
+                    borderRadius: "4px",
+                    fontFamily: "Roboto, sans-serif",
+                    fontSize: "0.875rem",
+                    lineHeight: 1.43,
+                    resize: "vertical",
+                    minHeight: "100px",
+                  }}
+                  rows={4}
+                  {...register("description", {
+                    required: "Mô tả chi tiết không được để trống.",
+                  })}
+                />
+                {errors.description && (
+                  <Typography variant="caption" color="error">
+                    {errors.description.message}
+                  </Typography>
+                )}
+              </FormControl>
+            </Grid>
 
-              {/* Row 3: Người nhận việc */}
-              <Grid item xs={12} md={6}>
-                <FormControl fullWidth sx={inputStyle}>
-                  <label htmlFor="personName" style={labelStyle}>
-                    Người nhận việc:
-                  </label>
-                  <Controller
-                    name="personName"
-                    control={control}
-                    rules={{
-                      required: "Vui lòng chọn ít nhất một người nhận việc",
-                    }}
-                    render={({ field }) => (
-                      <Select
-                        {...field}
-                        labelId="personName-label"
-                        id="personName"
-                        multiple
-                        value={field.value || []}
-                        onChange={(event) => field.onChange(event.target.value)}
-                        renderValue={(selected) =>
-                          selected
-                            ?.map(
-                              (id) =>
-                                selectedPerson.find(
-                                  (person) => person._id === id
-                                )?.userName
-                            )
-                            .join(", ")
-                        }
-                        MenuProps={MenuProps}
-                        size="small"
-                        error={!!errors.personName}
-                      >
-                        {selectedPerson?.map((person) => (
-                          <MenuItem key={person._id} value={person._id}>
-                            <Checkbox
-                              checked={
-                                field.value?.includes(person._id) || false
+            {/* Row 3: Người nhận việc */}
+            <Grid item xs={12} md={6}>
+              <FormControl fullWidth sx={inputStyle}>
+                <label htmlFor="personName" style={labelStyle}>
+                  Người nhận việc:
+                </label>
+                <Controller
+                  name="personName"
+                  control={control}
+                  rules={{
+                    required: "Vui lòng chọn ít nhất một người nhận việc",
+                  }}
+                  render={({ field }) => (
+                    <Select
+                      {...field}
+                      labelId="personName-label"
+                      id="personName"
+                      multiple
+                      value={field.value || []}
+                      onChange={(event) => field.onChange(event.target.value)}
+                      renderValue={(selected) =>
+                        selected
+                          ?.map(
+                            (id) =>
+                              selectedPerson.find((person) => person._id === id)
+                                ?.userName
+                          )
+                          .join(", ")
+                      }
+                      MenuProps={MenuProps}
+                      size="small"
+                      error={!!errors.personName}
+                    >
+                      {selectedPerson?.map((person) => (
+                        <MenuItem key={person._id} value={person._id}>
+                          <Checkbox
+                            checked={field.value?.includes(person._id) || false}
+                          />
+                          <Box
+                            display="flex"
+                            alignItems="center"
+                            sx={{ ml: 1 }}
+                          >
+                            <Avatar
+                              sx={{
+                                bgcolor: "purple",
+                                width: 30,
+                                height: 30,
+                                marginRight: 1,
+                              }}
+                              src={
+                                person.avatar ||
+                                "/imgs/f8ad738c648cb0c7cc815d6ceda805b0.png"
                               }
                             />
-                            <Box
-                              display="flex"
-                              alignItems="center"
-                              sx={{ ml: 1 }}
+                            <Typography
+                              sx={{
+                                fontWeight: 500,
+                                width: "180px",
+                                whiteSpace: "nowrap",
+                                overflow: "hidden",
+                                textOverflow: "ellipsis",
+                              }}
                             >
-                              <Avatar
-                                sx={{
-                                  bgcolor: "purple",
-                                  width: 30,
-                                  height: 30,
-                                  marginRight: 1,
-                                }}
-                                src={
-                                  person.avatar ||
-                                  "/imgs/f8ad738c648cb0c7cc815d6ceda805b0.png"
-                                }
-                              />
-                              <Typography
-                                sx={{
-                                  fontWeight: 500,
-                                  width: "180px",
-                                  whiteSpace: "nowrap",
-                                  overflow: "hidden",
-                                  textOverflow: "ellipsis",
-                                }}
-                              >
-                                {person.userName}
-                              </Typography>
-                            </Box>
-                          </MenuItem>
-                        ))}
-                      </Select>
-                    )}
-                  />
-                  {errors.personName && (
-                    <Typography variant="caption" color="error">
-                      {errors.personName.message}
-                    </Typography>
+                              {person.userName}
+                            </Typography>
+                          </Box>
+                        </MenuItem>
+                      ))}
+                    </Select>
                   )}
-                </FormControl>
-              </Grid>
-
-              {/* Row 4: Hình ảnh */}
-              <Grid item xs={12} md={6}>
-                <FormControl fullWidth sx={inputStyle}>
-                  <label style={labelStyle}>Hình ảnh:</label>
-                  <Box
-                    sx={{
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "flex-start",
-                      border: "1px dashed #ccc",
-                      borderRadius: "4px",
-                      padding: "8px",
-                      cursor: "pointer",
-                      "&:hover": {
-                        borderColor: "#999",
-                      },
-                    }}
-                  >
-                    <UploadImageButton
-                      onImageChange={handleImageChange}
-                      Image={imageUrl} // Truyền URL tạm thời xuống UploadImageButton
-                    />
-                    {image && (
-                      <Typography
-                        variant="caption"
-                        sx={{ ml: 2, color: "green" }}
-                      >
-                        Đã chọn ảnh
-                      </Typography>
-                    )}
-                    {!image && (
-                      <Typography variant="caption" color="textSecondary">
-                        Chọn hình ảnh liên quan đến công việc (tùy chọn)
-                      </Typography>
-                    )}
-                  </Box>
-                </FormControl>
-              </Grid>
-
-              {/* Row 5: Ngày bắt đầu */}
-              <Grid item xs={12} md={6}>
-                <FormControl fullWidth sx={inputStyle}>
-                  <label htmlFor="startDate" style={labelStyle}>
-                    Ngày bắt đầu:
-                  </label>
-                  <TextField
-                    id="startDate"
-                    variant="outlined"
-                    type="date"
-                    {...register("startDate", {
-                      required: "Ngày bắt đầu không được để trống.",
-                    })}
-                    size="small"
-                    InputLabelProps={{
-                      shrink: true,
-                    }}
-                    error={!!errors.startDate}
-                    helperText={errors.startDate?.message}
-                  />
-                </FormControl>
-              </Grid>
-
-              {/* Row 6: Ngày kết thúc */}
-              <Grid item xs={12} md={6}>
-                <FormControl fullWidth sx={inputStyle}>
-                  <label htmlFor="endDate" style={labelStyle}>
-                    Ngày kết thúc:
-                  </label>
-                  <TextField
-                    id="endDate"
-                    variant="outlined"
-                    type="date"
-                    {...register("endDate", {
-                      required: "Ngày kết thúc không được để trống.",
-                    })}
-                    size="small"
-                    InputLabelProps={{
-                      shrink: true,
-                    }}
-                    error={!!errors.endDate}
-                    helperText={errors.endDate?.message}
-                  />
-                </FormControl>
-              </Grid>
-
-              {/* Row 7: Độ ưu tiên */}
-              <Grid item xs={12} md={6}>
-                <FormControl fullWidth sx={inputStyle}>
-                  <label htmlFor="priority" style={labelStyle}>
-                    Độ ưu tiên:
-                  </label>
-                  <Controller
-                    name="priority"
-                    control={control}
-                    defaultValue=""
-                    rules={{ required: "Vui lòng chọn độ ưu tiên" }}
-                    render={({ field }) => (
-                      <Select
-                        {...field}
-                        variant="outlined"
-                        size="small"
-                        error={!!errors.priority}
-                      >
-                        {PRIORITY.map((option) => (
-                          <MenuItem key={option.value} value={option.value}>
-                            {option.label}
-                          </MenuItem>
-                        ))}
-                      </Select>
-                    )}
-                  />
-                  {errors.priority && (
-                    <Typography variant="caption" color="error">
-                      {errors.priority.message}
-                    </Typography>
-                  )}
-                </FormControl>
-              </Grid>
-
-              {/* Row 8: Phân loại */}
-              <Grid item xs={12} md={6}>
-                <FormControl fullWidth sx={inputStyle}>
-                  <label htmlFor="type" style={labelStyle}>
-                    Phân loại:
-                  </label>
-                  <Controller
-                    name="type"
-                    control={control}
-                    defaultValue=""
-                    rules={{ required: "Vui lòng chọn loại" }}
-                    render={({ field }) => (
-                      <Select
-                        {...field}
-                        variant="outlined"
-                        size="small"
-                        error={!!errors.type}
-                      >
-                        <MenuItem value="bug">Bug</MenuItem>
-                        <MenuItem value="new_request">Yêu cầu mới</MenuItem>
-                      </Select>
-                    )}
-                  />
-                  {errors.type && (
-                    <Typography variant="caption" color="error">
-                      {errors.type.message}
-                    </Typography>
-                  )}
-                </FormControl>
-              </Grid>
+                />
+                {errors.personName && (
+                  <Typography variant="caption" color="error">
+                    {errors.personName.message}
+                  </Typography>
+                )}
+              </FormControl>
             </Grid>
-          </DialogContent>
 
-          <DialogActions
-            sx={{ justifyContent: "flex-end", padding: "16px 24px" }}
+            {/* Row 4: Hình ảnh */}
+            <Grid item xs={12} md={6}>
+              <FormControl fullWidth sx={inputStyle}>
+                <label style={labelStyle}>Hình ảnh:</label>
+                <Box
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "flex-start",
+                    border: "1px dashed #ccc",
+                    borderRadius: "4px",
+                    padding: "8px",
+                    cursor: "pointer",
+                    "&:hover": {
+                      borderColor: "#999",
+                    },
+                  }}
+                >
+                  <UploadImageButton
+                    onImageChange={handleImageChange}
+                    Image={imageUrl} // Truyền URL tạm thời xuống UploadImageButton
+                  />
+                  {image && (
+                    <Typography
+                      variant="caption"
+                      sx={{ ml: 2, color: "green" }}
+                    >
+                      Đã chọn ảnh
+                    </Typography>
+                  )}
+                  {!image && (
+                    <Typography variant="caption" color="textSecondary">
+                      Chọn hình ảnh liên quan đến công việc (tùy chọn)
+                    </Typography>
+                  )}
+                </Box>
+              </FormControl>
+            </Grid>
+
+            {/* Row 5: Ngày bắt đầu */}
+            <Grid item xs={12} md={6}>
+              <FormControl fullWidth sx={inputStyle}>
+                <label htmlFor="startDate" style={labelStyle}>
+                  Ngày bắt đầu:
+                </label>
+                <TextField
+                  id="startDate"
+                  variant="outlined"
+                  type="date"
+                  {...register("startDate", {
+                    required: "Ngày bắt đầu không được để trống.",
+                  })}
+                  size="small"
+                  InputLabelProps={{
+                    shrink: true,
+                  }}
+                  error={!!errors.startDate}
+                  helperText={errors.startDate?.message}
+                />
+              </FormControl>
+            </Grid>
+
+            {/* Row 6: Ngày kết thúc */}
+            <Grid item xs={12} md={6}>
+              <FormControl fullWidth sx={inputStyle}>
+                <label htmlFor="endDate" style={labelStyle}>
+                  Ngày kết thúc:
+                </label>
+                <TextField
+                  id="endDate"
+                  variant="outlined"
+                  type="date"
+                  {...register("endDate", {
+                    required: "Ngày kết thúc không được để trống.",
+                  })}
+                  size="small"
+                  InputLabelProps={{
+                    shrink: true,
+                  }}
+                  error={!!errors.endDate}
+                  helperText={errors.endDate?.message}
+                />
+              </FormControl>
+            </Grid>
+
+            {/* Row 7: Độ ưu tiên */}
+            <Grid item xs={12} md={6}>
+              <FormControl fullWidth sx={inputStyle}>
+                <label htmlFor="priority" style={labelStyle}>
+                  Độ ưu tiên:
+                </label>
+                <Controller
+                  name="priority"
+                  control={control}
+                  defaultValue=""
+                  rules={{ required: "Vui lòng chọn độ ưu tiên" }}
+                  render={({ field }) => (
+                    <Select
+                      {...field}
+                      variant="outlined"
+                      size="small"
+                      error={!!errors.priority}
+                    >
+                      {PRIORITY.map((option) => (
+                        <MenuItem key={option.value} value={option.value}>
+                          {option.label}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  )}
+                />
+                {errors.priority && (
+                  <Typography variant="caption" color="error">
+                    {errors.priority.message}
+                  </Typography>
+                )}
+              </FormControl>
+            </Grid>
+
+            {/* Row 8: Phân loại */}
+            <Grid item xs={12} md={6}>
+              <FormControl fullWidth sx={inputStyle}>
+                <label htmlFor="type" style={labelStyle}>
+                  Phân loại:
+                </label>
+                <Controller
+                  name="type"
+                  control={control}
+                  defaultValue=""
+                  rules={{ required: "Vui lòng chọn loại" }}
+                  render={({ field }) => (
+                    <Select
+                      {...field}
+                      variant="outlined"
+                      size="small"
+                      error={!!errors.type}
+                    >
+                      <MenuItem value="bug">Bug</MenuItem>
+                      <MenuItem value="new_request">Yêu cầu mới</MenuItem>
+                    </Select>
+                  )}
+                />
+                {errors.type && (
+                  <Typography variant="caption" color="error">
+                    {errors.type.message}
+                  </Typography>
+                )}
+              </FormControl>
+            </Grid>
+          </Grid>
+        </DialogContent>
+
+        <DialogActions
+          sx={{ justifyContent: "flex-end", padding: "16px 24px" }}
+        >
+          <Button onClick={onClose} sx={{ textTransform: "none" }}>
+            Hủy
+          </Button>
+          <Button
+            variant="contained"
+            type="submit"
+            disabled={loading} // không cho click khi đang loading
+            startIcon={
+              loading && <CircularProgress size={20} color="inherit" />
+            }
+            sx={{
+              bgcolor: "#1976d2",
+              borderRadius: "4px",
+              textTransform: "none",
+              padding: "8px 20px",
+              minWidth: "100px",
+              "&:hover": {
+                bgcolor: "#1565c0",
+              },
+            }}
           >
-            <Button onClick={onClose} sx={{ textTransform: "none" }}>
-              Hủy
-            </Button>
-            <Button
-              variant="contained"
-              type="submit"
-              sx={{
-                bgcolor: "#1976d2",
-                borderRadius: "4px",
-                textTransform: "none",
-                padding: "8px 20px",
-                "&:hover": {
-                  bgcolor: "#1565c0",
-                },
-              }}
-            >
-              Tạo
-            </Button>
-          </DialogActions>
-        </form>
-      )}
+            {loading ? "Đang tạo..." : "Tạo"}
+          </Button>
+        </DialogActions>
+      </form>
     </Dialog>
   );
 };
