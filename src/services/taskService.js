@@ -67,3 +67,50 @@ export const getTaskByPagination = async (projectId, page, limit) => {
     );
     return response.data;
 };
+
+export const addTask = async (data) => {
+    const formData = new FormData();
+    formData.append("image", data.image);
+    formData.append("assigneeId", data.assigneeId);
+    formData.append("title", data.title);
+    formData.append("link", data.link);
+    formData.append("description", data.description);
+    formData.append("startDate", data.startDate);
+    formData.append("endDate", data.endDate);
+    formData.append("status", data.status);
+    formData.append("projectId", data.projectId);
+    formData.append("assignerId", data.assignerId);
+    formData.append("priority", data.priority);
+    formData.append("type", data.type);
+
+    const response = await axiosInstance.post(`/tasks`, formData, {
+        headers: {
+            "Content-Type": "multipart/form-data",
+        },
+    });
+
+    return response.data;
+};
+
+export const updateTask = async (id, data) => {
+    const formData = new FormData();
+    data.image && formData.append("image", data.image);
+    formData.append("assigneeId", data.assigneeId);
+    formData.append("title", data.title);
+    formData.append("link", data.link);
+    formData.append("description", data.description);
+    formData.append("startDate", data.startDate);
+    formData.append("endDate", data.endDate);
+    formData.append("status", data.status);
+    formData.append("projectId", data.projectId);
+    formData.append("assignerId", data.assignerId);
+    formData.append("priority", data.priority);
+    // formData.append("type", data.type); // Be chưa cho cập nhật type
+
+    const response = await axiosInstance.put(`/tasks/${id}`, formData, {
+        headers: {
+            "Content-Type": "multipart/form-data",
+        },
+    });
+    return response.data;
+};

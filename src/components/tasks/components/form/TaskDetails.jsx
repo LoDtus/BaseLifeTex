@@ -47,9 +47,7 @@ export default function TaskDetails() {
     }, [task]);
 
     function closeForm() {
-        // if (taskName || link || description || img) {
-
-        // }
+        // Thêm thông báo xác nhận khi người dùng đang bình luận dở dang
         dispatch(setTaskForm('CLOSE'));
     }
 
@@ -107,8 +105,9 @@ export default function TaskDetails() {
                         <div className='flex items-center text-[12px] text-dark-gray'>
                             <span>{ convertDateYMD(task?.startDate) }</span>
                             <span className='mx-2'>đến</span>
-                            <span>{ convertDateYMD(task?.startDate) }</span>
-                            <span className='text-white font-semibold !ml-2 py-[2px] px-3 rounded-full bg-red'>
+                            <span>{ convertDateYMD(task?.endDate) }</span>
+                            <span className={`text-white font-semibold !ml-2 py-[2px] px-3 rounded-full
+                                ${deadline < 1 ? 'bg-green' : deadline > 1 ? 'bg-yellow' : deadline < 0 ? 'bg-red' : ''}`}>
                                 { deadline === 0 ? `Mới`
                                 : deadline > 0 ? `${Math.abs(deadline)} ngày trước`
                                 : deadline < 0 ? `Quá hạn ${Math.abs(deadline)} ngày` : ''}
