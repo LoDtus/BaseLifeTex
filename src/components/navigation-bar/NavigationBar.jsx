@@ -85,9 +85,7 @@ export default function NavigationBar({ searchTerm }) {
 
     const [isLogModalOpen, setIsLogModalOpen] = useState(false);
 const dummyLogs = [
-  { date: "2025-04-09 14:30", message: "Cập nhật tiến độ Sprint 2" },
-  { date: "2025-04-08 09:12", message: "Tạo task mới: Giao diện đăng nhập" },
-  { date: "2025-04-07 18:00", message: "Đánh giá backlog cùng team DEV" },
+  { date: "18/03/2025", message: "Xây dựng quản lí lifetex" },
 ];
 
 const handleOpenLogModal = () => {
