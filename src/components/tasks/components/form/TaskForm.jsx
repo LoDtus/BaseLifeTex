@@ -36,6 +36,12 @@ export default function TaskForm() {
   const projectId = searchParams.get("idProject");
 
   const taskForm = useSelector((state) => state.properties.taskForm);
+  const taskState = useSelector((state) => state.properties.taskState);
+
+  const taskId = taskState.slice(0, 7).includes("UPDATE")
+    ? taskState.slice(8)
+    : null;
+  console.log(taskId);
 
   const [taskName, setTaskName] = useState("");
   const [link, setLink] = useState("");
