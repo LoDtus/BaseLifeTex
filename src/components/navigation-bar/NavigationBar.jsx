@@ -85,9 +85,11 @@ export default function NavigationBar({ searchTerm }) {
 
     const [isLogModalOpen, setIsLogModalOpen] = useState(false);
 const dummyLogs = [
-    { date: "18/03/2025", message: "Xây dựng quản lí lifetex" }, 
-    { date: "4/4/2025", message: "Dự án phát triển hệ thống" },
+  { date: "2025-04-09 14:30", message: "Cập nhật tiến độ Sprint 2" },
+  { date: "2025-04-08 09:12", message: "Tạo task mới: Giao diện đăng nhập" },
+  { date: "2025-04-07 18:00", message: "Đánh giá backlog cùng team DEV" },
 ];
+
 const handleOpenLogModal = () => {
     setIsLogModalOpen(true);
 };
@@ -106,16 +108,15 @@ const handleCloseLogModal = () => {
                     </span>
                 </div>
                 {userRole === ROLES.PM && (
-    <div>
+    <div className="my-2">
         <span
-            className="text-blue-600 hover:underline cursor-pointer"
-            onClick={handleOpenLogModal}
+            className="text-black-600 text-sm font-medium cursor-pointer"
+            onClick={() => setIsLogModalOpen(true)}
         >
-            Nhật kí dự án
+            📘 Nhật kí dự án
         </span>
     </div>
 )}
-
                 { userRole === 0 && <button className="w-full mb-1 border-1 !border-dashed border-gray !rounded-md flex justify-center items-center py-2 px-3
                     text-dark-gray font-semibold
                     cursor-pointer duration-200 hover:shadow-md hover:border-black hover:text-black active:scale-90"
@@ -159,7 +160,11 @@ const handleCloseLogModal = () => {
                 <AddProjectModal onClose={handleCloseAddProjectModal} />
             )}
             {isLogModalOpen && (
-    <ProjectLogModal onClose={handleCloseLogModal} logs={dummyLogs} />
+    <ProjectLogModal
+    open={isLogModalOpen}
+    onClose={() => setIsLogModalOpen(false)}
+    logs={dummyLogs}
+/>
 )}
 
         </div>

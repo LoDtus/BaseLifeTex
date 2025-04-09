@@ -1,26 +1,61 @@
-import React from 'react';
-import styles from './styles/ProjectLogModal.module.scss';
+import React from "react";
+import {
+    Dialog,
+    DialogTitle,
+    DialogContent,
+    IconButton,
+    Typography,
+    Box,
+    Divider,
+    List,
+    ListItem,
+    ListItemText,
+    ListItemIcon,
+} from "@mui/material";
+import CloseIcon from "@mui/icons-material/Close";
+import AccessTimeIcon from "@mui/icons-material/AccessTime";
 
-export default function ProjectLogModal({ onClose, logs = [] }) {
+export default function ProjectLogModal({ open, onClose, logs = [] }) {
     return (
-        <div className={styles.overlay}>
-            <div className={styles.modal}>
-                <div className={styles.header}>
-                    <h2>Nhật kí dự án</h2>
-                    <button onClick={onClose} className={styles.closeBtn}>×</button>
-                </div>
-                <div className={styles.content}>
-                    {logs.length > 0 ? (
-                        logs.map((log, index) => (
-                            <div key={index} className={styles.logItem}>
-                                <p><strong>{log.date}</strong> - {log.message}</p>
-                            </div>
-                        ))
-                    ) : (
-                        <p>Chưa có nhật kí nào cho dự án này.</p>
-                    )}
-                </div>
-            </div>
-        </div>
+        <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
+            <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                📝 Nhật ký dự án
+                <IconButton edge="end" onClick={onClose}>
+                    <CloseIcon />
+                </IconButton>
+            </DialogTitle>
+            <Divider />
+            <DialogContent>
+                {logs.length > 0 ? (
+                    <List>
+                        {logs.map((log, index) => (
+                            <ListItem key={index} alignItems="flex-start">
+                                <ListItemIcon>
+                                    <AccessTimeIcon color="primary" />
+                                </ListItemIcon>
+                                <ListItemText
+                                    primary={
+                                        <Typography variant="body1" fontWeight="500">
+                                            {log.message}
+                                        </Typography>
+                                    }
+                                    secondary={
+                                        <Typography variant="caption" color="text.secondary">
+                                            {log.date}
+                                        </Typography>
+                                    }
+                                />
+                            </ListItem>
+                        ))}
+                    </List>
+                ) : (
+                    <Box textAlign="center" py={4}>
+                        <Typography variant="body2" color="text.secondary">
+                            Không có nhật ký nào.
+                        </Typography>
+                    </Box>
+                )}
+            </DialogContent>
+        </Dialog>
     );
 }
