@@ -24,7 +24,7 @@ export default function NotificationPopup() {
       setNotifications(data);
     })();
   }, [userId]);
-  console.log(notifications);
+  // console.log(notifications);
 
   const handleOpen = (event) => {
     setAnchorEl(event.currentTarget);
