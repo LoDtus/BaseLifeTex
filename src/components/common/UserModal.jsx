@@ -1,58 +1,83 @@
-import React, { useState } from 'react';
-import './styles/UserModal.scss';
-import UpdateUserForm from './UpdateUserForm';
-
+import React, { useState } from "react";
+import "./styles/UserModal.scss";
+import EditNoteIcon from "@mui/icons-material/EditNote";
+import SaveIcon from "@mui/icons-material/Save";
+import { ROLE_LABELS } from "../common/js/roles";
+import UserFormFields from "./UserFormFields";
+import { useDispatch, useSelector } from 'react-redux';
+import { updateUserInfo } from '../../services/authService'; // điều chỉnh path nếu cần
+import { toast } from 'react-toastify';
 function UserModal({ user, onClose }) {
-    const [activeTab, setActiveTab] = useState('info');
+  const [previewAvatar, setPreviewAvatar] = useState(user.avatar);
 
-    if (!user) return null;
-    const roleMap = {
-        0: 'PM',
-        1: 'DEV',
-        2: 'TEST',
-        3: 'BA',
-        4: 'USER',
-      };
-      
+  const [isEditing, setIsEditing] = useState(false);
+  const [editedUser, setEditedUser] = useState({
+    ...user,
+    roleLabel: ROLE_LABELS[user.role],
+  });
 
-    return (
-        <div className="user-modal">
-            <div className="user-modal-content">
-                <button className="close-btn" onClick={onClose}>X</button>
-                <div className="tab-buttons">
-                    <button
-                        className={activeTab === 'info' ? 'active' : ''}
-                        onClick={() => setActiveTab('info')}
-                    >
-                        Thông tin cá nhân
-                    </button>
-                    <button
-                        className={activeTab === 'update' ? 'active' : ''}
-                        onClick={() => setActiveTab('update')}
-                    >
-                        Cập nhật thông tin
-                    </button>
-                </div>
+  const dispatch = useDispatch();
+const accessToken = useSelector((state) => state.auth.login.currentUser?.data?.accessToken);
 
-                {activeTab === 'info' ? (
-                    <div className="tab-content">
-                        <div>
-                            <h2>{user.userName}</h2>
-                            <img src={user.avatar} alt="avatar" className="user-avatar" />
-                        </div>
-                        <div>
-                            <p>Email: {user.email}</p>
-                            <p>Phone: {user.phone}</p>
-                            <p>Role: {roleMap[user.role] || 'Không xác định'}</p>
-                            <p>Created At: {new Date(user.createdAt).toLocaleDateString()}</p>
-                        </div>
-                    </div>
-                ) : (
-                    <UpdateUserForm user={user} onClose={onClose} />
-                )}
-            </div>
-        </div>
-    );
+  const handleChange = (e) => {
+    setEditedUser({ ...editedUser, [e.target.name]: e.target.value });
+  };
+
+  const handleAvatarChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setEditedUser({ ...editedUser, avatar: file }); // Lưu file thật để gửi đi
+      setPreviewAvatar(URL.createObjectURL(file)); // Hiển thị ảnh mới ngay
+    }
+  };  
+  
+  const handleSave = async () => {
+    const formData = new FormData();
+    formData.append("userName", editedUser.userName);
+    formData.append("email", editedUser.email);
+    formData.append("phone", editedUser.phone);
+  
+    if (editedUser.avatar instanceof File) {
+      formData.append("avatar", editedUser.avatar);
+    }
+  
+    try {
+      await dispatch(updateUserInfo({ data: formData, accessToken }));
+      toast.success("Cập nhật thành công!");
+      setIsEditing(false);
+    } catch (error) {
+      console.error("Lỗi khi cập nhật:", error);
+      toast.error("Cập nhật thất bại.");
+    }
+  };
+  
+  
+  return (
+    <div className="fixed-user-card">
+      <UserFormFields
+        user={editedUser}
+        isEditing={isEditing}
+        onChange={handleChange}
+        onAvatarChange={handleAvatarChange}
+        previewAvatar={previewAvatar}
+      />
+
+      <div className="modal-actions">
+        {isEditing ? (
+          <button className="save-btn" onClick={handleSave}>
+            <SaveIcon /> Lưu
+          </button>
+        ) : (
+          <button className="edit-btn" onClick={() => setIsEditing(true)}>
+            <EditNoteIcon /> Sửa
+          </button>
+        )}
+        <button className="close-btn" onClick={onClose}>
+          Đóng
+        </button>
+      </div>
+    </div>
+  );
 }
 
 export default UserModal;
