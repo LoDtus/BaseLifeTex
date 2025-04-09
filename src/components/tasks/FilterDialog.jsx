@@ -14,8 +14,8 @@ export default function FilterDialog({ idProject }) {
   const [filters, setFilters] = useState({
     assigneeId: "",
     assignerId: "",
-    startDate: "",
-    endDate: "",
+    startDate: null,
+    endDate: null,
   });
 
   const [listMember, setListMember] = useState([]);
@@ -59,7 +59,7 @@ export default function FilterDialog({ idProject }) {
       <TextField
         select
         label="Người được giao"
-        value={filters.assigneeId}
+        value={filters?.assigneeId}
         onChange={(e) => handleChange("assigneeId", e.target.value)}
         fullWidth
       >
@@ -74,7 +74,7 @@ export default function FilterDialog({ idProject }) {
       <TextField
         select
         label="Người báo cáo"
-        value={filters.assignerId}
+        value={filters?.assignerId}
         onChange={(e) => handleChange("assignerId", e.target.value)}
         fullWidth
       >
