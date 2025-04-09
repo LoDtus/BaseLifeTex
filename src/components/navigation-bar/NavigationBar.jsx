@@ -90,7 +90,7 @@ export default function NavigationBar({ searchTerm }) {
                         {filteredProjects.length}
                     </span>
                 </div>
-                { userRole !== 0 && <button className="w-full mb-1 border-1 !border-dashed border-gray !rounded-md flex justify-center items-center py-2 px-3
+                { userRole === 0 && <button className="w-full mb-1 border-1 !border-dashed border-gray !rounded-md flex justify-center items-center py-2 px-3
                     text-dark-gray font-semibold
                     cursor-pointer duration-200 hover:shadow-md hover:border-black hover:text-black active:scale-90"
                     onClick={handleAddProjectClick}

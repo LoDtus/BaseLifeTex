@@ -42,6 +42,7 @@ export default function KanbanColumn({
       style={{
         height: "calc(100vh - 150px)",
         width: "14.2%",
+        scrollbarWidth:"none"
       }}
     >
       <h3 className="flex items-center mb-2">
