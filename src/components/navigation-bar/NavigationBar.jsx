@@ -6,6 +6,8 @@ import Loading from "@/components/common/Loading";
 import { useDispatch, useSelector } from "react-redux";
 import { getListProjectByUser, setSelectedProject } from "@/redux/projectSlice";
 import AddProjectModal from "./components/AddProjectModal";
+import ProjectLogModal from "./ProjectLogModal";
+import { ROLES } from "../common/js/roles"; // Đường dẫn đúng với vị trí file roles.js của bạn
 
 export default function NavigationBar({ searchTerm }) {
     const lstProject = useSelector((state) => state.project.listProject);
@@ -81,6 +83,19 @@ export default function NavigationBar({ searchTerm }) {
         return searchKeyword ? projectName.includes(searchKeyword) : true;
     });
 
+    const [isLogModalOpen, setIsLogModalOpen] = useState(false);
+const dummyLogs = [
+    { date: "18/03/2025", message: "Xây dựng quản lí lifetex" }, 
+    { date: "4/4/2025", message: "Dự án phát triển hệ thống" },
+];
+const handleOpenLogModal = () => {
+    setIsLogModalOpen(true);
+};
+const handleCloseLogModal = () => {
+    setIsLogModalOpen(false);
+};
+
+
     return (
         <div className='p-2'>
             <div className='w-full flex flex-col items-center flex-none'>
@@ -90,6 +105,17 @@ export default function NavigationBar({ searchTerm }) {
                         {filteredProjects.length}
                     </span>
                 </div>
+                {userRole === ROLES.PM && (
+    <div>
+        <span
+            className="text-blue-600 hover:underline cursor-pointer"
+            onClick={handleOpenLogModal}
+        >
+            Nhật kí dự án
+        </span>
+    </div>
+)}
+
                 { userRole === 0 && <button className="w-full mb-1 border-1 !border-dashed border-gray !rounded-md flex justify-center items-center py-2 px-3
                     text-dark-gray font-semibold
                     cursor-pointer duration-200 hover:shadow-md hover:border-black hover:text-black active:scale-90"
@@ -132,6 +158,10 @@ export default function NavigationBar({ searchTerm }) {
             {isAddProjectModalOpen && (
                 <AddProjectModal onClose={handleCloseAddProjectModal} />
             )}
+            {isLogModalOpen && (
+    <ProjectLogModal onClose={handleCloseLogModal} logs={dummyLogs} />
+)}
+
         </div>
     );
 };
