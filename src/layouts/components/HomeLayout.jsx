@@ -10,7 +10,7 @@ import TaskDetails from '@/components/tasks/components/form/TaskDetails';
 export default function HomeLayout({ children }) {
     const [searchTerm, setSearchTerm] = useState("");
     const openProjectMenu = useSelector((state) => state.properties.openProjectMenu);
-    const taskState = useSelector((state) => state.properties.taskForm);
+    const taskState = useSelector((state) => state.properties.taskState);
 
     return (
         <div className="">

@@ -28,7 +28,7 @@ export default function TaskForm() {
     const dispatch = useDispatch();
     const [searchParams] = useSearchParams();
     const projectId = searchParams.get("idProject");
-    const taskForm = useSelector((state) => state.properties.taskForm);
+    const taskState = useSelector((state) => state.properties.taskState);
 
     const [taskName, setTaskName] = useState('');
     const [link, setLink] = useState('');

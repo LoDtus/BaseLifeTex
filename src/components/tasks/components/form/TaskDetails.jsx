@@ -8,7 +8,7 @@ import { convertDateYMD } from '@/utils/convertUtils';
 export default function TaskDetails() {
     const dispatch = useDispatch();
     const user = useSelector((state) => state.auth.login.currentUser.data.user);
-    const taskState = useSelector((state) => state.properties.taskForm);
+    const taskState = useSelector((state) => state.properties.taskState);
     const taskId = taskState.slice(0, 7).includes('DETAILS') ? taskState.slice(8) : null;
 
     const [task, setTask] = useState(null);
