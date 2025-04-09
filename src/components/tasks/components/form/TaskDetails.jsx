@@ -49,8 +49,8 @@ export default function TaskDetails() {
                     <span className="py-1 px-3 !mr-1 rounded-full bg-yellow">Yêu cầu mới</span>
                     <span className="py-1 px-3 rounded-full bg-red">Ưu tiên: Cao</span>
                 </div>
-                <span className='font-semibold text-2xl'>{ task?.title.trim() }</span>
-                <div className='flex items-center text-[12px] text-dark-gray border'>
+                <span className='font-semibold text-2xl normal-case'>{ task?.title.trim() }</span>
+                <div className='flex items-center text-[12px] text-dark-gray'>
                     <span className=''>{ convertDateYMD(task?.startDate) }</span>
                     <span className=''></span>
                     <span className='mx-2'>đến</span>
@@ -65,12 +65,12 @@ export default function TaskDetails() {
                     </div>
                 </div>
 
+                <div>
+                    
+                </div>
+
                 <p className='mt-2'>
-                    Lorem ipsum dolor sit amet, consectetur adipisicing elit. Atque vero quod illum laborum et qui architecto accusantium alias, voluptatum sed reprehenderit ab libero voluptatibus ad est neque cum facilis quis.
-                    Lorem ipsum dolor sit amet, consectetur adipisicing elit. Atque vero quod illum laborum et qui architecto accusantium alias, voluptatum sed reprehenderit ab libero voluptatibus ad est neque cum facilis quis.
-                    Lorem ipsum dolor sit amet, consectetur adipisicing elit. Atque vero quod illum laborum et qui architecto accusantium alias, voluptatum sed reprehenderit ab libero voluptatibus ad est neque cum facilis quis.
-                    Lorem ipsum dolor sit amet, consectetur adipisicing elit. Atque vero quod illum laborum et qui architecto accusantium alias, voluptatum sed reprehenderit ab libero voluptatibus ad est neque cum facilis quis.
-                    Lorem ipsum dolor sit amet, consectetur adipisicing elit. Atque vero quod illum laborum et qui architecto accusantium alias, voluptatum sed reprehenderit ab libero voluptatibus ad est neque cum facilis quis.
+                    { task?.description }
                 </p>
 
                 <div className='w-full flex flex-col items-center mt-1 mb-3'>
