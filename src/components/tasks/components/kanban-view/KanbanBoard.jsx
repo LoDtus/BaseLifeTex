@@ -7,6 +7,7 @@ import {
   DragOverlay,
   KeyboardSensor,
 } from "@dnd-kit/core";
+
 import { arrayMove, sortableKeyboardCoordinates } from "@dnd-kit/sortable";
 import React, { useEffect, useState } from "react";
 import KanbanColumn from "./KanbanColumn";
@@ -118,7 +119,6 @@ function KanbanBoard({ selectedTasks, setSelectedTasks }) {
   const [searchParams] = useSearchParams();
   const idProject = searchParams.get("idProject");
   const [activeId, setActiveId] = useState(null);
-
   // console.log(initialCols);
 
   // useEffect(() => {
@@ -154,6 +154,7 @@ function KanbanBoard({ selectedTasks, setSelectedTasks }) {
       );
     }
   }, [idProject, dispatch]);
+
   const onDragStart = (event) => {
     setActiveId(event.active.id);
   };
