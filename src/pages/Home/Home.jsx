@@ -12,9 +12,6 @@ import {
   deleteManyTasksRedux,
   searchTasksInProject,
   getListTaskByProjectId,
-  deleteManyTasksRedux,
-  searchTasksInProject,
-  getListTaskByProjectId,
 } from "@/redux/taskSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
@@ -64,24 +61,7 @@ export default function Home() {
       setListMember(response.data);
     }
   }, [idProject]);
-  const getMemberByProject = useCallback(async () => {
-    const response = await getlistUser(idProject);
-    if (response.success) {
-      setListMember(response.data);
-    }
-  }, [idProject]);
 
-  async function fetchProjectData(idPrj) {
-    try {
-      const response = await getProjectId(idPrj);
-      if (response.success) {
-        setNameProject(response.data.name);
-      }
-    } catch (error) {
-      setNameProject("Phần mềm đánh giá");
-      throw error;
-    }
-  }
   async function fetchProjectData(idPrj) {
     try {
       const response = await getProjectId(idPrj);
@@ -100,28 +80,13 @@ export default function Home() {
       getMemberByProject();
     }
   }, [idProject, getMemberByProject]);
-  useEffect(() => {
-    if (idProject) {
-      fetchProjectData(idProject);
-      getMemberByProject();
-    }
-  }, [idProject, getMemberByProject]);
 
   const handleDeleteSelected = async () => {
     if (selectedTasks.length === 0) {
       toast.warning("Vui lòng chọn vấn đề muốn xóa !");
       return;
     }
-  const handleDeleteSelected = async () => {
-    if (selectedTasks.length === 0) {
-      toast.warning("Vui lòng chọn vấn đề muốn xóa !");
-      return;
-    }
 
-    // const confirmDelete = window.confirm(
-    //   `Bạn có chắc muốn xóa ${selectedTasks.length} task không?`
-    // );
-    // if (!confirmDelete) return;
     // const confirmDelete = window.confirm(
     //   `Bạn có chắc muốn xóa ${selectedTasks.length} task không?`
     // );
@@ -155,18 +120,7 @@ export default function Home() {
   const openMember = Boolean(anchorEl);
   const filterId = openFilter ? "filter-popover" : undefined;
   const memberId = openMember ? "member-popover" : undefined;
-  const openFilter = Boolean(anchorElFilter);
-  const openMember = Boolean(anchorEl);
-  const filterId = openFilter ? "filter-popover" : undefined;
-  const memberId = openMember ? "member-popover" : undefined;
 
-  return (
-    <div className="home-container">
-      {/* Header Section */}
-      <div className="px-1 pt-2">
-        <div className="flex">
-          <div
-            className="w-[30px] h-[30px] p-2 rounded-md border border-gray-border flex justify-center items-center
   return (
     <div className="home-container">
       {/* Header Section */}
@@ -268,66 +222,6 @@ export default function Home() {
             members={listMember}
           />
         </Popover>
-      {/* Toolbar Section */}
-      <div className="flex px-1">
-        <div className="search-container">
-          <svg
-            className="search-icon"
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M21 21l-4.35-4.35m2.6-5.15a7 7 0 11-14 0 7 7 0 0114 0z"
-            />
-          </svg>
-          <input
-            type="text"
-            placeholder="Tìm kiếm..."
-            className="search-input"
-            value={keyword}
-            onChange={(e) => setKeyword(e.target.value)}
-          />
-          <div className="avatar-group">
-            {listMember?.slice(0, 5)?.map((member, index) => (
-              <Avatar
-                key={index}
-                src={member.avatar}
-                alt={`Avatar ${index + 1}`}
-                className="avatar"
-              />
-            ))}
-            {listMember.length > 5 &&
-              ["icons/dot.png"].map((avatar, index) => (
-                <img
-                  onClick={(e) => setAnchorEl(e.currentTarget)}
-                  key={index}
-                  src={avatar}
-                  alt={`Avatar ${index + 1}`}
-                  className="avatar"
-                />
-              ))}
-          </div>
-        </div>
-        <div className="grow"></div>
-        <Popover
-          id={memberId}
-          open={openMember}
-          anchorEl={anchorEl}
-          onClose={() => setAnchorEl(null)}
-          anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
-          transformOrigin={{ vertical: "top", horizontal: "left" }}
-          sx={{ mt: 1 }}
-        >
-          <MemberListContent
-            onClose={() => setAnchorEl(null)}
-            members={listMember}
-          />
-        </Popover>
 
         <div className="task-header">
           <div className="task-icons">
@@ -359,54 +253,6 @@ export default function Home() {
           </div>
         </div>
       </div>
-        <div className="task-header">
-          <div className="task-icons">
-            <img
-              src="/icons/trash-icon.png"
-              alt="Delete"
-              className="tool-icon"
-              onClick={handleDeleteSelected}
-            />
-            <img
-              src="/icons/filter-icon.png"
-              alt="Filter"
-              className="tool-icon"
-              onClick={(e) => setAnchorElFilter(e.currentTarget)} // Mở Popover Filter
-              aria-describedby={filterId}
-            />
-            <Popover
-              id={filterId}
-              open={openFilter}
-              anchorEl={anchorElFilter}
-              onClose={() => setAnchorElFilter(null)}
-              anchorOrigin={{
-                vertical: "bottom",
-                horizontal: "left",
-              }}
-            >
-              <FilterDialog idProject={idProject} />
-            </Popover>
-          </div>
-        </div>
-      </div>
-
-      {/* Content Section */}
-      <div className="content-section">
-        {viewMode === "kanban" ? (
-          <KanbanBoard
-            setSelectedTasks={setSelectedTasks}
-            selectedTasks={selectedTasks}
-          />
-        ) : (
-          <ListHome
-            setSelectedTasks={setSelectedTasks}
-            selectedTasks={selectedTasks}
-          />
-        )}
-      </div>
-    </div>
-  );
-}
 
       {/* Content Section */}
       <div className="content-section">
