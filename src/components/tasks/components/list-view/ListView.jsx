@@ -158,7 +158,7 @@ export default function ListHome({ selectedTasks = [], setSelectedTasks }) {
         <div className="list-home-wrapper">
             <div className="w-fit py-1 px-5 mb-1 flex items-center border rounded-md font-semibold
                 cursor-pointer duration-200 hover:bg-light-gray active:scale-90"
-                onClick={() => setOpen(true)}
+                onClick={() => dispatch(setTaskForm('ADD'))}
             >
                 <svg className='w-[15px] h-[15px] aspect-square !mr-2'
                     xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512">
@@ -272,8 +272,6 @@ export default function ListHome({ selectedTasks = [], setSelectedTasks }) {
                                     </div>
                                     <div className='basis-[5%] flex justify-center'>
                                         <svg className='w-[15px] h-[15px] aspect-square text-dark-gray cursor-pointer duration-200 hover:text-black active:scale-90'
-                                            // onClick={() => onOpenDetail(task._id)}
-                                            // onClick={() => editModalOpen(task._id)}
                                             onClick={() => dispatch(setTaskForm(`DETAILS_${task._id}`))}
                                             xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
                                             <path d="M256 512A256 256 0 1 0 256 0a256 256 0 1 0 0 512zM216 336l24 0 0-64-24 0c-13.3 0-24-10.7-24-24s10.7-24 24-24l48 0c13.3 0 24 10.7 24 24l0 88 8 0c13.3 0 24 10.7 24 24s-10.7 24-24 24l-80 0c-13.3 0-24-10.7-24-24s10.7-24 24-24zm40-208a32 32 0 1 1 0 64 32 32 0 1 1 0-64z"/>
