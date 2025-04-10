@@ -76,6 +76,7 @@ const taskSlice = createSlice({
     limit: 20,
     page: 1,
     error: null,
+    isTaskFormOpen: false,
   },
   reducers: {
     changePage: (state, action) => {
@@ -84,6 +85,12 @@ const taskSlice = createSlice({
     changeRowPerPage: (state, action) => {
       state.limit = action.payload;
       state.page = 1;
+    },
+    openTaskForm: (state) => {
+      state.isTaskFormOpen = true;
+    },
+    closeTaskForm: (state) => {
+      state.isTaskFormOpen = false;
     },
   },
   extraReducers: (builder) => {

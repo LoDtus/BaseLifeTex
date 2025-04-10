@@ -3,87 +3,64 @@ import "./styles/UserModal.scss";
 import EditNoteIcon from "@mui/icons-material/EditNote";
 import SaveIcon from "@mui/icons-material/Save";
 import { ROLE_LABELS } from "../common/js/roles";
-
+import UserFormFields from "./UserFormFields";
+import { useDispatch, useSelector } from 'react-redux';
+import { updateUserInfo } from '../../services/authService'; // điều chỉnh path nếu cần
+import { toast } from 'react-toastify';
 function UserModal({ user, onClose }) {
+  const [previewAvatar, setPreviewAvatar] = useState(user.avatar);
+
   const [isEditing, setIsEditing] = useState(false);
-  const [editedUser, setEditedUser] = useState({ ...user });
+  const [editedUser, setEditedUser] = useState({
+    ...user,
+    roleLabel: ROLE_LABELS[user.role],
+  });
+
+  const dispatch = useDispatch();
+const accessToken = useSelector((state) => state.auth.login.currentUser?.data?.accessToken);
 
   const handleChange = (e) => {
     setEditedUser({ ...editedUser, [e.target.name]: e.target.value });
   };
 
-  const handleSave = () => {
-    console.log("Đã lưu:", editedUser);
-    setIsEditing(false);
-  };
   const handleAvatarChange = (e) => {
     const file = e.target.files[0];
     if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setEditedUser({ ...editedUser, avatar: reader.result }); // Hiển thị ảnh mới
-      };
-      reader.readAsDataURL(file);
+      setEditedUser({ ...editedUser, avatar: file }); // Lưu file thật để gửi đi
+      setPreviewAvatar(URL.createObjectURL(file)); // Hiển thị ảnh mới ngay
+    }
+  };  
+  
+  const handleSave = async () => {
+    const formData = new FormData();
+    formData.append("userName", editedUser.userName);
+    formData.append("email", editedUser.email);
+    formData.append("phone", editedUser.phone);
+  
+    if (editedUser.avatar instanceof File) {
+      formData.append("avatar", editedUser.avatar);
+    }
+  
+    try {
+      await dispatch(updateUserInfo({ data: formData, accessToken }));
+      toast.success("Cập nhật thành công!");
+      setIsEditing(false);
+    } catch (error) {
+      console.error("Lỗi khi cập nhật:", error);
+      toast.error("Cập nhật thất bại.");
     }
   };
-
-  if (!user) return null;
-
+  
+  
   return (
     <div className="fixed-user-card">
-      <div className="card-header">
-        <label className="avatar-upload">
-          <img src={editedUser.avatar} alt="avatar" className="avatar" />
-          {isEditing && (
-            <input type="file" accept="image/*" onChange={handleAvatarChange} />
-          )}
-        </label>
-        <div>
-          {isEditing ? (
-            <input
-              type="text"
-              name="userName"
-              value={editedUser.userName}
-              onChange={handleChange}
-              className="input-edit"
-            />
-          ) : (
-            <h3>{user.userName}</h3>
-          )}
-          <p className="role">{ROLE_LABELS[user.role]}</p>
-        </div>
-      </div>
-
-      <div className="card-info">
-        <p>
-          <strong>Email:</strong>
-          {isEditing ? (
-            <input
-              type="email"
-              name="email"
-              value={editedUser.email}
-              onChange={handleChange}
-              className="input-edit"
-            />
-          ) : (
-            ` ${user.email}`
-          )}
-        </p>
-        <p>
-          <strong>Phone:</strong>
-          {isEditing ? (
-            <input
-              type="text"
-              name="phone"
-              value={editedUser.phone}
-              onChange={handleChange}
-              className="input-edit"
-            />
-          ) : (
-            ` ${user.phone}`
-          )}
-        </p>
-      </div>
+      <UserFormFields
+        user={editedUser}
+        isEditing={isEditing}
+        onChange={handleChange}
+        onAvatarChange={handleAvatarChange}
+        previewAvatar={previewAvatar}
+      />
 
       <div className="modal-actions">
         {isEditing ? (
