@@ -59,7 +59,7 @@ const IssueForm = ({ isOpen, onClose, status }) => {
   } = useForm();
 
   const onSubmit = async (data) => {
-    console.log(data)
+    console.log(data);
     setLoading(true);
     try {
       const issueData = await postIssueData({
