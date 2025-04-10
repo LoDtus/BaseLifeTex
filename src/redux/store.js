@@ -6,7 +6,7 @@ import { persistStore, persistReducer } from "redux-persist";
 import storage from "redux-persist/lib/storage";
 import loadingReducer from "./loadingSlice";
 import propertiesReducer from "./propertiesSlice";
-
+import viewModeReducer from "./viewModeSlice";
 const persistConfig = {
   key: "root",
   storage,
@@ -18,7 +18,8 @@ const rootReducer = combineReducers({
   loading: loadingReducer,
   task: taskReducer,
   project: projectReducer,
-  properties: propertiesReducer, 
+  properties: propertiesReducer,
+  viewMode: viewModeReducer,
 });
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);
