@@ -1,4 +1,4 @@
-import { Input, Dropdown, Button, DatePicker, Checkbox, Menu } from "antd";
+import { Input, Dropdown, Button, DatePicker, Checkbox, Modal } from "antd";
 import dayjs from "dayjs";
 import { useDispatch, useSelector } from "react-redux";
 import { useEffect, useState, useCallback } from "react";
@@ -9,9 +9,14 @@ import { getMembers } from "@/services/projectService";
 import { openSystemNoti } from "@/utils/systemUtils";
 import { getTaskDetailById } from "@/services/taskService";
 import { addTask, updateTask } from "@/services/taskService";
-import Loading from "../../../common/Loading";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 const { TextArea } = Input;
 import customParseFormat from "dayjs/plugin/customParseFormat";
+import { postIssueData } from "../../../../services/issueService";
+import { getListTaskByProjectId } from "../../../../redux/taskSlice";
+import Loading from "../../../common/Loading";
+import { setLoading } from "../../../../redux/loadingSlice";
 dayjs.extend(customParseFormat);
 const dateFormat = "DD-MM-YYYY";
 
@@ -32,7 +37,7 @@ export default function TaskForm() {
   const projectId = searchParams.get("idProject");
   const taskState = useSelector((state) => state.properties.taskState);
   const user = useSelector((state) => state.auth.login.currentUser.data.user);
-
+  const viewMode = useSelector((state) => state.viewMode.mode);
   const [taskName, setTaskName] = useState("");
   const [link, setLink] = useState("");
   const [description, setDescription] = useState("");
@@ -43,7 +48,7 @@ export default function TaskForm() {
   const [priority, setPriority] = useState("0");
   const [status, setStatus] = useState(1);
   const [type, setType] = useState("new_request");
-
+  const [imgAdd, setImgAdd] = useState(null);
   const inpStates = useInputStates([taskName, link, description]);
   const [alert, setAlert] = useState([]);
   const [memberList, setMemberList] = useState([]);
@@ -55,7 +60,7 @@ export default function TaskForm() {
   const [minDate, setMinDate] = useState(
     dayjs(dayjs().format(dateFormat), dateFormat)
   );
-  const [loading, setLoading] = useState(false);
+
   useEffect(() => {
     if (taskState.slice(0, 7).includes("UPDATE")) {
       const taskId = taskState.slice(7);
@@ -177,60 +182,59 @@ export default function TaskForm() {
   function uploadImg(event) {
     const file = event.target.files[0];
     if (file) {
+      setImgAdd(file);
       const url = URL.createObjectURL(file);
       setImg(url || null);
     }
   }
 
   async function saveTask() {
-    setLoading(true);
-    let shouldCloseForm = true;
-    try {
-      if (!taskName)
-        setAlert((prev) =>
-          prev.includes("TASK_NAME") ? prev : [...prev, "TASK_NAME"]
-        );
-      else setAlert((prev) => prev.filter((item) => item !== "TASK_NAME"));
-      if (!link)
-        setAlert((prev) => (prev.includes("LINK") ? prev : [...prev, "LINK"]));
-      else setAlert((prev) => prev.filter((item) => item !== "LINK"));
-      if (!link.includes("http"))
-        setAlert((prev) =>
-          prev.includes("INVALID_LINK") ? prev : [...prev, "INVALID_LINK"]
-        );
-      else setAlert((prev) => prev.filter((item) => item !== "INVALID_LINK"));
-      if (!description)
-        setAlert((prev) =>
-          prev.includes("DESCRIPTION") ? prev : [...prev, "DESCRIPTION"]
-        );
-      else setAlert((prev) => prev.filter((item) => item !== "DESCRIPTION"));
-      if (assignee.length === 0)
-        setAlert((prev) =>
-          prev.includes("ASSIGNEE") ? prev : [...prev, "ASSIGNEE"]
-        );
-      else setAlert((prev) => prev.filter((item) => item !== "ASSIGNEE"));
-      if (!startDate || !endDate)
-        setAlert((prev) => (prev.includes("DATE") ? prev : [...prev, "DATE"]));
-      else setAlert((prev) => prev.filter((item) => item !== "DATE"));
-      if (!img)
-        setAlert((prev) => (prev.includes("IMG") ? prev : [...prev, "IMG"]));
-      else setAlert((prev) => prev.filter((item) => item !== "IMG"));
-      if (
-        !taskName ||
-        !link ||
-        !link.includes("http") ||
-        !description ||
-        assignee.length === 0 ||
-        !startDate ||
-        !endDate ||
-        !img
-      )
-        return;
+    if (!taskName)
+      setAlert((prev) =>
+        prev.includes("TASK_NAME") ? prev : [...prev, "TASK_NAME"]
+      );
+    else setAlert((prev) => prev.filter((item) => item !== "TASK_NAME"));
+    if (!link)
+      setAlert((prev) => (prev.includes("LINK") ? prev : [...prev, "LINK"]));
+    else setAlert((prev) => prev.filter((item) => item !== "LINK"));
+    if (!link.includes("http"))
+      setAlert((prev) =>
+        prev.includes("INVALID_LINK") ? prev : [...prev, "INVALID_LINK"]
+      );
+    else setAlert((prev) => prev.filter((item) => item !== "INVALID_LINK"));
+    if (!description)
+      setAlert((prev) =>
+        prev.includes("DESCRIPTION") ? prev : [...prev, "DESCRIPTION"]
+      );
+    else setAlert((prev) => prev.filter((item) => item !== "DESCRIPTION"));
+    if (assignee.length === 0)
+      setAlert((prev) =>
+        prev.includes("ASSIGNEE") ? prev : [...prev, "ASSIGNEE"]
+      );
+    else setAlert((prev) => prev.filter((item) => item !== "ASSIGNEE"));
+    if (!startDate || !endDate)
+      setAlert((prev) => (prev.includes("DATE") ? prev : [...prev, "DATE"]));
+    else setAlert((prev) => prev.filter((item) => item !== "DATE"));
+    if (!img)
+      setAlert((prev) => (prev.includes("IMG") ? prev : [...prev, "IMG"]));
+    else setAlert((prev) => prev.filter((item) => item !== "IMG"));
+    if (
+      !taskName ||
+      !link ||
+      !link.includes("http") ||
+      !description ||
+      assignee.length === 0 ||
+      !startDate ||
+      !endDate ||
+      !img
+    )
+      return;
 
+    try {
       let newTaskId = "";
       if (taskState.slice(0, 4).includes("ADD")) {
         const response = await addTask({
-          image: img,
+          image: imgAdd,
           assigneeId: assignee,
           title: taskName,
           link: link,
@@ -246,14 +250,12 @@ export default function TaskForm() {
         if (response.success) {
           newTaskId = response.data._id;
           openSystemNoti("success", "Đã thêm công việc");
-          dispatch(setTaskForm(`DETAILS_${newTaskId}`));
-          shouldCloseForm = false;
         } else {
           return openSystemNoti("error", response.message);
         }
       } else {
         const response = await updateTask(taskState.slice(7), {
-          image: img,
+          image: imgAdd ? imgAdd : img,
           assigneeId: assignee,
           title: taskName,
           link: link,
@@ -269,21 +271,21 @@ export default function TaskForm() {
         if (response.success) {
           newTaskId = response.data._id;
           openSystemNoti("success", "Đã cập nhật công việc");
-          dispatch(setTaskForm(`DETAILS_${newTaskId}`));
-          shouldCloseForm = false;
         } else {
           return openSystemNoti("error", response.message);
         }
       }
       dispatch(setTaskForm(`DETAILS_${newTaskId}`));
     } catch (error) {
-      console.error("Lỗi khi lưu task:", error);
-      openSystemNoti("error", "Có lỗi xảy ra, vui lòng thử lại");
+      openSystemNoti("error", error);
     } finally {
-      setTimeout(() => {
-        if (shouldCloseForm) dispatch(setTaskForm("CLOSE")); // ✅ Chỉ đóng nếu cần
-        setLoading(false);
-      }, 3000);
+      dispatch(
+        getListTaskByProjectId({
+          projectId: projectId,
+          page: 1,
+          limit: viewMode === "list" ? 20 : 100,
+        })
+      );
     }
   }
 
@@ -313,9 +315,15 @@ export default function TaskForm() {
   function deleteTask() {}
 
   function closeForm() {
-    // if (taskName || link || description || img) {
-    // Hỏi xác thực khi người dùng đang điền dở form
-    // }
+    const isFormDirty = taskName || link || description || startDate || endDate;
+
+    if (isFormDirty) {
+      const confirmClose = window.confirm(
+        "Bạn có chắc chắn muốn đóng? Dữ liệu chưa được lưu sẽ bị mất."
+      );
+      if (!confirmClose) return;
+    }
+
     dispatch(setTaskForm("CLOSE"));
   }
 
@@ -323,29 +331,22 @@ export default function TaskForm() {
     <div className="z-100 fixed top-0 left-0 w-[100vw] h-[100vh] flex justify-center items-center">
       <div
         className="fixed w-[100vw] h-[100vh] bg-black opacity-30"
-        onClick={() => closeForm()}
+        onClick={closeForm}
       ></div>
-
-      <div className="relative z-110 w-[70vw] h-[95vh] flex flex-col items-center bg-white border border-gray-border rounded-md shadow-md overflow-y-auto">
-        <div className="sticky z-20 w-full pt-3 pb-3 top-0 !bg-white flex justify-center">
-          <div
-            className="absolute right-4 p-1 rounded-md cursor-pointer duration-200 hover:bg-light-gray active:scale-90"
-            onClick={() => dispatch(setTaskForm("CLOSE"))}
+      <div className="relative z-110 w-[70vw] h-[95vh] p-3 flex flex-col items-center bg-white border border-gray-border rounded-md shadow-md overflow-y-auto">
+        <div
+          className="absolute right-4 p-1 rounded-md cursor-pointer duration-200 hover:bg-light-gray active:scale-90"
+          onClick={closeForm}
+        >
+          <svg
+            className="w-[25px] h-[25px] aspect-square"
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 384 512"
           >
-            <svg
-              className="w-[25px] h-[25px] aspect-square"
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 384 512"
-            >
-              <path d="M342.6 150.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L192 210.7 86.6 105.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L146.7 256 41.4 361.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0L192 301.3 297.4 406.6c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L237.3 256 342.6 150.6z" />
-            </svg>
-          </div>
-          <span className="font-semibold text-2xl !mb-2">
-            {taskState.slice(0, 4).includes("ADD")
-              ? "Thêm công việc mới"
-              : "Cập nhật công việc"}
-          </span>
+            <path d="M342.6 150.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L192 210.7 86.6 105.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L146.7 256 41.4 361.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0L192 301.3 297.4 406.6c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L237.3 256 342.6 150.6z" />
+          </svg>
         </div>
+        <span className="font-semibold text-2xl !mb-2">Thêm công việc mới</span>
 
         <div className="w-full h-full flex flex-col items-center px-3 pb-3">
           <div className="w-full flex">
@@ -587,19 +588,12 @@ export default function TaskForm() {
 
           <div className="w-full mt-2 flex justify-end">
             <Button
-              className="w-[130px] !font-semibold flex items-center justify-centerw-[100px] !font-semibold"
+              className="w-[100px] !font-semibold"
               color="blue"
               variant="solid"
-              loading={loading}
               onClick={() => saveTask()}
             >
-              {loading
-                ? taskState.slice(0, 4).includes("ADD")
-                  ? "Đang thêm..."
-                  : "Đang cập nhật..."
-                : taskState.slice(0, 4).includes("ADD")
-                ? "Thêm"
-                : "Cập nhật"}
+              Lưu
             </Button>
             {taskState.slice(0, 4).includes("UPDATE") && (
               <Button
