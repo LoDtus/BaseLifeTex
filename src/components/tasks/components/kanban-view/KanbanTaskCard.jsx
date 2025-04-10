@@ -11,7 +11,8 @@ import ListIcon from "@mui/icons-material/List";
 import { useEffect } from "react";
 import MemberListContent from "../list-view/MemberList";
 import { useSearchParams } from "react-router-dom";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { setTaskForm } from '@/redux/propertiesSlice';
 import { getListTaskByProjectId } from "../../../../redux/taskSlice";
 import { getlistUser } from "../../../../services/userService";
 import { toast } from "react-toastify";
@@ -179,12 +180,15 @@ export default function KanbanTaskCard({
         </div>
         <div className="">
           <div className="flex items-center py-1 px-2">
-            <div className="!text-gray cursor-pointer duration-200 !hover:text-black !active:scale-90">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 512 512"
-                className="w-[20px] h-[20px] aspect-square "
-              >
+          <div className='!text-gray !cursor-pointer duration-200 !hover:text-black !active:scale-90'
+                            onClick={() => dispatch(setTaskForm('ADD'))}
+                        >
+                            <svg
+                                xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"
+                                className='w-[20px] h-[20px] aspect-square '
+                                onClick={handleButtonClick}
+                                onPointerDown={(e) => e.stopPropagation()}
+                            >
                 <path d="M256 512A256 256 0 1 0 256 0a256 256 0 1 0 0 512zM216 336l24 0 0-64-24 0c-13.3 0-24-10.7-24-24s10.7-24 24-24l48 0c13.3 0 24 10.7 24 24l0 88 8 0c13.3 0 24 10.7 24 24s-10.7 24-24 24l-80 0c-13.3 0-24-10.7-24-24s10.7-24 24-24zm40-208a32 32 0 1 1 0 64 32 32 0 1 1 0-64z" />
               </svg>
             </div>
@@ -218,7 +222,7 @@ export default function KanbanTaskCard({
               +
             </button>
 
-            {/* <div
+                        {/* <div
                             className="assignee-toggle"
                             style={{
                                 cursor: "pointer",
@@ -297,10 +301,10 @@ export default function KanbanTaskCard({
                                 </div>
                             </Popover>
                         </div> */}
-          </div>
-        </div>
-      </div>
-      {/* danh sách thành viên có trong task */}
+                    </div>
+                </div>
+            </div>
+            {/* danh sách thành viên có trong task */}
       <Popover
         id={idPopover}
         open={openPopover}
@@ -335,14 +339,13 @@ export default function KanbanTaskCard({
           toast={toast}
         />
       </Popover>
-
-      {isModalOpen && (
-        <TaskDetailView
-          isOpen={isModalOpen}
-          handleClose={handleCloseModal}
-          task={task}
-        />
-      )}
-    </div>
-  );
-}
+            {isModalOpen && (
+                <TaskDetailView
+                    isOpen={isModalOpen}
+                    handleClose={handleCloseModal}
+                    task={task}
+                />
+            )}
+        </div>
+    );
+};
