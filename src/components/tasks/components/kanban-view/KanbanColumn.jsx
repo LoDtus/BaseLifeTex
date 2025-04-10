@@ -9,7 +9,7 @@ import KanbanTaskCard from "./KanbanTaskCard";
 import IssueForm from "../form/IssueForm";
 import { useSearchParams } from "react-router-dom";
 import { setTaskForm } from '@/redux/propertiesSlice';
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 
 export default function KanbanColumn({
   columnId,
@@ -34,6 +34,7 @@ export default function KanbanColumn({
   const statusValue = statusMapReverse[columnId];
   const [searchParams] = useSearchParams();
   const idProject = searchParams.get("idProject");
+  const user = useSelector((state) => state.auth.login.currentUser.data.user)
 
   const sortedTasks = [...column.tasks].sort((a, b) => b.priority - a.priority); // Tạo một bản sao của mảng tasks và sắp xếp theo độ ưu tiên (giảm dần)
 
@@ -54,13 +55,13 @@ export default function KanbanColumn({
         </div>
       </h3>
 
-      <button
+      { user.role === 0 && <button
         className="w-full py-1 px-2 bg-white text-dark-gray border border-dashed border-gray-border rounded-md
                     cursor-pointer duration-200 hover:text-black hover:border-black active:scale-90"
         onClick={() => dispatch(setTaskForm('ADD'))}
       >
         Thêm công việc
-      </button>
+      </button> }
       <div>
         <SortableContext
           id={columnId}
