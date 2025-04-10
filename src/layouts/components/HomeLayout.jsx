@@ -10,7 +10,7 @@ import TaskDetails from '@/components/tasks/components/form/TaskDetails';
 export default function HomeLayout({ children }) {
     const [searchTerm, setSearchTerm] = useState("");
     const openProjectMenu = useSelector((state) => state.properties.openProjectMenu);
-    const taskState = useSelector((state) => state.properties.taskForm);
+    const taskState = useSelector((state) => state.properties.taskState);
 
     return (
         <div className="">
@@ -27,7 +27,7 @@ export default function HomeLayout({ children }) {
                 </div>
                 <div className={styles.content}>{children}</div>
             </div>
-            { taskState.slice(0, 7).includes('ADD') && <TaskForm/> }
+            { (taskState.slice(0, 7).includes('ADD') || taskState.slice(0, 7).includes('UPDATE')) && <TaskForm/> }
             { taskState.slice(0, 7).includes('DETAILS') && <TaskDetails/> }
         </div>
     );

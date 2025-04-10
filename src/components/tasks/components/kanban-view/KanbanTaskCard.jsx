@@ -8,7 +8,8 @@ import Tooltip from "@mui/material/Tooltip";
 // import KanbanCards from "../../styles/KanbanCard.module.scss";
 import TaskDetailView from "../task-details/TaskDetailView";
 import ListIcon from "@mui/icons-material/List";
-import { useEffect } from 'react';
+import { useDispatch, useSelector } from "react-redux";
+import { setTaskForm } from '@/redux/propertiesSlice';
 
 export default function KanbanTaskCard({ selectedTasks, setSelectedTasks, task }) {
     const {
@@ -28,6 +29,8 @@ export default function KanbanTaskCard({ selectedTasks, setSelectedTasks, task }
     const [anchorEl, setAnchorEl] = useState(null);
     const [isKanbaLabel, setIsKanbaLabel] = useState(false);
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const dispatch = useDispatch();
+
     const handleClick = (event) => {
         // event.preventDefault();
         event.stopPropagation();
@@ -113,25 +116,27 @@ export default function KanbanTaskCard({ selectedTasks, setSelectedTasks, task }
                 </div>
                 <div className="">
                     <div className='flex items-center py-1 px-2'>
-                        <div className='!text-gray cursor-pointer duration-200 !hover:text-black !active:scale-90'>
+                        <div className='!text-gray !cursor-pointer duration-200 !hover:text-black !active:scale-90'
+                            onClick={() => dispatch(setTaskForm('ADD'))}
+                        >
                             <svg
                                 xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"
                                 className='w-[20px] h-[20px] aspect-square '
                                 onClick={handleButtonClick}
                                 onPointerDown={(e) => e.stopPropagation()}
                             >
-                                <path d="M256 512A256 256 0 1 0 256 0a256 256 0 1 0 0 512zM216 336l24 0 0-64-24 0c-13.3 0-24-10.7-24-24s10.7-24 24-24l48 0c13.3 0 24 10.7 24 24l0 88 8 0c13.3 0 24 10.7 24 24s-10.7 24-24 24l-80 0c-13.3 0-24-10.7-24-24s10.7-24 24-24zm40-208a32 32 0 1 1 0 64 32 32 0 1 1 0-64z"/>
+                                <path d="M256 512A256 256 0 1 0 256 0a256 256 0 1 0 0 512zM216 336l24 0 0-64-24 0c-13.3 0-24-10.7-24-24s10.7-24 24-24l48 0c13.3 0 24 10.7 24 24l0 88 8 0c13.3 0 24 10.7 24 24s-10.7 24-24 24l-80 0c-13.3 0-24-10.7-24-24s10.7-24 24-24zm40-208a32 32 0 1 1 0 64 32 32 0 1 1 0-64z" />
                             </svg>
                         </div>
                         <div className='grow'></div>
-                        { task.assigneeId.map((member, i) => {
+                        {task.assigneeId.map((member, i) => {
                             if (i < 3) {
                                 return (
                                     <div>
                                         <img
                                             className='w-[25px] h-[25px] rounded-full cursor-pointer !ml-[2px]'
-                                            src={ member.avatar }
-                                            alt={ member.email }
+                                            src={member.avatar}
+                                            alt={member.email}
                                         />
                                     </div>
                                 )
@@ -219,7 +224,7 @@ export default function KanbanTaskCard({ selectedTasks, setSelectedTasks, task }
                     </div>
                 </div>
             </div>
-            
+
             {isModalOpen && (
                 <TaskDetailView
                     isOpen={isModalOpen}
