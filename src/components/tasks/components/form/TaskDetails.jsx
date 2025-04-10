@@ -14,6 +14,7 @@ export default function TaskDetails() {
     const [task, setTask] = useState(null);
     const [deadline, setDeadline] = useState(0);
     const [memberList, setMemberList] = useState([]);
+    const [comment, setComment] = useState(null);
 
     useEffect(() => {
         if (!taskId) return setTask(null);
@@ -27,7 +28,7 @@ export default function TaskDetails() {
     useEffect(() => {
         const endDate = new Date(task?.endDate);
         const curDate = new Date();
-        setDeadline(Math.ceil((endDate - curDate) / (1000 * 60 * 60 * 24)));
+        setDeadline(Math.floor((endDate - curDate) / (1000 * 60 * 60 * 24)));
 
         task?.assigneeId.map((member) => {
             return (setMemberList((prev) => [...prev, (
@@ -47,9 +48,7 @@ export default function TaskDetails() {
     }, [task]);
 
     function closeForm() {
-        // if (taskName || link || description || img) {
-
-        // }
+        // Thêm thông báo xác nhận khi người dùng đang bình luận dở dang if (comment) tức là comment đang không null ấy
         dispatch(setTaskForm('CLOSE'));
     }
 
@@ -107,10 +106,10 @@ export default function TaskDetails() {
                         <div className='flex items-center text-[12px] text-dark-gray'>
                             <span>{ convertDateYMD(task?.startDate) }</span>
                             <span className='mx-2'>đến</span>
-                            <span>{ convertDateYMD(task?.startDate) }</span>
-                            <span className='text-white font-semibold !ml-2 py-[2px] px-3 rounded-full bg-red'>
-                                { deadline === 0 ? `Mới`
-                                : deadline > 0 ? `${Math.abs(deadline)} ngày trước`
+                            <span>{ convertDateYMD(task?.endDate) }</span>
+                            <span className={`text-white font-semibold !ml-2 py-[2px] px-3 rounded-full
+                                ${deadline > 0 ? 'bg-green' : deadline < 0 ? 'bg-red' : ''}`}>
+                                { deadline > 0 ? `Còn ${Math.abs(deadline)} ngày`
                                 : deadline < 0 ? `Quá hạn ${Math.abs(deadline)} ngày` : ''}
                             </span>
                             <div className='grow'></div>
@@ -159,6 +158,7 @@ export default function TaskDetails() {
                     </div>
                 </div>
 
+                {/* Thêm chức năng bình luận, bắt sự kiện nhấn Enter để bình luận ~ sự kiện click vào button Gửi */}
                 <div>
                     <div className="font-semibold text-2xl mb-2">Bình luận</div>
                     <div className='w-fit mb-1 flex items-center cursor-pointer duration-200 active:scale-90'>
@@ -187,6 +187,7 @@ export default function TaskDetails() {
                         />
                         <Input className='!mr-1'
                             placeholder="Bình luận"
+                            onChange={(e) => setComment(e.target.value.trim())}
                         />
                         <Button className='!w-[100px] !font-semibold' type='primary'>Gửi</Button>
                     </div>

@@ -28,7 +28,7 @@ export default function HomeLayout({ children }) {
                 <div className={styles.content}>{children}</div>
             </div>
             { (taskState.slice(0, 7).includes('ADD') || taskState.slice(0, 7).includes('UPDATE')) && <TaskForm/> }
-            { (taskState.slice(0, 7).includes('DETAILS') || taskState.slice(0, 7).includes('PREVIEW')) && <TaskDetails/> }
+            { taskState.slice(0, 7).includes('DETAILS') && <TaskDetails/> }
         </div>
     );
 }
