@@ -11,10 +11,8 @@ import { getTaskDetailById } from "@/services/taskService";
 import { addTask, updateTask } from "@/services/taskService";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-
 const { TextArea } = Input;
 import customParseFormat from "dayjs/plugin/customParseFormat";
-import { toast } from "react-toastify";
 import { postIssueData } from "../../../../services/issueService";
 import { getListTaskByProjectId } from "../../../../redux/taskSlice";
 import Loading from "../../../common/Loading";
@@ -39,7 +37,7 @@ export default function TaskForm() {
   const projectId = searchParams.get("idProject");
   const taskState = useSelector((state) => state.properties.taskState);
   const user = useSelector((state) => state.auth.login.currentUser.data.user);
-
+  const viewMode = useSelector((state) => state.viewMode.mode);
   const [taskName, setTaskName] = useState("");
   const [link, setLink] = useState("");
   const [description, setDescription] = useState("");
@@ -50,7 +48,7 @@ export default function TaskForm() {
   const [priority, setPriority] = useState("0");
   const [status, setStatus] = useState(1);
   const [type, setType] = useState("new_request");
-
+  const [imgAdd, setImgAdd] = useState(null);
   const inpStates = useInputStates([taskName, link, description]);
   const [alert, setAlert] = useState([]);
   const [memberList, setMemberList] = useState([]);
@@ -232,51 +230,63 @@ export default function TaskForm() {
     )
       return;
 
-    let newTaskId = "";
-    if (taskState.slice(0, 4).includes("ADD")) {
-      const response = await addTask({
-        image: img,
-        assigneeId: assignee,
-        title: taskName,
-        link: link,
-        description: description,
-        startDate: startDate.format("YYYY-MM-DD"),
-        endDate: endDate.format("YYYY-MM-DD"),
-        status: 1,
-        projectId: projectId,
-        assignerId: user._id,
-        priority: priority,
-        type: type,
-      });
-      if (response.success) {
-        newTaskId = response.data._id;
-        openSystemNoti("success", "Đã thêm công việc");
+    try {
+      let newTaskId = "";
+      if (taskState.slice(0, 4).includes("ADD")) {
+        const response = await addTask({
+          image: imgAdd,
+          assigneeId: assignee,
+          title: taskName,
+          link: link,
+          description: description,
+          startDate: startDate.format("YYYY-MM-DD"),
+          endDate: endDate.format("YYYY-MM-DD"),
+          status: 1,
+          projectId: projectId,
+          assignerId: user._id,
+          priority: priority,
+          type: type,
+        });
+        if (response.success) {
+          newTaskId = response.data._id;
+          openSystemNoti("success", "Đã thêm công việc");
+        } else {
+          return openSystemNoti("error", response.message);
+        }
       } else {
-        return openSystemNoti("error", response.message);
+        const response = await updateTask(taskState.slice(7), {
+          image: imgAdd ? imgAdd : img,
+          assigneeId: assignee,
+          title: taskName,
+          link: link,
+          description: description,
+          startDate: startDate.format("YYYY-MM-DD"),
+          endDate: endDate.format("YYYY-MM-DD"),
+          status: status,
+          projectId: projectId,
+          assignerId: user._id,
+          priority: priority,
+          type: type,
+        });
+        if (response.success) {
+          newTaskId = response.data._id;
+          openSystemNoti("success", "Đã cập nhật công việc");
+        } else {
+          return openSystemNoti("error", response.message);
+        }
       }
-    } else {
-      const response = await updateTask(taskState.slice(7), {
-        image: img,
-        assigneeId: assignee,
-        title: taskName,
-        link: link,
-        description: description,
-        startDate: startDate.format("YYYY-MM-DD"),
-        endDate: endDate.format("YYYY-MM-DD"),
-        status: status,
-        projectId: projectId,
-        assignerId: user._id,
-        priority: priority,
-        type: type,
-      });
-      if (response.success) {
-        newTaskId = response.data._id;
-        openSystemNoti("success", "Đã cập nhật công việc");
-      } else {
-        return openSystemNoti("error", response.message);
-      }
+      dispatch(setTaskForm(`DETAILS_${newTaskId}`));
+    } catch (error) {
+      openSystemNoti("error", error);
+    } finally {
+      dispatch(
+        getListTaskByProjectId({
+          projectId: projectId,
+          page: 1,
+          limit: viewMode === "list" ? 20 : 100,
+        })
+      );
     }
-    dispatch(setTaskForm(`DETAILS_${newTaskId}`));
   }
 
   useEffect(() => {
