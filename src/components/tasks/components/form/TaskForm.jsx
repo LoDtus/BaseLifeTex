@@ -3,6 +3,8 @@ import dayjs from "dayjs";
 import { useDispatch, useSelector } from "react-redux";
 import { useEffect, useState, useCallback } from "react";
 import { useInputStates } from "@/hook/propertiesHook";
+import { useEffect, useState, useCallback } from "react";
+import { useInputStates } from "@/hook/propertiesHook";
 import { useSearchParams } from "react-router-dom";
 import { setTaskForm } from "@/redux/propertiesSlice";
 import { getMembers } from "@/services/projectService";
@@ -14,14 +16,20 @@ const { TextArea } = Input;
 import customParseFormat from "dayjs/plugin/customParseFormat";
 dayjs.extend(customParseFormat);
 const dateFormat = "DD-MM-YYYY";
+const dateFormat = "DD-MM-YYYY";
 
 const priorityList = [
+  { key: "0", label: <span>Thấp</span> },
+  { key: "1", label: <span>Trung bình</span> },
+  { key: "2", label: <span>Cao</span> },
   { key: "0", label: <span>Thấp</span> },
   { key: "1", label: <span>Trung bình</span> },
   { key: "2", label: <span>Cao</span> },
 ];
 
 const typeList = [
+  { key: "new_request", label: <span>Yêu cầu mới</span> },
+  { key: "bug", label: <span>Bug</span> },
   { key: "new_request", label: <span>Yêu cầu mới</span> },
   { key: "bug", label: <span>Bug</span> },
 ];
@@ -65,7 +73,34 @@ export default function TaskForm() {
         if (response.success) {
           const start = dayjs(response.data.startDate);
           const end = dayjs(response.data.endDate);
+        if (response.success) {
+          const start = dayjs(response.data.startDate);
+          const end = dayjs(response.data.endDate);
 
+          setTaskName(response.data.title);
+          setLink(response.data.link);
+          setDescription(response.data.description);
+          setImg(response.data.image);
+          setStartDate(start);
+          setEndDate(end);
+          setMinDate(start);
+          setConfigStartDate(start);
+          setConfigEndDate(end);
+          setPriority(response.data.priority);
+          setStatus(response.data.status);
+          setType(response.data.type);
+          setAssignee(response.data.assigneeId.map((member) => member._id));
+        } else {
+          return openSystemNoti("error", response.message);
+        }
+      }
+      getTask(taskId);
+    } else {
+      setConfigStartDate(dayjs(dayjs().format(dateFormat), dateFormat));
+      setConfigEndDate(null);
+      setMinDate(dayjs(dayjs().format(dateFormat), dateFormat));
+    }
+  }, [taskState]);
           setTaskName(response.data.title);
           setLink(response.data.link);
           setDescription(response.data.description);
@@ -95,12 +130,27 @@ export default function TaskForm() {
     const response = await getMembers(projectId);
     setMemberList(response);
   }, [projectId]);
+  const getMemberList = useCallback(async () => {
+    const response = await getMembers(projectId);
+    setMemberList(response);
+  }, [projectId]);
 
   useEffect(() => {
     if (!projectId) return;
     getMemberList();
   }, [projectId, getMemberList]);
+  useEffect(() => {
+    if (!projectId) return;
+    getMemberList();
+  }, [projectId, getMemberList]);
 
+  function chooseAssignee(memberId, checked) {
+    if (checked) {
+      setAssignee((prev) => [...prev, memberId]);
+    } else {
+      setAssignee((prev) => prev.filter((id) => id !== memberId));
+    }
+  }
   function chooseAssignee(memberId, checked) {
     if (checked) {
       setAssignee((prev) => [...prev, memberId]);
@@ -160,7 +210,70 @@ export default function TaskForm() {
       ),
     })),
   ];
+  const asigneeList = [
+    {
+      key: "close",
+      label: (
+        <div
+          className="flex justify-end"
+          type="primary"
+          onClick={() => setVisibleAssignee(false)}
+        >
+          <svg
+            className="w-[25px] h-[25px] aspect-square"
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 384 512"
+          >
+            <path d="M342.6 150.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L192 210.7 86.6 105.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L146.7 256 41.4 361.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0L192 301.3 297.4 406.6c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L237.3 256 342.6 150.6z" />
+          </svg>
+        </div>
+      ),
+    },
+    ...memberList.map((member) => ({
+      key: member._id,
+      label: (
+        <label
+          htmlFor={`asignee_${member._id}`}
+          className="!flex items-center cursor-pointer"
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            chooseAssignee(member._id, !assignee.includes(member._id));
+          }}
+        >
+          <Checkbox
+            id={`asignee_${member._id}`}
+            checked={assignee.includes(member._id)}
+            onChange={(e) => chooseAssignee(member._id, e.target.checked)}
+            onClick={(e) => e.stopPropagation()}
+          />
+          <img
+            src={member.avatar}
+            alt={member.email}
+            className="w-[40px] h-[40px] aspect-square rounded-full !mx-2"
+            key={`img-${member._id}`}
+          />
+          <div className="flex flex-col" key={`info-${member._id}`}>
+            <span className="font-semibold">{member.userName}</span>
+            <span className="text-[12px] text-dark-gray">{member.email}</span>
+          </div>
+        </label>
+      ),
+    })),
+  ];
 
+  function getDateFromInp(dates, dateStrings) {
+    if (!dates || !dateStrings) return;
+    if (dates) {
+      setStartDate(dates[0]);
+      setEndDate(dates[1]);
+      setConfigStartDate(dates[0]);
+      setConfigEndDate(dates[1]);
+    } else {
+      setStartDate(null);
+      setEndDate(null);
+    }
+  }
   function getDateFromInp(dates, dateStrings) {
     if (!dates || !dateStrings) return;
     if (dates) {
@@ -309,7 +422,30 @@ export default function TaskForm() {
     if (alert.includes("IMG"))
       return openSystemNoti("error", "Hãy thêm ảnh mô tả");
   }, [alert]);
+  useEffect(() => {
+    if (alert.length === 0) return;
+    if (alert.length > 3)
+      return openSystemNoti(
+        "error",
+        "Bạn đang để trống quá nhiều thông tin bắt buộc"
+      );
+    if (alert.includes("TASK_NAME"))
+      return openSystemNoti("error", "Tên không được để trống");
+    if (alert.includes("DESCRIPTION"))
+      return openSystemNoti("error", "Mô tả không được để trống");
+    if (alert.includes("LINK"))
+      return openSystemNoti("error", "Đường dẫn không được để trống");
+    if (alert.includes("INVALID_LINK"))
+      return openSystemNoti("error", "Đường dẫn không hợp lệ");
+    if (alert.includes("ASSIGNEE"))
+      return openSystemNoti("error", "Chưa có thành viên nào nhận việc này");
+    if (alert.includes("DATE"))
+      return openSystemNoti("error", "Thời hạn thực hiện không được để trống");
+    if (alert.includes("IMG"))
+      return openSystemNoti("error", "Hãy thêm ảnh mô tả");
+  }, [alert]);
 
+  function deleteTask() {}
   function deleteTask() {}
 
   function closeForm() {
@@ -354,6 +490,13 @@ export default function TaskForm() {
                 <label
                   htmlFor="form-taskName"
                   className={`absolute left-3 z-10 px-2 text-sm text-gray-text rounded-b-lg
+        <div className="w-full h-full flex flex-col items-center px-3 pb-3">
+          <div className="w-full flex">
+            <div className="basis-[75%] !mr-2">
+              <div className="group relative flex items-center">
+                <label
+                  htmlFor="form-taskName"
+                  className={`absolute left-3 z-10 px-2 text-sm text-gray-text rounded-b-lg
                                     cursor-text duration-200 group-focus-within:text-black group-focus-within:top-[-13px] group-focus-within:bg-white
                                     ${
                                       inpStates[0]
@@ -383,7 +526,66 @@ export default function TaskForm() {
                 <label
                   htmlFor="form-link"
                   className={`absolute left-3 z-10 px-2 text-sm text-gray-text rounded-b-lg
+                                    ${
+                                      inpStates[0]
+                                        ? `top-[-13px] bg-white`
+                                        : `top-[9px]`
+                                    }`}
+                >
+                  <span className="text-red !mr-[2px]">*</span>
+                  <span
+                    className={alert.includes("TASK_NAME") ? "!text-red" : ""}
+                  >
+                    Tên công việc
+                  </span>
+                </label>
+                <Input
+                  id="form-taskName"
+                  className="!rounded-md"
+                  size="large"
+                  variant="filled"
+                  allowClear
+                  value={taskName}
+                  onChange={(e) => setTaskName(e.target.value.trim())}
+                />
+              </div>
+
+              <div className="group relative flex items-center !mt-[13px]">
+                <label
+                  htmlFor="form-link"
+                  className={`absolute left-3 z-10 px-2 text-sm text-gray-text rounded-b-lg
                                     cursor-text duration-200 group-focus-within:text-black group-focus-within:top-[-13px] group-focus-within:bg-white
+                                    ${
+                                      inpStates[1]
+                                        ? `top-[-13px] bg-white`
+                                        : `top-[9px]`
+                                    }`}
+                >
+                  <span className="text-red !mr-[2px]">*</span>
+                  <span
+                    className={
+                      alert.includes("LINK") || alert.includes("INVALID_LINK")
+                        ? "!text-red"
+                        : ""
+                    }
+                  >
+                    Liên kết
+                  </span>
+                </label>
+                <Input
+                  id="form-link"
+                  className="!rounded-md"
+                  size="large"
+                  variant="filled"
+                  allowClear
+                  value={link}
+                  onChange={(e) => setLink(e.target.value.trim())}
+                />
+              </div>
+
+              <div className="group relative flex items-center !mt-[13px]">
+                <label
+                  className={`absolute left-3 z-10 px-2 text-sm text-gray-text rounded-b-lg
                                     ${
                                       inpStates[1]
                                         ? `top-[-13px] bg-white`

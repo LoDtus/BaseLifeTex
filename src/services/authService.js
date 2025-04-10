@@ -11,9 +11,12 @@ import {
     logOutStart,
     logOutSuccess,
     logOutFail,
+    updateUserStart,
+  updateUserSuccess,
+  updateUserFail,
 } from "../redux/authSlice";
 import Cookies from "js-cookie";
-
+import { createAsyncThunk } from "@reduxjs/toolkit";
 const backendUrl = import.meta.env.VITE_BACKEND_URL;
 
 export const loginUser = async (user, dispatch, navigate) => {
@@ -110,3 +113,39 @@ export const logoutUser = async (dispatch, navigate, accessToken) => {
         throw err;
     }
 };
+
+export const updateUserInfo = createAsyncThunk(
+    "auth/updateUserInfo",
+    async ({ data, accessToken }, thunkAPI) => {
+      try {
+        const res = await axios.put(
+          "http://localhost:5000/api/v1/users/update-profile",
+          data,
+          {
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+              "Content-Type": "multipart/form-data",
+            },
+          }
+        );
+  
+        // ✅ Cập nhật lại redux với user mới
+        const currentUser = thunkAPI.getState().auth.login.currentUser;
+        const updatedUser = {
+          ...currentUser,
+          data: {
+            ...currentUser.data,
+            user: res.data.data,
+          },
+        };
+  
+        thunkAPI.dispatch(loginSuccess(updatedUser)); // cập nhật lại redux
+  
+        return res.data;
+      } catch (err) {
+        return thunkAPI.rejectWithValue(err.response.data);
+      }
+    }
+  );
+  
+  

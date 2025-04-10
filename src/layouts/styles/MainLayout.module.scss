@@ -27,3 +27,14 @@
     width: calc(100% - 280px); // Trừ đi chiều rộng của navbar
   }
 }
+.sidebarOpen {
+  width: 250px;
+  transition: width 0.3s ease;
+}
+
+.sidebarClosed {
+  width: 0;
+  overflow: hidden;
+  transition: width 0.3s ease;
+}
+

@@ -8,13 +8,14 @@ import { useDispatch } from "react-redux";
 import "./styles/FilterDialog.scss";
 import { filterTaskInProject } from "../../redux/taskSlice";
 import { getlistUserInProjects } from "../../services/taskService";
+import FilterAltOffIcon from "@mui/icons-material/FilterAltOff";
 
 export default function FilterDialog({ idProject }) {
   const [filters, setFilters] = useState({
     assigneeId: "",
     assignerId: "",
-    startDate: "",
-    endDate: "",
+    startDate: null,
+    endDate: null,
   });
 
   const [listMember, setListMember] = useState([]);
@@ -40,12 +41,25 @@ export default function FilterDialog({ idProject }) {
 
   return (
     <Box display="flex" flexDirection="column" gap={2} mt={1} padding={2}>
-      <h2 className="title-filter">Lọc Công Việc</h2>
+      <div className="header-filter">
+        <h2 className="title-filter">Lọc Công Việc</h2>
+        <FilterAltOffIcon
+          sx={{ color: "#579AD7", cursor: "pointer" }}
+          onClick={() => {
+            setFilters({
+              assigneeId: "",
+              assignerId: "",
+              startDate: null,
+              endDate: null,
+            });
+          }}
+        />
+      </div>
       {/* Người được giao */}
       <TextField
         select
         label="Người được giao"
-        value={filters.assigneeId}
+        value={filters?.assigneeId}
         onChange={(e) => handleChange("assigneeId", e.target.value)}
         fullWidth
       >
@@ -60,7 +74,7 @@ export default function FilterDialog({ idProject }) {
       <TextField
         select
         label="Người báo cáo"
-        value={filters.assignerId}
+        value={filters?.assignerId}
         onChange={(e) => handleChange("assignerId", e.target.value)}
         fullWidth
       >
@@ -76,7 +90,7 @@ export default function FilterDialog({ idProject }) {
         <DemoContainer components={["DatePicker"]}>
           <DatePicker
             label="Ngày giao việc"
-            // value={filters.startDate}
+            value={filters.startDate}
             onChange={(newValue) => handleChange("startDate", newValue)}
             format="DD/MM/YYYY"
           />
@@ -88,7 +102,7 @@ export default function FilterDialog({ idProject }) {
         <DemoContainer components={["DatePicker"]}>
           <DatePicker
             label="Ngày kết thúc"
-            // value={filters.endDate}
+            value={filters.endDate}
             onChange={(newValue) => handleChange("endDate", newValue)}
             format="DD/MM/YYYY"
           />
