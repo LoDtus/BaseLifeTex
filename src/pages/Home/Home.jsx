@@ -16,15 +16,17 @@ import {
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import { setOpenProjectMenu } from "@/redux/propertiesSlice";
+import { setViewMode } from "../../redux/viewModeSlice";
 
 export default function Home() {
   const dispatch = useDispatch();
   let Page = useSelector((state) => state.task.page);
   let Limit = useSelector((state) => state.task.limit);
+  const viewMode = useSelector((state) => state.viewMode.mode);
+
   const [anchorEl, setAnchorEl] = useState(null);
   const [searchParams] = useSearchParams();
   const idProject = searchParams.get("idProject") || "";
-  const [viewMode, setViewMode] = useState("kanban");
   const [nameProject, setNameProject] = useState("Phần mềm đánh giá"); // Giá trị mặc định
   const [anchorElFilter, setAnchorElFilter] = useState(null);
   const [listMember, setListMember] = useState([]);
@@ -34,7 +36,9 @@ export default function Home() {
   const openProjectMenu = useSelector(
     (state) => state.properties.openProjectMenu
   );
-
+  const handleChangeView = (mode) => {
+    dispatch(setViewMode(mode));
+  };
   useEffect(() => {
     if (!idProject) return;
     if (timer) clearTimeout(timer);
@@ -146,13 +150,13 @@ export default function Home() {
               src="/icons/column-view.png"
               alt="Kanban View"
               className={`view-icon ${viewMode === "kanban" ? "active" : ""}`}
-              onClick={() => setViewMode("kanban")}
+              onClick={() => handleChangeView("kanban")}
             />
             <img
               src="/icons/list-view.png"
               alt="List View"
               className={`view-icon ${viewMode === "list" ? "active" : ""}`}
-              onClick={() => setViewMode("list")}
+              onClick={() => handleChangeView("list")}
             />
           </div>
         </div>
