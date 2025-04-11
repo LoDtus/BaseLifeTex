@@ -199,7 +199,7 @@ export default function KanbanTaskCard({
               <img
                 key={i}
                 className="w-[25px] h-[25px] rounded-full cursor-pointer !ml-[2px]"
-                src={member.avatar}
+                src={member.avatar || 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/59/User-avatar.svg/2048px-User-avatar.svg.png'}
                 alt={member.email}
               />
             ))}
