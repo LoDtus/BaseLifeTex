@@ -376,7 +376,7 @@ export default function TaskForm() {
                   variant="filled"
                   allowClear
                   value={taskName}
-                  onChange={(e) => setTaskName(e.target.value.trim())}
+                  onChange={(e) => setTaskName(e.target.value)}
                 />
               </div>
 
@@ -439,7 +439,7 @@ export default function TaskForm() {
                   allowClear
                   autoSize={{ minRows: 5 }}
                   value={description}
-                  onChange={(e) => setDescription(e.target.value.trim())}
+                  onChange={(e) => setDescription(e.target.value)}
                 />
               </div>
             </div>

@@ -24,7 +24,7 @@ export default function ListHome({ selectedTasks = [], setSelectedTasks }) {
   const idProject = searchParams.get("idProject");
   const taskList = useSelector((state) => state.task.listTask);
   const [avatar, setAvatar] = useState([]);
-
+  const [isCheckAll, setIsCheckAll] = useState(false); // ✅ Thêm state check all
   const dispatch = useDispatch();
   let Page = useSelector((state) => state.task.page);
   let limit = useSelector((state) => state.task.limit);
@@ -154,6 +154,23 @@ export default function ListHome({ selectedTasks = [], setSelectedTasks }) {
       : [...selectedTasks, taskId];
     setSelectedTasks(updatedSelection);
   };
+
+ // ✅ Chọn tất cả
+  const handleCheckAll = () => {
+    if (isCheckAll) {
+      setSelectedTasks([]);
+    } else {
+      const allIds = taskList.map((task) => task._id);
+      setSelectedTasks(allIds);
+    }
+    setIsCheckAll(!isCheckAll);
+  };
+
+  useEffect(() => {
+    const allTaskIds = taskList.map((t) => t._id);
+    const allSelected = allTaskIds.every((id) => selectedTasks.includes(id));
+    setIsCheckAll(allSelected);
+  }, [selectedTasks, taskList]);
   return (
     <div className="list-home-wrapper">
       <div
@@ -176,7 +193,11 @@ export default function ListHome({ selectedTasks = [], setSelectedTasks }) {
         <div>
           <div className="flex items-center bg-[#f8fafc] border border-gray-border rounded-md py-1 mb-1 font-semibold text-dark-gray">
             <span className="basis-[2%] flex justify-center items-center border-r border-gray-border">
-              <input type="checkbox" />
+              <input
+                type="checkbox"
+                onChange={handleCheckAll}
+                checked={isCheckAll}
+              />
             </span>
             <span className="basis-[4%] flex justify-center items-center border-r border-gray-border">
               STT
