@@ -1,20 +1,21 @@
 import { useDispatch, useSelector } from "react-redux";
 import { setTaskForm } from "@/redux/propertiesSlice";
 import { getTaskDetailById } from "@/services/taskService";
-import { Button, Image, Input, Popover, Pagination } from "antd";
+import { Button, Image, Input, Popover, Pagination, message } from "antd";
 import { useState, useEffect } from "react";
 import { convertDateYMD } from "@/utils/convertUtils";
 import {
   getPaginateCommentByTask,
   addCommentTask,
 } from "../../../../services/commentService";
+import { deleteTaskById } from "../../../../services/taskService";
 
 export default function TaskDetails() {
   const dispatch = useDispatch();
   const user = useSelector((state) => state.auth.login.currentUser.data.user);
   const taskState = useSelector((state) => state.properties.taskState);
-  const taskId = taskState.slice(0, 7).includes("DETAILS")
-    ? taskState.slice(8)
+  const taskId = taskState?.startsWith("DETAILS_")
+    ? taskState.split("DETAILS_")[1]
     : null;
 
   const [task, setTask] = useState(null);
@@ -33,7 +34,10 @@ export default function TaskDetails() {
     }
     getTaskDetails(taskId);
   }, [taskId]);
-
+  // console.log("🧾 taskState full là:", taskState);
+  // useEffect(() => {
+  //   console.log("🧠 taskId đang là:", taskId);
+  // }, [taskId]);
   useEffect(() => {
     if (!task) return;
 
@@ -88,6 +92,21 @@ export default function TaskDetails() {
     }
     fetchComments();
   }, [taskId]);
+  const handleDeleteTask = async () => {
+    if (!taskId) return;
+
+    const confirmDelete = confirm("Bạn có muốn xóa task này không ?");
+    if (!confirmDelete) return;
+    const res = await deleteTaskById(taskId);
+    console.log("Xoá task response:", res);
+
+    if (res.success) {
+      message.success("✅ Đã xoá task thành công!");
+      dispatch(setTaskForm("CLOSE"));
+    } else {
+      message.error("❌ Xoá task thất bại!");
+    }
+  };
   const handlePageChange = (page) => {
     setCurrentPage(page);
   };
@@ -319,6 +338,7 @@ export default function TaskDetails() {
                   className="!font-semibold w-[100px]"
                   variant="solid"
                   color="danger"
+                  onClick={handleDeleteTask}
                 >
                   Xóa
                 </Button>
