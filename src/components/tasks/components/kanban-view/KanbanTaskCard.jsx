@@ -157,8 +157,8 @@ export default function KanbanTaskCard({
               title={task.title}
               placement="top"
               arrow
-              onPointerDown={handlePointerDown}
-              onClick={handleButtonClick}
+              onClick={() => dispatch(setTaskForm(`DETAILS_${task._id}`))}
+              onPointerDown={(e) => e.stopPropagation()}
             >
               {task.title}
             </Tooltip>
@@ -180,15 +180,12 @@ export default function KanbanTaskCard({
         </div>
         <div className="">
           <div className="flex items-center py-1 px-2">
-            <div
-              className="!text-gray !cursor-pointer duration-200 !hover:text-black !active:scale-90"
-              onClick={() => dispatch(setTaskForm("ADD"))}
-            >
+            <div className="!text-gray !cursor-pointer duration-200 !hover:text-black !active:scale-90">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 viewBox="0 0 512 512"
                 className="w-[20px] h-[20px] aspect-square "
-                onClick={handleButtonClick}
+                onClick={() => dispatch(setTaskForm(`DETAILS_${task._id}`))}
                 onPointerDown={(e) => e.stopPropagation()}
               >
                 <path d="M256 512A256 256 0 1 0 256 0a256 256 0 1 0 0 512zM216 336l24 0 0-64-24 0c-13.3 0-24-10.7-24-24s10.7-24 24-24l48 0c13.3 0 24 10.7 24 24l0 88 8 0c13.3 0 24 10.7 24 24s-10.7 24-24 24l-80 0c-13.3 0-24-10.7-24-24s10.7-24 24-24zm40-208a32 32 0 1 1 0 64 32 32 0 1 1 0-64z" />
@@ -200,7 +197,10 @@ export default function KanbanTaskCard({
               <img
                 key={i}
                 className="w-[25px] h-[25px] rounded-full cursor-pointer !ml-[2px]"
-                src={member.avatar || 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/59/User-avatar.svg/2048px-User-avatar.svg.png'}
+                src={
+                  member.avatar ||
+                  "https://upload.wikimedia.org/wikipedia/commons/thumb/5/59/User-avatar.svg/2048px-User-avatar.svg.png"
+                }
                 alt={member.email}
               />
             ))}

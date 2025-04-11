@@ -8,6 +8,10 @@ import {
   getPaginateCommentByTask,
   addCommentTask,
 } from "../../../../services/commentService";
+import {
+  deleteTaskByIdRedux,
+  closeTaskForm,
+} from "../../../../redux/taskSlice";
 import { deleteTaskById } from "../../../../services/taskService";
 
 export default function TaskDetails() {
@@ -92,18 +96,24 @@ export default function TaskDetails() {
     }
     fetchComments();
   }, [taskId]);
+
   const handleDeleteTask = async () => {
     if (!taskId) return;
 
     const confirmDelete = confirm("Bạn có muốn xóa task này không ?");
     if (!confirmDelete) return;
-    const res = await deleteTaskById(taskId);
-    console.log("Xoá task response:", res);
+    try {
+      const resultAction = await dispatch(deleteTaskByIdRedux(taskId));
 
-    if (res.success) {
-      message.success("✅ Đã xoá task thành công!");
-      dispatch(setTaskForm("CLOSE"));
-    } else {
+      if (deleteTaskByIdRedux.fulfilled.match(resultAction)) {
+        message.success("✅ Đã xoá task thành công!");
+        dispatch(setTaskForm("CLOSE"));
+        dispatch(closeTaskForm(""));
+      } else {
+        throw new Error(resultAction.payload || "Lỗi không xác định");
+      }
+    } catch (error) {
+      console.error("Lỗi xoá task:", error);
       message.error("❌ Xoá task thất bại!");
     }
   };
@@ -116,7 +126,7 @@ export default function TaskDetails() {
     const res = await addCommentTask({
       taskId,
       content: comment,
-      userId: user.id,
+      userId: user._id,
     });
 
     if (res.success) {
@@ -124,7 +134,7 @@ export default function TaskDetails() {
       setCommentList((prev) => [
         {
           ...res.data,
-          user: {
+          userId: {
             userName: user.userName,
             avatar: user.avatar,
             email: user.email,
@@ -360,17 +370,17 @@ export default function TaskDetails() {
               <div className="w-fit mb-1 flex items-center cursor-pointer duration-200 active:scale-90">
                 <img
                   className="w-[35px] h-[35px] !mr-1 aspect-square rounded-full"
-                  src={cmt.user?.avatar || "/default-avatar.png"}
-                  alt={cmt.user?.email}
+                  src={cmt.userId?.avatar || "/default-avatar.png"}
+                  alt={cmt.userId?.email}
                   onError={(e) => {
                     e.target.onerror = null;
                     e.target.src = "/default-avatar.png";
                   }}
                 />
                 <div className="flex flex-col">
-                  <span className="font-semibold">{cmt.user?.userName}</span>
+                  <span className="font-semibold">{cmt.userId?.userName}</span>
                   <span className="text-[12px] text-dark-gray">
-                    {cmt.user?.email}
+                    {cmt.userId?.email}
                   </span>
                 </div>
               </div>

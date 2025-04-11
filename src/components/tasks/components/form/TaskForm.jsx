@@ -189,7 +189,7 @@ export default function TaskForm() {
   }
   async function saveTask() {
     setLoading(true);
-    let shouldCloseForm = true; // ✅ Mặc định là sẽ đóng form
+    let shouldCloseForm = false; // ✅ Mặc định là sẽ đóng form
 
     try {
       // Các validation như cũ
@@ -245,7 +245,7 @@ export default function TaskForm() {
 
       if (taskState.slice(0, 4).includes("ADD")) {
         const response = await addTask({
-          image: img,
+          image: imgAdd,
           assigneeId: assignee,
           title: taskName,
           link: link,
@@ -269,7 +269,7 @@ export default function TaskForm() {
         }
       } else {
         const response = await updateTask(taskState.slice(7), {
-          image: img,
+          image: imgAdd ? imgAdd : img,
           assigneeId: assignee,
           title: taskName,
           link: link,
