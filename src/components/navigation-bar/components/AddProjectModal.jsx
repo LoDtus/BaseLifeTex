@@ -16,6 +16,7 @@ import {
 import { getAllUsers } from "../../../services/userService";
 import { STATUS_PROJECT } from "../../../config/status";
 import { PRIORITY } from "../../../config/priority";
+import { toast } from "react-toastify";
 
 const AddProjectModal = ({ onClose }) => {
   const dispatch = useDispatch();
@@ -38,8 +39,14 @@ const AddProjectModal = ({ onClose }) => {
       members: formattedMembers,
       priority,
     };
-    dispatch(createProject(newProjectData));
-    onClose();
+    try {
+      dispatch(createProject(newProjectData));
+      toast.success("Thêm dự án thành công");
+      onClose();
+    } catch (error) {
+      toast.error("Thêm dự án thất bại !");
+      console.log(error);
+    }
   };
 
   useEffect(() => {
@@ -134,9 +141,9 @@ const AddProjectModal = ({ onClose }) => {
                 <MenuItem value="" disabled>
                   Chọn độ ưu tiên
                 </MenuItem>
-                <MenuItem value={PRIORITY.LOW}>Low</MenuItem>
-                <MenuItem value={PRIORITY.MEDIUM}>Medium</MenuItem>
-                <MenuItem value={PRIORITY.HIGH}>High</MenuItem>
+                <MenuItem value={PRIORITY[0].value}>Low</MenuItem>
+                <MenuItem value={PRIORITY[1].value}>Medium</MenuItem>
+                <MenuItem value={PRIORITY[2].value}>High</MenuItem>
               </Select>
             </FormControl>
             <FormControl fullWidth>
