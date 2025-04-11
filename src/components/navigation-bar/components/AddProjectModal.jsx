@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
-import { createProject } from "../../../redux/projectSlice";
+import { createProject, getListProjectByUser } from "../../../redux/projectSlice";
 import {
   Dialog,
   DialogTitle,
@@ -28,7 +28,7 @@ const AddProjectModal = ({ onClose }) => {
   const [priority, setPriority] = useState("");
   const [users, setUsers] = useState([]);
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
     const formattedMembers = members.map((memberId) => ({ _id: memberId }));
     const newProjectData = {
@@ -40,7 +40,9 @@ const AddProjectModal = ({ onClose }) => {
       priority,
     };
     try {
-      dispatch(createProject(newProjectData));
+      await dispatch(createProject(newProjectData));
+      // Gọi lại API để cập nhật danh sách dự án mới nhất
+      await dispatch(getListProjectByUser(users._id));
       toast.success("Thêm dự án thành công");
       onClose();
     } catch (error) {
