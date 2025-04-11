@@ -1,6 +1,6 @@
 import React from 'react';
 
-const UserFormFields = ({ user, isEditing, onChange, onAvatarChange, previewAvatar }) => {
+const UserFormFields = ({ user, isEditing, onChange, onAvatarChange, previewAvatar,emailError,phoneError }) => {
     return (
         <>
           <div className="card-header">
@@ -36,13 +36,19 @@ const UserFormFields = ({ user, isEditing, onChange, onAvatarChange, previewAvat
             <p>
               <strong>Email:</strong>{" "}
               {isEditing ? (
-                <input
+                <>
+                  <input
                   type="email"
                   name="email"
                   value={user.email}
                   onChange={onChange}
                   className="input-edit"
-                />
+                  />
+                  {emailError && (
+                  <div className="text-red-500 text-sm">{emailError}</div>
+                  )}
+                </>
+                
               ) : (
                 user.email
               )}
@@ -50,13 +56,18 @@ const UserFormFields = ({ user, isEditing, onChange, onAvatarChange, previewAvat
             <p>
               <strong>Phone:</strong>{" "}
               {isEditing ? (
-                <input
+                <>
+                  <input
                   type="text"
                   name="phone"
                   value={user.phone}
                   onChange={onChange}
                   className="input-edit"
-                />
+                  />
+                  {phoneError && (
+                  <div className="text-red-500 text-sm">{phoneError}</div>
+                  )}
+                </>
               ) : (
                 user.phone
               )}
