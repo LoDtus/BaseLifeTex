@@ -9,14 +9,14 @@ import { getMembers } from "@/services/projectService";
 import { openSystemNoti } from "@/utils/systemUtils";
 import { getTaskDetailById } from "@/services/taskService";
 import { addTask, updateTask } from "@/services/taskService";
-import { toast } from "react-toastify";
+
 import "react-toastify/dist/ReactToastify.css";
 const { TextArea } = Input;
 import customParseFormat from "dayjs/plugin/customParseFormat";
-import { postIssueData } from "../../../../services/issueService";
+
 import { getListTaskByProjectId } from "../../../../redux/taskSlice";
 import Loading from "../../../common/Loading";
-import { setLoading } from "../../../../redux/loadingSlice";
+
 dayjs.extend(customParseFormat);
 const dateFormat = "DD-MM-YYYY";
 
@@ -60,7 +60,7 @@ export default function TaskForm() {
   const [minDate, setMinDate] = useState(
     dayjs(dayjs().format(dateFormat), dateFormat)
   );
-
+  const [loading, setLoading] = useState(false);
   useEffect(() => {
     if (taskState.slice(0, 7).includes("UPDATE")) {
       const taskId = taskState.slice(7);
@@ -187,54 +187,65 @@ export default function TaskForm() {
       setImg(url || null);
     }
   }
-
   async function saveTask() {
-    if (!taskName)
-      setAlert((prev) =>
-        prev.includes("TASK_NAME") ? prev : [...prev, "TASK_NAME"]
-      );
-    else setAlert((prev) => prev.filter((item) => item !== "TASK_NAME"));
-    if (!link)
-      setAlert((prev) => (prev.includes("LINK") ? prev : [...prev, "LINK"]));
-    else setAlert((prev) => prev.filter((item) => item !== "LINK"));
-    if (!link.includes("http"))
-      setAlert((prev) =>
-        prev.includes("INVALID_LINK") ? prev : [...prev, "INVALID_LINK"]
-      );
-    else setAlert((prev) => prev.filter((item) => item !== "INVALID_LINK"));
-    if (!description)
-      setAlert((prev) =>
-        prev.includes("DESCRIPTION") ? prev : [...prev, "DESCRIPTION"]
-      );
-    else setAlert((prev) => prev.filter((item) => item !== "DESCRIPTION"));
-    if (assignee.length === 0)
-      setAlert((prev) =>
-        prev.includes("ASSIGNEE") ? prev : [...prev, "ASSIGNEE"]
-      );
-    else setAlert((prev) => prev.filter((item) => item !== "ASSIGNEE"));
-    if (!startDate || !endDate)
-      setAlert((prev) => (prev.includes("DATE") ? prev : [...prev, "DATE"]));
-    else setAlert((prev) => prev.filter((item) => item !== "DATE"));
-    if (!img)
-      setAlert((prev) => (prev.includes("IMG") ? prev : [...prev, "IMG"]));
-    else setAlert((prev) => prev.filter((item) => item !== "IMG"));
-    if (
-      !taskName ||
-      !link ||
-      !link.includes("http") ||
-      !description ||
-      assignee.length === 0 ||
-      !startDate ||
-      !endDate ||
-      !img
-    )
-      return;
+    setLoading(true);
+    let shouldCloseForm = true; // ✅ Mặc định là sẽ đóng form
 
     try {
+      // Các validation như cũ
+      if (!taskName)
+        setAlert((prev) =>
+          prev.includes("TASK_NAME") ? prev : [...prev, "TASK_NAME"]
+        );
+      else setAlert((prev) => prev.filter((item) => item !== "TASK_NAME"));
+
+      if (!link)
+        setAlert((prev) => (prev.includes("LINK") ? prev : [...prev, "LINK"]));
+      else setAlert((prev) => prev.filter((item) => item !== "LINK"));
+
+      if (!link.includes("http"))
+        setAlert((prev) =>
+          prev.includes("INVALID_LINK") ? prev : [...prev, "INVALID_LINK"]
+        );
+      else setAlert((prev) => prev.filter((item) => item !== "INVALID_LINK"));
+
+      if (!description)
+        setAlert((prev) =>
+          prev.includes("DESCRIPTION") ? prev : [...prev, "DESCRIPTION"]
+        );
+      else setAlert((prev) => prev.filter((item) => item !== "DESCRIPTION"));
+
+      if (assignee.length === 0)
+        setAlert((prev) =>
+          prev.includes("ASSIGNEE") ? prev : [...prev, "ASSIGNEE"]
+        );
+      else setAlert((prev) => prev.filter((item) => item !== "ASSIGNEE"));
+
+      if (!startDate || !endDate)
+        setAlert((prev) => (prev.includes("DATE") ? prev : [...prev, "DATE"]));
+      else setAlert((prev) => prev.filter((item) => item !== "DATE"));
+
+      if (!img)
+        setAlert((prev) => (prev.includes("IMG") ? prev : [...prev, "IMG"]));
+      else setAlert((prev) => prev.filter((item) => item !== "IMG"));
+
+      if (
+        !taskName ||
+        !link ||
+        !link.includes("http") ||
+        !description ||
+        assignee.length === 0 ||
+        !startDate ||
+        !endDate ||
+        !img
+      )
+        return;
+
       let newTaskId = "";
+
       if (taskState.slice(0, 4).includes("ADD")) {
         const response = await addTask({
-          image: imgAdd,
+          image: img,
           assigneeId: assignee,
           title: taskName,
           link: link,
@@ -247,15 +258,18 @@ export default function TaskForm() {
           priority: priority,
           type: type,
         });
+
         if (response.success) {
           newTaskId = response.data._id;
           openSystemNoti("success", "Đã thêm công việc");
+          dispatch(setTaskForm(`DETAILS_${newTaskId}`));
+          shouldCloseForm = false; // ✅ Không đóng form, vì đã mở chi tiết
         } else {
           return openSystemNoti("error", response.message);
         }
       } else {
         const response = await updateTask(taskState.slice(7), {
-          image: imgAdd ? imgAdd : img,
+          image: img,
           assigneeId: assignee,
           title: taskName,
           link: link,
@@ -268,24 +282,24 @@ export default function TaskForm() {
           priority: priority,
           type: type,
         });
+
         if (response.success) {
           newTaskId = response.data._id;
           openSystemNoti("success", "Đã cập nhật công việc");
+          dispatch(setTaskForm(`DETAILS_${newTaskId}`));
+          shouldCloseForm = false;
         } else {
           return openSystemNoti("error", response.message);
         }
       }
-      dispatch(setTaskForm(`DETAILS_${newTaskId}`));
     } catch (error) {
-      openSystemNoti("error", error);
+      console.error("Lỗi khi lưu task:", error);
+      openSystemNoti("error", "Có lỗi xảy ra, vui lòng thử lại");
     } finally {
-      dispatch(
-        getListTaskByProjectId({
-          projectId: projectId,
-          page: 1,
-          limit: viewMode === "list" ? 20 : 100,
-        })
-      );
+      setTimeout(() => {
+        if (shouldCloseForm) dispatch(setTaskForm("CLOSE")); // ✅ Chỉ đóng nếu cần
+        setLoading(false);
+      }, 3000);
     }
   }
 
@@ -346,7 +360,11 @@ export default function TaskForm() {
             <path d="M342.6 150.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L192 210.7 86.6 105.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L146.7 256 41.4 361.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0L192 301.3 297.4 406.6c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L237.3 256 342.6 150.6z" />
           </svg>
         </div>
-        <span className="font-semibold text-2xl !mb-2">Thêm công việc mới</span>
+        <span className="font-semibold text-2xl !mb-2">
+          {taskState.slice(0, 4).includes("ADD")
+            ? "Thêm công việc mới"
+            : "Cập nhật công việc"}
+        </span>
 
         <div className="w-full h-full flex flex-col items-center px-3 pb-3">
           <div className="w-full flex">
@@ -588,12 +606,19 @@ export default function TaskForm() {
 
           <div className="w-full mt-2 flex justify-end">
             <Button
-              className="w-[100px] !font-semibold"
+              className="w-[130px] !font-semibold flex items-center justify-center"
               color="blue"
               variant="solid"
+              loading={loading}
               onClick={() => saveTask()}
             >
-              Lưu
+              {loading
+                ? taskState.slice(0, 4).includes("ADD")
+                  ? "Đang thêm..."
+                  : "Đang cập nhật..."
+                : taskState.slice(0, 4).includes("ADD")
+                ? "Thêm"
+                : "Cập nhật"}
             </Button>
             {taskState.slice(0, 4).includes("UPDATE") && (
               <Button
