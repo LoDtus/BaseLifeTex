@@ -263,6 +263,13 @@ export default function TaskForm() {
           newTaskId = response.data._id;
           openSystemNoti("success", "Đã thêm công việc");
           dispatch(setTaskForm(`DETAILS_${newTaskId}`));
+          dispatch(
+            getListTaskByProjectId({
+              projectId: projectId,
+              page: 1,
+              limit: viewMode === "list" ? 20 : 100,
+            })
+          );
           shouldCloseForm = false; // ✅ Không đóng form, vì đã mở chi tiết
         } else {
           return openSystemNoti("error", response.message);
@@ -287,6 +294,13 @@ export default function TaskForm() {
           newTaskId = response.data._id;
           openSystemNoti("success", "Đã cập nhật công việc");
           dispatch(setTaskForm(`DETAILS_${newTaskId}`));
+          dispatch(
+            getListTaskByProjectId({
+              projectId: projectId,
+              page: 1,
+              limit: viewMode === "list" ? 20 : 100,
+            })
+          );
           shouldCloseForm = false;
         } else {
           return openSystemNoti("error", response.message);
@@ -297,7 +311,9 @@ export default function TaskForm() {
       openSystemNoti("error", "Có lỗi xảy ra, vui lòng thử lại");
     } finally {
       setTimeout(() => {
+        // ✅ Lấy lại danh sách công việc
         if (shouldCloseForm) dispatch(setTaskForm("CLOSE")); // ✅ Chỉ đóng nếu cần
+        setImgAdd(null);
         setLoading(false);
       }, 3000);
     }
