@@ -97,7 +97,7 @@ const ProjectCard = ({ project, isSelected, avatarManger }) => {
       <div className={styles.projectFooter}>
         <img
           className={styles.avatar}
-          src={project.managerId?.avatar}
+          src={project.manager?.avatar}
           onClick={handleClick}
           alt="Avatar"
         />
@@ -131,7 +131,7 @@ const ProjectCard = ({ project, isSelected, avatarManger }) => {
           horizontal: "left",
         }}
       >
-        <ContactCard onClose={handleClose} contact={project.managerId} />
+        <ContactCard onClose={handleClose} contact={project.manager} />
       </Popover>
     </div>
   );
