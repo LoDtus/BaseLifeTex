@@ -123,7 +123,7 @@ const handleCloseLogModal = () => {
                     Thêm dự án mới
                 </button>}
             </div>
-            <div className={styles.bodyNavbar}>
+            <div className={`${styles.bodyNavbar} overflow-y-auto max-h-[calc(100vh-100px)] pr-1`}>
                 {loading
                     ? (
                         <Loading />
