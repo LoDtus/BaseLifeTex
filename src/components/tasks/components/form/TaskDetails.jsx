@@ -8,6 +8,10 @@ import {
   getPaginateCommentByTask,
   addCommentTask,
 } from "../../../../services/commentService";
+import {
+  deleteTaskByIdRedux,
+  closeTaskForm,
+} from "../../../../redux/taskSlice";
 import { deleteTaskById } from "../../../../services/taskService";
 
 export default function TaskDetails() {
@@ -92,18 +96,24 @@ export default function TaskDetails() {
     }
     fetchComments();
   }, [taskId]);
+
   const handleDeleteTask = async () => {
     if (!taskId) return;
 
     const confirmDelete = confirm("Bạn có muốn xóa task này không ?");
     if (!confirmDelete) return;
-    const res = await deleteTaskById(taskId);
-    console.log("Xoá task response:", res);
+    try {
+      const resultAction = await dispatch(deleteTaskByIdRedux(taskId));
 
-    if (res.success) {
-      message.success("✅ Đã xoá task thành công!");
-      dispatch(setTaskForm("CLOSE"));
-    } else {
+      if (deleteTaskByIdRedux.fulfilled.match(resultAction)) {
+        message.success("✅ Đã xoá task thành công!");
+        dispatch(setTaskForm("CLOSE"));
+        dispatch(closeTaskForm(""));
+      } else {
+        throw new Error(resultAction.payload || "Lỗi không xác định");
+      }
+    } catch (error) {
+      console.error("Lỗi xoá task:", error);
       message.error("❌ Xoá task thất bại!");
     }
   };

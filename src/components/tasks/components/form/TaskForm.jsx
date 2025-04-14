@@ -189,7 +189,7 @@ export default function TaskForm() {
   }
   async function saveTask() {
     setLoading(true);
-    let shouldCloseForm = true; // ✅ Mặc định là sẽ đóng form
+    let shouldCloseForm = false; // ✅ Mặc định là sẽ đóng form
 
     try {
       // Các validation như cũ
@@ -518,11 +518,11 @@ export default function TaskForm() {
                   }}
                 >
                   <Button>
-                    {priority == "0"
+                    {priority === "0"
                       ? "Thấp"
-                      : priority == "1"
+                      : priority === "1"
                       ? "Trung bình"
-                      : priority == "2"
+                      : priority === "2"
                       ? "Cao"
                       : "Chưa có"}
                   </Button>

@@ -4,6 +4,7 @@ import {
   deleteManyTasks,
   getTaskByPagination,
   searchTasks,
+  deleteTaskById,
 } from "../services/taskService";
 
 export const getListTaskByProjectId = createAsyncThunk(
@@ -43,7 +44,17 @@ export const deleteManyTasksRedux = createAsyncThunk(
     }
   }
 );
-
+export const deleteTaskByIdRedux = createAsyncThunk(
+  "task/deleteOne",
+  async (taskId, { rejectWithValue }) => {
+    const response = await deleteTaskById(taskId);
+    if (response.success) {
+      return taskId;
+    } else {
+      return rejectWithValue(response.message);
+    }
+  }
+);
 export const searchTasksInProject = createAsyncThunk(
   "task/search",
   async ({ keyword, idProject, limit }, { rejectWithValue }) => {
@@ -93,6 +104,7 @@ const taskSlice = createSlice({
       state.isTaskFormOpen = false;
     },
   },
+
   extraReducers: (builder) => {
     builder // Get List Task
       .addCase(getListTaskByProjectId.pending, (state) => {
@@ -133,7 +145,16 @@ const taskSlice = createSlice({
       .addCase(deleteManyTasksRedux.rejected, (state, action) => {
         state.isFetching = false;
         state.error = action.payload;
-      }) // Search Tasks
+      })
+      .addCase(deleteTaskByIdRedux.fulfilled, (state, action) => {
+        state.listTask = state.listTask.filter(
+          (task) => task._id !== action.payload
+        );
+      })
+      .addCase(deleteTaskByIdRedux.rejected, (state, action) => {
+        state.error = action.payload;
+      })
+      // Search Tasks
       .addCase(searchTasksInProject.pending, (state) => {
         state.isFetching = true;
       })
@@ -149,5 +170,6 @@ const taskSlice = createSlice({
   },
 });
 
-export const { changePage, changeRowPerPage } = taskSlice.actions;
+export const { changePage, changeRowPerPage, openTaskForm, closeTaskForm } =
+  taskSlice.actions;
 export default taskSlice.reducer;
