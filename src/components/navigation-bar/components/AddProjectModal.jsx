@@ -52,7 +52,8 @@ const AddProjectModal = ({ onClose }) => {
       priority === "" ||
       startDate === "" ||
       endDate === "" ||
-      managerId === ""
+      managerId === "" ||
+      code === ""
     ) {
       return toast.error("Vui lòng nhập đủ các trường");
     }
@@ -128,7 +129,6 @@ const AddProjectModal = ({ onClose }) => {
           <TextField
             label="Mã dự án"
             type="text"
-            required
             value={code}
             onChange={(e) => setCode(e.target.value)}
             fullWidth
