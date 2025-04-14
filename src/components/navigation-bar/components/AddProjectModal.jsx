@@ -37,9 +37,20 @@ const AddProjectModal = ({ onClose }) => {
   const [users, setUsers] = useState([]);
   const [startDate, setStartDate] = useState(dayjs());
   const [endDate, setEndDate] = useState(null);
-
   const handleSubmit = async (event) => {
     event.preventDefault();
+    if (
+      name === "" ||
+      description === "" ||
+      status === "" ||
+      members.length === 0 ||
+      priority === "" ||
+      startDate === "" ||
+      endDate === "" ||
+      managerId === ""
+    ) {
+      return toast.error("Vui lòng nhập đủ các trường");
+    }
     if (!startDate || !endDate) {
       toast.error("Vui lòng chọn ngày bắt đầu và ngày kết thúc");
       return;
@@ -99,7 +110,6 @@ const AddProjectModal = ({ onClose }) => {
           <TextField
             label="Tên dự án"
             type="text"
-            required
             value={name}
             onChange={(e) => setName(e.target.value)}
             fullWidth
@@ -125,7 +135,6 @@ const AddProjectModal = ({ onClose }) => {
               <Select
                 value={managerId}
                 onChange={(e) => setManagerId(e.target.value)}
-                required
               >
                 <MenuItem value="67d23acb23793aac51e64dc5">Quân già</MenuItem>
               </Select>
@@ -135,7 +144,6 @@ const AddProjectModal = ({ onClose }) => {
               <Select
                 value={status}
                 onChange={(e) => setStatus(e.target.value)}
-                required
               >
                 <MenuItem value={STATUS_PROJECT.PROGRESSING}>
                   Đang tiến hành
@@ -159,7 +167,7 @@ const AddProjectModal = ({ onClose }) => {
                 onChange={(newValue) => setStartDate(newValue)}
                 format="DD-MM-YYYY"
                 disablePast
-                slotProps={{ textField: { fullWidth: true, required: true } }}
+                slotProps={{ textField: { fullWidth: true } }}
               />
               <DatePicker
                 label="Ngày kết thúc"
@@ -167,7 +175,7 @@ const AddProjectModal = ({ onClose }) => {
                 onChange={(newValue) => setEndDate(newValue)}
                 format="DD-MM-YYYY"
                 minDate={startDate}
-                slotProps={{ textField: { fullWidth: true, required: true } }}
+                slotProps={{ textField: { fullWidth: true } }}
               />
             </div>
           </LocalizationProvider>
@@ -184,7 +192,6 @@ const AddProjectModal = ({ onClose }) => {
                 labelId="priority-label"
                 value={priority}
                 onChange={(e) => setPriority(e.target.value)}
-                required
                 defaultValue=""
               >
                 <MenuItem value="" disabled>
