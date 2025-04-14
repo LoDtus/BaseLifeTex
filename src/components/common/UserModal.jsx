@@ -9,7 +9,7 @@ import { updateUserInfo } from '../../services/authService'; // điều chỉnh 
 import { toast } from 'react-toastify';
 import { isValidEmail, isValidPhone } from '../../utils/validationUtils';
 function UserModal({ user, onClose }) {
-  const [previewAvatar, setPreviewAvatar] = useState(user.avatar);
+  const [previewAvatar, setPreviewAvatar] = useState(user.avatar || "https://upload.wikimedia.org/wikipedia/commons/thumb/5/59/User-avatar.svg/2048px-User-avatar.svg.png");
 
   const [isEditing, setIsEditing] = useState(false);
   const [editedUser, setEditedUser] = useState({

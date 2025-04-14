@@ -5,6 +5,7 @@ import { useSelector } from "react-redux";
 const ContactCard = ({ onClose, contact }) => {
   const user = useSelector((state) => state.auth.login.currentUser);
     const avatar = user?.data?.user?.avatar || "/imgs/basic-user.png";
+    
   return (
     <div className={styles.container}>
       <div className={styles.closeIcon} onClick={onClose}>

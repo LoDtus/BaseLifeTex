@@ -69,13 +69,13 @@ const ProjectCard = ({ project, isSelected, avatarManger }) => {
           <p>
             <span>Ngày bắt đầu:</span>
             <span className={styles.date}>
-              {convertDateYMD(project.createdAt)}
+              {convertDateYMD(project.startDate)}
             </span>
           </p>
           <p className={styles.endDate}>
             <span>Ngày kết thúc:</span>
             <span className={styles.date}>
-              {convertDateYMD(project.updatedAt)}
+              {convertDateYMD(project.endDate)}
             </span>
           </p>
         </div>
@@ -90,7 +90,7 @@ const ProjectCard = ({ project, isSelected, avatarManger }) => {
             </span>
           </div>
         </div>
-        <img className={styles.avatarUser} src={user.data.user.avatar} alt="" />
+        <img className={styles.avatarUser} src={user.data.user.avatar || "https://upload.wikimedia.org/wikipedia/commons/thumb/5/59/User-avatar.svg/2048px-User-avatar.svg.png"} alt="" />
 
         <span>{renderProjectMembersBubble({ idProject: project._id })}</span>
       </div>
