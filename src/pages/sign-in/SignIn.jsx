@@ -4,12 +4,15 @@ import {
   TextField,
   Button,
   CircularProgress,
+  IconButton,
+  InputAdornment,
 } from "@mui/material";
 import FacebookIcon from "@mui/icons-material/Facebook";
 import TwitterIcon from "@mui/icons-material/Twitter";
 import GoogleIcon from "@mui/icons-material/Google";
 import EmailIcon from "@mui/icons-material/Email";
 import LockIcon from "@mui/icons-material/Lock";
+import { Visibility, VisibilityOff } from "@mui/icons-material";
 import HeaderLogin from "@/components/access/components/HeaderLogin";
 import FooterLogin from "@/components/access/components/FooterLogin";
 import { validateSignIn } from "@/utils/validationUtils";
@@ -23,6 +26,7 @@ import "./signIn.scss";
 export default function SignIn() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [emailError, setEmailError] = useState("");
   const [passwordError, setPasswordError] = useState("");
@@ -86,14 +90,31 @@ export default function SignIn() {
                   <Box className="login-input">
                     <TextField
                       label="Mật Khẩu"
-                      type="password"
+                      type={showPassword ? "text" : "password"}
                       variant="standard"
                       fullWidth
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       error={!!passwordError}
                       helperText={passwordError}
-                      inputProps={{ style: { width: "85%" } }}
+                      inputProps={{
+                        style: { width: "85%" },
+                        endAdornment: (
+                          <InputAdornment position="end">
+                            <IconButton
+                              onClick={() => setShowPassword(!showPassword)}
+                              edge="end"
+                              size="small"
+                            >
+                              {showPassword ? (
+                                <VisibilityOff sx={{ fontSize: 10 }} />
+                              ) : (
+                                <Visibility sx={{ fontSize: 10 }} />
+                              )}
+                            </IconButton>
+                          </InputAdornment>
+                        ),
+                      }}
                     />
                     <LockIcon className="login-input-icon" />
                   </Box>

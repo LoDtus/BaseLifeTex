@@ -69,13 +69,13 @@ const ProjectCard = ({ project, isSelected, avatarManger }) => {
           <p>
             <span>Ngày bắt đầu:</span>
             <span className={styles.date}>
-              {convertDateYMD(project.createdAt)}
+              {convertDateYMD(project.startDate)}
             </span>
           </p>
           <p className={styles.endDate}>
             <span>Ngày kết thúc:</span>
             <span className={styles.date}>
-              {convertDateYMD(project.updatedAt)}
+              {convertDateYMD(project.endDate)}
             </span>
           </p>
         </div>

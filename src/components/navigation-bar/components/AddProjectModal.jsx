@@ -1,6 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
-import { createProject, getListProjectByUser } from "../../../redux/projectSlice";
+import {
+  createProject,
+  getListProjectByUser,
+} from "../../../redux/projectSlice";
 import {
   Dialog,
   DialogTitle,
@@ -13,6 +16,11 @@ import {
   InputLabel,
   FormControl,
 } from "@mui/material";
+import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import dayjs from "dayjs";
+
 import { getAllUsers } from "../../../services/userService";
 import { STATUS_PROJECT } from "../../../config/status";
 import { PRIORITY } from "../../../config/priority";
@@ -27,10 +35,21 @@ const AddProjectModal = ({ onClose }) => {
   const [members, setMembers] = useState([]);
   const [priority, setPriority] = useState("");
   const [users, setUsers] = useState([]);
+  const [startDate, setStartDate] = useState(dayjs());
+  const [endDate, setEndDate] = useState(null);
 
   const handleSubmit = async (event) => {
     event.preventDefault();
+    if (!startDate || !endDate) {
+      toast.error("Vui lòng chọn ngày bắt đầu và ngày kết thúc");
+      return;
+    }
+    if (dayjs(endDate).isBefore(dayjs(startDate), "day")) {
+      toast.error("Ngày kết thúc phải sau ngày bắt đầu");
+      return;
+    }
     const formattedMembers = members.map((memberId) => ({ _id: memberId }));
+
     const newProjectData = {
       name,
       managerId: { _id: managerId },
@@ -38,6 +57,8 @@ const AddProjectModal = ({ onClose }) => {
       status: parseInt(status),
       members: formattedMembers,
       priority,
+      startDate: dayjs(startDate).format("YYYY-MM-DD"),
+      endDate: dayjs(endDate).format("YYYY-MM-DD"),
     };
     try {
       await dispatch(createProject(newProjectData));
@@ -124,6 +145,32 @@ const AddProjectModal = ({ onClose }) => {
               </Select>
             </FormControl>
           </div>
+          <LocalizationProvider dateAdapter={AdapterDayjs}>
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "1fr 1fr",
+                gap: "16px",
+              }}
+            >
+              <DatePicker
+                label="Ngày bắt đầu"
+                value={startDate}
+                onChange={(newValue) => setStartDate(newValue)}
+                format="DD-MM-YYYY"
+                disablePast
+                slotProps={{ textField: { fullWidth: true, required: true } }}
+              />
+              <DatePicker
+                label="Ngày kết thúc"
+                value={endDate}
+                onChange={(newValue) => setEndDate(newValue)}
+                format="DD-MM-YYYY"
+                minDate={startDate}
+                slotProps={{ textField: { fullWidth: true, required: true } }}
+              />
+            </div>
+          </LocalizationProvider>
           <div
             style={{
               display: "grid",
