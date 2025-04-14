@@ -119,7 +119,7 @@ export const updateUserInfo = createAsyncThunk(
     async ({ data, accessToken }, thunkAPI) => {
       try {
         const res = await axios.put(
-          "http://localhost:5000/api/v1/users/update-profile",
+          "http://192.168.11.161:5000/api/v1/users/update-profile",
           data,
           {
             headers: {

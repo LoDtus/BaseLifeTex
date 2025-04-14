@@ -90,7 +90,7 @@ const ProjectCard = ({ project, isSelected, avatarManger }) => {
             </span>
           </div>
         </div>
-        <img className={styles.avatarUser} src={user.data.user.avatar} alt="" />
+        <img className={styles.avatarUser} src={user.data.user.avatar || "https://upload.wikimedia.org/wikipedia/commons/thumb/5/59/User-avatar.svg/2048px-User-avatar.svg.png"} alt="" />
 
         <span>{renderProjectMembersBubble({ idProject: project._id })}</span>
       </div>
