@@ -245,7 +245,7 @@ export default function ListHome({ selectedTasks = [], setSelectedTasks }) {
                 </div>
                 <div className="basis-[30%] line-clamp-2">{task.title}</div>
                 <div className="basis-[10%] flex">
-                  {task.assigneeId?.slice(0, 3).map((member) => {
+                  {task.assigneeId?.slice(0, 2).map((member) => {
                     let srcImg = avatar.find((e) => e.id === member._id)?.avatar || DEFAULT_AVATAR;
                     return (
                       <img
