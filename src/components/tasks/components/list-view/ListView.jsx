@@ -20,6 +20,8 @@ import EditFormv2 from "@/components/tasks/components/form/EditFormv2";
 import { setTaskForm } from "@/redux/propertiesSlice";
 
 export default function ListHome({ selectedTasks = [], setSelectedTasks }) {
+  const DEFAULT_AVATAR =
+    "https://upload.wikimedia.org/wikipedia/commons/thumb/5/59/User-avatar.svg/2048px-User-avatar.svg.png";
   const [searchParams] = useSearchParams();
   const idProject = searchParams.get("idProject");
   const taskList = useSelector((state) => state.task.listTask);
@@ -35,16 +37,17 @@ export default function ListHome({ selectedTasks = [], setSelectedTasks }) {
   const debouncedGetList = useCallback(async () => {
     setLoading(true);
 
+
     const response = await getMembers(idProject);
     response.map((e) => {
-      setAvatar((prev) => [
-        ...prev,
-        {
-          id: e._id,
-          avatar: e.avatar,
-        },
-      ]);
-    });
+  setAvatar((prev) => [
+    ...prev,
+    {
+      id: e._id,
+      avatar: e.avatar?.trim() ? e.avatar : DEFAULT_AVATAR,
+    },
+  ]);
+});
 
     try {
       await dispatch(
@@ -243,9 +246,7 @@ export default function ListHome({ selectedTasks = [], setSelectedTasks }) {
                 <div className="basis-[30%] line-clamp-2">{task.title}</div>
                 <div className="basis-[10%] flex">
                   {task.assigneeId?.slice(0, 3).map((member) => {
-                    let srcImg =
-                      avatar.find((e) => e.id === member._id)?.avatar ||
-                      "/path/to/default-avatar.jpg";
+                    let srcImg = avatar.find((e) => e.id === member._id)?.avatar || DEFAULT_AVATAR;
                     return (
                       <img
                         className="w-[25px] h-[25px] aspect-square rounded-full !mr-[2px]"

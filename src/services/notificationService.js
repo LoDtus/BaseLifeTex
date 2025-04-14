@@ -3,7 +3,7 @@ import axiosInstance from "./apiService";
 // Lấy tất cả thông báo của người dùng hiện tại
 export const getAllNotificationsByUser = async (userId) => {
     try {
-        const response = await axiosInstance.get(`/notifi/${userId}`);
+        const response = await axiosInstance.get(`/notifi`);
         return response.data;
     } catch (error) {
         console.error("Không thể lấy thông báo của người dùng:", error.response?.data || error);

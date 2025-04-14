@@ -5,7 +5,7 @@ const UserFormFields = ({ user, isEditing, onChange, onAvatarChange, previewAvat
         <>
           <div className="card-header">
             <label className="avatar-upload">
-              <img src={previewAvatar || user.avatar} alt="avatar" className="avatar" />
+              <img src={previewAvatar || user.avatar || "https://upload.wikimedia.org/wikipedia/commons/thumb/5/59/User-avatar.svg/2048px-User-avatar.svg.png"} alt="avatar" className="avatar" />
               {isEditing && (
                 <input
                   type="file"
