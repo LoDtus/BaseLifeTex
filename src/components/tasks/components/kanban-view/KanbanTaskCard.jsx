@@ -181,10 +181,12 @@ export default function KanbanTaskCard({
         <div className="">
           <div className="flex items-center py-1 px-2">
             <div className="!text-gray !cursor-pointer duration-200 !hover:text-black !active:scale-90">
+            <div className="!text-gray !cursor-pointer duration-200 !hover:text-black !active:scale-90">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 viewBox="0 0 512 512"
                 className="w-[20px] h-[20px] aspect-square "
+                onClick={() => dispatch(setTaskForm(`DETAILS_${task._id}`))}
                 onClick={() => dispatch(setTaskForm(`DETAILS_${task._id}`))}
                 onPointerDown={(e) => e.stopPropagation()}
               >
@@ -197,6 +199,10 @@ export default function KanbanTaskCard({
               <img
                 key={i}
                 className="w-[25px] h-[25px] rounded-full cursor-pointer !ml-[2px]"
+                src={
+                  member.avatar ||
+                  "https://upload.wikimedia.org/wikipedia/commons/thumb/5/59/User-avatar.svg/2048px-User-avatar.svg.png"
+                }
                 src={
                   member.avatar ||
                   "https://upload.wikimedia.org/wikipedia/commons/thumb/5/59/User-avatar.svg/2048px-User-avatar.svg.png"
