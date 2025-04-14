@@ -238,8 +238,8 @@ const AddProjectModal = ({ onClose }) => {
             <Button onClick={onClose} color="secondary">
               Hủy
             </Button>
-            <Button type="submit" color="primary">
-              Lưu
+            <Button type="submit" variant="solid" color="primary">
+              Thêm
             </Button>
           </DialogActions>
         </form>
