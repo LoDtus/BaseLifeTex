@@ -15,6 +15,8 @@ import {
   Button,
   InputLabel,
   FormControl,
+  Backdrop,
+  CircularProgress,
 } from "@mui/material";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
@@ -29,14 +31,17 @@ import { toast } from "react-toastify";
 const AddProjectModal = ({ onClose }) => {
   const dispatch = useDispatch();
   const [name, setName] = useState("");
+  const [code, setCode] = useState("");
   const [managerId, setManagerId] = useState("67d23acb23793aac51e64dc5");
   const [description, setDescription] = useState("");
   const [status, setStatus] = useState("");
   const [members, setMembers] = useState([]);
   const [priority, setPriority] = useState("");
+
   const [users, setUsers] = useState([]);
   const [startDate, setStartDate] = useState(dayjs());
   const [endDate, setEndDate] = useState(null);
+  const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -52,6 +57,7 @@ const AddProjectModal = ({ onClose }) => {
 
     const newProjectData = {
       name,
+      code,
       managerId: { _id: managerId },
       description,
       status: parseInt(status),
@@ -60,6 +66,7 @@ const AddProjectModal = ({ onClose }) => {
       startDate: dayjs(startDate).format("YYYY-MM-DD"),
       endDate: dayjs(endDate).format("YYYY-MM-DD"),
     };
+    setLoading(true);
     try {
       await dispatch(createProject(newProjectData));
       // Gọi lại API để cập nhật danh sách dự án mới nhất
@@ -69,6 +76,10 @@ const AddProjectModal = ({ onClose }) => {
     } catch (error) {
       toast.error("Thêm dự án thất bại !");
       console.log(error);
+    } finally {
+      setTimeout(() => {
+        setLoading(false); // Kết thúc loading
+      }, 3000);
     }
   };
 
@@ -102,6 +113,14 @@ const AddProjectModal = ({ onClose }) => {
             required
             value={name}
             onChange={(e) => setName(e.target.value)}
+            fullWidth
+          />
+          <TextField
+            label="Mã dự án"
+            type="text"
+            required
+            value={code}
+            onChange={(e) => setCode(e.target.value)}
             fullWidth
           />
           <TextField
@@ -250,12 +269,28 @@ const AddProjectModal = ({ onClose }) => {
             <Button onClick={onClose} color="secondary">
               Hủy
             </Button>
-            <Button type="submit" color="primary">
-              Lưu
+            <Button
+              type="submit"
+              color="primary"
+              disabled={loading} // không cho click khi đang loading
+              startIcon={
+                loading && <CircularProgress size={20} color="inherit" />
+              }
+            >
+              {loading ? "Đang thêm..." : "Thêm"}
             </Button>
           </DialogActions>
         </form>
       </DialogContent>
+      <Backdrop
+        open={loading}
+        sx={{
+          color: "#fff",
+          zIndex: (theme) => theme.zIndex.modal + 1,
+        }}
+      >
+        <CircularProgress color="inherit" />
+      </Backdrop>
     </Dialog>
   );
 };
