@@ -1,6 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
-import { createProject, getListProjectByUser } from "../../../redux/projectSlice";
+import {
+  createProject,
+  getListProjectByUser,
+} from "../../../redux/projectSlice";
 import {
   Dialog,
   DialogTitle,
@@ -158,24 +161,36 @@ const AddProjectModal = ({ onClose }) => {
                 label="Thành viên"
                 onChange={(e) => {
                   const { value } = e.target;
-                  setMembers(
-                    typeof value === "string" ? value.split(",") : value
-                  );
+                  const isSelectAll = value.includes("all");
+                  const allUserIds = users.map((user) => user._id);
+
+                  if (isSelectAll) {
+                    // Nếu đã chọn hết rồi => Bỏ chọn tất cả
+                    // Nếu chưa chọn hết => Chọn tất cả
+                    const isAllSelected = members.length === allUserIds.length;
+                    setMembers(isAllSelected ? [] : allUserIds);
+                  } else {
+                    setMembers(
+                      typeof value === "string" ? value.split(",") : value
+                    );
+                  }
                 }}
-                defaultValue=""
                 renderValue={(selected) => {
                   return selected
                     .map((selectedId) => {
                       const user = users.find(
                         (user) => user._id === selectedId
                       );
-                      return user ? user.userName : ""; // Trả về userName nếu tìm thấy, không thì trả về chuỗi rỗng
+                      return user ? user.userName : "";
                     })
                     .join(", ");
                 }}
               >
                 <MenuItem value="" disabled>
                   Chọn thành viên
+                </MenuItem>
+                <MenuItem value="all">
+                  <em>Tất cả</em>
                 </MenuItem>
                 {users.map((user) => (
                   <MenuItem key={user._id} value={user._id}>
