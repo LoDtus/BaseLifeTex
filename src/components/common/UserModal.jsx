@@ -7,6 +7,7 @@ import UserFormFields from "./UserFormFields";
 import { useDispatch, useSelector } from 'react-redux';
 import { updateUserInfo } from '../../services/authService'; // điều chỉnh path nếu cần
 import { toast } from 'react-toastify';
+import { isValidEmail, isValidPhone } from '../../utils/validationUtils';
 function UserModal({ user, onClose }) {
   const [previewAvatar, setPreviewAvatar] = useState(user.avatar);
 
@@ -15,12 +16,23 @@ function UserModal({ user, onClose }) {
     ...user,
     roleLabel: ROLE_LABELS[user.role],
   });
+  const [emailError, setEmailError] = useState("");
+  const [phoneError, setPhoneError] = useState("");
 
   const dispatch = useDispatch();
 const accessToken = useSelector((state) => state.auth.login.currentUser?.data?.accessToken);
 
   const handleChange = (e) => {
-    setEditedUser({ ...editedUser, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    setEditedUser({ ...editedUser, [name]: value });
+
+    if (name === "email") {
+      setEmailError(isValidEmail(value) ? "" : "Email không hợp lệ");
+    }
+
+    if (name === "phone") {
+      setPhoneError(isValidPhone(value) ? "" : "Số điện thoại không hợp lệ");
+    }
   };
 
   const handleAvatarChange = (e) => {
@@ -32,6 +44,17 @@ const accessToken = useSelector((state) => state.auth.login.currentUser?.data?.a
   };  
   
   const handleSave = async () => {
+    // Kiểm tra lại trước khi submit
+    const isEmailValid = isValidEmail(editedUser.email);
+    const isPhoneValid = isValidPhone(editedUser.phone);
+
+    setEmailError(isEmailValid ? "" : "Email không hợp lệ");
+    setPhoneError(isPhoneValid ? "" : "Số điện thoại không hợp lệ");
+
+    if (!isEmailValid || !isPhoneValid) {
+      toast.error("Vui lòng kiểm tra lại thông tin.");
+      return;
+    }
     const formData = new FormData();
     formData.append("userName", editedUser.userName);
     formData.append("email", editedUser.email);
@@ -60,6 +83,8 @@ const accessToken = useSelector((state) => state.auth.login.currentUser?.data?.a
         onChange={handleChange}
         onAvatarChange={handleAvatarChange}
         previewAvatar={previewAvatar}
+        emailError={emailError}
+        phoneError={phoneError}
       />
 
       <div className="modal-actions">
