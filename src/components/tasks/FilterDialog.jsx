@@ -4,7 +4,7 @@ import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { DemoContainer } from "@mui/x-date-pickers/internals/demo";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import "./styles/FilterDialog.scss";
 import { filterTaskInProject } from "../../redux/taskSlice";
 import { getlistUserInProjects } from "../../services/taskService";
@@ -17,6 +17,7 @@ export default function FilterDialog({ idProject }) {
     startDate: null,
     endDate: null,
   });
+  const viewMode = useSelector((state) => state.viewMode.mode);
 
   const [listMember, setListMember] = useState([]);
 
@@ -36,7 +37,14 @@ export default function FilterDialog({ idProject }) {
   const dispatch = useDispatch();
 
   const onfilterTask = () => {
-    dispatch(filterTaskInProject({ projectId: idProject, data: filters }));
+    dispatch(
+      filterTaskInProject({
+        projectId: idProject,
+        page: 1,
+        limit: viewMode === "list" ? 20 : 100,
+        data: filters,
+      })
+    );
   };
 
   return (
