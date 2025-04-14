@@ -32,8 +32,11 @@ export const getTaskDetailById = async (id) => {
   return response.data;
 };
 
-export const filterTask = async (idProject, data) => {
-  const response = await axiosInstance.post(`/tasks/filter/${idProject}`, data);
+export const filterTask = async (idProject, page, limit, data) => {
+  const response = await axiosInstance.post(
+    `/tasks/filter/${idProject}?page=${page}&limit=${limit}`,
+    data
+  );
   return response.data;
 };
 

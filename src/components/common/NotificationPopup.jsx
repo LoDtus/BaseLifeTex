@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { Popover, IconButton, Typography, Badge, Button } from "@mui/material";
 import NotificationsIcon from "@mui/icons-material/Notifications";
 import CloseIcon from "@mui/icons-material/Close";
@@ -6,7 +6,8 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import CircleIcon from "@mui/icons-material/Circle";
 import { useSelector } from "react-redux";
 import { getAllNotificationsByUser } from "../../services/notificationService";
-
+import io from "socket.io-client";
+const socket = io("http://localhost:5000");
 const DISPLAY_LIMIT = 5;
 
 export default function NotificationPopup() {
@@ -17,13 +18,26 @@ export default function NotificationPopup() {
   const userId = useSelector(
     (state) => state.auth.login.currentUser?.data?.user?._id
   );
+
+  const handleNotification = useCallback((message) => {
+    console.log("Nhận thông báo mới:", message);
+    setNotifications((prev) => [...prev, message]);
+  }, []);
+
   useEffect(() => {
     if (!userId) return;
+    socket.on("connect", () => {
+      console.log("Đã kết nối WebSocket:", socket.id);
+      // Tham gia phòng với userId
+      socket.emit("joinRoom", userId);
+    });
+    socket.on("notification", handleNotification);
+
     (async () => {
       const { data } = await getAllNotificationsByUser(userId);
       setNotifications(data);
     })();
-  }, [userId]);
+  }, [userId, handleNotification]);
   // console.log(notifications);
 
   const handleOpen = (event) => {

@@ -112,12 +112,12 @@ const ProjectCard = ({ project, isSelected, avatarManger }) => {
           {convertStatus(project.status)}
         </button>
         {userRole === 0 && (
-          <button className={styles.buttonDelete} onClick={handleDelete}>
-            <img
-              src="/icons/trash-icon.png"
-              alt=""
-              style={{ width: "28.5px" }}
-            />
+          <button className={`${styles.buttonDelete} items-center`} onClick={handleDelete}>
+          <img
+            src="/icons/trash-icon.png"
+            alt=""
+            style={{ width: "98%",height:"98%" }}
+          />
           </button>
         )}
       </div>

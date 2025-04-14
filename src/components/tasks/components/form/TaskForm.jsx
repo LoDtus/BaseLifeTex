@@ -152,7 +152,7 @@ export default function TaskForm() {
             onClick={(e) => e.stopPropagation()}
           />
           <img
-            src={member.avatar}
+            src={member.avatar ? member.avatar : "https://upload.wikimedia.org/wikipedia/commons/thumb/5/59/User-avatar.svg/2048px-User-avatar.svg.png"}
             alt={member.email}
             className="w-[40px] h-[40px] aspect-square rounded-full !mx-2"
             key={`img-${member._id}`}

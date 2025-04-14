@@ -26,8 +26,8 @@ export const getListTaskByProjectId = createAsyncThunk(
 
 export const filterTaskInProject = createAsyncThunk(
   "task/filterTaskInProject",
-  async ({ projectId, data }) => {
-    const response = await filterTask(projectId, data);
+  async ({ projectId, data, page, limit }) => {
+    const response = await filterTask(projectId, +page, +limit, data);
     return response.data;
   }
 );

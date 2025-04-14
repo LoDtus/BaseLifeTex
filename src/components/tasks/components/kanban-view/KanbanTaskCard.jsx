@@ -157,7 +157,7 @@ export default function KanbanTaskCard({
               title={task.title}
               placement="top"
               arrow
-              onClick={() => dispatch(setTaskForm(`DETAILS_${task._id}`))}
+              // onClick={() => dispatch(setTaskForm(`DETAILS_${task._id}`))}
               onPointerDown={(e) => e.stopPropagation()}
             >
               {task.title}
