@@ -11,9 +11,6 @@ import {
     logOutStart,
     logOutSuccess,
     logOutFail,
-    updateUserStart,
-  updateUserSuccess,
-  updateUserFail,
 } from "../redux/authSlice";
 import Cookies from "js-cookie";
 import { createAsyncThunk } from "@reduxjs/toolkit";
@@ -118,8 +115,8 @@ export const updateUserInfo = createAsyncThunk(
     "auth/updateUserInfo",
     async ({ data, accessToken }, thunkAPI) => {
       try {
-        const res = await axios.put(
-          "http://192.168.11.161:5000/api/v1/users/update-profile",
+        const res = await axiosInstance.put(
+          `${backendUrl}/users/update-profile`,
           data,
           {
             headers: {
