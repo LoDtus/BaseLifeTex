@@ -245,7 +245,7 @@ export default function TaskForm() {
 
       if (taskState.slice(0, 4).includes("ADD")) {
         const response = await addTask({
-          image: img,
+          image: imgAdd,
           assigneeId: assignee,
           title: taskName,
           link: link,
@@ -276,7 +276,7 @@ export default function TaskForm() {
         }
       } else {
         const response = await updateTask(taskState.slice(7), {
-          image: img,
+          image: imgAdd ? imgAdd : img,
           assigneeId: assignee,
           title: taskName,
           link: link,
@@ -518,11 +518,11 @@ export default function TaskForm() {
                   }}
                 >
                   <Button>
-                    {priority === "0"
+                    {priority == "0"
                       ? "Thấp"
-                      : priority === "1"
+                      : priority == "1"
                       ? "Trung bình"
-                      : priority === "2"
+                      : priority == "2"
                       ? "Cao"
                       : "Chưa có"}
                   </Button>

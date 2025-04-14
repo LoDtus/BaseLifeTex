@@ -116,7 +116,7 @@ export default function TaskDetails() {
     const res = await addCommentTask({
       taskId,
       content: comment,
-      userId: user.id,
+      userId: user._id,
     });
 
     if (res.success) {
@@ -124,7 +124,7 @@ export default function TaskDetails() {
       setCommentList((prev) => [
         {
           ...res.data,
-          user: {
+          userId: {
             userName: user.userName,
             avatar: user.avatar,
             email: user.email,
@@ -360,17 +360,17 @@ export default function TaskDetails() {
               <div className="w-fit mb-1 flex items-center cursor-pointer duration-200 active:scale-90">
                 <img
                   className="w-[35px] h-[35px] !mr-1 aspect-square rounded-full"
-                  src={cmt.user?.avatar || "/default-avatar.png"}
-                  alt={cmt.user?.email}
+                  src={cmt.userId?.avatar || "/default-avatar.png"}
+                  alt={cmt.userId?.email}
                   onError={(e) => {
                     e.target.onerror = null;
                     e.target.src = "/default-avatar.png";
                   }}
                 />
                 <div className="flex flex-col">
-                  <span className="font-semibold">{cmt.user?.userName}</span>
+                  <span className="font-semibold">{cmt.userId?.userName}</span>
                   <span className="text-[12px] text-dark-gray">
-                    {cmt.user?.email}
+                    {cmt.userId?.email}
                   </span>
                 </div>
               </div>
