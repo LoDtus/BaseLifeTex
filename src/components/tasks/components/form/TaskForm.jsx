@@ -133,6 +133,43 @@ export default function TaskForm() {
         </div>
       ),
     },
+    {
+      key: "select_all",
+      label: (
+        <label
+          htmlFor="asignee_select_all"
+          className="!flex items-center cursor-pointer px-2 py-1"
+          onClick={(e) => {
+            // Chỉ dùng để ngăn Dropdown đóng
+            e.preventDefault();
+            e.stopPropagation();
+
+            const isAllSelected = assignee.length === memberList.length;
+            const newAssignee = isAllSelected
+              ? []
+              : memberList.map((m) => m._id);
+            setAssignee(newAssignee);
+          }}
+        >
+          <Checkbox
+            id="asignee_select_all"
+            checked={assignee.length === memberList.length}
+            indeterminate={
+              assignee.length > 0 && assignee.length < memberList.length
+            }
+            onChange={(e) => {
+              const isAllSelected = assignee.length === memberList.length;
+              const newAssignee = isAllSelected
+                ? []
+                : memberList.map((m) => m._id);
+              setAssignee(newAssignee);
+            }}
+            onClick={(e) => e.stopPropagation()}
+          />
+          <span className="ml-2 font-semibold">Chọn tất cả</span>
+        </label>
+      ),
+    },
     ...memberList.map((member) => ({
       key: member._id,
       label: (
@@ -152,7 +189,10 @@ export default function TaskForm() {
             onClick={(e) => e.stopPropagation()}
           />
           <img
-            src={member.avatar ? member.avatar : "https://upload.wikimedia.org/wikipedia/commons/thumb/5/59/User-avatar.svg/2048px-User-avatar.svg.png"}
+            src={
+              member.avatar ||
+              "https://upload.wikimedia.org/wikipedia/commons/thumb/5/59/User-avatar.svg/2048px-User-avatar.svg.png"
+            }
             alt={member.email}
             className="w-[40px] h-[40px] aspect-square rounded-full !mx-2"
             key={`img-${member._id}`}
@@ -491,13 +531,10 @@ export default function TaskForm() {
                 </label>
                 <Dropdown
                   menu={{ items: asigneeList }}
-                  trigger={"click"}
+                  trigger={["click"]}
                   placement="bottom"
                   open={visibleAssignee}
-                  onOpenChange={(flag) => {
-                    if (!flag) setVisibleAssignee(false);
-                    else setVisibleAssignee(true);
-                  }}
+                  onOpenChange={(flag) => setVisibleAssignee(flag)}
                 >
                   <Button onClick={() => setVisibleAssignee(!visibleAssignee)}>
                     {assignee.length > 0

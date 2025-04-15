@@ -88,6 +88,32 @@ export default function MemberListContentAdd({
         Danh sách thành viên
       </Typography>
       <FormGroup>
+        {/* Checkbox chọn tất cả */}
+        <FormControlLabel
+          control={
+            <Checkbox
+              checked={
+                listMember.length > 0 &&
+                checkedItems.length === listMember.length
+              }
+              indeterminate={
+                checkedItems.length > 0 &&
+                checkedItems.length < listMember.length
+              }
+              onChange={() => {
+                const allIds = listMember.map((member) => member._id);
+                if (checkedItems.length === listMember.length) {
+                  setCheckedItems([]); // Bỏ chọn tất cả
+                } else {
+                  setCheckedItems(allIds); // Chọn tất cả
+                }
+              }}
+            />
+          }
+          label="Chọn tất cả"
+        />
+
+        {/* Danh sách thành viên */}
         {listMember?.map((member, index) => (
           <FormControlLabel
             key={index}
@@ -105,6 +131,7 @@ export default function MemberListContentAdd({
             }
           />
         ))}
+
         <Button
           variant="contained"
           onClick={addMember}

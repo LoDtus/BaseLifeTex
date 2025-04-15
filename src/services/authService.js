@@ -115,8 +115,8 @@ export const updateUserInfo = createAsyncThunk(
     "auth/updateUserInfo",
     async ({ data, accessToken }, thunkAPI) => {
       try {
-        const res = await axiosInstance.put(
-          `${backendUrl}/users/update-profile`,
+        const res = await axios.put(
+          "http://localhost:5000/api/v1/users/update-profile",
           data,
           {
             headers: {
