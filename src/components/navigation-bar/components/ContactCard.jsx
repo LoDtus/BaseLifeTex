@@ -4,8 +4,8 @@ import { useSelector } from "react-redux";
 
 const ContactCard = ({ onClose, contact }) => {
   const user = useSelector((state) => state.auth.login.currentUser);
-    const avatar = user?.data?.user?.avatar || "/imgs/basic-user.png";
-    
+  const avatar = user?.data?.user?.avatar || "/imgs/basic-user.png";
+
   return (
     <div className={styles.container}>
       <div className={styles.closeIcon} onClick={onClose}>
@@ -19,7 +19,10 @@ const ContactCard = ({ onClose, contact }) => {
       </div>
       <div className={styles.contactItem}>
         <img
-          src={contact?.avatar}
+          src={
+            contact?.avatar ||
+            "https://upload.wikimedia.org/wikipedia/commons/thumb/5/59/User-avatar.svg/2048px-User-avatar.svg.png"
+          }
           alt="avatar"
           className={styles.icon}
         />

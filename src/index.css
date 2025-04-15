@@ -43,6 +43,13 @@ body {
   justify-content: space-between;
 }
 
+.mb-16-custom {
+  margin-bottom: 16px;
+}
+
+.mt-16-custom {
+  margin-bottom: 16px;
+}
 
 
 
