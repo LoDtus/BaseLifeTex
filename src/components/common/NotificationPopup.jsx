@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Popover, IconButton, Typography, Badge, Button } from "@mui/material";
 import NotificationsIcon from "@mui/icons-material/Notifications";
 import CloseIcon from "@mui/icons-material/Close";
@@ -6,8 +6,8 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import CircleIcon from "@mui/icons-material/Circle";
 import { useSelector } from "react-redux";
 import { getAllNotificationsByUser } from "../../services/notificationService";
-import io from "socket.io-client";
-const socket = io("http://localhost:5000");
+import { socket, joinRoom } from "../../config/socket.js";
+import { toast } from "react-toastify";
 const DISPLAY_LIMIT = 5;
 
 export default function NotificationPopup() {
@@ -19,25 +19,41 @@ export default function NotificationPopup() {
     (state) => state.auth.login.currentUser?.data?.user?._id
   );
 
-  const handleNotification = useCallback((message) => {
-    console.log("Nhận thông báo mới:", message);
-    setNotifications((prev) => [...prev, message]);
-  }, []);
-
   useEffect(() => {
     if (!userId) return;
-    socket.on("connect", () => {
-      console.log("Đã kết nối WebSocket:", socket.id);
-      // Tham gia phòng với userId
-      socket.emit("joinRoom", userId);
-    });
-    socket.on("notification", handleNotification);
 
+    // Lấy danh sách thông báo ban đầu
     (async () => {
       const { data } = await getAllNotificationsByUser(userId);
       setNotifications(data);
     })();
-  }, [userId, handleNotification]);
+
+    // Cleanup khi component unmount
+  }, [userId]);
+
+  useEffect(() => {
+    if (!userId) return;
+
+    // Kiểm tra kết nối socket
+    socket.on("connect", () => {
+      console.log("✅ WebSocket connected:", socket.id);
+      if (userId) {
+        socket.emit("joinRoom", userId);
+        console.log("User đã tham gia phòng:", userId);
+      }
+    });
+
+    // Lắng nghe sự kiện notification từ server
+    socket.on("notification", (message) => {
+      console.log("🔥 Nhận thông báo mới:", message);
+      toast.info(`Bạn có thông báo mới: ${message}`);
+    });
+
+    return () => {
+      socket.off("notification");
+    };
+  }, [userId]);
+
   // console.log(notifications);
 
   const handleOpen = (event) => {
