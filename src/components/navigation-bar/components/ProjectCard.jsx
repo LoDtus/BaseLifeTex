@@ -20,10 +20,13 @@ const ProjectCard = ({ project, isSelected, avatarManger }) => {
     switch (convertStatus(project.status)) {
       case "Đang thực hiện":
         return styles.statusBtnInProgress;
-      case "Chưa hoàn thành":
-        return styles.statusBtnNotCompleted;
-      case "Đã Hoàn thành":
+
+      case "Hoàn thành":
         return styles.statusBtnCompleted;
+
+      case "Lưu trữ":
+        return styles.statusBtnNotCompleted;
+
       default:
         return styles.statusBtnNotCompleted; // Default to "Chưa hoàn thành"
     }
@@ -104,7 +107,10 @@ const ProjectCard = ({ project, isSelected, avatarManger }) => {
       <div className={styles.projectFooter}>
         <img
           className={styles.avatar}
-          src={project.managerId?.avatar}
+          src={
+            project.managerId?.avatar ||
+            "https://upload.wikimedia.org/wikipedia/commons/thumb/5/59/User-avatar.svg/2048px-User-avatar.svg.png"
+          }
           onClick={handleClick}
           alt="Avatar"
         />
