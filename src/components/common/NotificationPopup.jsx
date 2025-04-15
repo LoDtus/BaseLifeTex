@@ -5,7 +5,11 @@ import CloseIcon from "@mui/icons-material/Close";
 import DeleteIcon from "@mui/icons-material/Delete";
 import CircleIcon from "@mui/icons-material/Circle";
 import { useSelector } from "react-redux";
-import { getAllNotificationsByUser } from "../../services/notificationService";
+import {
+  deleteNotifi,
+  getAllNotificationsByUser,
+  updateIsRead,
+} from "../../services/notificationService";
 import { socket, joinRoom } from "../../config/socket.js";
 import { toast } from "react-toastify";
 const DISPLAY_LIMIT = 5;
@@ -79,19 +83,25 @@ export default function NotificationPopup() {
   const unreadCount = notifications.filter((n) => !n.isRead).length;
 
   // Đánh dấu là đã đọc khi người dùng click
-  const handleMarkAsRead = (id) => {
+  const handleMarkAsRead = async (id) => {
+    const { data } = await updateIsRead(id);
     setNotifications((prev) =>
-      prev.map((n) =>
-        n.id === id
-          ? {
-              ...n,
-              isRead: true,
-            }
-          : n
+      prev.map((noti) =>
+        noti._id === data._id ? { ...noti, isRead: true } : noti
       )
     );
   };
-
+  const handleDelete = async (id) => {
+    if (window.confirm("Bạn có chắc chắn muốn xoá ?")) {
+      try {
+        await deleteNotifi(id);
+        setNotifications((prev) => prev.filter((noti) => noti._id !== id));
+        toast.success("Bạn đã xoá thành công");
+      } catch (error) {
+        console.error("Lỗi khi xoá thông báo:", error);
+      }
+    }
+  };
   return (
     <div>
       {/* Icon chuông + số thông báo chưa đọc */}
@@ -166,7 +176,13 @@ export default function NotificationPopup() {
               {!noti.isRead ? (
                 <CircleIcon fontSize="8px" color="primary" />
               ) : (
-                <IconButton size="small">
+                <IconButton
+                  size="small"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleDelete(noti._id);
+                  }}
+                >
                   <DeleteIcon color="error" fontSize="small" />
                 </IconButton>
               )}

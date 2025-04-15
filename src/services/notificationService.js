@@ -27,3 +27,31 @@ export const getAllNotifications = async () => {
     throw error;
   }
 };
+
+// Cập nhật trạng thái đã đọc của 1 thông báo
+export const updateIsRead = async (notifiId) => {
+  try {
+    const response = await axiosInstance.put(`/notifi/${notifiId}`);
+    return response.data;
+  } catch (error) {
+    console.error(
+      "Không thể cập nhật trạng thái đã đọc:",
+      error.response?.data || error
+    );
+    throw error;
+  }
+};
+
+// Xóa 1 thông báo
+export const deleteNotifi = async (notifiId) => {
+  try {
+    const response = await axiosInstance.delete(`/notifi/${notifiId}`);
+    return response.data;
+  } catch (error) {
+    console.error(
+      "Không thể xóa thông báo:",
+      error.response?.data || error
+    );
+    throw error;
+  }
+};
