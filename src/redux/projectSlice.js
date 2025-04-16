@@ -3,6 +3,7 @@ import {
   deleteProjectById,
   getLstProject,
   createNewProject,
+  updateProjectById,
 } from "../services/projectService";
 import { getTasksByProject, searchTasks } from "../services/taskService";
 
@@ -58,6 +59,17 @@ export const createProject = createAsyncThunk(
     try {
       const res = await createNewProject(payload); // Gọi API tạo project
       return res.data; // Trả về dữ liệu project mới
+    } catch (error) {
+      return rejectWithValue(error.message);
+    }
+  }
+);
+export const updateProject = createAsyncThunk(
+  "project/update",
+  async ({ projectId, projectData }, { rejectWithValue }) => {
+    try {
+      const res = await updateProjectById(projectId, projectData); // Gọi API
+      return res; // Trả về dự án đã được cập nhật
     } catch (error) {
       return rejectWithValue(error.message);
     }
@@ -126,6 +138,14 @@ const projectSlice = createSlice({
       .addCase(createProject.rejected, (state, action) => {
         state.isFetching = false;
         state.error = action.payload;
+      })
+      .addCase(updateProject.fulfilled, (state, action) => {
+        state.isFetching = false;
+        // Tìm và cập nhật lại dự án trong listProject
+        const updatedProject = action.payload;
+        state.listProject = state.listProject.map((project) =>
+          project._id === updatedProject._id ? updatedProject : project
+        );
       });
   },
 });

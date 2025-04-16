@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from "react";
+
 import { useDispatch } from "react-redux";
 import {
   createProject,
+  updateProject,
   getListProjectByUser,
 } from "../../../redux/projectSlice";
 import {
@@ -28,8 +30,10 @@ import { STATUS_PROJECT } from "../../../config/status";
 import { PRIORITY } from "../../../config/priority";
 import { toast } from "react-toastify";
 
-const AddProjectModal = ({ onClose }) => {
+const AddProjectModal = ({ open, onClose, projectToEdit }) => {
   const dispatch = useDispatch();
+  const isEditMode = Boolean(projectToEdit);
+
   const [name, setName] = useState("");
   const [code, setCode] = useState("");
   const [managerId, setManagerId] = useState("67d23acb23793aac51e64dc5");
@@ -42,6 +46,44 @@ const AddProjectModal = ({ onClose }) => {
   const [startDate, setStartDate] = useState(dayjs());
   const [endDate, setEndDate] = useState(null);
   const [loading, setLoading] = useState(false);
+
+  // useEffect(() => {
+  //   const fetchUsers = async () => {
+  //     const response = await getAllUsers();
+  //     if (response?.data) {
+  //       setUsers(response.data);
+  //     }
+  //   };
+
+  //   fetchUsers();
+  // }, []);
+
+  useEffect(() => {
+    if (isEditMode) {
+      const {
+        name,
+        code,
+        managerId,
+        description,
+        status,
+        members,
+        priority,
+        startDate,
+        endDate,
+      } = projectToEdit;
+
+      setName(name || "");
+      setCode(code || "");
+      setManagerId(managerId?._id || "");
+      setDescription(description || "");
+      setStatus(status?.toString() || "");
+      setMembers((members || []).map((m) => m._id));
+      setPriority(priority || "");
+      setStartDate(dayjs(startDate));
+      setEndDate(dayjs(endDate));
+    }
+  }, [projectToEdit]);
+
   const handleSubmit = async (event) => {
     event.preventDefault();
     if (
@@ -67,7 +109,7 @@ const AddProjectModal = ({ onClose }) => {
     }
     const formattedMembers = members.map((memberId) => ({ _id: memberId }));
 
-    const newProjectData = {
+    const formData = {
       name,
       code,
       managerId: { _id: managerId },
@@ -80,18 +122,23 @@ const AddProjectModal = ({ onClose }) => {
     };
     setLoading(true);
     try {
-      await dispatch(createProject(newProjectData));
-      // Gọi lại API để cập nhật danh sách dự án mới nhất
-      await dispatch(getListProjectByUser(users._id));
-      toast.success("Thêm dự án thành công");
+      if (isEditMode) {
+        await dispatch(
+          updateProject({ id: projectToEdit._id, data: formData })
+        );
+        toast.success("Cập nhật dự án thành công");
+      } else {
+        await dispatch(createProject(formData));
+        toast.success("Tạo dự án thành công");
+      }
+
+      await dispatch(getListProjectByUser(managerId));
       onClose();
-    } catch (error) {
-      toast.error("Thêm dự án thất bại !");
-      console.log(error);
+    } catch (err) {
+      toast.error(isEditMode ? "Cập nhật thất bại" : "Tạo mới thất bại");
+      console.error(err);
     } finally {
-      setTimeout(() => {
-        setLoading(false); // Kết thúc loading
-      }, 3000);
+      setLoading(false);
     }
   };
 
@@ -107,8 +154,8 @@ const AddProjectModal = ({ onClose }) => {
   }, []);
 
   return (
-    <Dialog open onClose={onClose} fullWidth maxWidth="md">
-      <DialogTitle>Tạo Dự Án</DialogTitle>
+    <Dialog open={open} onClose={onClose} fullWidth maxWidth="md">
+      <DialogTitle>{isEditMode ? "Cập Nhật Dự Án" : "Tạo Dự Án"}</DialogTitle>
       <DialogContent>
         <form
           onSubmit={handleSubmit}
@@ -165,10 +212,12 @@ const AddProjectModal = ({ onClose }) => {
                 onChange={(e) => setStatus(e.target.value)}
               >
                 <MenuItem value={STATUS_PROJECT.PROGRESSING}>
-                  Đang tiến hành
+                  Đang thực hiện
                 </MenuItem>
-                <MenuItem value={STATUS_PROJECT.DONE}>Hoàn thành</MenuItem>
-                <MenuItem value={STATUS_PROJECT.ARCHIVED}>Lưu trữ</MenuItem>
+                <MenuItem value={STATUS_PROJECT.DONE}>Chưa hoàn thành</MenuItem>
+                <MenuItem value={STATUS_PROJECT.ARCHIVED}>
+                  Đã hoàn thành
+                </MenuItem>
               </Select>
             </FormControl>
           </div>
@@ -216,9 +265,9 @@ const AddProjectModal = ({ onClose }) => {
                 <MenuItem value="" disabled>
                   Chọn độ ưu tiên
                 </MenuItem>
-                <MenuItem value={PRIORITY[0].value}>Low</MenuItem>
-                <MenuItem value={PRIORITY[1].value}>Medium</MenuItem>
-                <MenuItem value={PRIORITY[2].value}>High</MenuItem>
+                <MenuItem value={PRIORITY[0].value}>Thấp</MenuItem>
+                <MenuItem value={PRIORITY[1].value}>Trung bình</MenuItem>
+                <MenuItem value={PRIORITY[2].value}>Cao</MenuItem>
               </Select>
             </FormControl>
             <FormControl fullWidth>
@@ -280,11 +329,20 @@ const AddProjectModal = ({ onClose }) => {
               type="submit"
               color="primary"
               disabled={loading} // không cho click khi đang loading
-              startIcon={
-                loading && <CircularProgress size={20} color="inherit" />
-              }
+              // startIcon={
+              //   loading && <CircularProgress size={20} color="inherit" />
+              // }
             >
-              {loading ? "Đang thêm..." : "Thêm"}
+              {loading ? (
+                <>
+                  <CircularProgress size={20} color="inherit" />{" "}
+                  {isEditMode ? "Đang cập nhật..." : "Đang thêm..."}
+                </>
+              ) : isEditMode ? (
+                "Cập nhật"
+              ) : (
+                "Thêm"
+              )}
             </Button>
           </DialogActions>
         </form>
