@@ -133,6 +133,19 @@ export default function SignIn() {
                       {loading ? <CircularProgress size={24} /> : "Đăng Nhập"}
                     </Button>
                   </Box>
+                  <Typography
+                    className="forgot-password-link"
+                    onClick={() => navigate("/forgot-password")}
+                    sx={{
+                      textAlign: "center",
+                      marginTop: 2,
+                      color: "#1976d2",
+                      cursor: "pointer",
+                      textDecoration: "underline",
+                    }}
+                  >
+                    Quên mật khẩu?
+                  </Typography>
                 </Box>
               </Box>
               <FooterLogin />
