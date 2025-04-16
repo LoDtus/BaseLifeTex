@@ -13,7 +13,13 @@ export const postProjectId = async (projectId) => {
   const response = await axiosInstance.post(`/projects/${projectId}`);
   return response.data;
 };
-
+export const updateProjectById = async (projectId, projectData) => {
+  const response = await axiosInstance.put(
+    `/projects/${projectId}`,
+    projectData
+  );
+  return response.data;
+};
 export const getMembers = async (prjId) => {
   const response = await axiosInstance.get(`/projects/${prjId}/members`);
   return response.data.data;
