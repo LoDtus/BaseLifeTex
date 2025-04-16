@@ -20,6 +20,7 @@ const ProjectCard = ({ project, isSelected, avatarManger }) => {
   const userRole = useSelector((state) => state.auth.login.role);
   const [projectDetailModal, setProjectDetailModal] = useState(false);
   const [projectModal, setProjectModal] = useState(false);
+  const [editingProject, setEditingProject] = useState(null);
 
   useEffect(() => {
     console.log("Project Modal state:", projectModal);
@@ -175,15 +176,20 @@ const ProjectCard = ({ project, isSelected, avatarManger }) => {
         onClose={() => setProjectDetailModal(false)}
         onEdit={() => {
           // Chỗ này bạn có thể gọi một modal/form edit khác
+          setEditingProject(project?._id);
           setProjectDetailModal(false);
           setProjectModal(true);
         }}
       />
       <AddProjectModal
-        open={projectModal && projectModal !== null}
-        onClose={() => setProjectModal(false)}
-        projectData={project}
+        open={projectModal}
+        onClose={() => {
+          setProjectModal(false);
+          setEditingProject(null);
+        }}
+        projectData={editingProject}
         isUpdate={true}
+        project={project}
       />
     </>
   );

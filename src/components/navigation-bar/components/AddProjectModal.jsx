@@ -30,9 +30,8 @@ import { STATUS_PROJECT } from "../../../config/status";
 import { PRIORITY } from "../../../config/priority";
 import { toast } from "react-toastify";
 
-const AddProjectModal = ({ open, onClose, projectToEdit }) => {
+const AddProjectModal = ({ open, onClose, project }) => {
   const dispatch = useDispatch();
-  const isEditMode = Boolean(projectToEdit);
 
   const [name, setName] = useState("");
   const [code, setCode] = useState("");
@@ -59,30 +58,18 @@ const AddProjectModal = ({ open, onClose, projectToEdit }) => {
   // }, []);
 
   useEffect(() => {
-    if (isEditMode) {
-      const {
-        name,
-        code,
-        managerId,
-        description,
-        status,
-        members,
-        priority,
-        startDate,
-        endDate,
-      } = projectToEdit;
-
-      setName(name || "");
-      setCode(code || "");
-      setManagerId(managerId?._id || "");
-      setDescription(description || "");
-      setStatus(status?.toString() || "");
-      setMembers((members || []).map((m) => m._id));
-      setPriority(priority || "");
-      setStartDate(dayjs(startDate));
-      setEndDate(dayjs(endDate));
+    if (project) {
+      setName(project.name);
+      setCode(project.code);
+      setManagerId(project.managerId._id);
+      setDescription(project.description);
+      setStatus(project.status);
+      setMembers(project.members.map((member) => member._id));
+      setPriority(project.priority);
+      setStartDate(dayjs(project.startDate));
+      setEndDate(dayjs(project.endDate));
     }
-  }, [projectToEdit]);
+  }, [project]);
 
   const handleSubmit = async (event) => {
     if (!name)
@@ -157,22 +144,39 @@ const AddProjectModal = ({ open, onClose, projectToEdit }) => {
       startDate: dayjs(startDate).format("YYYY-MM-DD"),
       endDate: dayjs(endDate).format("YYYY-MM-DD"),
     };
+    const updateProjectData = {
+      name,
+      code,
+      managerId: managerId,
+      description,
+      status: parseInt(status),
+      members: members.map((memberId) => memberId),
+      priority,
+      startDate: dayjs(startDate).format("YYYY-MM-DD"),
+      endDate: dayjs(endDate).format("YYYY-MM-DD"),
+    };
     setLoading(true);
     try {
-      if (isEditMode) {
+      if (project?._id) {
         await dispatch(
-          updateProject({ id: projectToEdit._id, data: formData })
+          updateProject({
+            projectId: project._id,
+            projectData: updateProjectData,
+          })
         );
+        await dispatch(getListProjectByUser(users._id));
         toast.success("Cập nhật dự án thành công");
+        onClose();
       } else {
         await dispatch(createProject(formData));
+        await dispatch(getListProjectByUser(users._id));
         toast.success("Tạo dự án thành công");
       }
 
       await dispatch(getListProjectByUser(managerId));
       onClose();
     } catch (err) {
-      toast.error(isEditMode ? "Cập nhật thất bại" : "Tạo mới thất bại");
+      toast.error(project?._id ? "Cập nhật thất bại" : "Tạo mới thất bại");
       console.error(err);
     } finally {
       setLoading(false);
@@ -192,7 +196,7 @@ const AddProjectModal = ({ open, onClose, projectToEdit }) => {
 
   return (
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="md">
-      <DialogTitle>{isEditMode ? "Cập Nhật Dự Án" : "Tạo Dự Án"}</DialogTitle>
+      <DialogTitle>{project?._id ? "Cập Nhật Dự Án" : "Tạo Dự Án"}</DialogTitle>
       <DialogContent>
         <form
           onSubmit={handleSubmit}
@@ -439,9 +443,9 @@ const AddProjectModal = ({ open, onClose, projectToEdit }) => {
               {loading ? (
                 <>
                   <CircularProgress size={20} color="inherit" />{" "}
-                  {isEditMode ? "Đang cập nhật..." : "Đang thêm..."}
+                  {project?._id ? "Đang cập nhật..." : "Đang thêm..."}
                 </>
-              ) : isEditMode ? (
+              ) : project?._id ? (
                 "Cập nhật"
               ) : (
                 "Thêm"

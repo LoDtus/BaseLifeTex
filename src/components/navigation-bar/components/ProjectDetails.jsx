@@ -116,9 +116,13 @@ const ProjectDetailModal = ({ project, open, onClose, onEdit }) => {
           <div className="font-semibold text-3xl normal-case mt-3">
             {project.name}
           </div>
-          <div className="flex items-center text-1.5xl font-semibold mt-1">
+          <div className="flex items-center mt-1 font-semibold text-[1.3rem]">
+            Người phụ trách: {project.managerId?.userName}
+          </div>
+          <div className="flex items-center text-1xl font-semibold mt-2">
             Mã dự án: {project.code}
           </div>
+
           <div className="flex items-center text-[12px] text-dark-gray mt-1">
             <span>{dayjs(project.startDate).format("DD/MM/YYYY")}</span>
             <span className="mx-2">đến</span>
@@ -130,6 +134,8 @@ const ProjectDetailModal = ({ project, open, onClose, onEdit }) => {
                                               ? "bg-green"
                                               : deadline < 0
                                               ? "bg-red"
+                                              : deadline == 0
+                                              ? "bg-yellow"
                                               : ""
                                           }`}
             >
@@ -137,6 +143,8 @@ const ProjectDetailModal = ({ project, open, onClose, onEdit }) => {
                 ? `Còn ${Math.abs(deadline)} ngày`
                 : deadline < 0
                 ? `Quá hạn ${Math.abs(deadline)} ngày`
+                : deadline == 0
+                ? `bạn sắp hết hạn`
                 : ""}
             </span>
           </div>
