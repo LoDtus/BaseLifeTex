@@ -63,7 +63,7 @@ export const searchTasksInProject = createAsyncThunk(
       if (!keyword) {
         result = await getTaskByPagination(idProject, 1, limit);
       } else {
-        result = await searchTasks(keyword, idProject);
+        result = await searchTasks(keyword, idProject, limit, 1);
       }
 
       if (result.success) {

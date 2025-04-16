@@ -70,9 +70,9 @@ export const deleteTaskById = async (taskId) => {
     };
   }
 };
-export const searchTasks = async (searchQuery, projectId) => {
+export const searchTasks = async (searchQuery, projectId, limit, page) => {
   const response = await axiosInstance.get(
-    `/tasks/search/${projectId}?search=${searchQuery}`
+    `/tasks/search/${projectId}?search=${searchQuery}&limit=${limit}&page=${page}`
   );
   return response.data;
 };

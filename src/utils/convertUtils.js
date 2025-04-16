@@ -16,9 +16,9 @@ export function convertStatus(staus) {
     case 0:
       return "Đang thực hiện";
     case 1:
-      return "Hoàn thành";
+      return "Chưa hoàn thành";
     case 2:
-      return "Chưa thực hiện";
+      return "Hoàn thành";
     default:
       return "Chưa hoàn thành"; // Default to "Chưa hoàn thành"
   }
