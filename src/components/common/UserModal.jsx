@@ -4,12 +4,15 @@ import EditNoteIcon from "@mui/icons-material/EditNote";
 import SaveIcon from "@mui/icons-material/Save";
 import { ROLE_LABELS } from "../common/js/roles";
 import UserFormFields from "./UserFormFields";
-import { useDispatch, useSelector } from 'react-redux';
-import { updateUserInfo } from '../../services/authService'; // điều chỉnh path nếu cần
-import { toast } from 'react-toastify';
-import { isValidEmail, isValidPhone } from '../../utils/validationUtils';
+import { useDispatch, useSelector } from "react-redux";
+import { updateUserInfo } from "../../services/authService"; // điều chỉnh path nếu cần
+import { toast } from "react-toastify";
+import { isValidEmail, isValidPhone } from "../../utils/validationUtils";
 function UserModal({ user, onClose }) {
-  const [previewAvatar, setPreviewAvatar] = useState(user.avatar || "https://upload.wikimedia.org/wikipedia/commons/thumb/5/59/User-avatar.svg/2048px-User-avatar.svg.png");
+  const [previewAvatar, setPreviewAvatar] = useState(
+    user.avatar ||
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/5/59/User-avatar.svg/2048px-User-avatar.svg.png"
+  );
 
   const [isEditing, setIsEditing] = useState(false);
   const [editedUser, setEditedUser] = useState({
@@ -20,7 +23,9 @@ function UserModal({ user, onClose }) {
   const [phoneError, setPhoneError] = useState("");
 
   const dispatch = useDispatch();
-const accessToken = useSelector((state) => state.auth.login.currentUser?.data?.accessToken);
+  const accessToken = useSelector(
+    (state) => state.auth.login.currentUser?.data?.accessToken
+  );
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -34,6 +39,7 @@ const accessToken = useSelector((state) => state.auth.login.currentUser?.data?.a
       setPhoneError(isValidPhone(value) ? "" : "Số điện thoại không hợp lệ");
     }
   };
+  // console.log(editedUser);
 
   const handleAvatarChange = (e) => {
     const file = e.target.files[0];
@@ -41,8 +47,8 @@ const accessToken = useSelector((state) => state.auth.login.currentUser?.data?.a
       setEditedUser({ ...editedUser, avatar: file }); // Lưu file thật để gửi đi
       setPreviewAvatar(URL.createObjectURL(file)); // Hiển thị ảnh mới ngay
     }
-  };  
-  
+  };
+
   const handleSave = async () => {
     // Kiểm tra lại trước khi submit
     const isEmailValid = isValidEmail(editedUser.email);
@@ -59,11 +65,11 @@ const accessToken = useSelector((state) => state.auth.login.currentUser?.data?.a
     formData.append("userName", editedUser.userName);
     formData.append("email", editedUser.email);
     formData.append("phone", editedUser.phone);
-  
+
     if (editedUser.avatar instanceof File) {
       formData.append("avatar", editedUser.avatar);
     }
-  
+
     try {
       await dispatch(updateUserInfo({ data: formData, accessToken }));
       toast.success("Cập nhật thành công!");
@@ -73,8 +79,7 @@ const accessToken = useSelector((state) => state.auth.login.currentUser?.data?.a
       toast.error("Cập nhật thất bại.");
     }
   };
-  
-  
+
   return (
     <div className="fixed-user-card">
       <UserFormFields

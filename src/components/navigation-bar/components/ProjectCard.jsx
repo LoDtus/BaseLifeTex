@@ -29,10 +29,13 @@ const ProjectCard = ({ project, isSelected, avatarManger }) => {
     switch (convertStatus(project.status)) {
       case "Đang thực hiện":
         return styles.statusBtnInProgress;
-      case "Chưa hoàn thành":
-        return styles.statusBtnNotCompleted;
-      case "Đã Hoàn thành":
+
+      case "Hoàn thành":
         return styles.statusBtnCompleted;
+
+      case "Lưu trữ":
+        return styles.statusBtnNotCompleted;
+
       default:
         return styles.statusBtnNotCompleted; // Default to "Chưa hoàn thành"
     }

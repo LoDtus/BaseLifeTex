@@ -1,13 +1,17 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Popover, IconButton, Typography, Badge, Button } from "@mui/material";
 import NotificationsIcon from "@mui/icons-material/Notifications";
 import CloseIcon from "@mui/icons-material/Close";
 import DeleteIcon from "@mui/icons-material/Delete";
 import CircleIcon from "@mui/icons-material/Circle";
 import { useSelector } from "react-redux";
-import { getAllNotificationsByUser } from "../../services/notificationService";
-import io from "socket.io-client";
-const socket = io("http://localhost:5000");
+import {
+  deleteNotifi,
+  getAllNotificationsByUser,
+  updateIsRead,
+} from "../../services/notificationService";
+import { socket, joinRoom } from "../../config/socket.js";
+import { toast } from "react-toastify";
 const DISPLAY_LIMIT = 5;
 
 export default function NotificationPopup() {
@@ -19,25 +23,41 @@ export default function NotificationPopup() {
     (state) => state.auth.login.currentUser?.data?.user?._id
   );
 
-  const handleNotification = useCallback((message) => {
-    console.log("Nhận thông báo mới:", message);
-    setNotifications((prev) => [...prev, message]);
-  }, []);
-
   useEffect(() => {
     if (!userId) return;
-    socket.on("connect", () => {
-      console.log("Đã kết nối WebSocket:", socket.id);
-      // Tham gia phòng với userId
-      socket.emit("joinRoom", userId);
-    });
-    socket.on("notification", handleNotification);
 
+    // Lấy danh sách thông báo ban đầu
     (async () => {
       const { data } = await getAllNotificationsByUser(userId);
       setNotifications(data);
     })();
-  }, [userId, handleNotification]);
+
+    // Cleanup khi component unmount
+  }, [userId]);
+
+  useEffect(() => {
+    if (!userId) return;
+
+    // Kiểm tra kết nối socket
+    socket.on("connect", () => {
+      console.log("✅ WebSocket connected:", socket.id);
+      if (userId) {
+        socket.emit("joinRoom", userId);
+        console.log("User đã tham gia phòng:", userId);
+      }
+    });
+
+    // Lắng nghe sự kiện notification từ server
+    socket.on("notification", (message) => {
+      console.log("🔥 Nhận thông báo mới:", message);
+      toast.info(`Bạn có thông báo mới: ${message}`);
+    });
+
+    return () => {
+      socket.off("notification");
+    };
+  }, [userId]);
+
   // console.log(notifications);
 
   const handleOpen = (event) => {
@@ -63,19 +83,25 @@ export default function NotificationPopup() {
   const unreadCount = notifications.filter((n) => !n.isRead).length;
 
   // Đánh dấu là đã đọc khi người dùng click
-  const handleMarkAsRead = (id) => {
+  const handleMarkAsRead = async (id) => {
+    const { data } = await updateIsRead(id);
     setNotifications((prev) =>
-      prev.map((n) =>
-        n.id === id
-          ? {
-              ...n,
-              isRead: true,
-            }
-          : n
+      prev.map((noti) =>
+        noti._id === data._id ? { ...noti, isRead: true } : noti
       )
     );
   };
-
+  const handleDelete = async (id) => {
+    if (window.confirm("Bạn có chắc chắn muốn xoá ?")) {
+      try {
+        await deleteNotifi(id);
+        setNotifications((prev) => prev.filter((noti) => noti._id !== id));
+        toast.success("Bạn đã xoá thành công");
+      } catch (error) {
+        console.error("Lỗi khi xoá thông báo:", error);
+      }
+    }
+  };
   return (
     <div>
       {/* Icon chuông + số thông báo chưa đọc */}
@@ -150,7 +176,13 @@ export default function NotificationPopup() {
               {!noti.isRead ? (
                 <CircleIcon fontSize="8px" color="primary" />
               ) : (
-                <IconButton size="small">
+                <IconButton
+                  size="small"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleDelete(noti._id);
+                  }}
+                >
                   <DeleteIcon color="error" fontSize="small" />
                 </IconButton>
               )}

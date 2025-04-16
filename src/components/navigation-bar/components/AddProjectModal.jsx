@@ -36,12 +36,12 @@ const AddProjectModal = ({ open, onClose, projectToEdit }) => {
 
   const [name, setName] = useState("");
   const [code, setCode] = useState("");
-  const [managerId, setManagerId] = useState("67d23acb23793aac51e64dc5");
+  const [managerId, setManagerId] = useState("");
   const [description, setDescription] = useState("");
   const [status, setStatus] = useState("");
   const [members, setMembers] = useState([]);
   const [priority, setPriority] = useState("");
-
+  const [alert, setAlert] = useState([]);
   const [users, setUsers] = useState([]);
   const [startDate, setStartDate] = useState(dayjs());
   const [endDate, setEndDate] = useState(null);
@@ -85,6 +85,43 @@ const AddProjectModal = ({ open, onClose, projectToEdit }) => {
   }, [projectToEdit]);
 
   const handleSubmit = async (event) => {
+    if (!name)
+      setAlert((prev) => (prev.includes("NAME") ? prev : [...prev, "NAME"]));
+    else setAlert((prev) => prev.filter((item) => item !== "NAME"));
+    if (!code)
+      setAlert((prev) => (prev.includes("CODE") ? prev : [...prev, "CODE"]));
+    else setAlert((prev) => prev.filter((item) => item !== "CODE"));
+    if (!description)
+      setAlert((prev) =>
+        prev.includes("DESCRIPTION") ? prev : [...prev, "DESCRIPTION"]
+      );
+    else setAlert((prev) => prev.filter((item) => item !== "DESCRIPTION"));
+    if (!priority)
+      setAlert((prev) =>
+        prev.includes("priority") ? prev : [...prev, "priority"]
+      );
+    else setAlert((prev) => prev.filter((item) => item !== "priority"));
+    if (!status)
+      setAlert((prev) =>
+        prev.includes("status") ? prev : [...prev, "status"]
+      );
+    else setAlert((prev) => prev.filter((item) => item !== "status"));
+
+    if (members.length === 0)
+      setAlert((prev) =>
+        prev.includes("MEMBERS") ? prev : [...prev, "MEMBERS"]
+      );
+    else setAlert((prev) => prev.filter((item) => item !== "MEMBERS"));
+    if (!managerId)
+      setAlert((prev) =>
+        prev.includes("managerId") ? prev : [...prev, "managerId"]
+      );
+    else setAlert((prev) => prev.filter((item) => item !== "managerId"));
+
+    if (!startDate || !endDate)
+      setAlert((prev) => (prev.includes("DATE") ? prev : [...prev, "DATE"]));
+    else setAlert((prev) => prev.filter((item) => item !== "DATE"));
+
     event.preventDefault();
     if (
       name === "" ||
@@ -166,22 +203,28 @@ const AddProjectModal = ({ open, onClose, projectToEdit }) => {
             padding: "16px",
           }}
         >
+          <span className={alert.includes("NAME") ? "!text-red" : ""}>
+            Tên dự án <span className="!text-red">*</span>
+          </span>
           <TextField
-            label="Tên dự án"
             type="text"
             value={name}
             onChange={(e) => setName(e.target.value)}
             fullWidth
           />
+          <span className={alert.includes("CODE") ? "!text-red" : ""}>
+            Mã dự án <span className="!text-red">*</span>
+          </span>
           <TextField
-            label="Mã dự án"
             type="text"
             value={code}
             onChange={(e) => setCode(e.target.value)}
             fullWidth
           />
+          <span className={alert.includes("DESCRIPTION") ? "!text-red" : ""}>
+            Mô tả dự án <span className="!text-red">*</span>
+          </span>
           <TextField
-            label="Mô tả"
             type="text"
             fullWidth
             multiline
@@ -197,16 +240,39 @@ const AddProjectModal = ({ open, onClose, projectToEdit }) => {
             }}
           >
             <FormControl fullWidth>
-              <InputLabel>Người phụ trách</InputLabel>
+              <span
+                className={
+                  alert.includes("managerId")
+                    ? "!text-red mb-16-custom"
+                    : "mb-16-custom"
+                }
+              >
+                Người phụ trách <span className="!text-red">*</span>
+              </span>
               <Select
                 value={managerId}
                 onChange={(e) => setManagerId(e.target.value)}
               >
-                <MenuItem value="67d23acb23793aac51e64dc5">Quân già</MenuItem>
+                {/* <MenuItem value="67d23acb23793aac51e64dc5">Quân già</MenuItem> */}
+                {users
+                  .filter((i) => i.role === 0)
+                  .map((user) => (
+                    <MenuItem key={user._id} value={user._id}>
+                      {user.userName}
+                    </MenuItem>
+                  ))}
               </Select>
             </FormControl>
             <FormControl fullWidth>
-              <InputLabel>Trạng thái</InputLabel>
+              <span
+                className={
+                  alert.includes("status")
+                    ? "!text-red mb-16-custom"
+                    : "mb-16-custom"
+                }
+              >
+                Trạng thái <span className="!text-red">*</span>
+              </span>
               <Select
                 value={status}
                 onChange={(e) => setStatus(e.target.value)}
@@ -229,22 +295,44 @@ const AddProjectModal = ({ open, onClose, projectToEdit }) => {
                 gap: "16px",
               }}
             >
-              <DatePicker
-                label="Ngày bắt đầu"
-                value={startDate}
-                onChange={(newValue) => setStartDate(newValue)}
-                format="DD-MM-YYYY"
-                disablePast
-                slotProps={{ textField: { fullWidth: true } }}
-              />
-              <DatePicker
-                label="Ngày kết thúc"
-                value={endDate}
-                onChange={(newValue) => setEndDate(newValue)}
-                format="DD-MM-YYYY"
-                minDate={startDate}
-                slotProps={{ textField: { fullWidth: true } }}
-              />
+              <div>
+                <span
+                  className={
+                    alert.includes("DATE")
+                      ? "!text-red mb-16-custom"
+                      : "mb-16-custom"
+                  }
+                >
+                  Ngày bắt đầu <span className="!text-red">*</span>
+                </span>
+                <DatePicker
+                  value={startDate}
+                  onChange={(newValue) => setStartDate(newValue)}
+                  format="DD-MM-YYYY"
+                  disablePast
+                  slotProps={{ textField: { fullWidth: true } }}
+                  sx={{ marginTop: "16px" }}
+                />
+              </div>
+              <div>
+                <span
+                  className={
+                    alert.includes("DATE")
+                      ? "!text-red mb-16-custom"
+                      : "mb-16-custom"
+                  }
+                >
+                  Ngày kết thúc <span className="!text-red">*</span>
+                </span>
+                <DatePicker
+                  value={endDate}
+                  onChange={(newValue) => setEndDate(newValue)}
+                  format="DD-MM-YYYY"
+                  minDate={startDate}
+                  slotProps={{ textField: { fullWidth: true } }}
+                  sx={{ marginTop: "16px" }}
+                />
+              </div>
             </div>
           </LocalizationProvider>
           <div
@@ -255,7 +343,15 @@ const AddProjectModal = ({ open, onClose, projectToEdit }) => {
             }}
           >
             <FormControl fullWidth>
-              <InputLabel id="priority-label">Độ ưu tiên</InputLabel>
+              <span
+                className={
+                  alert.includes("priority")
+                    ? "!text-red mb-16-custom"
+                    : "mb-16-custom"
+                }
+              >
+                Độ ưu tiên <span className="!text-red">*</span>
+              </span>
               <Select
                 labelId="priority-label"
                 value={priority}
@@ -263,7 +359,7 @@ const AddProjectModal = ({ open, onClose, projectToEdit }) => {
                 defaultValue=""
               >
                 <MenuItem value="" disabled>
-                  Chọn độ ưu tiên
+                  Chọn độ ưu tiên <span className="!text-red">*</span>
                 </MenuItem>
                 <MenuItem value={PRIORITY[0].value}>Thấp</MenuItem>
                 <MenuItem value={PRIORITY[1].value}>Trung bình</MenuItem>
@@ -271,13 +367,20 @@ const AddProjectModal = ({ open, onClose, projectToEdit }) => {
               </Select>
             </FormControl>
             <FormControl fullWidth>
-              <InputLabel>Thành viên</InputLabel>
+              <span
+                className={
+                  alert.includes("MEMBERS")
+                    ? "!text-red mb-16-custom"
+                    : "mb-16-custom"
+                }
+              >
+                Thành viên <span className="!text-red">*</span>
+              </span>
               <Select
                 labelId="members-label"
                 id="members"
                 multiple
                 value={members}
-                label="Thành viên"
                 onChange={(e) => {
                   const { value } = e.target;
                   const isSelectAll = value.includes("all");
@@ -306,7 +409,7 @@ const AddProjectModal = ({ open, onClose, projectToEdit }) => {
                 }}
               >
                 <MenuItem value="" disabled>
-                  Chọn thành viên
+                  Chọn thành viên <span className="!text-red">*</span>
                 </MenuItem>
                 <MenuItem value="all">
                   <em>Tất cả</em>
