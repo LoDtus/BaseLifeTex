@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from "react";
+
 import { useDispatch } from "react-redux";
 import {
   createProject,
+  updateProject,
   getListProjectByUser,
 } from "../../../redux/projectSlice";
 import {
@@ -28,8 +30,9 @@ import { STATUS_PROJECT } from "../../../config/status";
 import { PRIORITY } from "../../../config/priority";
 import { toast } from "react-toastify";
 
-const AddProjectModal = ({ onClose }) => {
+const AddProjectModal = ({ open, onClose, project }) => {
   const dispatch = useDispatch();
+
   const [name, setName] = useState("");
   const [code, setCode] = useState("");
   const [managerId, setManagerId] = useState("");
@@ -42,6 +45,32 @@ const AddProjectModal = ({ onClose }) => {
   const [startDate, setStartDate] = useState(dayjs());
   const [endDate, setEndDate] = useState(null);
   const [loading, setLoading] = useState(false);
+
+  // useEffect(() => {
+  //   const fetchUsers = async () => {
+  //     const response = await getAllUsers();
+  //     if (response?.data) {
+  //       setUsers(response.data);
+  //     }
+  //   };
+
+  //   fetchUsers();
+  // }, []);
+
+  useEffect(() => {
+    if (project) {
+      setName(project.name);
+      setCode(project.code);
+      setManagerId(project.managerId._id);
+      setDescription(project.description);
+      setStatus(project.status);
+      setMembers(project.members.map((member) => member._id));
+      setPriority(project.priority);
+      setStartDate(dayjs(project.startDate));
+      setEndDate(dayjs(project.endDate));
+    }
+  }, [project]);
+
   const handleSubmit = async (event) => {
     if (!name)
       setAlert((prev) => (prev.includes("NAME") ? prev : [...prev, "NAME"]));
@@ -104,7 +133,7 @@ const AddProjectModal = ({ onClose }) => {
     }
     const formattedMembers = members.map((memberId) => ({ _id: memberId }));
 
-    const newProjectData = {
+    const formData = {
       name,
       code,
       managerId: { _id: managerId },
@@ -115,20 +144,42 @@ const AddProjectModal = ({ onClose }) => {
       startDate: dayjs(startDate).format("YYYY-MM-DD"),
       endDate: dayjs(endDate).format("YYYY-MM-DD"),
     };
+    const updateProjectData = {
+      name,
+      code,
+      managerId: managerId,
+      description,
+      status: parseInt(status),
+      members: members.map((memberId) => memberId),
+      priority,
+      startDate: dayjs(startDate).format("YYYY-MM-DD"),
+      endDate: dayjs(endDate).format("YYYY-MM-DD"),
+    };
     setLoading(true);
     try {
-      await dispatch(createProject(newProjectData));
-      // Gọi lại API để cập nhật danh sách dự án mới nhất
-      await dispatch(getListProjectByUser(users._id));
-      toast.success("Thêm dự án thành công");
+      if (project?._id) {
+        await dispatch(
+          updateProject({
+            projectId: project._id,
+            projectData: updateProjectData,
+          })
+        );
+        await dispatch(getListProjectByUser(users._id));
+        toast.success("Cập nhật dự án thành công");
+        onClose();
+      } else {
+        await dispatch(createProject(formData));
+        await dispatch(getListProjectByUser(users._id));
+        toast.success("Tạo dự án thành công");
+      }
+
+      await dispatch(getListProjectByUser(managerId));
       onClose();
-    } catch (error) {
-      toast.error("Thêm dự án thất bại !");
-      console.log(error);
+    } catch (err) {
+      toast.error(project?._id ? "Cập nhật thất bại" : "Tạo mới thất bại");
+      console.error(err);
     } finally {
-      setTimeout(() => {
-        setLoading(false); // Kết thúc loading
-      }, 3000);
+      setLoading(false);
     }
   };
 
@@ -144,8 +195,8 @@ const AddProjectModal = ({ onClose }) => {
   }, []);
 
   return (
-    <Dialog open onClose={onClose} fullWidth maxWidth="md">
-      <DialogTitle>Tạo Dự Án</DialogTitle>
+    <Dialog open={open} onClose={onClose} fullWidth maxWidth="md">
+      <DialogTitle>{project?._id ? "Cập Nhật Dự Án" : "Tạo Dự Án"}</DialogTitle>
       <DialogContent>
         <form
           onSubmit={handleSubmit}
@@ -231,11 +282,11 @@ const AddProjectModal = ({ onClose }) => {
                 onChange={(e) => setStatus(e.target.value)}
               >
                 <MenuItem value={STATUS_PROJECT.PROGRESSING}>
-                  Đang tiến hành
+                  Đang thực hiện
                 </MenuItem>
-                <MenuItem value={STATUS_PROJECT.DONE}>Hoàn thành</MenuItem>
+                <MenuItem value={STATUS_PROJECT.DONE}>Chưa hoàn thành</MenuItem>
                 <MenuItem value={STATUS_PROJECT.ARCHIVED}>
-                  Chưa thực hiện
+                  Đã hoàn thành
                 </MenuItem>
               </Select>
             </FormControl>
@@ -314,9 +365,9 @@ const AddProjectModal = ({ onClose }) => {
                 <MenuItem value="" disabled>
                   Chọn độ ưu tiên <span className="!text-red">*</span>
                 </MenuItem>
-                <MenuItem value={PRIORITY[0].value}>Low</MenuItem>
-                <MenuItem value={PRIORITY[1].value}>Medium</MenuItem>
-                <MenuItem value={PRIORITY[2].value}>High</MenuItem>
+                <MenuItem value={PRIORITY[0].value}>Thấp</MenuItem>
+                <MenuItem value={PRIORITY[1].value}>Trung bình</MenuItem>
+                <MenuItem value={PRIORITY[2].value}>Cao</MenuItem>
               </Select>
             </FormControl>
             <FormControl fullWidth>
@@ -385,11 +436,20 @@ const AddProjectModal = ({ onClose }) => {
               type="submit"
               color="primary"
               disabled={loading} // không cho click khi đang loading
-              startIcon={
-                loading && <CircularProgress size={20} color="inherit" />
-              }
+              // startIcon={
+              //   loading && <CircularProgress size={20} color="inherit" />
+              // }
             >
-              {loading ? "Đang thêm..." : "Thêm"}
+              {loading ? (
+                <>
+                  <CircularProgress size={20} color="inherit" />{" "}
+                  {project?._id ? "Đang cập nhật..." : "Đang thêm..."}
+                </>
+              ) : project?._id ? (
+                "Cập nhật"
+              ) : (
+                "Thêm"
+              )}
             </Button>
           </DialogActions>
         </form>

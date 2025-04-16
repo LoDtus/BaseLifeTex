@@ -10,161 +10,169 @@ import ProjectLogModal from "./ProjectLogModal";
 import { ROLES } from "../common/js/roles"; // Đường dẫn đúng với vị trí file roles.js của bạn
 
 export default function NavigationBar({ searchTerm }) {
-    const lstProject = useSelector((state) => state.project.listProject);
-    const selectedProjectId = useSelector((state) => state.project.selectedProjectId);
-    const [loading, setLoading] = useState(true); // State for loading
-    const [isAddProjectModalOpen, setIsAddProjectModalOpen] = useState(false);
-    const navigate = useNavigate();
-    const dispatch = useDispatch();
-    const userRole = useSelector((state) => state.auth.login.role);
+  const lstProject = useSelector((state) => state.project.listProject);
+  const selectedProjectId = useSelector(
+    (state) => state.project.selectedProjectId
+  );
+  const [loading, setLoading] = useState(true); // State for loading
+  const [isAddProjectModalOpen, setIsAddProjectModalOpen] = useState(false);
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const userRole = useSelector((state) => state.auth.login.role);
 
-    const fetchProjects = async () => {
-        setLoading(true);
-        try {
-            dispatch(getListProjectByUser());
-        } finally {
-            setLoading(false);
-        }
-    };
+  const fetchProjects = async () => {
+    setLoading(true);
+    try {
+      dispatch(getListProjectByUser());
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    const handleProjectClick = (projectId) => {
-        dispatch(setSelectedProject(projectId));
-        const currentUrl = new URL(window.location.href);
-        currentUrl.searchParams.set("idProject", projectId); // Add or update idProject in URL
-        navigate(`${currentUrl.pathname}${currentUrl.search}`); // Navigate to the updated URL
-    };
+  const handleProjectClick = (projectId) => {
+    dispatch(setSelectedProject(projectId));
+    const currentUrl = new URL(window.location.href);
+    currentUrl.searchParams.set("idProject", projectId); // Add or update idProject in URL
+    navigate(`${currentUrl.pathname}${currentUrl.search}`); // Navigate to the updated URL
+  };
 
-    const handleAddProjectClick = () => {
-        setIsAddProjectModalOpen(true); // Mở modal khi nút được click
-    };
+  const handleAddProjectClick = () => {
+    setIsAddProjectModalOpen(true); // Mở modal khi nút được click
+  };
 
-    const handleCloseAddProjectModal = () => {
-        setIsAddProjectModalOpen(false); // Đóng modal
-    };
+  const handleCloseAddProjectModal = () => {
+    setIsAddProjectModalOpen(false); // Đóng modal
+  };
 
-    useEffect(() => {
-        fetchProjects();
-    }, []);
+  useEffect(() => {
+    fetchProjects();
+  }, []);
 
-    useEffect(() => {
-        if (lstProject.length > 0) {
-            const firstProjectId = lstProject[0]._id;
-            dispatch(setSelectedProject(firstProjectId));
-            const currentUrl = new URL(window.location.href);
-            currentUrl.searchParams.set("idProject", firstProjectId);
-            navigate(`${currentUrl.pathname}${currentUrl.search}`);
-        }
-    }, [lstProject, dispatch, navigate]);
+  useEffect(() => {
+    if (lstProject.length > 0) {
+      const firstProjectId = lstProject[0]._id;
+      dispatch(setSelectedProject(firstProjectId));
+      const currentUrl = new URL(window.location.href);
+      currentUrl.searchParams.set("idProject", firstProjectId);
+      navigate(`${currentUrl.pathname}${currentUrl.search}`);
+    }
+  }, [lstProject, dispatch, navigate]);
 
-    useEffect(() => {
-        if (lstProject.length > 0) {
-            const firstProjectId = lstProject[0]._id;
-            dispatch(setSelectedProject(firstProjectId));
-            const currentUrl = new URL(window.location.href);
-            currentUrl.searchParams.set("idProject", firstProjectId);
-            navigate(`${currentUrl.pathname}${currentUrl.search}`);
-        }
-    }, [lstProject, dispatch, navigate]);
+  useEffect(() => {
+    if (lstProject.length > 0) {
+      const firstProjectId = lstProject[0]._id;
+      dispatch(setSelectedProject(firstProjectId));
+      const currentUrl = new URL(window.location.href);
+      currentUrl.searchParams.set("idProject", firstProjectId);
+      navigate(`${currentUrl.pathname}${currentUrl.search}`);
+    }
+  }, [lstProject, dispatch, navigate]);
 
-    const removeAccents = (str) => {
-        return str
-            ? str
-                .normalize("NFD")
-                .replace(/[\u0300-\u036f]/g, "")
-                .toLowerCase()
-            : "";
-    };
+  const removeAccents = (str) => {
+    return str
+      ? str
+          .normalize("NFD")
+          .replace(/[\u0300-\u036f]/g, "")
+          .toLowerCase()
+      : "";
+  };
 
-    const filteredProjects = lstProject?.filter((project) => {
-        const projectName = removeAccents(project?.name);
-        const searchKeyword = removeAccents(searchTerm);
+  const filteredProjects = lstProject?.filter((project) => {
+    const projectName = removeAccents(project?.name);
+    const searchKeyword = removeAccents(searchTerm);
 
-        // Nếu không có từ khóa tìm kiếm, hiển thị tất cả dự án
-        return searchKeyword ? projectName.includes(searchKeyword) : true;
-    });
+    // Nếu không có từ khóa tìm kiếm, hiển thị tất cả dự án
+    return searchKeyword ? projectName.includes(searchKeyword) : true;
+  });
 
-    const [isLogModalOpen, setIsLogModalOpen] = useState(false);
-const dummyLogs = [
-  { date: "18/03/2025", message: "Xây dựng quản lí lifetex" },
-];
+  const [isLogModalOpen, setIsLogModalOpen] = useState(false);
+  const dummyLogs = [
+    { date: "18/03/2025", message: "Xây dựng quản lí lifetex" },
+  ];
 
-const handleOpenLogModal = () => {
+  const handleOpenLogModal = () => {
     setIsLogModalOpen(true);
-};
-const handleCloseLogModal = () => {
+  };
+  const handleCloseLogModal = () => {
     setIsLogModalOpen(false);
-};
+  };
 
-
-    return (
-        <div className='p-2'>
-            <div className='w-full flex flex-col items-center flex-none'>
-                <div className='flex items-center mb-2'>
-                    <span className="font-semibold text-xl">CÁC DỰ ÁN</span>
-                    <span className='w-[20px] h-[20px] !ml-1 aspect-square rounded-full text-white font-semibold p-1 text-[12px] bg-red flex justify-center items-center'>
-                        {filteredProjects.length}
-                    </span>
-                </div>
-                {userRole === ROLES.PM && (
-    <div className="my-2">
-        <span
-            className="text-black-600 text-sm font-medium cursor-pointer"
-            onClick={() => setIsLogModalOpen(true)}
-        >
-            📘 Nhật kí dự án
-        </span>
-    </div>
-)}
-                { userRole === 0 && <button className="w-full mb-1 border-1 !border-dashed border-gray !rounded-md flex justify-center items-center py-2 px-3
+  return (
+    <div className="p-2">
+      <div className="w-full flex flex-col items-center flex-none">
+        <div className="flex items-center mb-2">
+          <span className="font-semibold text-xl">CÁC DỰ ÁN</span>
+          <span className="w-[20px] h-[20px] !ml-1 aspect-square rounded-full text-white font-semibold p-1 text-[12px] bg-red flex justify-center items-center">
+            {filteredProjects.length}
+          </span>
+        </div>
+        {userRole === ROLES.PM && (
+          <div className="my-2">
+            <span
+              className="text-black-600 text-sm font-medium cursor-pointer"
+              onClick={() => setIsLogModalOpen(true)}
+            >
+              📘 Nhật kí dự án
+            </span>
+          </div>
+        )}
+        {userRole === 0 && (
+          <button
+            className="w-full mb-1 border-1 !border-dashed border-gray !rounded-md flex justify-center items-center py-2 px-3
                     text-dark-gray font-semibold
                     cursor-pointer duration-200 hover:shadow-md hover:border-black hover:text-black active:scale-90"
-                    onClick={handleAddProjectClick}
-                >
-                    Thêm dự án mới
-                </button>}
+            onClick={handleAddProjectClick}
+          >
+            Thêm dự án mới
+          </button>
+        )}
+      </div>
+      <div
+        className={`${styles.bodyNavbar} overflow-y-auto max-h-[calc(100vh-100px)] pr-1`}
+      >
+        {loading ? (
+          <Loading />
+        ) : filteredProjects.length > 0 ? (
+          filteredProjects.map((project, index) => (
+            <div
+              key={index}
+              onClick={() => handleProjectClick(project._id)}
+              style={{ cursor: "pointer" }}
+            >
+              <ProjectCard
+                project={project}
+                isSelected={selectedProjectId === project._id}
+              />
             </div>
-            <div className={`${styles.bodyNavbar} overflow-y-auto max-h-[calc(100vh-100px)] pr-1`}>
-                {loading
-                    ? (
-                        <Loading />
-                    ) : filteredProjects.length > 0 ? (
-                        filteredProjects.map((project, index) => (
-                            <div
-                                key={index}
-                                onClick={() => handleProjectClick(project._id)}
-                                style={{ cursor: "pointer" }}
-                            >
-                                <ProjectCard
-                                    project={project}
-                                    isSelected={selectedProjectId === project._id}
-                                />
-                            </div>
-                        ))
-                    ) : (
-                        <div
-                            style={{
-                                display: "flex",
-                                justifyContent: "center",
-                                height: "50px",
-                                borderTop: "1px solid black",
-                                paddingTop: "12px",
-                            }}
-                        >
-                            <p style={{ color: "black" }}>Bạn chưa thuộc dự án nào</p>
-                        </div>
-                    )}
-                </div>
-            {isAddProjectModalOpen && (
-                <AddProjectModal onClose={handleCloseAddProjectModal} />
-            )}
-            {isLogModalOpen && (
-    <ProjectLogModal
-    open={isLogModalOpen}
-    onClose={() => setIsLogModalOpen(false)}
-    logs={dummyLogs}
-/>
-)}
-
-        </div>
-    );
-};
+          ))
+        ) : (
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "center",
+              height: "50px",
+              borderTop: "1px solid black",
+              paddingTop: "12px",
+            }}
+          >
+            <p style={{ color: "black" }}>Bạn chưa thuộc dự án nào</p>
+          </div>
+        )}
+      </div>
+      {isAddProjectModalOpen && (
+        <AddProjectModal
+          open={isAddProjectModalOpen}
+          onClose={handleCloseAddProjectModal}
+        />
+      )}
+      {isLogModalOpen && (
+        <ProjectLogModal
+          open={isLogModalOpen}
+          onClose={() => setIsLogModalOpen(false)}
+          //   onClose={handleCloseLogModal}
+          logs={dummyLogs}
+        />
+      )}
+    </div>
+  );
+}
