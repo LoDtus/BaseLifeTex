@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useCallback } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { useSearchParams } from "react-router-dom";
@@ -37,17 +36,16 @@ export default function ListHome({ selectedTasks = [], setSelectedTasks }) {
   const debouncedGetList = useCallback(async () => {
     setLoading(true);
 
-
     const response = await getMembers(idProject);
     response.map((e) => {
-  setAvatar((prev) => [
-    ...prev,
-    {
-      id: e._id,
-      avatar: e.avatar?.trim() ? e.avatar : DEFAULT_AVATAR,
-    },
-  ]);
-});
+      setAvatar((prev) => [
+        ...prev,
+        {
+          id: e._id,
+          avatar: e.avatar?.trim() ? e.avatar : DEFAULT_AVATAR,
+        },
+      ]);
+    });
 
     try {
       await dispatch(
@@ -158,7 +156,7 @@ export default function ListHome({ selectedTasks = [], setSelectedTasks }) {
     setSelectedTasks(updatedSelection);
   };
 
- // ✅ Chọn tất cả
+  // ✅ Chọn tất cả
   const handleCheckAll = () => {
     if (isCheckAll) {
       setSelectedTasks([]);
@@ -246,7 +244,9 @@ export default function ListHome({ selectedTasks = [], setSelectedTasks }) {
                 <div className="basis-[30%] line-clamp-2">{task.title}</div>
                 <div className="basis-[10%] flex">
                   {task.assigneeId?.slice(0, 2).map((member) => {
-                    let srcImg = avatar.find((e) => e.id === member._id)?.avatar || DEFAULT_AVATAR;
+                    let srcImg =
+                      avatar.find((e) => e.id === member._id)?.avatar ||
+                      DEFAULT_AVATAR;
                     return (
                       <img
                         className="w-[25px] h-[25px] aspect-square rounded-full !mr-[2px]"

@@ -33,8 +33,9 @@ const ProjectCard = ({ project, isSelected, avatarManger }) => {
 
       case "Hoàn thành":
         return styles.statusBtnCompleted;
+      // statusBtnNotCompleted;
 
-      case "Lưu trữ":
+      case "Chưa hoàn thành":
         return styles.statusBtnNotCompleted;
 
       default:
