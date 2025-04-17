@@ -196,9 +196,7 @@ const AddProjectModal = ({ open, onClose, project }) => {
     fetchUsers();
   }, []);
   const [searchKeyword, setSearchKeyword] = useState("");
-  console.log(searchKeyword);
   const [searchManagerKeyword, setSearchManagerKeyword] = useState("");
-  console.log(searchManagerKeyword);
   const removeVietnameseTones = (str) => {
     return str
       .normalize("NFD")
