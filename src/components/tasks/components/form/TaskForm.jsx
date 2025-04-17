@@ -182,7 +182,8 @@ export default function TaskForm() {
               assignee.length > 0 && assignee.length < filteredMemberList.length
             }
             onChange={(e) => {
-              const isAllSelected = assignee.length === filteredMemberList.length;
+              const isAllSelected =
+                assignee.length === filteredMemberList.length;
               const newAssignee = isAllSelected
                 ? []
                 : filteredMemberList.map((m) => m._id);
@@ -265,9 +266,9 @@ export default function TaskForm() {
         );
       else setAlert((prev) => prev.filter((item) => item !== "TASK_NAME"));
 
-      if (!link)
-        setAlert((prev) => (prev.includes("LINK") ? prev : [...prev, "LINK"]));
-      else setAlert((prev) => prev.filter((item) => item !== "LINK"));
+      // if (!link)
+      //   setAlert((prev) => (prev.includes("LINK") ? prev : [...prev, "LINK"]));
+      // else setAlert((prev) => prev.filter((item) => item !== "LINK"));
 
       // if (!link.includes("http"))
       //   setAlert((prev) =>
@@ -297,7 +298,7 @@ export default function TaskForm() {
 
       if (
         !taskName ||
-        !link ||
+        // !link ||
         // !link.includes("http") ||
         !description ||
         assignee.length === 0 ||
