@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 
 import { useDispatch } from "react-redux";
 import {
@@ -199,6 +199,41 @@ const AddProjectModal = ({ open, onClose, project }) => {
   console.log(searchKeyword);
   const [searchManagerKeyword, setSearchManagerKeyword] = useState("");
   console.log(searchManagerKeyword);
+  const removeVietnameseTones = (str) => {
+    return str
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/đ/g, "d")
+      .replace(/Đ/g, "D")
+      .toLowerCase();
+  };
+  const filteredManagers = useMemo(() => {
+    return users.filter(
+      (user) =>
+        user.role === 0 &&
+        removeVietnameseTones(user.userName).includes(
+          removeVietnameseTones(searchManagerKeyword)
+        )
+    );
+  }, [users, searchManagerKeyword]);
+
+  const filteredMembers = useMemo(() => {
+    return users.filter((user) =>
+      removeVietnameseTones(user.userName).includes(
+        removeVietnameseTones(searchKeyword)
+      )
+    );
+  }, [users, searchKeyword]);
+  const menuProps = {
+    PaperProps: {
+      style: {
+        maxHeight: 300,
+      },
+    },
+    MenuProps: {
+      disableAutoFocusItem: true,
+    },
+  };
 
   return (
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="md">
@@ -260,10 +295,9 @@ const AddProjectModal = ({ open, onClose, project }) => {
                 Người phụ trách <span className="!text-red">*</span>
               </span>
               <Select
+                {...menuProps}
                 value={managerId}
-                onChange={(e) => {
-                  setManagerId(e.target.value);
-                }}                
+                onChange={(e) => setManagerId(e.target.value)}
                 renderValue={(selected) => {
                   const selectedUser = users.find((u) => u._id === selected);
                   return selectedUser ? selectedUser.userName : "";
@@ -273,26 +307,18 @@ const AddProjectModal = ({ open, onClose, project }) => {
                   <Input
                     placeholder="Tìm người phụ trách..."
                     size="small"
-                    allowClear
                     value={searchManagerKeyword}
-                    onKeyDown={(e) => e.stopPropagation()}
                     onChange={(e) => setSearchManagerKeyword(e.target.value)}
                     onClick={(e) => e.stopPropagation()}
+                    onMouseDown={(e) => e.stopPropagation()}
+                    onKeyDown={(e) => e.stopPropagation()}
                   />
                 </ListSubheader>
-                {users
-                  .filter(
-                    (user) =>
-                      user.role === 0 &&
-                      user.userName
-                        .toLowerCase()
-                        .includes(searchManagerKeyword.toLowerCase())
-                  )
-                  .map((user) => (
-                    <MenuItem key={user._id} value={user._id}>
-                      {user.userName}
-                    </MenuItem>
-                  ))}
+                {filteredManagers.map((user) => (
+                  <MenuItem key={user._id} value={user._id}>
+                    {user.userName}
+                  </MenuItem>
+                ))}
               </Select>
             </FormControl>
 
@@ -410,23 +436,14 @@ const AddProjectModal = ({ open, onClose, project }) => {
                 Thành viên <span className="!text-red">*</span>
               </span>
               <Select
-                labelId="members-label"
-                id="members"
+                {...menuProps}
                 multiple
                 value={members}
                 onChange={(e) => {
                   const { value } = e.target;
                   const isSelectAll = value.includes("all");
-                  const filteredUsers = users.filter((user) =>
-                    user.userName
-                      .toLowerCase()
-                      .includes(searchKeyword.toLowerCase())
-                  );
-                  const allUserIds = filteredUsers.map((user) => user._id);
-
+                  const allUserIds = filteredMembers.map((user) => user._id);
                   if (isSelectAll) {
-                    // Nếu đã chọn hết rồi => Bỏ chọn tất cả
-                    // Nếu chưa chọn hết => Chọn tất cả
                     const isAllSelected = members.length === allUserIds.length;
                     setMembers(isAllSelected ? [] : allUserIds);
                   } else {
@@ -446,34 +463,25 @@ const AddProjectModal = ({ open, onClose, project }) => {
                     .join(", ");
                 }}
               >
-                <MenuItem value="" disabled>
-                  Chọn thành viên <span className="!text-red">*</span>
-                </MenuItem>
                 <ListSubheader>
                   <Input
                     placeholder="Tìm thành viên..."
                     size="small"
-                    allowClear
                     value={searchKeyword}
-                    onKeyDown={(e) => e.stopPropagation()}
                     onChange={(e) => setSearchKeyword(e.target.value)}
-                    onClick={(e) => e.stopPropagation()} // Ngăn đóng dropdown khi click vào
+                    onClick={(e) => e.stopPropagation()}
+                    onMouseDown={(e) => e.stopPropagation()}
+                    onKeyDown={(e) => e.stopPropagation()}
                   />
                 </ListSubheader>
                 <MenuItem value="all">
                   <em>Tất cả</em>
                 </MenuItem>
-                {users
-                  .filter((user) =>
-                    user.userName
-                      .toLowerCase()
-                      .includes(searchKeyword.toLowerCase())
-                  )
-                  .map((user) => (
-                    <MenuItem key={user._id} value={user._id}>
-                      {user.userName}
-                    </MenuItem>
-                  ))}
+                {filteredMembers.map((user) => (
+                  <MenuItem key={user._id} value={user._id}>
+                    {user.userName}
+                  </MenuItem>
+                ))}
               </Select>
             </FormControl>
           </div>
