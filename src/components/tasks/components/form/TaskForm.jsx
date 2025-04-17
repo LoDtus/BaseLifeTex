@@ -6,6 +6,7 @@ import {
   Checkbox,
   Modal,
   message,
+  Upload,
 } from "antd";
 import { DeleteOutlined } from "@ant-design/icons";
 import dayjs from "dayjs";
@@ -702,6 +703,17 @@ export default function TaskForm() {
                 : "hidden"
             }
           >
+            {/* <Upload
+              showUploadList={false}
+              accept="image/*"
+              beforeUpload={(file) => {
+                setImg(URL.createObjectURL(file));
+                setImgAdd(file);
+                return false; // Ngăn Ant Design upload tự động
+              }}
+            >
+              <Button id="form-upload">Chọn ảnh</Button>
+            </Upload> */}
             {img && (
               <div className="relative">
                 <img
