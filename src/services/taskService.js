@@ -110,7 +110,9 @@ export const addTask = async (data) => {
 
 export const updateTask = async (id, data) => {
   const formData = new FormData();
-  data.image && formData.append("image", data.image);
+  data.image
+    ? formData.append("image", data.image)
+    : formData.append("image", "");
   formData.append("assigneeId", data.assigneeId);
   formData.append("title", data.title);
   formData.append("link", data.link);
