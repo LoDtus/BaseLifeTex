@@ -40,8 +40,7 @@ export default function KanbanColumn({
 
   return (
     <div
-      ref={setNodeRef}
-      className={`h-full !ml-1  p-2 border border-gray-border rounded-md bg-[#f4f5f7] overflow-y-auto overflow-x-hidden
+      className={`h-full !ml-1 pd-2-custom border border-gray-border rounded-md bg-[#f4f5f7] overflow-y-auto overflow-x-hidden
                 ${isOver ? "kanban-column-over" : ""}`}
       style={{
         height: "calc(100vh - 150px)",
@@ -50,25 +49,27 @@ export default function KanbanColumn({
         overflowX: "hidden",
         scrollbarWidth: "none", // Firefox
         msOverflowStyle: "none", // IE/Edge
+        position: "relative",
       }}
     >
-      <h3 className="flex items-center mb-2">
-        <span className="font-semibold !text-sm">{column.title}</span>
-        <div className="text-[10px] font-semibold py-[2px] bg-[#dbddde] px-1 rounded-full !ml-1">
-          <span>{column.tasks.length}</span>
-        </div>
-      </h3>
-
-      {user.role === 0 && (
-        <button
-          className="w-full py-1 px-2 bg-white text-dark-gray border border-dashed border-gray-border rounded-md
-                    cursor-pointer duration-200 hover:text-black hover:border-black active:scale-90"
-          onClick={() => dispatch(setTaskForm("ADD"))}
-        >
-          Thêm công việc
-        </button>
-      )}
-      <div>
+      <div className="fixed z-10 bg-[#f4f5f7] custom-fixed">
+        <h3 className="flex items-center mb-2 mt-2">
+          <span className="font-semibold !text-sm">{column.title}</span>
+          <div className="text-[10px] font-semibold py-[2px] bg-[#dbddde] px-1 rounded-full !ml-1">
+            <span>{column.tasks.length === 0 ? "" : column.tasks.length}</span>
+          </div>
+        </h3>
+        {user.role === 0 && (
+          <button
+            className="w-full py-1 px-2 bg-white text-dark-gray border border-dashed border-gray-border rounded-md
+                    cursor-pointer duration-200 hover:text-black hover:border-black active:scale-90 mb-2"
+            onClick={() => dispatch(setTaskForm("ADD"))}
+          >
+            Thêm công việc
+          </button>
+        )}
+      </div>
+      <div ref={setNodeRef} className="items-custom">
         <SortableContext
           id={columnId}
           items={sortedTasks.map((task) => task.id)}

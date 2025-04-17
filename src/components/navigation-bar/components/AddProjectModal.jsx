@@ -19,6 +19,7 @@ import {
   FormControl,
   Backdrop,
   CircularProgress,
+  ListSubheader,
 } from "@mui/material";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
@@ -29,6 +30,7 @@ import { getAllUsers } from "../../../services/userService";
 import { STATUS_PROJECT } from "../../../config/status";
 import { PRIORITY } from "../../../config/priority";
 import { toast } from "react-toastify";
+import { Input } from "antd";
 
 const AddProjectModal = ({ open, onClose, project }) => {
   const dispatch = useDispatch();
@@ -193,6 +195,10 @@ const AddProjectModal = ({ open, onClose, project }) => {
 
     fetchUsers();
   }, []);
+  const [searchKeyword, setSearchKeyword] = useState("");
+  console.log(searchKeyword);
+  const [searchManagerKeyword, setSearchManagerKeyword] = useState("");
+  console.log(searchManagerKeyword);
 
   return (
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="md">
@@ -255,11 +261,33 @@ const AddProjectModal = ({ open, onClose, project }) => {
               </span>
               <Select
                 value={managerId}
-                onChange={(e) => setManagerId(e.target.value)}
+                onChange={(e) => {
+                  setManagerId(e.target.value);
+                }}                
+                renderValue={(selected) => {
+                  const selectedUser = users.find((u) => u._id === selected);
+                  return selectedUser ? selectedUser.userName : "";
+                }}
               >
-                {/* <MenuItem value="67d23acb23793aac51e64dc5">Quân già</MenuItem> */}
+                <ListSubheader>
+                  <Input
+                    placeholder="Tìm người phụ trách..."
+                    size="small"
+                    allowClear
+                    value={searchManagerKeyword}
+                    onKeyDown={(e) => e.stopPropagation()}
+                    onChange={(e) => setSearchManagerKeyword(e.target.value)}
+                    onClick={(e) => e.stopPropagation()}
+                  />
+                </ListSubheader>
                 {users
-                  .filter((i) => i.role === 0)
+                  .filter(
+                    (user) =>
+                      user.role === 0 &&
+                      user.userName
+                        .toLowerCase()
+                        .includes(searchManagerKeyword.toLowerCase())
+                  )
                   .map((user) => (
                     <MenuItem key={user._id} value={user._id}>
                       {user.userName}
@@ -267,6 +295,7 @@ const AddProjectModal = ({ open, onClose, project }) => {
                   ))}
               </Select>
             </FormControl>
+
             <FormControl fullWidth>
               <span
                 className={
@@ -388,7 +417,12 @@ const AddProjectModal = ({ open, onClose, project }) => {
                 onChange={(e) => {
                   const { value } = e.target;
                   const isSelectAll = value.includes("all");
-                  const allUserIds = users.map((user) => user._id);
+                  const filteredUsers = users.filter((user) =>
+                    user.userName
+                      .toLowerCase()
+                      .includes(searchKeyword.toLowerCase())
+                  );
+                  const allUserIds = filteredUsers.map((user) => user._id);
 
                   if (isSelectAll) {
                     // Nếu đã chọn hết rồi => Bỏ chọn tất cả
@@ -415,14 +449,31 @@ const AddProjectModal = ({ open, onClose, project }) => {
                 <MenuItem value="" disabled>
                   Chọn thành viên <span className="!text-red">*</span>
                 </MenuItem>
+                <ListSubheader>
+                  <Input
+                    placeholder="Tìm thành viên..."
+                    size="small"
+                    allowClear
+                    value={searchKeyword}
+                    onKeyDown={(e) => e.stopPropagation()}
+                    onChange={(e) => setSearchKeyword(e.target.value)}
+                    onClick={(e) => e.stopPropagation()} // Ngăn đóng dropdown khi click vào
+                  />
+                </ListSubheader>
                 <MenuItem value="all">
                   <em>Tất cả</em>
                 </MenuItem>
-                {users.map((user) => (
-                  <MenuItem key={user._id} value={user._id}>
-                    {user.userName}
-                  </MenuItem>
-                ))}
+                {users
+                  .filter((user) =>
+                    user.userName
+                      .toLowerCase()
+                      .includes(searchKeyword.toLowerCase())
+                  )
+                  .map((user) => (
+                    <MenuItem key={user._id} value={user._id}>
+                      {user.userName}
+                    </MenuItem>
+                  ))}
               </Select>
             </FormControl>
           </div>

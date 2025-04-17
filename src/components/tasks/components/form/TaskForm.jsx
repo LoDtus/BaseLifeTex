@@ -113,6 +113,12 @@ export default function TaskForm() {
       setAssignee((prev) => prev.filter((id) => id !== memberId));
     }
   }
+  const [searchKeyword, setSearchKeyword] = useState("");
+  const filteredMemberList = memberList.filter(
+    (member) =>
+      member.userName.toLowerCase().includes(searchKeyword.toLowerCase()) ||
+      member.email.toLowerCase().includes(searchKeyword.toLowerCase())
+  );
 
   const asigneeList = [
     {
@@ -134,43 +140,64 @@ export default function TaskForm() {
       ),
     },
     {
+      key: "search",
+      label: (
+        <Input
+          placeholder="Tìm thành viên..."
+          size="small"
+          allowClear
+          value={searchKeyword}
+          onChange={(e) => setSearchKeyword(e.target.value)}
+          onClick={(e) => e.stopPropagation()} // tránh đóng dropdown khi click vào input
+        />
+      ),
+      disabled: true, // để không bị chọn
+    },
+    {
+      key: "divider-1",
+      type: "divider",
+    },
+    {
       key: "select_all",
       label: (
         <label
           htmlFor="asignee_select_all"
-          className="!flex items-center cursor-pointer px-2 py-1"
+          className="!flex items-center cursor-pointer py-1"
           onClick={(e) => {
             // Chỉ dùng để ngăn Dropdown đóng
             e.preventDefault();
             e.stopPropagation();
 
-            const isAllSelected = assignee.length === memberList.length;
+            const isAllSelected = assignee.length === filteredMemberList.length;
             const newAssignee = isAllSelected
               ? []
-              : memberList.map((m) => m._id);
+              : filteredMemberList.map((m) => m._id);
             setAssignee(newAssignee);
           }}
         >
           <Checkbox
             id="asignee_select_all"
-            checked={assignee.length === memberList.length}
+            checked={assignee.length === filteredMemberList.length}
             indeterminate={
-              assignee.length > 0 && assignee.length < memberList.length
+              assignee.length > 0 && assignee.length < filteredMemberList.length
             }
             onChange={(e) => {
-              const isAllSelected = assignee.length === memberList.length;
+              const isAllSelected =
+                assignee.length === filteredMemberList.length;
               const newAssignee = isAllSelected
                 ? []
-                : memberList.map((m) => m._id);
+                : filteredMemberList.map((m) => m._id);
               setAssignee(newAssignee);
             }}
             onClick={(e) => e.stopPropagation()}
           />
-          <span className="ml-2 font-semibold">Chọn tất cả</span>
+          <span className="font-semibold" style={{ paddingLeft: 10 }}>
+            Chọn tất cả
+          </span>
         </label>
       ),
     },
-    ...memberList.map((member) => ({
+    ...filteredMemberList.map((member) => ({
       key: member._id,
       label: (
         <label
@@ -243,11 +270,11 @@ export default function TaskForm() {
         setAlert((prev) => (prev.includes("LINK") ? prev : [...prev, "LINK"]));
       else setAlert((prev) => prev.filter((item) => item !== "LINK"));
 
-      if (!link.includes("http"))
-        setAlert((prev) =>
-          prev.includes("INVALID_LINK") ? prev : [...prev, "INVALID_LINK"]
-        );
-      else setAlert((prev) => prev.filter((item) => item !== "INVALID_LINK"));
+      // if (!link.includes("http"))
+      //   setAlert((prev) =>
+      //     prev.includes("INVALID_LINK") ? prev : [...prev, "INVALID_LINK"]
+      //   );
+      // else setAlert((prev) => prev.filter((item) => item !== "INVALID_LINK"));
 
       if (!description)
         setAlert((prev) =>
@@ -265,19 +292,19 @@ export default function TaskForm() {
         setAlert((prev) => (prev.includes("DATE") ? prev : [...prev, "DATE"]));
       else setAlert((prev) => prev.filter((item) => item !== "DATE"));
 
-      if (!img)
-        setAlert((prev) => (prev.includes("IMG") ? prev : [...prev, "IMG"]));
-      else setAlert((prev) => prev.filter((item) => item !== "IMG"));
+      // if (!img)
+      //   setAlert((prev) => (prev.includes("IMG") ? prev : [...prev, "IMG"]));
+      // else setAlert((prev) => prev.filter((item) => item !== "IMG"));
 
       if (
         !taskName ||
-        !link ||
-        !link.includes("http") ||
+        // !link ||
+        // !link.includes("http") ||
         !description ||
         assignee.length === 0 ||
         !startDate ||
-        !endDate ||
-        !img
+        !endDate
+        // !img
       )
         return;
 
@@ -370,16 +397,16 @@ export default function TaskForm() {
       return openSystemNoti("error", "Tên không được để trống");
     if (alert.includes("DESCRIPTION"))
       return openSystemNoti("error", "Mô tả không được để trống");
-    if (alert.includes("LINK"))
-      return openSystemNoti("error", "Đường dẫn không được để trống");
-    if (alert.includes("INVALID_LINK"))
-      return openSystemNoti("error", "Đường dẫn không hợp lệ");
+    // if (alert.includes("LINK"))
+    //   return openSystemNoti("error", "Đường dẫn không được để trống");
+    // if (alert.includes("INVALID_LINK"))
+    //   return openSystemNoti("error", "Đường dẫn không hợp lệ");
     if (alert.includes("ASSIGNEE"))
       return openSystemNoti("error", "Chưa có thành viên nào nhận việc này");
     if (alert.includes("DATE"))
       return openSystemNoti("error", "Thời hạn thực hiện không được để trống");
-    if (alert.includes("IMG"))
-      return openSystemNoti("error", "Hãy thêm ảnh mô tả");
+    // if (alert.includes("IMG"))
+    //   return openSystemNoti("error", "Hãy thêm ảnh mô tả");
   }, [alert]);
 
   function deleteTask() {}
@@ -465,16 +492,7 @@ export default function TaskForm() {
                                         : `top-[9px]`
                                     }`}
                 >
-                  <span className="text-red !mr-[2px]">*</span>
-                  <span
-                    className={
-                      alert.includes("LINK") || alert.includes("INVALID_LINK")
-                        ? "!text-red"
-                        : ""
-                    }
-                  >
-                    Liên kết
-                  </span>
+                  <span>Liên kết</span>
                 </label>
                 <Input
                   id="form-link"
