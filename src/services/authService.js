@@ -19,7 +19,7 @@ const backendUrl = import.meta.env.VITE_BACKEND_URL;
 export const loginUser = async (user, dispatch, navigate) => {
   dispatch(loginStart());
   try {
-    const res = await axiosInstance.post(`${backendUrl}/auth/login`, user);
+    const res = await axiosInstance.post(`${BASE_URL}/auth/login`, user);
     const userRole = res.data.data.user.role;
     dispatch(loginSuccess(res.data));
     setTimeout(() => {
@@ -115,16 +115,12 @@ export const updateUserInfo = createAsyncThunk(
   "auth/updateUserInfo",
   async ({ data, accessToken }, thunkAPI) => {
     try {
-      const res = await axios.put(
-        "http://localhost:5000/api/v1/users/update-profile",
-        data,
-        {
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-            "Content-Type": "multipart/form-data",
-          },
-        }
-      );
+      const res = await axios.put(`${BASE_URL}/users/update-profile`, data, {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          "Content-Type": "multipart/form-data",
+        },
+      });
 
       // ✅ Cập nhật lại redux với user mới
       const currentUser = thunkAPI.getState().auth.login.currentUser;

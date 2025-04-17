@@ -5,7 +5,6 @@ import Login from "../pages/sign-in/SignIn";
 import Register from "../pages/sign-up/SignUp";
 import TaskDetailView from "@/components/tasks/components/task-details/TaskDetailView";
 import VerifyEmail from "@/components/access/components/VerifyEmail";
-import ForgotPassword from "../pages/forgotpassword/ForgotPassword";
 
 const publicRoutes = [
   {
@@ -32,11 +31,6 @@ const publicRoutes = [
     path: "/home",
     component: Home,
     layout: MainLayout,
-  },
-  {
-    path: "/forgot-password",
-    component: ForgotPassword,
-    layout: AccessLayout,
   },
 ];
 
