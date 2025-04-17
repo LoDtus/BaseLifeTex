@@ -51,7 +51,18 @@ body {
   margin-bottom: 16px;
 }
 
+.custom-fixed {
+  width: 11% !important;
 
+}
+
+.pd-2-custom {
+  padding: 0 0.5rem 0.5rem 0.5rem;
+}
+
+.items-custom {
+  margin-top: 4.5rem;
+}
 
 @theme {
   --color-black: #292929;
