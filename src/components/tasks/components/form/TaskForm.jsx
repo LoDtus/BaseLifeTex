@@ -10,7 +10,7 @@ import {
 import { DeleteOutlined } from "@ant-design/icons";
 import dayjs from "dayjs";
 import { useDispatch, useSelector } from "react-redux";
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, use } from "react";
 import { useInputStates } from "@/hook/propertiesHook";
 import { useSearchParams } from "react-router-dom";
 import { setTaskForm } from "@/redux/propertiesSlice";
@@ -353,6 +353,7 @@ export default function TaskForm() {
       } else {
         const response = await updateTask(taskState.slice(7), {
           image: imgAdd ? imgAdd : img,
+          // image: "",
           assigneeId: assignee,
           title: taskName,
           link: link,
@@ -457,7 +458,7 @@ export default function TaskForm() {
   }, []);
 
   const handleDeleteImage = () => {
-    setImg(null);
+    setImg("");
     setImgAdd(null);
     message.success("Ảnh đã được xóa");
   };
