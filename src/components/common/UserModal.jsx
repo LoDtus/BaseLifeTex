@@ -71,9 +71,16 @@ function UserModal({ user, onClose }) {
     }
 
     try {
-      await dispatch(updateUserInfo({ data: formData, accessToken }));
-      toast.success("Cập nhật thành công!");
-      setIsEditing(false);
+      const res = await dispatch(
+        updateUserInfo({ data: formData, accessToken })
+      );
+
+      if (res.payload.success === true) {
+        toast.success("Cập nhật thành công!");
+        setIsEditing(false);
+      } else {
+        toast.error("Cập nhật thất bại!");
+      }
     } catch (error) {
       console.error("Lỗi khi cập nhật:", error);
       toast.error("Cập nhật thất bại.");
