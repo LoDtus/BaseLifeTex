@@ -6,6 +6,7 @@ import {
   Checkbox,
   Modal,
   message,
+  Upload,
 } from "antd";
 import { DeleteOutlined } from "@ant-design/icons";
 import dayjs from "dayjs";
@@ -467,24 +468,28 @@ export default function TaskForm() {
         className="fixed w-[100vw] h-[100vh] bg-black opacity-30"
         onClick={closeForm}
       ></div>
-      <div className="relative z-110 w-[70vw] h-[95vh] p-3 flex flex-col items-center bg-white border border-gray-border rounded-md shadow-md overflow-y-auto">
-        <div
-          className="absolute right-4 p-1 rounded-md cursor-pointer duration-200 hover:bg-light-gray active:scale-90"
-          onClick={closeForm}
-        >
-          <svg
-            className="w-[25px] h-[25px] aspect-square"
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 384 512"
+      <div className="relative z-110 w-[70vw] h-[95vh] p-3  pt-0 px-3 pb-3 flex flex-col items-center bg-white border border-gray-border rounded-md shadow-md overflow-y-auto">
+        <div className="sticky top-0 w-full p-3 justify-between items-center bg-white z-10">
+          <div
+            className="absolute right-4 p-1 rounded-md cursor-pointer duration-200 hover:bg-light-gray active:scale-90"
+            onClick={closeForm}
           >
-            <path d="M342.6 150.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L192 210.7 86.6 105.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L146.7 256 41.4 361.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0L192 301.3 297.4 406.6c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L237.3 256 342.6 150.6z" />
-          </svg>
+            <svg
+              className="w-[25px] h-[25px] aspect-square"
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 384 512"
+            >
+              <path d="M342.6 150.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L192 210.7 86.6 105.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L146.7 256 41.4 361.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0L192 301.3 297.4 406.6c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L237.3 256 342.6 150.6z" />
+            </svg>
+          </div>
+          <div className="flex-grow text-center">
+            <span className=" text-center font-semibold text-2xl !mb-2  ">
+              {taskState.slice(0, 4).includes("ADD")
+                ? "Thêm công việc mới"
+                : "Cập nhật công việc"}
+            </span>
+          </div>
         </div>
-        <span className="font-semibold text-2xl !mb-2">
-          {taskState.slice(0, 4).includes("ADD")
-            ? "Thêm công việc mới"
-            : "Cập nhật công việc"}
-        </span>
 
         <div className="w-full h-full flex flex-col items-center px-3 pb-3">
           <div className="w-full flex">
@@ -706,6 +711,17 @@ export default function TaskForm() {
                 : "hidden"
             }
           >
+            {/* <Upload
+              showUploadList={false}
+              accept="image/*"
+              beforeUpload={(file) => {
+                setImg(URL.createObjectURL(file));
+                setImgAdd(file);
+                return false; // Ngăn Ant Design upload tự động
+              }}
+            >
+              <Button id="form-upload">Chọn ảnh</Button>
+            </Upload> */}
             {img && (
               <div className="relative">
                 <img
@@ -724,33 +740,34 @@ export default function TaskForm() {
             )}
             {img && <span className="mt-2 text-dark-gray">Ảnh mô tả</span>}
           </label>
-
-          <div className="w-full mt-2 flex justify-end">
-            <Button
-              className="w-[130px] !font-semibold flex items-center justify-center"
-              color="blue"
-              variant="solid"
-              loading={loading}
-              onClick={() => saveTask()}
-            >
-              {loading
-                ? taskState.slice(0, 4).includes("ADD")
-                  ? "Đang thêm..."
-                  : "Đang cập nhật..."
-                : taskState.slice(0, 4).includes("ADD")
-                ? "Thêm"
-                : "Cập nhật"}
-            </Button>
-            {taskState.slice(0, 4).includes("UPDATE") && (
+          <div className="sticky bottom-0 w-full pt-1 pb-2 px-1 z-10">
+            <div className=" flex justify-end">
               <Button
-                className="w-[100px] !font-semibold !ml-1"
-                color="danger"
+                className="w-[130px] !font-semibold flex items-center justify-center"
+                color="blue"
                 variant="solid"
-                onClick={() => deleteTask()}
+                loading={loading}
+                onClick={() => saveTask()}
               >
-                Xóa
+                {loading
+                  ? taskState.slice(0, 4).includes("ADD")
+                    ? "Đang thêm..."
+                    : "Đang cập nhật..."
+                  : taskState.slice(0, 4).includes("ADD")
+                  ? "Thêm"
+                  : "Cập nhật"}
               </Button>
-            )}
+              {taskState.slice(0, 4).includes("UPDATE") && (
+                <Button
+                  className="w-[100px] !font-semibold !ml-1"
+                  color="danger"
+                  variant="solid"
+                  onClick={() => deleteTask()}
+                >
+                  Xóa
+                </Button>
+              )}
+            </div>
           </div>
         </div>
       </div>
