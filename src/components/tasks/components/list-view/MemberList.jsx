@@ -40,7 +40,9 @@ const MemberListContent = ({ onClose, members }) => {
               marginTop: "21px",
             }}
           >
-            <Avatar src={member.avatar} />
+            <Avatar
+              src={member.avatar ? member.avatar : "/imgs/basic-user.png"}
+            />
             <Typography sx={{ ml: 1 }}>
               {member.userName || "Không có tên"}
             </Typography>
