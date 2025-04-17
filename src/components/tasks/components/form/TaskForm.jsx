@@ -182,7 +182,8 @@ export default function TaskForm() {
               assignee.length > 0 && assignee.length < filteredMemberList.length
             }
             onChange={(e) => {
-              const isAllSelected = assignee.length === filteredMemberList.length;
+              const isAllSelected =
+                assignee.length === filteredMemberList.length;
               const newAssignee = isAllSelected
                 ? []
                 : filteredMemberList.map((m) => m._id);
@@ -297,7 +298,7 @@ export default function TaskForm() {
 
       if (
         !taskName ||
-        !link ||
+        // !link ||
         // !link.includes("http") ||
         !description ||
         assignee.length === 0 ||
@@ -396,8 +397,8 @@ export default function TaskForm() {
       return openSystemNoti("error", "Tên không được để trống");
     if (alert.includes("DESCRIPTION"))
       return openSystemNoti("error", "Mô tả không được để trống");
-    if (alert.includes("LINK"))
-      return openSystemNoti("error", "Đường dẫn không được để trống");
+    // if (alert.includes("LINK"))
+    //   return openSystemNoti("error", "Đường dẫn không được để trống");
     // if (alert.includes("INVALID_LINK"))
     //   return openSystemNoti("error", "Đường dẫn không hợp lệ");
     if (alert.includes("ASSIGNEE"))
@@ -491,10 +492,7 @@ export default function TaskForm() {
                                         : `top-[9px]`
                                     }`}
                 >
-                  <span className="text-red !mr-[2px]">*</span>
-                  <span className={alert.includes("LINK") ? "!text-red" : ""}>
-                    Liên kết
-                  </span>
+                  <span>Liên kết</span>
                 </label>
                 <Input
                   id="form-link"
