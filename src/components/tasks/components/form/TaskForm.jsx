@@ -7,6 +7,7 @@ import {
   Modal,
   message,
 } from "antd";
+import { DeleteOutlined } from "@ant-design/icons";
 import dayjs from "dayjs";
 import { useDispatch, useSelector } from "react-redux";
 import { useEffect, useState, useCallback } from "react";
@@ -455,6 +456,11 @@ export default function TaskForm() {
     return () => document.removeEventListener("paste", handlePaste);
   }, []);
 
+  const handleDeleteImage = () => {
+    setImg(null);
+    setImgAdd(null);
+    message.success("Ảnh đã được xóa");
+  };
   return (
     <div className="z-100 fixed top-0 left-0 w-[100vw] h-[100vh] flex justify-center items-center">
       <div
@@ -697,11 +703,20 @@ export default function TaskForm() {
             }
           >
             {img && (
-              <img
-                className="!object-contain max-w-[40vw] border rounded-md cursor-pointer"
-                src={img}
-                alt="Image Task"
-              />
+              <div className="relative">
+                <img
+                  className="!object-contain max-w-[40vw] border rounded-md cursor-pointer"
+                  src={img}
+                  alt="Image Task"
+                />
+
+                <button
+                  className="absolute top-0 right-0 p-1 bg-red-500 text-white rounded-full "
+                  onClick={() => handleDeleteImage()}
+                >
+                  X
+                </button>
+              </div>
             )}
             {img && <span className="mt-2 text-dark-gray">Ảnh mô tả</span>}
           </label>
