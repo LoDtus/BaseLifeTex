@@ -123,16 +123,18 @@ export const updateUserInfo = createAsyncThunk(
       });
 
       // ✅ Cập nhật lại redux với user mới
-      const currentUser = thunkAPI.getState().auth.login.currentUser;
-      const updatedUser = {
-        ...currentUser,
-        data: {
-          ...currentUser.data,
-          user: res.data.data,
-        },
-      };
+      if (res.data.success === true) {
+        const currentUser = thunkAPI.getState().auth.login.currentUser;
+        const updatedUser = {
+          ...currentUser,
+          data: {
+            ...currentUser.data,
+            user: res.data.data,
+          },
+        };
 
-      thunkAPI.dispatch(loginSuccess(updatedUser)); // cập nhật lại redux
+        thunkAPI.dispatch(loginSuccess(updatedUser)); // cập nhật lại redux
+      }
 
       return res.data;
     } catch (err) {

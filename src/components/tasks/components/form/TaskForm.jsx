@@ -1,7 +1,16 @@
-import { Input, Dropdown, Button, DatePicker, Checkbox, Modal } from "antd";
+import {
+  Input,
+  Dropdown,
+  Button,
+  DatePicker,
+  Checkbox,
+  Modal,
+  message,
+} from "antd";
+import { DeleteOutlined } from "@ant-design/icons";
 import dayjs from "dayjs";
 import { useDispatch, useSelector } from "react-redux";
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, use } from "react";
 import { useInputStates } from "@/hook/propertiesHook";
 import { useSearchParams } from "react-router-dom";
 import { setTaskForm } from "@/redux/propertiesSlice";
@@ -344,6 +353,7 @@ export default function TaskForm() {
       } else {
         const response = await updateTask(taskState.slice(7), {
           image: imgAdd ? imgAdd : img,
+          // image: "",
           assigneeId: assignee,
           title: taskName,
           link: link,
@@ -424,6 +434,34 @@ export default function TaskForm() {
     dispatch(setTaskForm("CLOSE"));
   }
 
+  // ✅ Thêm vào useEffect để hỗ trợ dán ảnh bằng Ctrl + V
+  useEffect(() => {
+    const handlePaste = (e) => {
+      const items = e.clipboardData?.items;
+      if (!items) return;
+
+      for (const item of items) {
+        if (item.type.indexOf("image") === 0) {
+          const file = item.getAsFile();
+          if (file) {
+            const url = URL.createObjectURL(file);
+            setImg(url); // Preview ảnh
+            setImgAdd(file); // File để gửi trong submit
+            message.success("Ảnh đã được dán từ clipboard");
+          }
+        }
+      }
+    };
+
+    document.addEventListener("paste", handlePaste);
+    return () => document.removeEventListener("paste", handlePaste);
+  }, []);
+
+  const handleDeleteImage = () => {
+    setImg("");
+    setImgAdd(null);
+    message.success("Ảnh đã được xóa");
+  };
   return (
     <div className="z-100 fixed top-0 left-0 w-[100vw] h-[100vh] flex justify-center items-center">
       <div
@@ -624,7 +662,6 @@ export default function TaskForm() {
                   placeholder={["Ngày bắt đầu", "Ngày kết thúc"]}
                   format={dateFormat}
                   value={[configStartDate, configEndDate]}
-                  minDate={minDate}
                   onChange={getDateFromInp}
                 />
               </div>
@@ -666,11 +703,20 @@ export default function TaskForm() {
             }
           >
             {img && (
-              <img
-                className="!object-contain max-w-[40vw] border rounded-md cursor-pointer"
-                src={img}
-                alt="Image Task"
-              />
+              <div className="relative">
+                <img
+                  className="!object-contain max-w-[40vw] border rounded-md cursor-pointer"
+                  src={img}
+                  alt="Image Task"
+                />
+
+                <button
+                  className="absolute top-0 right-0 p-1 bg-red-500 text-white rounded-full "
+                  onClick={() => handleDeleteImage()}
+                >
+                  X
+                </button>
+              </div>
             )}
             {img && <span className="mt-2 text-dark-gray">Ảnh mô tả</span>}
           </label>
