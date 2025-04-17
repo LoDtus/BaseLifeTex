@@ -40,7 +40,6 @@ export default function KanbanColumn({
 
   return (
     <div
-      ref={setNodeRef}
       className={`h-full !ml-1  p-2 border border-gray-border rounded-md bg-[#f4f5f7] overflow-y-auto overflow-x-hidden
                 ${isOver ? "kanban-column-over" : ""}`}
       style={{
@@ -53,10 +52,12 @@ export default function KanbanColumn({
       }}
     >
       <h3 className="flex items-center mb-2">
-        <span className="font-semibold !text-sm">{column.title}</span>
-        <div className="text-[10px] font-semibold py-[2px] bg-[#dbddde] px-1 rounded-full !ml-1">
-          <span>{column.tasks.length}</span>
-        </div>
+        <span className="font-semibold !text-sm ">{column.title}</span>
+        {column.tasks.length > 0 && (
+          <div className="text-[10px] font-semibold py-[2px] bg-[#dbddde] px-1 rounded-full ml-1">
+            <span>{column.tasks.length}</span>
+          </div>
+        )}
       </h3>
 
       {user.role === 0 && (
@@ -68,7 +69,7 @@ export default function KanbanColumn({
           Thêm công việc
         </button>
       )}
-      <div>
+      <div ref={setNodeRef}>
         <SortableContext
           id={columnId}
           items={sortedTasks.map((task) => task.id)}
