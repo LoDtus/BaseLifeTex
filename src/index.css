@@ -64,6 +64,13 @@ body {
   margin-top: 5rem;
 }
 
+.fit-image {
+  height: 615px;
+  width: 100%;
+  object-fit: cover;
+
+}
+
 @theme {
   --color-black: #292929;
   --color-soft-black: #383838;

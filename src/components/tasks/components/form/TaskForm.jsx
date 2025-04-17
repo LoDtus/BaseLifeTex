@@ -10,7 +10,7 @@ import {
 import { DeleteOutlined } from "@ant-design/icons";
 import dayjs from "dayjs";
 import { useDispatch, useSelector } from "react-redux";
-import { useEffect, useState, useCallback, use } from "react";
+import { useEffect, useState, useCallback, use, useRef } from "react";
 import { useInputStates } from "@/hook/propertiesHook";
 import { useSearchParams } from "react-router-dom";
 import { setTaskForm } from "@/redux/propertiesSlice";
@@ -25,7 +25,6 @@ import customParseFormat from "dayjs/plugin/customParseFormat";
 
 import { getListTaskByProjectId } from "../../../../redux/taskSlice";
 import Loading from "../../../common/Loading";
-
 dayjs.extend(customParseFormat);
 const dateFormat = "DD-MM-YYYY";
 
@@ -242,18 +241,18 @@ export default function TaskForm() {
     })),
   ];
 
-  function getDateFromInp(dates, dateStrings) {
-    if (!dates || !dateStrings) return;
-    if (dates) {
-      setStartDate(dates[0]);
-      setEndDate(dates[1]);
-      setConfigStartDate(dates[0]);
-      setConfigEndDate(dates[1]);
-    } else {
-      setStartDate(null);
-      setEndDate(null);
-    }
+  function getDateFromInp(dates) {
+    if (!dates || dates.length < 2) return;
+
+    const [start, end] = dates;
+
+    setStartDate(start);
+    setEndDate(end);
+    setConfigStartDate(start);
+    setConfigEndDate(end);
   }
+
+  const pickerRef = useRef();
 
   function uploadImg(event) {
     const file = event.target.files[0];
@@ -654,16 +653,20 @@ export default function TaskForm() {
                   </span>
                 </label>
                 <DatePicker.RangePicker
-                  key={
-                    taskState.slice(0, 7).includes("UPDATE")
-                      ? `${taskState.slice(7)}_deadling`
-                      : "deadline"
-                  }
+                  ref={pickerRef}
                   placeholder={["Ngày bắt đầu", "Ngày kết thúc"]}
                   format={dateFormat}
-                  value={[configStartDate, configEndDate]}
+                  value={[configStartDate ?? null, configEndDate ?? null]}
                   minDate={minDate}
                   onChange={getDateFromInp}
+                  onCalendarChange={(dates) => {
+                    if (dates?.[0] && dates?.[1]) {
+                      // Đóng picker sau khi chọn đủ 2 ngày
+                      setTimeout(() => {
+                        pickerRef.current?.blur(); // hoặc pickerRef.current?.picker?.hide()
+                      }, 100); // delay 1 tí để đảm bảo chọn xong đã render xong
+                    }
+                  }}
                 />
               </div>
             </div>
@@ -706,7 +709,7 @@ export default function TaskForm() {
             {img && (
               <div className="relative">
                 <img
-                  className="!object-contain max-w-[40vw] border rounded-md cursor-pointer"
+                  className="!object-contain max-w-[40vw] border rounded-md cursor-pointer fit-image"
                   src={img}
                   alt="Image Task"
                 />
