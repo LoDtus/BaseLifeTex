@@ -9,6 +9,7 @@ import {
   FormControlLabel,
   FormGroup,
   Button,
+  TextField,
 } from "@mui/material";
 import "../../styles/MemberListAdd.scss";
 import CloseIcon from "@mui/icons-material/Close";
@@ -24,6 +25,7 @@ export default function MemberListContentAdd({
 }) {
   const [listMember, setListMember] = useState([]);
   const [checkedItems, setCheckedItems] = useState([]);
+  const [searchValue, setSearchValue] = useState("");
 
   const getMemberByProject = async () => {
     const response = await getlistUserInProjects(idProject);
@@ -60,6 +62,9 @@ export default function MemberListContentAdd({
       onClose();
     }
   };
+  const filteredMembers = listMember.filter((member) =>
+    member.userName.toLowerCase().includes(searchValue.toLowerCase())
+  );
 
   return (
     <Box
@@ -113,8 +118,20 @@ export default function MemberListContentAdd({
           label="Chọn tất cả"
         />
 
+        <TextField
+          variant="outlined"
+          placeholder="Tìm kiếm thành viên..."
+          value={searchValue}
+          onChange={(e) => setSearchValue(e.target.value)}
+          size="small"
+          sx={{
+            marginBottom: "12px",
+            width: "90%",
+          }}
+        />
+
         {/* Danh sách thành viên */}
-        {listMember?.map((member, index) => (
+        {filteredMembers.map((member, index) => (
           <FormControlLabel
             key={index}
             control={
