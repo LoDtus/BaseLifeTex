@@ -133,35 +133,50 @@ export default function TaskForm() {
     {
       key: "close",
       label: (
-        <div
-          className="flex justify-end"
-          type="primary"
-          onClick={() => setVisibleAssignee(false)}
-        >
-          <svg
-            className="w-[25px] h-[25px] aspect-square"
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 384 512"
-          >
-            <path d="M342.6 150.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L192 210.7 86.6 105.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L146.7 256 41.4 361.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0L192 301.3 297.4 406.6c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L237.3 256 342.6 150.6z" />
-          </svg>
+        <div className="relative top-0 z-10 bg-white px-1 py-1 w-[300px]">
+          {/* Hàng SVG */}
+          <div className="flex justify-end mb-2 sticky top-0 z-10 bg-white">
+            <div
+              className="cursor-pointer"
+              onClick={() => setVisibleAssignee(false)}
+            >
+              <svg
+                className="w-[25px] h-[25px] aspect-square"
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 384 512"
+              >
+                <path d="M342.6 150.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L192 210.7 86.6 105.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L146.7 256 41.4 361.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0L192 301.3 297.4 406.6c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L237.3 256 342.6 150.6z" />
+              </svg>
+            </div>
+          </div>
+
+          {/* Hàng input */}
+
+          <Input
+            placeholder="Tìm thành viên..."
+            size="small"
+            allowClear
+            value={searchKeyword}
+            onChange={(e) => setSearchKeyword(e.target.value)}
+            onClick={(e) => e.stopPropagation()}
+          />
         </div>
       ),
     },
-    {
-      key: "search",
-      label: (
-        <Input
-          placeholder="Tìm thành viên..."
-          size="small"
-          allowClear
-          value={searchKeyword}
-          onChange={(e) => setSearchKeyword(e.target.value)}
-          onClick={(e) => e.stopPropagation()} // tránh đóng dropdown khi click vào input
-        />
-      ),
-      disabled: true, // để không bị chọn
-    },
+    // {
+    //   key: "search",
+    //   label: (
+    //     <Input
+    //       placeholder="Tìm thành viên..."
+    //       size="small"
+    //       allowClear
+    //       value={searchKeyword}
+    //       onChange={(e) => setSearchKeyword(e.target.value)}
+    //       onClick={(e) => e.stopPropagation()} // tránh đóng dropdown khi click vào input
+    //     />
+    //   ),
+    //   disabled: true, // để không bị chọn
+    // },
     {
       key: "divider-1",
       type: "divider",
@@ -171,7 +186,7 @@ export default function TaskForm() {
       label: (
         <label
           htmlFor="asignee_select_all"
-          className="!flex items-center cursor-pointer py-1"
+          className="!flex items-center cursor-pointer py-1 z-0"
           onClick={(e) => {
             // Chỉ dùng để ngăn Dropdown đóng
             e.preventDefault();
@@ -200,7 +215,7 @@ export default function TaskForm() {
             }}
             onClick={(e) => e.stopPropagation()}
           />
-          <span className="font-semibold" style={{ paddingLeft: 10 }}>
+          <span className="font-semibold " style={{ paddingLeft: 10 }}>
             Chọn tất cả
           </span>
         </label>
@@ -589,6 +604,7 @@ export default function TaskForm() {
                     Người nhận việc
                   </span>
                 </label>
+
                 <Dropdown
                   menu={{ items: asigneeList }}
                   trigger={["click"]}
@@ -740,7 +756,7 @@ export default function TaskForm() {
             )}
             {img && <span className="mt-2 text-dark-gray">Ảnh mô tả</span>}
           </label>
-          <div className="sticky bottom-0 w-full pt-1 pb-2 px-1 z-10">
+          <div className="sticky bottom-0 w-full mt-2 pt-2 z-10">
             <div className=" flex justify-end">
               <Button
                 className="w-[130px] !font-semibold flex items-center justify-center"

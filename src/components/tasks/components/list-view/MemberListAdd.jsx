@@ -87,11 +87,33 @@ export default function MemberListContentAdd({
           color: "#485F7E",
           fontSize: "18px",
           marginBottom: "15px",
+          position: "sticky",
+          zIndex: 10,
+          top: "0", // hoặc top: "64px" nếu bị che bởi header
+          backgroundColor: "white",
+
+          padding: "2px 0",
         }}
         fontWeight="bold"
       >
         Danh sách thành viên
       </Typography>
+      <TextField
+        variant="outlined"
+        placeholder="Tìm kiếm thành viên..."
+        value={searchValue}
+        onChange={(e) => setSearchValue(e.target.value)}
+        size="small"
+        sx={{
+          marginBottom: "12px",
+          width: "90%",
+          position: "sticky",
+          top: "40px", // điều chỉnh theo chiều cao của nút SVG bên trên
+          backgroundColor: "white",
+          zIndex: 15,
+          paddingBottom: "8px",
+        }}
+      />
       <FormGroup>
         {/* Checkbox chọn tất cả */}
         <FormControlLabel
@@ -116,18 +138,6 @@ export default function MemberListContentAdd({
             />
           }
           label="Chọn tất cả"
-        />
-
-        <TextField
-          variant="outlined"
-          placeholder="Tìm kiếm thành viên..."
-          value={searchValue}
-          onChange={(e) => setSearchValue(e.target.value)}
-          size="small"
-          sx={{
-            marginBottom: "12px",
-            width: "90%",
-          }}
         />
 
         {/* Danh sách thành viên */}
