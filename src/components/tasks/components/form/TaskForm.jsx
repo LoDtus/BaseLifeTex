@@ -291,9 +291,9 @@ export default function TaskForm() {
         );
       else setAlert((prev) => prev.filter((item) => item !== "TASK_NAME"));
 
-      if (!link)
-        setAlert((prev) => (prev.includes("LINK") ? prev : [...prev, "LINK"]));
-      else setAlert((prev) => prev.filter((item) => item !== "LINK"));
+      // if (!link)
+      //   setAlert((prev) => (prev.includes("LINK") ? prev : [...prev, "LINK"]));
+      // else setAlert((prev) => prev.filter((item) => item !== "LINK"));
 
       // if (!link.includes("http"))
       //   setAlert((prev) =>
