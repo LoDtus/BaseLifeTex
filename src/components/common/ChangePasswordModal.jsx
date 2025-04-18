@@ -79,7 +79,18 @@ const ChangePasswordButton = () => {
         color="primary"
         onClick={handleOpen}
         startIcon={<LockResetIcon />}
-        sx={{ mt: 1 }}
+        sx={{
+          padding: "6px 12px",
+          border: "none",
+          cursor: "pointer",
+          fontsize: "0.9rem",
+          display: "flex",
+          alignitems: "center",
+          gap: "5px",
+          background: " #3498db",
+          color: "#fff",
+          background: "#2980b9",
+        }}
       >
         Đổi mật khẩu
       </Button>
