@@ -223,13 +223,21 @@ const AddProjectModal = ({ open, onClose, project }) => {
     );
   }, [users, searchKeyword]);
   const menuProps = {
-    PaperProps: {
-      style: {
-        maxHeight: 300,
-      },
-    },
     MenuProps: {
-      disableAutoFocusItem: true,
+      PaperProps: {
+        style: {
+          maxHeight: 240,
+        },
+      },
+      anchorOrigin: {
+        vertical: "bottom",
+        horizontal: "left",
+      },
+      transformOrigin: {
+        vertical: "top",
+        horizontal: "left",
+      },
+      getContentAnchorEl: null,
     },
   };
 
@@ -323,24 +331,60 @@ const AddProjectModal = ({ open, onClose, project }) => {
             <FormControl fullWidth>
               <span
                 className={
-                  alert.includes("status")
+                  alert.includes("MEMBERS")
                     ? "!text-red mb-16-custom"
                     : "mb-16-custom"
                 }
               >
-                Trạng thái <span className="!text-red">*</span>
+                Thành viên <span className="!text-red">*</span>
               </span>
               <Select
-                value={status}
-                onChange={(e) => setStatus(e.target.value)}
+                {...menuProps}
+                multiple
+                value={members}
+                onChange={(e) => {
+                  const { value } = e.target;
+                  const isSelectAll = value.includes("all");
+                  const allUserIds = filteredMembers.map((user) => user._id);
+                  if (isSelectAll) {
+                    const isAllSelected = members.length === allUserIds.length;
+                    setMembers(isAllSelected ? [] : allUserIds);
+                  } else {
+                    setMembers(
+                      typeof value === "string" ? value.split(",") : value
+                    );
+                  }
+                }}
+                renderValue={(selected) => {
+                  return selected
+                    .map((selectedId) => {
+                      const user = users.find(
+                        (user) => user._id === selectedId
+                      );
+                      return user ? user.userName : "";
+                    })
+                    .join(", ");
+                }}
               >
-                <MenuItem value={STATUS_PROJECT.PROGRESSING}>
-                  Đang thực hiện
+                <ListSubheader>
+                  <Input
+                    placeholder="Tìm thành viên..."
+                    size="small"
+                    value={searchKeyword}
+                    onChange={(e) => setSearchKeyword(e.target.value)}
+                    onClick={(e) => e.stopPropagation()}
+                    onMouseDown={(e) => e.stopPropagation()}
+                    onKeyDown={(e) => e.stopPropagation()}
+                  />
+                </ListSubheader>
+                <MenuItem value="all">
+                  <em>Tất cả</em>
                 </MenuItem>
-                <MenuItem value={STATUS_PROJECT.DONE}>Chưa hoàn thành</MenuItem>
-                <MenuItem value={STATUS_PROJECT.ARCHIVED}>
-                  Đã hoàn thành
-                </MenuItem>
+                {filteredMembers.map((user) => (
+                  <MenuItem key={user._id} value={user._id}>
+                    {user.userName}
+                  </MenuItem>
+                ))}
               </Select>
             </FormControl>
           </div>
@@ -366,7 +410,6 @@ const AddProjectModal = ({ open, onClose, project }) => {
                   value={startDate}
                   onChange={(newValue) => setStartDate(newValue)}
                   format="DD-MM-YYYY"
-                  disablePast
                   slotProps={{ textField: { fullWidth: true } }}
                   sx={{ marginTop: "16px" }}
                 />
@@ -423,63 +466,28 @@ const AddProjectModal = ({ open, onClose, project }) => {
                 <MenuItem value={PRIORITY[2].value}>Cao</MenuItem>
               </Select>
             </FormControl>
+
             <FormControl fullWidth>
               <span
                 className={
-                  alert.includes("MEMBERS")
+                  alert.includes("status")
                     ? "!text-red mb-16-custom"
                     : "mb-16-custom"
                 }
               >
-                Thành viên <span className="!text-red">*</span>
+                Trạng thái <span className="!text-red">*</span>
               </span>
               <Select
-                {...menuProps}
-                multiple
-                value={members}
-                onChange={(e) => {
-                  const { value } = e.target;
-                  const isSelectAll = value.includes("all");
-                  const allUserIds = filteredMembers.map((user) => user._id);
-                  if (isSelectAll) {
-                    const isAllSelected = members.length === allUserIds.length;
-                    setMembers(isAllSelected ? [] : allUserIds);
-                  } else {
-                    setMembers(
-                      typeof value === "string" ? value.split(",") : value
-                    );
-                  }
-                }}
-                renderValue={(selected) => {
-                  return selected
-                    .map((selectedId) => {
-                      const user = users.find(
-                        (user) => user._id === selectedId
-                      );
-                      return user ? user.userName : "";
-                    })
-                    .join(", ");
-                }}
+                value={status}
+                onChange={(e) => setStatus(e.target.value)}
               >
-                <ListSubheader>
-                  <Input
-                    placeholder="Tìm thành viên..."
-                    size="small"
-                    value={searchKeyword}
-                    onChange={(e) => setSearchKeyword(e.target.value)}
-                    onClick={(e) => e.stopPropagation()}
-                    onMouseDown={(e) => e.stopPropagation()}
-                    onKeyDown={(e) => e.stopPropagation()}
-                  />
-                </ListSubheader>
-                <MenuItem value="all">
-                  <em>Tất cả</em>
+                <MenuItem value={STATUS_PROJECT.PROGRESSING}>
+                  Đang thực hiện
                 </MenuItem>
-                {filteredMembers.map((user) => (
-                  <MenuItem key={user._id} value={user._id}>
-                    {user.userName}
-                  </MenuItem>
-                ))}
+                <MenuItem value={STATUS_PROJECT.DONE}>Chưa hoàn thành</MenuItem>
+                <MenuItem value={STATUS_PROJECT.ARCHIVED}>
+                  Đã hoàn thành
+                </MenuItem>
               </Select>
             </FormControl>
           </div>

@@ -35,7 +35,11 @@ export default function TaskDetails() {
     if (!taskId) return setTask(null);
     async function getTaskDetails() {
       const response = await getTaskDetailById(taskId);
-      setTask(response.data);
+      const data = response.data;
+      if (data.image === "null" || data.image === "") {
+        data.image = null;
+      }
+      setTask(data);
     }
     getTaskDetails(taskId);
   }, [taskId]);
@@ -192,8 +196,12 @@ export default function TaskDetails() {
           </span>
         </div>
 
-        <div className="flex">
-          <div className="basis-[60%]">
+        <div className={task?.image && "flex"}>
+          <div
+            className={
+              task?.image && "basis-[60%]"
+            }
+          >
             <div className="text-[12px] mt-1 text-white font-semibold">
               <span
                 className={`py-1 px-3 !mr-1 rounded-full
@@ -362,7 +370,13 @@ export default function TaskDetails() {
             )}
           </div>
 
-          <div className="basis-[40%] max-h-[50%] !ml-2 flex flex-col items-center mt-1 mb-3">
+          <div
+            className={
+              task?.image
+                ? "basis-[40%] max-h-[50%] !ml-2 flex flex-col items-center mt-1 mb-3"
+                : "hidden"
+            }
+          >
             <Image className="max-w-[60vw]" src={task?.image} />
             <span className="text-dark-gray">Ảnh mô tả</span>
           </div>

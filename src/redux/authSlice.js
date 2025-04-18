@@ -1,10 +1,13 @@
 import { createSlice } from "@reduxjs/toolkit";
 
+const storedToken = localStorage.getItem("accessToken");
+
 const authSlice = createSlice({
   name: "auth",
   initialState: {
     login: {
       currentUser: null,
+      accessToken: storedToken || null,
       isFetching: false,
       role: null,
       error: false,
@@ -23,6 +26,11 @@ const authSlice = createSlice({
       error: false,
       success: false,
     },
+    changePassword: {
+      isFetching: false,
+      error: false,
+      success: false,
+    },
   },
   reducers: {
     // Login
@@ -32,12 +40,14 @@ const authSlice = createSlice({
     loginSuccess: (state, action) => {
       state.login.isFetching = false;
       state.login.currentUser = action.payload;
+      state.login.accessToken = action.payload.accessToken;
       state.login.role = action.payload.data.user.role;
       state.login.error = false;
+      localStorage.setItem("accessToken", action.payload.accessToken);
     },
     loginFail: (state) => {
-      state.login.error = true;
       state.login.isFetching = false;
+      state.login.error = true;
     },
 
     // Register
@@ -46,12 +56,12 @@ const authSlice = createSlice({
     },
     registerSuccess: (state) => {
       state.register.isFetching = false;
-      state.register.error = false;
       state.register.success = true;
+      state.register.error = false;
     },
     registerFail: (state) => {
-      state.register.error = true;
       state.register.isFetching = false;
+      state.register.error = true;
       state.register.success = false;
     },
 
@@ -62,39 +72,64 @@ const authSlice = createSlice({
     logOutSuccess: (state) => {
       state.logout.isFetching = false;
       state.login.currentUser = null;
-      state.logout.error = false;
+      state.login.accessToken = null;
+      state.login.role = null;
+      localStorage.removeItem("accessToken");
     },
     logOutFail: (state) => {
       state.logout.isFetching = false;
       state.logout.error = true;
     },
 
+    // Update User
     updateUserStart: (state) => {
-      state.login.isFetching = true;
+      state.updateUser.isFetching = true;
     },
     updateUserSuccess: (state, action) => {
-      state.login.isFetching = false;
+      state.updateUser.isFetching = false;
       state.login.currentUser.data.user = action.payload;
+      state.updateUser.success = true;
     },
     updateUserFail: (state) => {
-      state.login.isFetching = false;
+      state.updateUser.isFetching = false;
+      state.updateUser.error = true;
+    },
+
+    // Change Password
+    changePasswordStart: (state) => {
+      state.changePassword.isFetching = true;
+      state.changePassword.success = true;
+      state.changePassword.error = false;
+    },
+    changePasswordSuccess: (state) => {
+      state.changePassword.isFetching = false;
+      state.changePassword.success = true;
+      state.changePassword.error = false;
+    },
+    changePasswordFail: (state) => {
+      state.changePassword.isFetching = false;
+      state.changePassword.success = false;
+      state.changePassword.error = true;
     },
   },
 });
 
 export const {
   loginStart,
-  loginFail,
   loginSuccess,
-  registerFail,
+  loginFail,
   registerStart,
   registerSuccess,
+  registerFail,
   logOutStart,
   logOutSuccess,
   logOutFail,
   updateUserStart,
   updateUserSuccess,
   updateUserFail,
+  changePasswordStart,
+  changePasswordSuccess,
+  changePasswordFail,
 } = authSlice.actions;
 
 export default authSlice.reducer;

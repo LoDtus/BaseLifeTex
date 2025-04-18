@@ -75,7 +75,6 @@ export default function TaskForm() {
       const taskId = taskState.slice(7);
       async function getTask(taskId) {
         const response = await getTaskDetailById(taskId);
-
         if (response.success) {
           const start = dayjs(response.data.startDate);
           const end = dayjs(response.data.endDate);
@@ -83,7 +82,12 @@ export default function TaskForm() {
           setTaskName(response.data.title);
           setLink(response.data.link);
           setDescription(response.data.description);
-          setImg(response.data.image);
+          if (response.data.image !== "null" && response.data.image !== "") {
+            setImg(response.data.image);
+          }else{
+            response.data.image = null;
+            setImg(response.data.image);
+          }
           setStartDate(start);
           setEndDate(end);
           setMinDate(start);
@@ -104,6 +108,7 @@ export default function TaskForm() {
       setMinDate(dayjs(dayjs().format(dateFormat), dateFormat));
     }
   }, [taskState]);
+
 
   const getMemberList = useCallback(async () => {
     const response = await getMembers(projectId);
@@ -678,7 +683,6 @@ export default function TaskForm() {
                   placeholder={["Ngày bắt đầu", "Ngày kết thúc"]}
                   format={dateFormat}
                   value={[configStartDate ?? null, configEndDate ?? null]}
-                  minDate={minDate}
                   onChange={getDateFromInp}
                   onCalendarChange={(dates) => {
                     if (dates?.[0] && dates?.[1]) {
@@ -722,22 +726,11 @@ export default function TaskForm() {
           <label
             htmlFor="form-upload"
             className={
-              img
+              img 
                 ? "grow w-fit mt-2 !flex !flex-col !justify-center !items-center"
                 : "hidden"
             }
           >
-            {/* <Upload
-              showUploadList={false}
-              accept="image/*"
-              beforeUpload={(file) => {
-                setImg(URL.createObjectURL(file));
-                setImgAdd(file);
-                return false; // Ngăn Ant Design upload tự động
-              }}
-            >
-              <Button id="form-upload">Chọn ảnh</Button>
-            </Upload> */}
             {img && (
               <div className="relative">
                 <img
