@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 
 import { useDispatch } from "react-redux";
 import {
@@ -20,6 +20,9 @@ import {
   Backdrop,
   CircularProgress,
   ListSubheader,
+  Popper,
+  Chip,
+  Checkbox,
 } from "@mui/material";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
@@ -31,6 +34,7 @@ import { STATUS_PROJECT } from "../../../config/status";
 import { PRIORITY } from "../../../config/priority";
 import { toast } from "react-toastify";
 import { Input } from "antd";
+import { Autocomplete } from "@mui/material";
 
 const AddProjectModal = ({ open, onClose, project }) => {
   const dispatch = useDispatch();
@@ -196,9 +200,69 @@ const AddProjectModal = ({ open, onClose, project }) => {
     fetchUsers();
   }, []);
   const [searchKeyword, setSearchKeyword] = useState("");
-  console.log(searchKeyword);
   const [searchManagerKeyword, setSearchManagerKeyword] = useState("");
-  console.log(searchManagerKeyword);
+  const removeVietnameseTones = (str) => {
+    return str
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/đ/g, "d")
+      .replace(/Đ/g, "D")
+      .toLowerCase();
+  };
+  const filteredManagers = useMemo(() => {
+    return users.filter(
+      (user) =>
+        user.role === 0 &&
+        removeVietnameseTones(user.userName).includes(
+          removeVietnameseTones(searchManagerKeyword)
+        )
+    );
+  }, [users, searchManagerKeyword]);
+
+  const filteredMembers = useMemo(() => {
+    return users.filter((user) =>
+      removeVietnameseTones(user.userName).includes(
+        removeVietnameseTones(searchKeyword)
+      )
+    );
+  }, [users, searchKeyword]);
+  const menuProps = {
+    MenuProps: {
+      PaperProps: {
+        style: {
+          maxHeight: 240,
+        },
+      },
+      anchorOrigin: {
+        vertical: "bottom",
+        horizontal: "left",
+      },
+      transformOrigin: {
+        vertical: "top",
+        horizontal: "left",
+      },
+      getContentAnchorEl: null,
+    },
+  };
+  // Custom Popper để định vị dropdown menu không bị nhảy lung tung
+  // Custom Popper để định vị dropdown menu và giới hạn chiều cao
+  const CustomPopper = (props) => (
+    <Popper
+      {...props}
+      placement="bottom-start"
+      modifiers={[{ name: "offset", options: { offset: [0, 4] } }]}
+      style={{
+        ...props.style,
+        maxHeight: 200,
+        overflowY: "auto",
+        zIndex: 1300,
+        /* Ẩn thanh cuộn ở các trình duyệt hỗ trợ */
+        scrollbarWidth: "none", // Firefox
+        WebkitOverflowScrolling: "touch", // Cho phép cuộn mềm mại trên các thiết bị di động
+        "-webkit-scrollbar": { display: "none" } // Đối với các trình duyệt hỗ trợ webkit (Chrome, Safari)
+      }}
+    />
+  );
 
   return (
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="md">
@@ -259,65 +323,120 @@ const AddProjectModal = ({ open, onClose, project }) => {
               >
                 Người phụ trách <span className="!text-red">*</span>
               </span>
-              <Select
-                value={managerId}
-                onChange={(e) => {
-                  setManagerId(e.target.value);
-                }}                
-                renderValue={(selected) => {
-                  const selectedUser = users.find((u) => u._id === selected);
-                  return selectedUser ? selectedUser.userName : "";
-                }}
-              >
-                <ListSubheader>
-                  <Input
+              <Autocomplete
+                options={users.filter((user) => user.role === 0)}
+                getOptionLabel={(option) => option.userName || ""}
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
                     placeholder="Tìm người phụ trách..."
-                    size="small"
-                    allowClear
-                    value={searchManagerKeyword}
-                    onKeyDown={(e) => e.stopPropagation()}
-                    onChange={(e) => setSearchManagerKeyword(e.target.value)}
-                    onClick={(e) => e.stopPropagation()}
+                    fullWidth
                   />
-                </ListSubheader>
-                {users
-                  .filter(
-                    (user) =>
-                      user.role === 0 &&
-                      user.userName
-                        .toLowerCase()
-                        .includes(searchManagerKeyword.toLowerCase())
-                  )
-                  .map((user) => (
-                    <MenuItem key={user._id} value={user._id}>
-                      {user.userName}
-                    </MenuItem>
-                  ))}
-              </Select>
+                )}
+                value={users.find((user) => user._id === managerId) || null}
+                onChange={(event, newValue) => {
+                  setManagerId(newValue ? newValue._id : "");
+                }}
+                filterOptions={(options, state) => {
+                  const input = removeVietnameseTones(
+                    state.inputValue.toLowerCase()
+                  );
+                  return options.filter((option) =>
+                    removeVietnameseTones(
+                      option.userName.toLowerCase()
+                    ).includes(input)
+                  );
+                }}
+                isOptionEqualToValue={(option, value) =>
+                  option._id === value._id
+                }
+                PopperComponent={CustomPopper}
+              />
             </FormControl>
 
             <FormControl fullWidth>
               <span
                 className={
-                  alert.includes("status")
+                  alert.includes("MEMBERS")
                     ? "!text-red mb-16-custom"
                     : "mb-16-custom"
                 }
               >
-                Trạng thái <span className="!text-red">*</span>
+                Thành viên <span className="!text-red">*</span>
               </span>
-              <Select
-                value={status}
-                onChange={(e) => setStatus(e.target.value)}
-              >
-                <MenuItem value={STATUS_PROJECT.PROGRESSING}>
-                  Đang thực hiện
-                </MenuItem>
-                <MenuItem value={STATUS_PROJECT.DONE}>Chưa hoàn thành</MenuItem>
-                <MenuItem value={STATUS_PROJECT.ARCHIVED}>
-                  Đã hoàn thành
-                </MenuItem>
-              </Select>
+              <Autocomplete
+                multiple
+                disableCloseOnSelect // Giữ menu khi chọn xong
+                options={[
+                  { _id: "all", userName: "Chọn tất cả" },
+                  ...filteredMembers,
+                ]}
+                getOptionLabel={(option) => option.userName}
+                value={users.filter((user) => members.includes(user._id))}
+                onChange={(event, newValue, reason) => {
+                  if (!newValue) return;
+
+                  const isSelectAll = newValue.some((v) => v._id === "all");
+                  const allUserIds = filteredMembers.map((user) => user._id);
+
+                  if (isSelectAll) {
+                    const isAllSelected = members.length === allUserIds.length;
+                    setMembers(isAllSelected ? [] : allUserIds);
+                  } else {
+                    setMembers(newValue.map((user) => user._id));
+                  }
+                }}
+                filterOptions={(options, state) => {
+                  const input = removeVietnameseTones(
+                    state.inputValue.toLowerCase()
+                  );
+                  return options.filter((option) =>
+                    removeVietnameseTones(
+                      option.userName.toLowerCase()
+                    ).includes(input)
+                  );
+                }}
+                isOptionEqualToValue={(option, value) =>
+                  option._id === value._id
+                }
+                renderInput={(params) => (
+                  <TextField {...params} placeholder="Tìm thành viên..." />
+                )}
+                renderOption={(props, option, { selected }) => (
+                  <li {...props} key={option._id}>
+                    <Checkbox
+                      style={{ marginRight: 8 }}
+                      checked={
+                        option._id === "all"
+                          ? members.length === filteredMembers.length
+                          : selected
+                      }
+                    />
+                    {option.userName}
+                  </li>
+                )}
+                renderTags={(selected, getTagProps) => {
+                  const maxTags = 1; // Giới hạn số lượng thẻ hiển thị
+                  const tagsToShow = selected.slice(0, maxTags); // Lấy 2 thẻ đầu tiên
+                  return (
+                    <>
+                      {tagsToShow.map((option, index) => (
+                        <Chip
+                          key={option._id}
+                          label={option.userName}
+                          size="small"
+                          {...getTagProps({ index })}
+                          style={{ margin: 2 }}
+                        />
+                      ))}
+                      {selected.length > maxTags && (
+                        <Chip label="..." size="small" style={{ margin: 2 }} />
+                      )}
+                    </>
+                  );
+                }}
+                PopperComponent={CustomPopper}
+              />
             </FormControl>
           </div>
           <LocalizationProvider dateAdapter={AdapterDayjs}>
@@ -342,7 +461,6 @@ const AddProjectModal = ({ open, onClose, project }) => {
                   value={startDate}
                   onChange={(newValue) => setStartDate(newValue)}
                   format="DD-MM-YYYY"
-                  disablePast
                   slotProps={{ textField: { fullWidth: true } }}
                   sx={{ marginTop: "16px" }}
                 />
@@ -399,81 +517,28 @@ const AddProjectModal = ({ open, onClose, project }) => {
                 <MenuItem value={PRIORITY[2].value}>Cao</MenuItem>
               </Select>
             </FormControl>
+
             <FormControl fullWidth>
               <span
                 className={
-                  alert.includes("MEMBERS")
+                  alert.includes("status")
                     ? "!text-red mb-16-custom"
                     : "mb-16-custom"
                 }
               >
-                Thành viên <span className="!text-red">*</span>
+                Trạng thái <span className="!text-red">*</span>
               </span>
               <Select
-                labelId="members-label"
-                id="members"
-                multiple
-                value={members}
-                onChange={(e) => {
-                  const { value } = e.target;
-                  const isSelectAll = value.includes("all");
-                  const filteredUsers = users.filter((user) =>
-                    user.userName
-                      .toLowerCase()
-                      .includes(searchKeyword.toLowerCase())
-                  );
-                  const allUserIds = filteredUsers.map((user) => user._id);
-
-                  if (isSelectAll) {
-                    // Nếu đã chọn hết rồi => Bỏ chọn tất cả
-                    // Nếu chưa chọn hết => Chọn tất cả
-                    const isAllSelected = members.length === allUserIds.length;
-                    setMembers(isAllSelected ? [] : allUserIds);
-                  } else {
-                    setMembers(
-                      typeof value === "string" ? value.split(",") : value
-                    );
-                  }
-                }}
-                renderValue={(selected) => {
-                  return selected
-                    .map((selectedId) => {
-                      const user = users.find(
-                        (user) => user._id === selectedId
-                      );
-                      return user ? user.userName : "";
-                    })
-                    .join(", ");
-                }}
+                value={status}
+                onChange={(e) => setStatus(e.target.value)}
               >
-                <MenuItem value="" disabled>
-                  Chọn thành viên <span className="!text-red">*</span>
+                <MenuItem value={STATUS_PROJECT.PROGRESSING}>
+                  Đang thực hiện
                 </MenuItem>
-                <ListSubheader>
-                  <Input
-                    placeholder="Tìm thành viên..."
-                    size="small"
-                    allowClear
-                    value={searchKeyword}
-                    onKeyDown={(e) => e.stopPropagation()}
-                    onChange={(e) => setSearchKeyword(e.target.value)}
-                    onClick={(e) => e.stopPropagation()} // Ngăn đóng dropdown khi click vào
-                  />
-                </ListSubheader>
-                <MenuItem value="all">
-                  <em>Tất cả</em>
+                <MenuItem value={STATUS_PROJECT.DONE}>Chưa hoàn thành</MenuItem>
+                <MenuItem value={STATUS_PROJECT.ARCHIVED}>
+                  Đã hoàn thành
                 </MenuItem>
-                {users
-                  .filter((user) =>
-                    user.userName
-                      .toLowerCase()
-                      .includes(searchKeyword.toLowerCase())
-                  )
-                  .map((user) => (
-                    <MenuItem key={user._id} value={user._id}>
-                      {user.userName}
-                    </MenuItem>
-                  ))}
               </Select>
             </FormControl>
           </div>

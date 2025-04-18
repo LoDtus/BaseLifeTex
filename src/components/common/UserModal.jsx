@@ -8,6 +8,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { updateUserInfo } from "../../services/authService"; // điều chỉnh path nếu cần
 import { toast } from "react-toastify";
 import { isValidEmail, isValidPhone } from "../../utils/validationUtils";
+import ChangePasswordModal from "./ChangePasswordModal";
 function UserModal({ user, onClose }) {
   const [previewAvatar, setPreviewAvatar] = useState(
     user.avatar ||
@@ -71,14 +72,23 @@ function UserModal({ user, onClose }) {
     }
 
     try {
-      await dispatch(updateUserInfo({ data: formData, accessToken }));
-      toast.success("Cập nhật thành công!");
-      setIsEditing(false);
+      const res = await dispatch(
+        updateUserInfo({ data: formData, accessToken })
+      );
+
+      if (res.payload.success === true) {
+        toast.success("Cập nhật thành công!");
+        setIsEditing(false);
+      } else {
+        toast.error("Cập nhật thất bại!");
+      }
     } catch (error) {
       console.error("Lỗi khi cập nhật:", error);
       toast.error("Cập nhật thất bại.");
     }
   };
+
+  const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
 
   return (
     <div className="fixed-user-card">
@@ -102,6 +112,10 @@ function UserModal({ user, onClose }) {
             <EditNoteIcon /> Sửa
           </button>
         )}
+        <ChangePasswordModal
+          open={isPasswordModalOpen}
+          onClose={() => setIsPasswordModalOpen(false)}
+        />
         <button className="close-btn" onClick={onClose}>
           Đóng
         </button>

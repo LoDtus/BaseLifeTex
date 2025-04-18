@@ -115,28 +115,26 @@ export const updateUserInfo = createAsyncThunk(
   "auth/updateUserInfo",
   async ({ data, accessToken }, thunkAPI) => {
     try {
-      const res = await axios.put(
-        "http://localhost:5000/api/v1/users/update-profile",
-        data,
-        {
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-            "Content-Type": "multipart/form-data",
-          },
-        }
-      );
+      const res = await axios.put(`${backendUrl}/users/update-profile`, data, {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          "Content-Type": "multipart/form-data",
+        },
+      });
 
       // ✅ Cập nhật lại redux với user mới
-      const currentUser = thunkAPI.getState().auth.login.currentUser;
-      const updatedUser = {
-        ...currentUser,
-        data: {
-          ...currentUser.data,
-          user: res.data.data,
-        },
-      };
+      if (res.data.success === true) {
+        const currentUser = thunkAPI.getState().auth.login.currentUser;
+        const updatedUser = {
+          ...currentUser,
+          data: {
+            ...currentUser.data,
+            user: res.data.data,
+          },
+        };
 
-      thunkAPI.dispatch(loginSuccess(updatedUser)); // cập nhật lại redux
+        thunkAPI.dispatch(loginSuccess(updatedUser)); // cập nhật lại redux
+      }
 
       return res.data;
     } catch (err) {
@@ -144,3 +142,20 @@ export const updateUserInfo = createAsyncThunk(
     }
   }
 );
+
+export const changePassword = async (data, accessToken) => {
+  const res = await axios.post(
+    `${backendUrl}/auth/change-password`,
+    {
+      oldPassword: data.oldPassword,
+      newPassword: data.newPassword,
+      confirmNewPassword: data.confirmNewPassword,
+    },
+    {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    }
+  );
+  return res.data;
+};

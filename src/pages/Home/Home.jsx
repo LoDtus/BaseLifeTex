@@ -190,7 +190,7 @@ export default function Home() {
             {listMember?.slice(0, 5)?.map((member, index) => (
               <Avatar
                 key={index}
-                src={member.avatar}
+                src={member.avatar ? member.avatar : "/imgs/basic-user.png"}
                 alt={`Avatar ${index + 1}`}
                 className="avatar"
               />

@@ -1,7 +1,17 @@
-import { Input, Dropdown, Button, DatePicker, Checkbox, Modal } from "antd";
+import {
+  Input,
+  Dropdown,
+  Button,
+  DatePicker,
+  Checkbox,
+  Modal,
+  message,
+  Upload,
+} from "antd";
+import { DeleteOutlined } from "@ant-design/icons";
 import dayjs from "dayjs";
 import { useDispatch, useSelector } from "react-redux";
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, use, useRef } from "react";
 import { useInputStates } from "@/hook/propertiesHook";
 import { useSearchParams } from "react-router-dom";
 import { setTaskForm } from "@/redux/propertiesSlice";
@@ -16,7 +26,6 @@ import customParseFormat from "dayjs/plugin/customParseFormat";
 
 import { getListTaskByProjectId } from "../../../../redux/taskSlice";
 import Loading from "../../../common/Loading";
-
 dayjs.extend(customParseFormat);
 const dateFormat = "DD-MM-YYYY";
 
@@ -66,7 +75,6 @@ export default function TaskForm() {
       const taskId = taskState.slice(7);
       async function getTask(taskId) {
         const response = await getTaskDetailById(taskId);
-
         if (response.success) {
           const start = dayjs(response.data.startDate);
           const end = dayjs(response.data.endDate);
@@ -74,7 +82,12 @@ export default function TaskForm() {
           setTaskName(response.data.title);
           setLink(response.data.link);
           setDescription(response.data.description);
-          setImg(response.data.image);
+          if (response.data.image !== "null" && response.data.image !== "") {
+            setImg(response.data.image);
+          }else{
+            response.data.image = null;
+            setImg(response.data.image);
+          }
           setStartDate(start);
           setEndDate(end);
           setMinDate(start);
@@ -95,6 +108,7 @@ export default function TaskForm() {
       setMinDate(dayjs(dayjs().format(dateFormat), dateFormat));
     }
   }, [taskState]);
+
 
   const getMemberList = useCallback(async () => {
     const response = await getMembers(projectId);
@@ -233,18 +247,18 @@ export default function TaskForm() {
     })),
   ];
 
-  function getDateFromInp(dates, dateStrings) {
-    if (!dates || !dateStrings) return;
-    if (dates) {
-      setStartDate(dates[0]);
-      setEndDate(dates[1]);
-      setConfigStartDate(dates[0]);
-      setConfigEndDate(dates[1]);
-    } else {
-      setStartDate(null);
-      setEndDate(null);
-    }
+  function getDateFromInp(dates) {
+    if (!dates || dates.length < 2) return;
+
+    const [start, end] = dates;
+
+    setStartDate(start);
+    setEndDate(end);
+    setConfigStartDate(start);
+    setConfigEndDate(end);
   }
+
+  const pickerRef = useRef();
 
   function uploadImg(event) {
     const file = event.target.files[0];
@@ -344,6 +358,7 @@ export default function TaskForm() {
       } else {
         const response = await updateTask(taskState.slice(7), {
           image: imgAdd ? imgAdd : img,
+          // image: "",
           assigneeId: assignee,
           title: taskName,
           link: link,
@@ -424,30 +439,62 @@ export default function TaskForm() {
     dispatch(setTaskForm("CLOSE"));
   }
 
+  // ✅ Thêm vào useEffect để hỗ trợ dán ảnh bằng Ctrl + V
+  useEffect(() => {
+    const handlePaste = (e) => {
+      const items = e.clipboardData?.items;
+      if (!items) return;
+
+      for (const item of items) {
+        if (item.type.indexOf("image") === 0) {
+          const file = item.getAsFile();
+          if (file) {
+            const url = URL.createObjectURL(file);
+            setImg(url); // Preview ảnh
+            setImgAdd(file); // File để gửi trong submit
+            message.success("Ảnh đã được dán từ clipboard");
+          }
+        }
+      }
+    };
+
+    document.addEventListener("paste", handlePaste);
+    return () => document.removeEventListener("paste", handlePaste);
+  }, []);
+
+  const handleDeleteImage = () => {
+    setImg("");
+    setImgAdd(null);
+    message.success("Ảnh đã được xóa");
+  };
   return (
     <div className="z-100 fixed top-0 left-0 w-[100vw] h-[100vh] flex justify-center items-center">
       <div
         className="fixed w-[100vw] h-[100vh] bg-black opacity-30"
         onClick={closeForm}
       ></div>
-      <div className="relative z-110 w-[70vw] h-[95vh] p-3 flex flex-col items-center bg-white border border-gray-border rounded-md shadow-md overflow-y-auto">
-        <div
-          className="absolute right-4 p-1 rounded-md cursor-pointer duration-200 hover:bg-light-gray active:scale-90"
-          onClick={closeForm}
-        >
-          <svg
-            className="w-[25px] h-[25px] aspect-square"
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 384 512"
+      <div className="relative z-110 w-[70vw] h-[95vh] p-3  pt-0 px-3 pb-3 flex flex-col items-center bg-white border border-gray-border rounded-md shadow-md overflow-y-auto">
+        <div className="sticky top-0 w-full p-3 justify-between items-center bg-white z-10">
+          <div
+            className="absolute right-4 p-1 rounded-md cursor-pointer duration-200 hover:bg-light-gray active:scale-90"
+            onClick={closeForm}
           >
-            <path d="M342.6 150.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L192 210.7 86.6 105.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L146.7 256 41.4 361.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0L192 301.3 297.4 406.6c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L237.3 256 342.6 150.6z" />
-          </svg>
+            <svg
+              className="w-[25px] h-[25px] aspect-square"
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 384 512"
+            >
+              <path d="M342.6 150.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L192 210.7 86.6 105.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L146.7 256 41.4 361.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0L192 301.3 297.4 406.6c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L237.3 256 342.6 150.6z" />
+            </svg>
+          </div>
+          <div className="flex-grow text-center">
+            <span className=" text-center font-semibold text-2xl !mb-2  ">
+              {taskState.slice(0, 4).includes("ADD")
+                ? "Thêm công việc mới"
+                : "Cập nhật công việc"}
+            </span>
+          </div>
         </div>
-        <span className="font-semibold text-2xl !mb-2">
-          {taskState.slice(0, 4).includes("ADD")
-            ? "Thêm công việc mới"
-            : "Cập nhật công việc"}
-        </span>
 
         <div className="w-full h-full flex flex-col items-center px-3 pb-3">
           <div className="w-full flex">
@@ -616,16 +663,19 @@ export default function TaskForm() {
                   </span>
                 </label>
                 <DatePicker.RangePicker
-                  key={
-                    taskState.slice(0, 7).includes("UPDATE")
-                      ? `${taskState.slice(7)}_deadling`
-                      : "deadline"
-                  }
+                  ref={pickerRef}
                   placeholder={["Ngày bắt đầu", "Ngày kết thúc"]}
                   format={dateFormat}
-                  value={[configStartDate, configEndDate]}
-                  minDate={minDate}
+                  value={[configStartDate ?? null, configEndDate ?? null]}
                   onChange={getDateFromInp}
+                  onCalendarChange={(dates) => {
+                    if (dates?.[0] && dates?.[1]) {
+                      // Đóng picker sau khi chọn đủ 2 ngày
+                      setTimeout(() => {
+                        pickerRef.current?.blur(); // hoặc pickerRef.current?.picker?.hide()
+                      }, 100); // delay 1 tí để đảm bảo chọn xong đã render xong
+                    }
+                  }}
                 />
               </div>
             </div>
@@ -660,47 +710,57 @@ export default function TaskForm() {
           <label
             htmlFor="form-upload"
             className={
-              img
+              img 
                 ? "grow w-fit mt-2 !flex !flex-col !justify-center !items-center"
                 : "hidden"
             }
           >
             {img && (
-              <img
-                className="!object-contain max-w-[40vw] border rounded-md cursor-pointer"
-                src={img}
-                alt="Image Task"
-              />
+              <div className="relative">
+                <img
+                  className="!object-contain max-w-[40vw] border rounded-md cursor-pointer fit-image"
+                  src={img}
+                  alt="Image Task"
+                />
+
+                <button
+                  className="absolute top-0 right-0 p-1 bg-red-500 text-white rounded-full "
+                  onClick={() => handleDeleteImage()}
+                >
+                  X
+                </button>
+              </div>
             )}
             {img && <span className="mt-2 text-dark-gray">Ảnh mô tả</span>}
           </label>
-
-          <div className="w-full mt-2 flex justify-end">
-            <Button
-              className="w-[130px] !font-semibold flex items-center justify-center"
-              color="blue"
-              variant="solid"
-              loading={loading}
-              onClick={() => saveTask()}
-            >
-              {loading
-                ? taskState.slice(0, 4).includes("ADD")
-                  ? "Đang thêm..."
-                  : "Đang cập nhật..."
-                : taskState.slice(0, 4).includes("ADD")
-                ? "Thêm"
-                : "Cập nhật"}
-            </Button>
-            {taskState.slice(0, 4).includes("UPDATE") && (
+          <div className="sticky bottom-0 w-full pt-1 pb-2 px-1 z-10">
+            <div className=" flex justify-end">
               <Button
-                className="w-[100px] !font-semibold !ml-1"
-                color="danger"
+                className="w-[130px] !font-semibold flex items-center justify-center"
+                color="blue"
                 variant="solid"
-                onClick={() => deleteTask()}
+                loading={loading}
+                onClick={() => saveTask()}
               >
-                Xóa
+                {loading
+                  ? taskState.slice(0, 4).includes("ADD")
+                    ? "Đang thêm..."
+                    : "Đang cập nhật..."
+                  : taskState.slice(0, 4).includes("ADD")
+                  ? "Thêm"
+                  : "Cập nhật"}
               </Button>
-            )}
+              {taskState.slice(0, 4).includes("UPDATE") && (
+                <Button
+                  className="w-[100px] !font-semibold !ml-1"
+                  color="danger"
+                  variant="solid"
+                  onClick={() => deleteTask()}
+                >
+                  Xóa
+                </Button>
+              )}
+            </div>
           </div>
         </div>
       </div>

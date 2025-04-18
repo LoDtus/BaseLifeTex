@@ -1,8 +1,9 @@
 // socket.js
 import { io } from "socket.io-client";
-
+const backendUrl = import.meta.env.VITE_BACKEND_URL;
 // Khởi tạo socket
-const socket = io("http://localhost:5000", {
+
+const socket = io(backendUrl, {
   withCredentials: true,
   transports: ["websocket"],
 });

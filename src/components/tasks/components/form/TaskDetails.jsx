@@ -12,6 +12,7 @@ import {
   deleteTaskByIdRedux,
   closeTaskForm,
 } from "../../../../redux/taskSlice";
+import dayjs from "dayjs";
 import { deleteTaskById } from "../../../../services/taskService";
 
 export default function TaskDetails() {
@@ -34,7 +35,11 @@ export default function TaskDetails() {
     if (!taskId) return setTask(null);
     async function getTaskDetails() {
       const response = await getTaskDetailById(taskId);
-      setTask(response.data);
+      const data = response.data;
+      if (data.image === "null" || data.image === "") {
+        data.image = null;
+      }
+      setTask(data);
     }
     getTaskDetails(taskId);
   }, [taskId]);
@@ -59,7 +64,10 @@ export default function TaskDetails() {
         >
           <img
             className="w-[35px] h-[35px] rounded-full aspect-square !mr-1"
-            src={member.avatar || "https://upload.wikimedia.org/wikipedia/commons/thumb/5/59/User-avatar.svg/2048px-User-avatar.svg.png"}
+            src={
+              member.avatar ||
+              "https://upload.wikimedia.org/wikipedia/commons/thumb/5/59/User-avatar.svg/2048px-User-avatar.svg.png"
+            }
             alt={member.email}
           />
           <div className="flex flex-col">
@@ -148,10 +156,9 @@ export default function TaskDetails() {
 
   const indexOfLastComment = currentPage * commentsPerPage;
   const indexOfFirstComment = indexOfLastComment - commentsPerPage;
-  const currentComments = commentList.slice(
-    indexOfFirstComment,
-    indexOfLastComment
-  );
+  const currentComments = commentList
+    .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+    .slice(indexOfFirstComment, indexOfLastComment);
   function closeForm() {
     if (comment) {
       const confirmClose = confirm(
@@ -189,8 +196,12 @@ export default function TaskDetails() {
           </span>
         </div>
 
-        <div className="flex">
-          <div className="basis-[60%]">
+        <div className={task?.image && "flex"}>
+          <div
+            className={
+              task?.image && "basis-[60%]"
+            }
+          >
             <div className="text-[12px] mt-1 text-white font-semibold">
               <span
                 className={`py-1 px-3 !mr-1 rounded-full
@@ -297,7 +308,10 @@ export default function TaskDetails() {
                   <img
                     className="w-[25px] h-[25px] !mr-1 aspect-square rounded-full cursor-pointer
                                             duration-200 active:scale-90"
-                    src={assignee.avatar || "https://upload.wikimedia.org/wikipedia/commons/thumb/5/59/User-avatar.svg/2048px-User-avatar.svg.png"}
+                    src={
+                      assignee.avatar ||
+                      "https://upload.wikimedia.org/wikipedia/commons/thumb/5/59/User-avatar.svg/2048px-User-avatar.svg.png"
+                    }
                     alt={assignee.email}
                   />
                 ))}
@@ -356,7 +370,13 @@ export default function TaskDetails() {
             )}
           </div>
 
-          <div className="basis-[40%] max-h-[50%] !ml-2 flex flex-col items-center mt-1 mb-3">
+          <div
+            className={
+              task?.image
+                ? "basis-[40%] max-h-[50%] !ml-2 flex flex-col items-center mt-1 mb-3"
+                : "hidden"
+            }
+          >
             <Image className="max-w-[60vw]" src={task?.image} />
             <span className="text-dark-gray">Ảnh mô tả</span>
           </div>
@@ -370,23 +390,32 @@ export default function TaskDetails() {
               <div className="w-fit mb-1 flex items-center cursor-pointer duration-200 active:scale-90">
                 <img
                   className="w-[35px] h-[35px] !mr-1 aspect-square rounded-full"
-                  src={cmt.userId?.avatar || "https://upload.wikimedia.org/wikipedia/commons/thumb/5/59/User-avatar.svg/2048px-User-avatar.svg.png"}
+                  src={
+                    cmt.userId?.avatar ||
+                    "https://upload.wikimedia.org/wikipedia/commons/thumb/5/59/User-avatar.svg/2048px-User-avatar.svg.png"
+                  }
                   alt={cmt.userId?.email}
                   onError={(e) => {
                     e.target.onerror = null;
-                    e.target.src = "https://upload.wikimedia.org/wikipedia/commons/thumb/5/59/User-avatar.svg/2048px-User-avatar.svg.png";
+                    e.target.src =
+                      "https://upload.wikimedia.org/wikipedia/commons/thumb/5/59/User-avatar.svg/2048px-User-avatar.svg.png";
                   }}
                 />
                 <div className="flex flex-col">
                   <span className="font-semibold">{cmt.userId?.userName}</span>
+
                   <span className="text-[12px] text-dark-gray">
                     {cmt.userId?.email}
                   </span>
+                  <span className="text-[12px] text-dark-gray"></span>
                 </div>
               </div>
               <div className="w-fit !ml-9 py-2 px-3 bg-light-gray rounded-lg">
                 {cmt.content}
               </div>
+              <span className="!ml-9 mt-2 text-[12px] text-dark-gray">
+                {dayjs(cmt.createdAt).format("HH:mm - DD/MM/YYYY ")}
+              </span>
             </div>
           ))}
           {commentList.length > commentsPerPage && (
@@ -402,7 +431,10 @@ export default function TaskDetails() {
           <div className="flex items-center mt-2">
             <img
               className="w-[35px] h-[35px] rounded-full !mr-1"
-              src={user?.avatar || "https://upload.wikimedia.org/wikipedia/commons/thumb/5/59/User-avatar.svg/2048px-User-avatar.svg.png"}
+              src={
+                user?.avatar ||
+                "https://upload.wikimedia.org/wikipedia/commons/thumb/5/59/User-avatar.svg/2048px-User-avatar.svg.png"
+              }
               alt=""
             />
             <Input
