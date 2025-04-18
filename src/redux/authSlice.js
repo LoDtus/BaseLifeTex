@@ -98,7 +98,7 @@ const authSlice = createSlice({
     // Change Password
     changePasswordStart: (state) => {
       state.changePassword.isFetching = true;
-      state.changePassword.success = false;
+      state.changePassword.success = true;
       state.changePassword.error = false;
     },
     changePasswordSuccess: (state) => {

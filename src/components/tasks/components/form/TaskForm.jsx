@@ -662,7 +662,6 @@ export default function TaskForm() {
                   placeholder={["Ngày bắt đầu", "Ngày kết thúc"]}
                   format={dateFormat}
                   value={[configStartDate ?? null, configEndDate ?? null]}
-                  minDate={minDate}
                   onChange={getDateFromInp}
                   onCalendarChange={(dates) => {
                     if (dates?.[0] && dates?.[1]) {

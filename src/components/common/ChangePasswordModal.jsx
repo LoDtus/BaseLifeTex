@@ -43,6 +43,11 @@ const ChangePasswordButton = () => {
       return;
     }
 
+    if (oldPassword === newPassword) {
+      toast.error("Mật khẩu mới không được trùng với mật khẩu cũ");
+      return;
+    }
+
     dispatch(changePasswordStart());
     setLoading(true);
 
