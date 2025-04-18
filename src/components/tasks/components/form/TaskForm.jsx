@@ -84,7 +84,7 @@ export default function TaskForm() {
           setDescription(response.data.description);
           if (response.data.image !== "null" && response.data.image !== "") {
             setImg(response.data.image);
-          }else{
+          } else {
             response.data.image = null;
             setImg(response.data.image);
           }
@@ -108,7 +108,6 @@ export default function TaskForm() {
       setMinDate(dayjs(dayjs().format(dateFormat), dateFormat));
     }
   }, [taskState]);
-
 
   const getMemberList = useCallback(async () => {
     const response = await getMembers(projectId);
@@ -136,81 +135,58 @@ export default function TaskForm() {
 
   const asigneeList = [
     {
-      key: "close",
+      key: "customDropdown",
       label: (
-        <div className="relative top-0 z-10 bg-white px-1 py-1 w-[300px]">
-          {/* Hàng SVG */}
-          <div className="flex justify-end mb-2 sticky top-0 z-10 bg-white">
-            <div
-              className="cursor-pointer"
-              onClick={() => setVisibleAssignee(false)}
-            >
-              <svg
-                className="w-[25px] h-[25px] aspect-square"
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 384 512"
+        <div
+          className="relative"
+          style={{
+            width: "280px",
+            maxHeight: "400px",
+            overflowY: "auto",
+            display: "flex",
+            flexDirection: "column",
+          }}
+          onClick={(e) => e.stopPropagation()}
+        >
+          {/* Header cố định */}
+          <div
+            className="sticky top-0 z-10 bg-white"
+            style={{ paddingBottom: 8 }}
+          >
+            {/* SVG đóng */}
+            <div className="flex justify-end mb-2 pr-2 pt-2">
+              <div
+                className="cursor-pointer"
+                onClick={() => setVisibleAssignee(false)}
               >
-                <path d="M342.6 150.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L192 210.7 86.6 105.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L146.7 256 41.4 361.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0L192 301.3 297.4 406.6c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L237.3 256 342.6 150.6z" />
-              </svg>
+                <svg
+                  className="w-[20px] h-[20px]"
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 384 512"
+                >
+                  <path d="M342.6 150.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L192 210.7 86.6 105.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L146.7 256 41.4 361.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0L192 301.3 297.4 406.6c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L237.3 256 342.6 150.6z" />
+                </svg>
+              </div>
+            </div>
+
+            {/* Tìm kiếm */}
+            <div className="px-2">
+              <Input
+                placeholder="Tìm thành viên..."
+                size="small"
+                allowClear
+                value={searchKeyword}
+                onChange={(e) => setSearchKeyword(e.target.value)}
+              />
             </div>
           </div>
 
-          {/* Hàng input */}
-
-          <Input
-            placeholder="Tìm thành viên..."
-            size="small"
-            allowClear
-            value={searchKeyword}
-            onChange={(e) => setSearchKeyword(e.target.value)}
-            onClick={(e) => e.stopPropagation()}
-          />
-        </div>
-      ),
-    },
-    // {
-    //   key: "search",
-    //   label: (
-    //     <Input
-    //       placeholder="Tìm thành viên..."
-    //       size="small"
-    //       allowClear
-    //       value={searchKeyword}
-    //       onChange={(e) => setSearchKeyword(e.target.value)}
-    //       onClick={(e) => e.stopPropagation()} // tránh đóng dropdown khi click vào input
-    //     />
-    //   ),
-    //   disabled: true, // để không bị chọn
-    // },
-    {
-      key: "divider-1",
-      type: "divider",
-    },
-    {
-      key: "select_all",
-      label: (
-        <label
-          htmlFor="asignee_select_all"
-          className="!flex items-center cursor-pointer py-1 z-0"
-          onClick={(e) => {
-            // Chỉ dùng để ngăn Dropdown đóng
-            e.preventDefault();
-            e.stopPropagation();
-
-            const isAllSelected = assignee.length === filteredMemberList.length;
-            const newAssignee = isAllSelected
-              ? []
-              : filteredMemberList.map((m) => m._id);
-            setAssignee(newAssignee);
-          }}
-        >
-          <Checkbox
-            id="asignee_select_all"
-            checked={assignee.length === filteredMemberList.length}
-            indeterminate={
-              assignee.length > 0 && assignee.length < filteredMemberList.length
-            }
-            onChange={(e) => {
+          {/* Chọn tất cả */}
+          <div
+            className="flex items-center py-1 cursor-pointer gap-2"
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
               const isAllSelected =
                 assignee.length === filteredMemberList.length;
               const newAssignee = isAllSelected
@@ -218,48 +194,68 @@ export default function TaskForm() {
                 : filteredMemberList.map((m) => m._id);
               setAssignee(newAssignee);
             }}
-            onClick={(e) => e.stopPropagation()}
-          />
-          <span className="font-semibold " style={{ paddingLeft: 10 }}>
-            Chọn tất cả
-          </span>
-        </label>
+          >
+            <Checkbox
+              checked={assignee.length === filteredMemberList.length}
+              indeterminate={
+                assignee.length > 0 &&
+                assignee.length < filteredMemberList.length
+              }
+              onChange={(e) => {
+                const isAllSelected =
+                  assignee.length === filteredMemberList.length;
+                const newAssignee = isAllSelected
+                  ? []
+                  : filteredMemberList.map((m) => m._id);
+                setAssignee(newAssignee);
+              }}
+              onClick={(e) => e.stopPropagation()}
+            />
+            <span className="font-semibold ">Chọn tất cả</span>
+          </div>
+
+          {/* Danh sách thành viên */}
+
+          {filteredMemberList.map((member) => (
+            <label
+              key={member._id}
+              htmlFor={`asignee_${member._id}`}
+              className="flex items-center cursor-pointer w-full md:w-auto mb-2 mt-2 hover:bg-gray-200"
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                chooseAssignee(member._id, !assignee.includes(member._id));
+              }}
+            >
+              <div className="flex items-center gap-2">
+                <Checkbox
+                  id={`asignee_${member._id}`}
+                  checked={assignee.includes(member._id)}
+                  onChange={(e) => chooseAssignee(member._id, e.target.checked)}
+                  onClick={(e) => e.stopPropagation()}
+                  className=""
+                />
+
+                <img
+                  src={
+                    member.avatar ||
+                    "https://upload.wikimedia.org/wikipedia/commons/thumb/5/59/User-avatar.svg/2048px-User-avatar.svg.png"
+                  }
+                  alt={member.email}
+                  className="w-[40px] h-[40px] rounded-full mr-2"
+                />
+                <div className="flex flex-col justify-center">
+                  <span className="font-semibold">{member.userName}</span>
+                  <span className="text-[12px] text-dark-gray">
+                    {member.email}
+                  </span>
+                </div>
+              </div>
+            </label>
+          ))}
+        </div>
       ),
     },
-    ...filteredMemberList.map((member) => ({
-      key: member._id,
-      label: (
-        <label
-          htmlFor={`asignee_${member._id}`}
-          className="!flex items-center cursor-pointer"
-          onClick={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            chooseAssignee(member._id, !assignee.includes(member._id));
-          }}
-        >
-          <Checkbox
-            id={`asignee_${member._id}`}
-            checked={assignee.includes(member._id)}
-            onChange={(e) => chooseAssignee(member._id, e.target.checked)}
-            onClick={(e) => e.stopPropagation()}
-          />
-          <img
-            src={
-              member.avatar ||
-              "https://upload.wikimedia.org/wikipedia/commons/thumb/5/59/User-avatar.svg/2048px-User-avatar.svg.png"
-            }
-            alt={member.email}
-            className="w-[40px] h-[40px] aspect-square rounded-full !mx-2"
-            key={`img-${member._id}`}
-          />
-          <div className="flex flex-col" key={`info-${member._id}`}>
-            <span className="font-semibold">{member.userName}</span>
-            <span className="text-[12px] text-dark-gray">{member.email}</span>
-          </div>
-        </label>
-      ),
-    })),
   ];
 
   function getDateFromInp(dates) {
@@ -726,7 +722,7 @@ export default function TaskForm() {
           <label
             htmlFor="form-upload"
             className={
-              img 
+              img
                 ? "grow w-fit mt-2 !flex !flex-col !justify-center !items-center"
                 : "hidden"
             }
