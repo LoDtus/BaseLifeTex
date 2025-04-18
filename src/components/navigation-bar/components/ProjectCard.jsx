@@ -10,6 +10,8 @@ import TotalProjectMember from "./TotalProjectMember";
 import ProjectDetailModal from "./ProjectDetails";
 import Dialog from "@mui/material/Dialog";
 import AddProjectModal from "./AddProjectModal";
+import { toast } from "react-toastify";
+import { getListProjectByUser } from "../../../redux/projectSlice";
 
 const ProjectCard = ({ project, isSelected, avatarManger }) => {
   const dispatch = useDispatch();
@@ -54,15 +56,27 @@ const ProjectCard = ({ project, isSelected, avatarManger }) => {
     setAnchorEl(null);
   };
 
-  const handleDelete = () => {
+  const handleDelete = async () => {
     if (!project?._id) {
-      // eslint-disable-next-line no-console
       console.error("Lỗi: projectId không hợp lệ!", project);
       return;
     }
 
     if (window.confirm("Bạn có chắc chắn muốn xóa dự án này?")) {
-      dispatch(deleteProject(project._id));
+      try {
+        const result = await dispatch(deleteProject(project._id));
+
+        if (deleteProject.rejected.match(result)) {
+          toast.error(result.data || "Bạn không có quyền xóa project này");
+          return;
+        }
+
+        toast.success("Xóa dự án thành công");
+        await dispatch(getListProjectByUser(project._id));
+      } catch (error) {
+        toast.error("Xảy ra lỗi không xác định khi xóa dự án");
+        console.error(error);
+      }
     }
   };
 
