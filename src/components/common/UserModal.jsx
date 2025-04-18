@@ -8,6 +8,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { updateUserInfo } from "../../services/authService"; // điều chỉnh path nếu cần
 import { toast } from "react-toastify";
 import { isValidEmail, isValidPhone } from "../../utils/validationUtils";
+import ChangePasswordModal from "./ChangePasswordModal";
 function UserModal({ user, onClose }) {
   const [previewAvatar, setPreviewAvatar] = useState(
     user.avatar ||
@@ -87,6 +88,8 @@ function UserModal({ user, onClose }) {
     }
   };
 
+  const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
+
   return (
     <div className="fixed-user-card">
       <UserFormFields
@@ -109,6 +112,10 @@ function UserModal({ user, onClose }) {
             <EditNoteIcon /> Sửa
           </button>
         )}
+        <ChangePasswordModal
+          open={isPasswordModalOpen}
+          onClose={() => setIsPasswordModalOpen(false)}
+        />
         <button className="close-btn" onClick={onClose}>
           Đóng
         </button>

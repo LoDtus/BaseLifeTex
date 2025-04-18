@@ -142,3 +142,20 @@ export const updateUserInfo = createAsyncThunk(
     }
   }
 );
+
+export const changePassword = async (data, accessToken) => {
+  const res = await axios.post(
+    `${backendUrl}/auth/change-password`,
+    {
+      oldPassword: data.oldPassword,
+      newPassword: data.newPassword,
+      confirmNewPassword: data.confirmNewPassword,
+    },
+    {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    }
+  );
+  return res.data;
+};
