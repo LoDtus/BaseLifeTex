@@ -76,10 +76,6 @@ const authSlice = createSlice({
       state.login.role = null;
       localStorage.removeItem("accessToken");
     },
-    logOutFail: (state) => {
-      state.logout.isFetching = false;
-      state.logout.error = true;
-    },
 
     // Update User
     updateUserStart: (state) => {
