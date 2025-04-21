@@ -44,6 +44,17 @@ const ProjectCard = ({ project, isSelected, avatarManger }) => {
         return styles.statusBtnNotCompleted; // Default to "Chưa hoàn thành"
     }
   };
+  const getStatusBackgroundClass = () => {
+    switch (convertStatus(project.status)) {
+      case "Đang thực hiện":
+        return "inProgress"; // Trạng thái "Đang thực hiện"
+      case "Hoàn thành":
+        return "completed"; // Trạng thái "Hoàn thành"
+      case "Chưa hoàn thành":
+      default:
+        return "notCompleted"; // Trạng thái "Chưa hoàn thành"
+    }
+  };
   const renderProjectMembersBubble = ({ idProject }) => {
     return <TotalProjectMember idProject={idProject} />;
   };
@@ -87,7 +98,9 @@ const ProjectCard = ({ project, isSelected, avatarManger }) => {
   return (
     <>
       <div
-        className={`${styles.projectCard} ${isSelected ? styles.selected : ""}`}
+        className={`${styles.projectCard} ${
+          styles[getStatusBackgroundClass(project.status)]
+        } ${isSelected ? styles.selected : ""}`}
       >
         <div className={styles.projectHeader}>
           <div className={styles.right}>
