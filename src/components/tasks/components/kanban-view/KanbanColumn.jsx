@@ -16,6 +16,7 @@ export default function KanbanColumn({
   column,
   selectedTasks = [],
   setSelectedTasks,
+  project,
 }) {
   const dispatch = useDispatch();
   const { setNodeRef, isOver } = useDroppable({ id: columnId });
@@ -46,8 +47,23 @@ export default function KanbanColumn({
   const user = useSelector((state) => state.auth.login.currentUser.data.user);
 
   // const sortedTasks = [...column.tasks].sort((a, b) => b.priority - a.priority); // Tạo một bản sao của mảng tasks và sắp xếp theo độ ưu tiên (giảm dần)
-  const sortedTasks = [...column.tasks].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+  const sortedTasks = [...column.tasks].sort(
+    (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+  );
 
+  // Hàm convertStatus nội bộ
+  const convertStatus = (status) => {
+    switch (status) {
+      case 0:
+        return "Đang thực hiện";
+      case 1:
+        return "Chưa hoàn thành";
+      case 2:
+        return "Hoàn thành";
+      default:
+        return "Chưa hoàn thành"; // Default to "Chưa hoàn thành"
+    }
+  };
 
   return (
     <div
@@ -78,9 +94,16 @@ export default function KanbanColumn({
           <button
             className="w-full py-1 px-2 bg-white text-dark-gray border border-dashed border-gray-border rounded-md
                     cursor-pointer duration-200 hover:text-black hover:border-black active:scale-90 mb-2"
-            onClick={() => dispatch(setTaskForm("ADD"))}
+            onClick={() => {
+              if (project && project.status !== 2) {
+                // Kiểm tra nếu project tồn tại và không phải trạng thái "Hoàn thành"
+                dispatch(setTaskForm("ADD"));
+              }
+            }}
+            disabled={project && project.status === 2} // Disable nếu project có tồn tại và trạng thái là "Hoàn thành"
           >
-            Thêm công việc
+            {project ? convertStatus(project.status) : "Chưa có dữ liệu"} - Thêm
+            công việc
           </button>
         )}
       </div>
