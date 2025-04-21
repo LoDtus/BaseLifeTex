@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Box, Button, TextField, MenuItem } from "@mui/material";
+import { Box, Button, TextField, MenuItem, Autocomplete } from "@mui/material";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
@@ -64,34 +64,36 @@ export default function FilterDialog({ idProject }) {
         />
       </div>
       {/* Người được giao */}
-      <TextField
-        select
-        label="Người được giao"
-        value={filters?.assigneeId}
-        onChange={(e) => handleChange("assigneeId", e.target.value)}
-        fullWidth
-      >
-        {listMember.map((user) => (
-          <MenuItem key={user._id} value={user._id}>
-            {user.userName}
-          </MenuItem>
-        ))}
-      </TextField>
+      <Autocomplete
+        options={listMember}
+        getOptionLabel={(option) => option.userName}
+        value={
+          listMember.find((user) => user._id === filters?.assigneeId) || null
+        }
+        onChange={(event, newValue) => {
+          handleChange("assigneeId", newValue ? newValue._id : "");
+        }}
+        renderInput={(params) => (
+          <TextField {...params} label="Người được giao" fullWidth />
+        )}
+        isOptionEqualToValue={(option, value) => option._id === value._id}
+      />
 
       {/* Người báo cáo */}
-      <TextField
-        select
-        label="Người báo cáo"
-        value={filters?.assignerId}
-        onChange={(e) => handleChange("assignerId", e.target.value)}
-        fullWidth
-      >
-        {listMember.map((user) => (
-          <MenuItem key={user._id} value={user._id}>
-            {user.userName}
-          </MenuItem>
-        ))}
-      </TextField>
+      <Autocomplete
+        options={listMember}
+        getOptionLabel={(option) => option.userName}
+        value={
+          listMember.find((user) => user._id === filters?.assignerId) || null
+        }
+        onChange={(event, newValue) => {
+          handleChange("assignerId", newValue ? newValue._id : "");
+        }}
+        renderInput={(params) => (
+          <TextField {...params} label="Người báo cáo" fullWidth />
+        )}
+        isOptionEqualToValue={(option, value) => option._id === value._id}
+      />
 
       {/* Ngày giao việc */}
       <LocalizationProvider dateAdapter={AdapterDayjs}>
