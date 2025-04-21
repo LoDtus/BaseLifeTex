@@ -45,7 +45,9 @@ export default function KanbanColumn({
   const idProject = searchParams.get("idProject");
   const user = useSelector((state) => state.auth.login.currentUser.data.user);
 
-  const sortedTasks = [...column.tasks].sort((a, b) => b.priority - a.priority); // Tạo một bản sao của mảng tasks và sắp xếp theo độ ưu tiên (giảm dần)
+  // const sortedTasks = [...column.tasks].sort((a, b) => b.priority - a.priority); // Tạo một bản sao của mảng tasks và sắp xếp theo độ ưu tiên (giảm dần)
+  const sortedTasks = [...column.tasks].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
 
   return (
     <div

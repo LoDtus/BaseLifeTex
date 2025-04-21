@@ -169,6 +169,7 @@ export default function TaskDetails() {
     // Thêm thông báo xác nhận khi người dùng đang bình luận dở dang if (comment) tức là comment đang không null ấy
     dispatch(setTaskForm("CLOSE"));
   }
+  console.log(task);
 
   return (
     <div className="z-100 fixed top-0 left-0 w-[100vw] h-[100vh] flex justify-center items-center">
@@ -242,7 +243,7 @@ export default function TaskDetails() {
                   : ""}
               </span>
               <span
-                className={`py-1 px-3 rounded-full
+                className={`py-1 px-3 rounded-full !mr-1
                                 ${
                                   task?.status === 1
                                     ? "bg-red"
@@ -278,6 +279,7 @@ export default function TaskDetails() {
                   ? "Khóa công việc"
                   : ""}
               </span>
+              {task?.code && <span className="py-1 px-3 rounded-full bg-blue">Mã code: {task.code}</span>}
             </div>
             <div className="font-semibold text-3xl normal-case mt-3">
               {task?.title.trim()}

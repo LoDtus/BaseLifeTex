@@ -18,7 +18,8 @@ const ProjectCard = ({ project, isSelected, avatarManger }) => {
   const [anchorEl, setAnchorEl] = useState(null);
   const open = Boolean(anchorEl);
   const id = open ? "simple-popper" : undefined;
-  const user = useSelector((state) => state.auth.login.currentUser);
+  const user = useSelector((state) => state.auth.login.currentUser?.data?.user);
+
   const userRole = useSelector((state) => state.auth.login.role);
   const [projectDetailModal, setProjectDetailModal] = useState(false);
   const [projectModal, setProjectModal] = useState(false);
@@ -95,6 +96,8 @@ const ProjectCard = ({ project, isSelected, avatarManger }) => {
     setProjectDetailModal(true);
   };
 
+  console.log("User data:", user);
+
   return (
     <>
       <div
@@ -139,10 +142,10 @@ const ProjectCard = ({ project, isSelected, avatarManger }) => {
           <img
             className={styles.avatarUser}
             src={
-              user.data.user.avatar ||
+              user?.avatar ||
               "https://upload.wikimedia.org/wikipedia/commons/thumb/5/59/User-avatar.svg/2048px-User-avatar.svg.png"
             }
-            alt=""
+            alt="Avatar"
           />
 
           <span>{renderProjectMembersBubble({ idProject: project._id })}</span>
@@ -164,7 +167,7 @@ const ProjectCard = ({ project, isSelected, avatarManger }) => {
           >
             {convertStatus(project.status)}
           </button>
-          {userRole === 0 && (
+          {/* {userRole === 0 && (
             <button
               className={`${styles.buttonDelete} items-center`}
               onClick={handleDelete}
@@ -175,16 +178,35 @@ const ProjectCard = ({ project, isSelected, avatarManger }) => {
                 style={{ width: "98%", height: "98%" }}
               />
             </button>
-          )}
-          <div onClick={handleProjectDeatailClick}>
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 512 512"
-              className="w-[25px] h-[25px] aspect-square relative top-0 left-1 "
-            >
-              <path d="M256 512A256 256 0 1 0 256 0a256 256 0 1 0 0 512zM216 336l24 0 0-64-24 0c-13.3 0-24-10.7-24-24s10.7-24 24-24l48 0c13.3 0 24 10.7 24 24l0 88 8 0c13.3 0 24 10.7 24 24s-10.7 24-24 24l-80 0c-13.3 0-24-10.7-24-24s10.7-24 24-24zm40-208a32 32 0 1 1 0 64 32 32 0 1 1 0-64z" />
-            </svg>
-          </div>
+          )} */}
+          {user?._id &&
+            project?.managerId?._id &&
+            project.managerId._id === user._id && (
+              <button
+                className={`${styles.buttonDelete} items-center`}
+                onClick={handleDelete}
+              >
+                <img
+                  src="/icons/trash-icon.png"
+                  alt="Xóa dự án"
+                  style={{ width: "98%", height: "98%" }}
+                />
+              </button>
+            )}
+
+          {user?._id &&
+            project?.managerId?._id &&
+            project.managerId._id === user._id && (
+              <div onClick={handleProjectDeatailClick}>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 512 512"
+                  className="w-[25px] h-[25px] aspect-square relative top-0 left-1"
+                >
+                  <path d="M256 512A256 256 0 1 0 256 0a256 256 0 1 0 0 512zM216 336l24 0 0-64-24 0c-13.3 0-24-10.7-24-24s10.7-24 24-24l48 0c13.3 0 24 10.7 24 24l0 88 8 0c13.3 0 24 10.7 24 24s-10.7 24-24 24l-80 0c-13.3 0-24-10.7-24-24s10.7-24 24-24zm40-208a32 32 0 1 1 0 64 32 32 0 1 1 0-64z" />
+                </svg>
+              </div>
+            )}
         </div>
         <Popover
           id={id}
