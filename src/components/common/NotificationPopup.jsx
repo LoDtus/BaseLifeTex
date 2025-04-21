@@ -1,23 +1,26 @@
-import React, { useEffect, useState } from "react";
-import { Popover, IconButton, Typography, Badge, Button } from "@mui/material";
-import NotificationsIcon from "@mui/icons-material/Notifications";
+import CircleIcon from "@mui/icons-material/Circle";
 import CloseIcon from "@mui/icons-material/Close";
 import DeleteIcon from "@mui/icons-material/Delete";
-import CircleIcon from "@mui/icons-material/Circle";
+import NotificationsIcon from "@mui/icons-material/Notifications";
+import { Badge, Button, IconButton, Popover, Typography } from "@mui/material";
+import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
+import { toast } from "react-toastify";
+import { socket } from "../../config/socket.js";
 import {
   deleteNotifi,
   getAllNotificationsByUser,
   updateIsRead,
 } from "../../services/notificationService";
-import { socket, joinRoom } from "../../config/socket.js";
-import { toast } from "react-toastify";
+import ConfirmDialog from "../ConfirmDialog.jsx";
 const DISPLAY_LIMIT = 5;
 
 export default function NotificationPopup() {
   const [anchorEl, setAnchorEl] = useState(null);
   const [showAll, setShowAll] = useState(false);
   const [notifications, setNotifications] = useState([]);
+  const [openConfirmDialog, setOpenConfirmDialog] = useState(false);
+  const [selectedNotiId, setSelectedNotiId] = useState(null);
 
   const userId = useSelector(
     (state) => state.auth.login.currentUser?.data?.user?._id
@@ -91,15 +94,27 @@ export default function NotificationPopup() {
       )
     );
   };
-  const handleDelete = async (id) => {
-    if (window.confirm("Bạn có chắc chắn muốn xoá ?")) {
-      try {
-        await deleteNotifi(id);
-        setNotifications((prev) => prev.filter((noti) => noti._id !== id));
-        toast.success("Bạn đã xoá thành công");
-      } catch (error) {
-        console.error("Lỗi khi xoá thông báo:", error);
-      }
+  const handleOpenConfirmDialog = (id) => {
+    setSelectedNotiId(id);
+    setOpenConfirmDialog(true);
+  };
+
+  const handleCloseConfirmDialog = () => {
+    setSelectedNotiId(null);
+    setOpenConfirmDialog(false);
+  };
+
+  const handleConfirmDelete = async () => {
+    try {
+      await deleteNotifi(selectedNotiId);
+      setNotifications((prev) =>
+        prev.filter((noti) => noti._id !== selectedNotiId)
+      );
+      toast.success("Bạn đã xoá thành công");
+    } catch (error) {
+      console.error("Lỗi khi xoá thông báo:", error);
+    } finally {
+      handleCloseConfirmDialog();
     }
   };
   return (
@@ -180,7 +195,7 @@ export default function NotificationPopup() {
                   size="small"
                   onClick={(e) => {
                     e.stopPropagation();
-                    handleDelete(noti._id);
+                    handleOpenConfirmDialog(noti._id);
                   }}
                 >
                   <DeleteIcon color="error" fontSize="small" />
@@ -199,6 +214,14 @@ export default function NotificationPopup() {
           )}
         </div>
       </Popover>
+      {/* ✅ DIALOG DÙNG CHUNG */}
+      <ConfirmDialog
+        open={openConfirmDialog}
+        onClose={handleCloseConfirmDialog}
+        onConfirm={handleConfirmDelete}
+        title="Xác nhận xoá thông báo"
+        content="Bạn có chắc chắn muốn xoá thông báo này?"
+      />
     </div>
   );
 }

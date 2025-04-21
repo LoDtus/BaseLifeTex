@@ -14,6 +14,7 @@ import {
 } from "../../../../redux/taskSlice";
 import dayjs from "dayjs";
 import { deleteTaskById } from "../../../../services/taskService";
+import ConfirmDialog from "../../../ConfirmDialog";
 
 export default function TaskDetails() {
   const dispatch = useDispatch();
@@ -29,6 +30,7 @@ export default function TaskDetails() {
   const [comment, setComment] = useState("");
   const [commentList, setCommentList] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
+  const [isConfirmOpen, setIsConfirmOpen] = useState(false);
   const commentsPerPage = 2;
 
   useEffect(() => {
@@ -105,11 +107,8 @@ export default function TaskDetails() {
     fetchComments();
   }, [taskId]);
 
-  const handleDeleteTask = async () => {
+  const confirmDeleteTask = async () => {
     if (!taskId) return;
-
-    const confirmDelete = confirm("Bạn có muốn xóa task này không ?");
-    if (!confirmDelete) return;
     try {
       const resultAction = await dispatch(deleteTaskByIdRedux(taskId));
 
@@ -364,7 +363,7 @@ export default function TaskDetails() {
                   className="!font-semibold w-[100px]"
                   variant="solid"
                   color="danger"
-                  onClick={handleDeleteTask}
+                  onClick={() => setIsConfirmOpen(true)}
                 >
                   Xóa
                 </Button>
@@ -456,6 +455,18 @@ export default function TaskDetails() {
           </div>
         </div>
       </div>
+      <ConfirmDialog
+  open={isConfirmOpen}
+  onClose={() => setIsConfirmOpen(false)}
+  onConfirm={() => {
+    confirmDeleteTask();
+    setIsConfirmOpen(false);
+  }}
+  title="Xác nhận xoá công việc"
+  description="Bạn có chắc chắn muốn xoá công việc này không? Hành động này không thể hoàn tác."
+/>
+
+
     </div>
   );
 }
