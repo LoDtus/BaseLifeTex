@@ -164,17 +164,28 @@ const AddProjectModal = ({ open, onClose, project }) => {
     setLoading(true);
     try {
       if (project?._id) {
-        await dispatch(
+        const data = await dispatch(
           updateProject({
             projectId: project._id,
             projectData: updateProjectData,
           })
         );
+
+        if (updateProject.rejected.match(data)) {
+          toast.error(data.data || "Bạn không có quyền sửa project này");
+          return;
+        }
+
         await dispatch(getListProjectByUser(users._id));
         toast.success("Cập nhật dự án thành công");
         onClose();
       } else {
-        await dispatch(createProject(formData));
+        const data = await dispatch(createProject(formData));
+        if (createProject.rejected.match(data)) {
+          toast.error(data.payload || "Tạo mới thất bại");
+          return;
+        }
+
         await dispatch(getListProjectByUser(users._id));
         toast.success("Tạo dự án thành công");
       }

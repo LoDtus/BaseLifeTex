@@ -46,9 +46,11 @@ export const deleteProject = createAsyncThunk(
   async (projectId, { rejectWithValue }) => {
     try {
       await deleteProjectById(projectId); // Gửi request xóa
-      return projectId; // Trả về projectId để cập nhật Redux
+      return projectId;
     } catch (error) {
-      return rejectWithValue(error.message);
+      // ✅ Bắt message trả về từ backend (nếu có)
+      const message = error.response?.data?.message || "Xóa dự án thất bại";
+      return rejectWithValue(message);
     }
   }
 );
