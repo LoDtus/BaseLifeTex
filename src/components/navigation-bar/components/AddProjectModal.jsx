@@ -23,6 +23,7 @@ import {
   Popper,
   Chip,
   Checkbox,
+  Box,
 } from "@mui/material";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
@@ -277,17 +278,27 @@ const AddProjectModal = ({ open, onClose, project }) => {
 
   return (
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="md">
-      <DialogTitle className="text-center">
+      <DialogTitle
+        className="text-center"
+        sx={{ marginBottom: 0, paddingBottom: 0 }}
+      >
         {project?._id ? "Cập Nhật Dự Án" : "Tạo Dự Án"}
       </DialogTitle>
-      <DialogContent>
-        <form
-          onSubmit={handleSubmit}
-          style={{
-            display: "grid",
-            gridTemplateColumns: "1fr",
-            gap: "16px",
-            padding: "16px",
+      <form
+        onSubmit={handleSubmit}
+        style={{
+          padding: "16px",
+        }}
+      >
+        <DialogContent
+          sx={{
+            maxHeight: "70vh",
+            overflowY: "auto",
+
+            padding: "24px",
+            display: "flex",
+            flexDirection: "column",
+            gap: "24px",
           }}
         >
           <span className={alert.includes("NAME") ? "!text-red" : ""}>
@@ -555,42 +566,44 @@ const AddProjectModal = ({ open, onClose, project }) => {
               </Select>
             </FormControl>
           </div>
-          <DialogActions
-            style={{
-              display: "flex",
-              justifyContent: "flex-end",
-              position: "sticky",
-              bottom: 0,
-              background: "white",
-              zIndex: 10,
-              padding: "10px",
-            }}
+        </DialogContent>
+        <DialogActions
+          sx={{
+            position: "sticky", // hoặc "fixed" nếu bạn muốn nó dính cả khi dialog cao hơn màn hình
+            bottom: 0,
+            left: 0,
+            right: 0,
+            zIndex: 100,
+            backgroundColor: "#fff",
+            display: "flex",
+            paddingRight: "30px",
+            justifyContent: "flex-end",
+          }}
+        >
+          <Button onClick={onClose} color="secondary">
+            Hủy
+          </Button>
+          <Button
+            type="submit"
+            color="primary"
+            disabled={loading} // không cho click khi đang loading
+            // startIcon={
+            //   loading && <CircularProgress size={20} color="inherit" />
+            // }
           >
-            <Button onClick={onClose} color="secondary">
-              Hủy
-            </Button>
-            <Button
-              type="submit"
-              color="primary"
-              disabled={loading} // không cho click khi đang loading
-              // startIcon={
-              //   loading && <CircularProgress size={20} color="inherit" />
-              // }
-            >
-              {loading ? (
-                <>
-                  <CircularProgress size={20} color="inherit" />{" "}
-                  {project?._id ? "Đang cập nhật..." : "Đang thêm..."}
-                </>
-              ) : project?._id ? (
-                "Cập nhật"
-              ) : (
-                "Thêm"
-              )}
-            </Button>
-          </DialogActions>
-        </form>
-      </DialogContent>
+            {loading ? (
+              <>
+                <CircularProgress size={20} color="inherit" />{" "}
+                {project?._id ? "Đang cập nhật..." : "Đang thêm..."}
+              </>
+            ) : project?._id ? (
+              "Cập nhật"
+            ) : (
+              "Thêm"
+            )}
+          </Button>
+        </DialogActions>
+      </form>
       <Backdrop
         open={loading}
         sx={{
