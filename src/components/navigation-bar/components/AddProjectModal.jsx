@@ -259,14 +259,16 @@ const AddProjectModal = ({ open, onClose, project }) => {
         /* Ẩn thanh cuộn ở các trình duyệt hỗ trợ */
         scrollbarWidth: "none", // Firefox
         WebkitOverflowScrolling: "touch", // Cho phép cuộn mềm mại trên các thiết bị di động
-        "-webkit-scrollbar": { display: "none" } // Đối với các trình duyệt hỗ trợ webkit (Chrome, Safari)
+        "-webkit-scrollbar": { display: "none" }, // Đối với các trình duyệt hỗ trợ webkit (Chrome, Safari)
       }}
     />
   );
 
   return (
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="md">
-      <DialogTitle>{project?._id ? "Cập Nhật Dự Án" : "Tạo Dự Án"}</DialogTitle>
+      <DialogTitle className="text-center">
+        {project?._id ? "Cập Nhật Dự Án" : "Tạo Dự Án"}
+      </DialogTitle>
       <DialogContent>
         <form
           onSubmit={handleSubmit}
@@ -543,7 +545,15 @@ const AddProjectModal = ({ open, onClose, project }) => {
             </FormControl>
           </div>
           <DialogActions
-            style={{ display: "flex", justifyContent: "flex-end" }}
+            style={{
+              display: "flex",
+              justifyContent: "flex-end",
+              position: "sticky",
+              bottom: 0,
+              background: "white",
+              zIndex: 10,
+              padding: "10px",
+            }}
           >
             <Button onClick={onClose} color="secondary">
               Hủy
