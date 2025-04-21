@@ -31,6 +31,15 @@ export default function KanbanColumn({
     NOT_DO: 7,
   };
 
+  const backgroundColorMap = {
+    PREPARE: "#E3F2FD",
+    IN_PROGRESS: "#FFF3E0",
+    TEST: "#F3E5F5",
+    FINISH: "#E8F5E9",
+    CLOSE: "#ECEFF1",
+    PAUSE: "#FFFDE7",
+    NOT_DO: "#F7CBCB",
+  };
   const statusValue = statusMapReverse[columnId];
   const [searchParams] = useSearchParams();
   const idProject = searchParams.get("idProject");
@@ -43,6 +52,7 @@ export default function KanbanColumn({
       className={`h-full !ml-1 pd-2-custom border border-gray-border rounded-md bg-[#f4f5f7] overflow-y-auto overflow-x-hidden
                 ${isOver ? "kanban-column-over" : ""}`}
       style={{
+        backgroundColor: backgroundColorMap[columnId] || "#f4f5f7",
         height: "calc(100vh - 150px)",
         width: "14.2%",
         overflowY: "auto",
@@ -52,8 +62,11 @@ export default function KanbanColumn({
         position: "relative",
       }}
     >
-      <div className="fixed z-10 bg-[#f4f5f7] custom-fixed">
-        <h3 className="flex items-center mb-2 mt-2">
+      <div
+        className="sticky top-0 z-10 "
+        style={{ backgroundColor: backgroundColorMap[columnId] || "#f4f5f7" }}
+      >
+        <h3 className="flex items-center justify-center mb-2 mt-2">
           <span className="font-semibold !text-sm">{column.title}</span>
           <div className="text-[10px] font-semibold py-[2px] bg-[#dbddde] px-1 rounded-full !ml-1">
             <span>{column.tasks.length === 0 ? "" : column.tasks.length}</span>
@@ -69,7 +82,7 @@ export default function KanbanColumn({
           </button>
         )}
       </div>
-      <div ref={setNodeRef} className="items-custom">
+      <div ref={setNodeRef} className="items-custom mt-0 pt-0">
         <SortableContext
           id={columnId}
           items={sortedTasks.map((task) => task.id)}

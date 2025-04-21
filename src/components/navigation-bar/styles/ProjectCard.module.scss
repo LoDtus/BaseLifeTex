@@ -4,6 +4,17 @@
   background: #f5f5f5;
   transition: background-color 0.3s ease-in-out;
 
+  &.inProgress {
+    background-color: #fff3e0 !important;
+  }
+
+  &.completed {
+    background-color: #cdf6d5 !important;
+  }
+
+  &.notCompleted {
+    background-color: #fcc7c7 !important;
+  }
   &:hover {
     background: #f3f1f1; // Màu nhạt hơn khi hover
   }
@@ -149,6 +160,17 @@
       font-weight: 700;
       font-size: 11px;
     }
+    // .bgInProgress {
+    //   background-color: #e3f2fd; // xanh dương nhạt
+    // }
+
+    // .bgCompleted {
+    //   background-color: #e8f5e9; // xanh lá nhạt
+    // }
+
+    // .bgNotCompleted {
+    //   background-color: #fff3e0; // cam nhạt
+    // }
   }
 }
 .deleteBtn {
@@ -173,12 +195,12 @@
   border-color: #dcdcdc;
 }
 
-.projectCard.selected {
-  background-color: #dcdcdc;
-  /* Màu xanh highlight */
-  color: white;
-  border-color: #dcdcdc;
-}
+// .projectCard.selected {
+//   background-color: #dcdcdc;
+//   /* Màu xanh highlight */
+//   color: white;
+//   border-color: #dcdcdc;
+// }
 .buttonDelete {
   width: 32px;
   height: 31px;
