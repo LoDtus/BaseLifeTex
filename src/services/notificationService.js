@@ -52,31 +52,3 @@ export const deleteNotifi = async (notifiId) => {
     throw error;
   }
 };
-
-// Đánh dấu tất cả thông báo là đã đọc cho user
-export const markAllAsRead = async (userId) => {
-  try {
-    const response = await axiosInstance.put(`/notifi/mark-all-read/${userId}`);
-    return response.data;
-  } catch (error) {
-    console.error(
-      "Không thể đánh dấu tất cả là đã đọc:",
-      error.response?.data || error
-    );
-    throw error;
-  }
-};
-
-// Xóa tất cả thông báo của user
-export const deleteAllNotifications = async (userId) => {
-  try {
-    const response = await axiosInstance.delete(`/notifi/delete-all/${userId}`);
-    return response.data;
-  } catch (error) {
-    console.error(
-      "Không thể xoá tất cả thông báo:",
-      error.response?.data || error
-    );
-    throw error;
-  }
-};

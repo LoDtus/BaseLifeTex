@@ -117,27 +117,6 @@ export default function NotificationPopup() {
       handleCloseConfirmDialog();
     }
   };
-
-  const handleMarkAllAsRead = async () => {
-    try {
-      await markAllAsRead(userId);
-      setNotifications((prev) => prev.map((n) => ({ ...n, isRead: true })));
-      toast.success("Đã đánh dấu tất cả là đã đọc");
-    } catch (error) {
-      toast.error("Lỗi khi đánh dấu tất cả là đã đọc");
-    }
-  };
-
-  const handleDeleteAll = async () => {
-    try {
-      await deleteAllNotifications(userId);
-      setNotifications([]);
-      toast.success("Đã xoá tất cả thông báo");
-    } catch (error) {
-      toast.error("Lỗi khi xoá tất cả thông báo");
-    }
-  };
-
   return (
     <div>
       {/* Icon chuông + số thông báo chưa đọc */}
@@ -169,25 +148,6 @@ export default function NotificationPopup() {
           <Typography variant="subtitle2" sx={{ px: 2, fontWeight: "bold" }}>
             Tổng số thông báo: {notifications.length}
           </Typography>
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-              padding: "0 16px",
-              marginTop: "8px",
-            }}
-          >
-            {unreadCount > 0 && (
-              <Button size="small" onClick={handleMarkAllAsRead}>
-                Đọc tất cả
-              </Button>
-            )}
-            {notifications.length > 0 && (
-              <Button size="small" color="error" onClick={handleDeleteAll}>
-                Xoá tất cả
-              </Button>
-            )}
-          </div>
 
           {/* Hiển thị danh sách thông báo */}
           {visibleNotifications.map((noti) => (

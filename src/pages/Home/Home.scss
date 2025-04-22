@@ -130,7 +130,7 @@
   .avatar-group {
     display: flex;
     align-items: center;
-    gap: -8px;
+    gap: -8px; // Chồng avatar lên nhau
 
     .avatar {
       width: 32px;
@@ -302,65 +302,5 @@
     padding: 4px 8px;
     border-radius: 4px;
     font-weight: 500;
-  }
-}
-
-// ========== Responsive cho thanh công cụ ==========
-@media (max-width: 480px) and (min-width: 376px) {
-  .toolbar-section {
-    flex-direction: row;
-    align-items: center;
-    justify-content: space-between;
-    gap: 8px;
-    padding: 8px 16px;
-  }
-
-  .search-container {
-    flex: 1;
-    justify-content: space-between;
-
-    .search-input {
-      width: 160px;
-      font-size: 13px;
-      padding: 8px 8px 8px 32px;
-    }
-
-    .avatar-group {
-      gap: 6px;
-
-      .avatar {
-        width: 28px;
-        height: 28px;
-      }
-    }
-  }
-}
-
-@media (max-width: 375px) {
-  .toolbar-section {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 8px;
-    padding: 8px 12px;
-  }
-
-  .search-container {
-    width: 100%;
-    justify-content: space-between;
-
-    .search-input {
-      width: 130px;
-      font-size: 12px;
-      padding: 6px 6px 6px 28px;
-    }
-
-    .avatar-group {
-      justify-content: flex-end;
-
-      .avatar {
-        width: 28px;
-        height: 28px;
-      }
-    }
   }
 }
