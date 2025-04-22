@@ -124,10 +124,119 @@
   transition: background-color 0.2s ease;
 
   &:hover {
-      background-color: #e0e0e0;
+    background-color: #e0e0e0;
   }
 
   svg {
-      color: #333;
+    color: #333;
+  }
+}
+@media (max-width: 480px) {
+  .kanban-header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+    height: auto;
+    padding: 8px 12px;
+  }
+
+  .logo {
+    justify-content: center;
+  }
+
+  .search-bar,
+  .user-profile {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    margin-right: -150px;
+  }
+
+  .search-bar {
+    justify-content: flex-start;
+
+    .search-input {
+      max-width: 140px;
+      font-size: 12px;
+      padding: 6px 10px 6px 22px;
+    }
+  }
+
+  .user-profile {
+    justify-content: flex-end;
+
+    .user-name {
+      display: none;
+    }
+  }
+}
+
+@media (max-width: 375px) {
+  .search-bar {
+    .search-input {
+      max-width: 120px;
+    }
+  }
+}
+/* Medium: 481px – 768px */
+@media (min-width: 481px) and (max-width: 768px) {
+  .kanban-header {
+    flex-direction: column;
+    height: auto;
+    padding: 12px;
+  }
+
+  .search-bar {
+    justify-content: center;
+    margin: 10px 0;
+  }
+
+  .search-input {
+    width: 90%;
+  }
+
+  .user-name {
+    display: none;
+  }
+}
+
+/* Large: 769px – 1024px */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .logo-text {
+    font-size: 16px;
+  }
+
+  .search-input {
+    max-width: 200px;
+  }
+
+  .user-name {
+    font-size: 13px;
+  }
+}
+
+/* X-Large: 1025px – 1280px */
+@media (min-width: 1025px) and (max-width: 1280px) {
+  .logo-text {
+    font-size: 17px;
+  }
+
+  .search-input {
+    max-width: 218px;
+  }
+}
+
+/* 2X-Large: > 1280px */
+@media (min-width: 1281px) {
+  .logo-text {
+    font-size: 18px;
+  }
+
+  .search-input {
+    max-width: 240px;
+  }
+
+  .user-name {
+    font-size: 14px;
   }
 }
