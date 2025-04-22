@@ -809,7 +809,7 @@ const [latestTaskId, setLatestTaskId] = useState("");
             {img && <span className="mt-2 text-dark-gray">Ảnh mô tả</span>}
           </label>
           <div className="sticky bottom-0 w-full mt-2 pt-2 z-10">
-            <div className=" flex justify-end">
+            <div className=" flex justify-end gap-1">
               <Button
                 className="w-[130px] !font-semibold flex items-center justify-center"
                 color="blue"
@@ -825,6 +825,7 @@ const [latestTaskId, setLatestTaskId] = useState("");
                   ? "Thêm"
                   : "Cập nhật"}
               </Button>
+
               {taskState.slice(0, 4).includes("UPDATE") && (
                 <Button
                   className="w-[100px] !font-semibold !ml-1"
