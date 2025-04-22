@@ -17,6 +17,7 @@ import { getListTaskByProjectId } from "../../../../redux/taskSlice";
 import { getlistUser } from "../../../../services/userService";
 import { toast } from "react-toastify";
 import MemberListContentAdd from "../list-view/MemberListAdd";
+import img from "../../../../../public/imgs/basic-user.png"
 
 export default function KanbanTaskCard({
   selectedTasks,
@@ -198,8 +199,7 @@ export default function KanbanTaskCard({
                 key={i}
                 className="w-[25px] h-[25px] rounded-full cursor-pointer !ml-[2px]"
                 src={
-                  member.avatar ||
-                  "https://upload.wikimedia.org/wikipedia/commons/thumb/5/59/User-avatar.svg/2048px-User-avatar.svg.png"
+                  member?.avatar || img
                 }
                 alt={member.email}
               />

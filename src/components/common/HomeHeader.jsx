@@ -8,11 +8,12 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { useEffect, useState } from "react";
 import UserModal from "./UserModal";
+import img from "../../../public/imgs/basic-user.png";
 
 
 export default function HomeHeader({ setSearchTerm }) {
     const user = useSelector((state) => state.auth.login.currentUser);
-    const avatar = user?.data?.user?.avatar || "https://upload.wikimedia.org/wikipedia/commons/thumb/5/59/User-avatar.svg/2048px-User-avatar.svg.png";
+    const avatar = user?.data?.user?.avatar || img;
     const userName = user?.data?.user?.userName || "Khách";
     const dispatch = useDispatch();
     const navigate = useNavigate();

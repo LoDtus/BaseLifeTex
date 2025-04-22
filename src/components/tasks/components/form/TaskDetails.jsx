@@ -15,6 +15,7 @@ import {
 import dayjs from "dayjs";
 import { deleteTaskById } from "../../../../services/taskService";
 import ConfirmDialog from "../../../ConfirmDialog";
+import img from "../../../../../public/imgs/basic-user.png"
 
 export default function TaskDetails() {
   const dispatch = useDispatch();
@@ -67,8 +68,7 @@ export default function TaskDetails() {
           <img
             className="w-[35px] h-[35px] rounded-full aspect-square !mr-1"
             src={
-              member.avatar ||
-              "https://upload.wikimedia.org/wikipedia/commons/thumb/5/59/User-avatar.svg/2048px-User-avatar.svg.png"
+              member.avatar || img
             }
             alt={member.email}
           />
@@ -310,8 +310,7 @@ export default function TaskDetails() {
                     className="w-[25px] h-[25px] !mr-1 aspect-square rounded-full cursor-pointer
                                             duration-200 active:scale-90"
                     src={
-                      assignee.avatar ||
-                      "https://upload.wikimedia.org/wikipedia/commons/thumb/5/59/User-avatar.svg/2048px-User-avatar.svg.png"
+                      assignee?.avatar || img
                     }
                     alt={assignee.email}
                   />
@@ -392,14 +391,12 @@ export default function TaskDetails() {
                 <img
                   className="w-[35px] h-[35px] !mr-1 aspect-square rounded-full"
                   src={
-                    cmt.userId?.avatar ||
-                    "https://upload.wikimedia.org/wikipedia/commons/thumb/5/59/User-avatar.svg/2048px-User-avatar.svg.png"
+                    cmt.userId?.avatar || img
                   }
                   alt={cmt.userId?.email}
                   onError={(e) => {
                     e.target.onerror = null;
-                    e.target.src =
-                      "https://upload.wikimedia.org/wikipedia/commons/thumb/5/59/User-avatar.svg/2048px-User-avatar.svg.png";
+                    e.target.src = img;
                   }}
                 />
                 <div className="flex flex-col">
@@ -433,8 +430,7 @@ export default function TaskDetails() {
             <img
               className="w-[35px] h-[35px] rounded-full !mr-1"
               src={
-                user?.avatar ||
-                "https://upload.wikimedia.org/wikipedia/commons/thumb/5/59/User-avatar.svg/2048px-User-avatar.svg.png"
+                user?.avatar || img
               }
               alt=""
             />

@@ -13,6 +13,7 @@ import AddProjectModal from "./AddProjectModal";
 import { toast } from "react-toastify";
 import { getListProjectByUser } from "../../../redux/projectSlice";
 import ConfirmDialog from "../../ConfirmDialog";
+import img from "../../../../public/imgs/basic-user.png";
 
 const ProjectCard = ({ project, isSelected, avatarManger }) => {
   const dispatch = useDispatch();
@@ -146,8 +147,7 @@ const ProjectCard = ({ project, isSelected, avatarManger }) => {
           <img
             className={styles.avatarUser}
             src={
-              user?.avatar ||
-              "https://upload.wikimedia.org/wikipedia/commons/thumb/5/59/User-avatar.svg/2048px-User-avatar.svg.png"
+              user?.avatar || img
             }
             alt="Avatar"
           />
@@ -157,7 +157,7 @@ const ProjectCard = ({ project, isSelected, avatarManger }) => {
         <div className={styles.projectFooter}>
           <img
             className={styles.avatar}
-            src={project.managerId?.avatar}
+            src={project?.managerId?.avatar || img}
             onClick={handleClick}
             alt="Avatar"
           />
