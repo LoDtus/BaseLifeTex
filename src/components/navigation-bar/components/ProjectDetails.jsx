@@ -149,30 +149,37 @@ const ProjectDetailModal = ({ project, open, onClose, onEdit }) => {
                 : ""}
             </span>
           </div>
-          <div className="flex items-center text-1xl font-semibold mt-2">
-            Thành viên tham gia:&nbsp;
-            <span className="flex items-center flex-wrap gap-1">
-              {membersToShow.map((m, index) => (
-                <span key={m._id || index}>
-                  {(m.userName || m.fullName) +
-                    (index < membersToShow.length - 1 ? ", " : "")}
-                </span>
-              ))}
+          <div className="flex items-start mt-4 text-base font-semibold text-gray-800">
+  <span className="min-w-fit mr-2 bg-green-100 text-green-700 px-2 py-1 rounded-md shadow-sm">
+    Thành viên tham gia:
+  </span>
 
-              {project.members?.length > 2 && !showAllMembers && (
-                <EllipsisOutlined
-                  onClick={() => setShowAllMembers(true)}
-                  className="cursor-pointer ml-3 text-gray-600 hover:text-black text-2xl"
-                />
-              )}
-              {showAllMembers && (
-                <EllipsisOutlined
-                  onClick={() => setShowAllMembers(false)}
-                  className="cursor-pointer ml-3 text-gray-600 hover:text-black text-2xl"
-                />
-              )}
-            </span>
-          </div>
+  <div className="flex items-center flex-wrap gap-2">
+    {membersToShow.map((m, index) => (
+      <span
+        key={m._id || index}
+        className="text-sm bg-white border border-gray-200 px-2 py-1 rounded-md shadow-sm"
+      >
+        {(m.userName || m.fullName) +
+          (index < membersToShow.length - 1 ? "," : "")}
+      </span>
+    ))}
+
+    {project.members?.length > 2 && !showAllMembers && (
+      <EllipsisOutlined
+        onClick={() => setShowAllMembers(true)}
+        className="cursor-pointer text-gray-500 hover:text-black text-xl ml-2"
+      />
+    )}
+    {showAllMembers && (
+      <EllipsisOutlined
+        onClick={() => setShowAllMembers(false)}
+        className="cursor-pointer text-gray-500 hover:text-black text-xl ml-2"
+      />
+    )}
+  </div>
+</div>
+
         </div>
         <div className="basis-[40%] max-h-[50%] !ml-2 flex flex-col items-center mt-3 mb-3 text-gray-600">
           <TextArea
