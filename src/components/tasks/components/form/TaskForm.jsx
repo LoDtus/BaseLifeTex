@@ -27,6 +27,7 @@ import customParseFormat from "dayjs/plugin/customParseFormat";
 
 import { getListTaskByProjectId } from "../../../../redux/taskSlice";
 import Loading from "../../../common/Loading";
+import imgss from "../../../../../public/imgs/basic-user.png";
 import ConfirmDialog from "./ConfirmDialog";
 dayjs.extend(customParseFormat);
 const dateFormat = "DD-MM-YYYY";
@@ -65,7 +66,7 @@ export default function TaskForm() {
   const [memberList, setMemberList] = useState([]);
   const [visibleAssignee, setVisibleAssignee] = useState(false);
   const [showPostAddConfirm, setShowPostAddConfirm] = useState(false);
-const [latestTaskId, setLatestTaskId] = useState("");
+  const [latestTaskId, setLatestTaskId] = useState("");
 
   const [configStartDate, setConfigStartDate] = useState(
     dayjs(dayjs().format(dateFormat), dateFormat)
@@ -137,7 +138,7 @@ const [latestTaskId, setLatestTaskId] = useState("");
       member.userName.toLowerCase().includes(searchKeyword.toLowerCase()) ||
       member.email.toLowerCase().includes(searchKeyword.toLowerCase())
   );
-
+  console.log(filteredMemberList);
   const asigneeList = [
     {
       key: "customDropdown",
@@ -218,7 +219,6 @@ const [latestTaskId, setLatestTaskId] = useState("");
             />
             <span className="font-semibold ">Chọn tất cả</span>
           </div>
-
           {/* Danh sách thành viên */}
 
           {filteredMemberList.map((member) => (
@@ -242,10 +242,7 @@ const [latestTaskId, setLatestTaskId] = useState("");
                 />
 
                 <img
-                  src={
-                    member.avatar ||
-                    "https://upload.wikimedia.org/wikipedia/commons/thumb/5/59/User-avatar.svg/2048px-User-avatar.svg.png"
-                  }
+                  src={member?.avatar || imgss}
                   alt={member.email}
                   className="w-[40px] h-[40px] rounded-full mr-2"
                 />
@@ -286,7 +283,7 @@ const [latestTaskId, setLatestTaskId] = useState("");
   }
   const handlePostAddAction = (action) => {
     setShowPostAddConfirm(false);
-  
+
     switch (action) {
       case "DETAILS":
         dispatch(setTaskForm(`DETAILS_${latestTaskId}`));
@@ -298,7 +295,7 @@ const [latestTaskId, setLatestTaskId] = useState("");
         resetForm(); // gọi hàm reset form
         break;
     }
-  
+
     openSystemNoti("success", "Đã thêm công việc");
   };
   const resetForm = () => {
@@ -317,7 +314,7 @@ const [latestTaskId, setLatestTaskId] = useState("");
     setConfigEndDate(null);
     setMinDate(dayjs(dayjs().format(dateFormat), dateFormat));
   };
-    
+
   async function saveTask() {
     setLoading(true);
     let shouldCloseForm = false; // ✅ Mặc định là sẽ đóng form
@@ -842,20 +839,19 @@ const [latestTaskId, setLatestTaskId] = useState("");
         </div>
       </div>
       {showPostAddConfirm && (
-  <ConfirmDialog
-    open={showPostAddConfirm}
-    title="Bạn có muốn chuyển đến chi tiết công việc?"
-    description="Bạn muốn làm gì sau khi thêm công việc thành công?"
-    actions={[
-      { label: "Có", value: "DETAILS" },
-      { label: "Không", value: "CLOSE" },
-      { label: "Thêm tiếp", value: "ADD_MORE" },
-    ]}
-    onClose={() => setShowPostAddConfirm(false)}
-    onSelect={(action) => handlePostAddAction(action)}
-  />
-)}
-
+        <ConfirmDialog
+          open={showPostAddConfirm}
+          title="Bạn có muốn chuyển đến chi tiết công việc?"
+          description="Bạn muốn làm gì sau khi thêm công việc thành công?"
+          actions={[
+            { label: "Có", value: "DETAILS" },
+            { label: "Không", value: "CLOSE" },
+            { label: "Thêm tiếp", value: "ADD_MORE" },
+          ]}
+          onClose={() => setShowPostAddConfirm(false)}
+          onSelect={(action) => handlePostAddAction(action)}
+        />
+      )}
     </div>
   );
 }
