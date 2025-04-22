@@ -311,8 +311,7 @@ export default function TaskDetails() {
                     className="w-[25px] h-[25px] !mr-1 aspect-square rounded-full cursor-pointer
                                             duration-200 active:scale-90"
                     src={
-                      task.assigneeId[0].avatar ||
-                      "https://upload.wikimedia.org/wikipedia/commons/thumb/5/59/User-avatar.svg/2048px-User-avatar.svg.png"
+                      task.assigneeId[0].avatar || img
                     }
                     alt={task.assigneeId[0].email}
                   />
