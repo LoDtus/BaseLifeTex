@@ -12,6 +12,7 @@ import Dialog from "@mui/material/Dialog";
 import AddProjectModal from "./AddProjectModal";
 import { toast } from "react-toastify";
 import { getListProjectByUser } from "../../../redux/projectSlice";
+import ConfirmDialog from "../../ConfirmDialog";
 
 const ProjectCard = ({ project, isSelected, avatarManger }) => {
   const dispatch = useDispatch();
@@ -24,6 +25,7 @@ const ProjectCard = ({ project, isSelected, avatarManger }) => {
   const [projectDetailModal, setProjectDetailModal] = useState(false);
   const [projectModal, setProjectModal] = useState(false);
   const [editingProject, setEditingProject] = useState(null);
+  const [openConfirmDialog, setOpenConfirmDialog] = useState(false); // New state for ConfirmDialog
 
   useEffect(() => {
     console.log("Project Modal state:", projectModal);
@@ -68,28 +70,30 @@ const ProjectCard = ({ project, isSelected, avatarManger }) => {
     setAnchorEl(null);
   };
 
-  const handleDelete = async () => {
+  const confirmDeleteProject = async () => {
     if (!project?._id) {
       console.error("Lỗi: projectId không hợp lệ!", project);
       return;
     }
 
-    if (window.confirm("Bạn có chắc chắn muốn xóa dự án này?")) {
-      try {
-        const result = await dispatch(deleteProject(project._id));
+    try {
+      const result = await dispatch(deleteProject(project._id));
 
-        if (deleteProject.rejected.match(result)) {
-          toast.error(result.data || "Bạn không có quyền xóa project này");
-          return;
-        }
-
-        toast.success("Xóa dự án thành công");
-        await dispatch(getListProjectByUser(project._id));
-      } catch (error) {
-        toast.error("Xảy ra lỗi không xác định khi xóa dự án");
-        console.error(error);
+      if (deleteProject.rejected.match(result)) {
+        toast.error(result.data || "Bạn không có quyền xóa project này");
+        return;
       }
+
+      toast.success("Xóa dự án thành công");
+      await dispatch(getListProjectByUser(project._id));
+      setOpenConfirmDialog(false); 
+    } catch (error) {
+      toast.error("Xảy ra lỗi không xác định khi xóa dự án");
+      console.error(error);
     }
+  };
+  const handleDelete = () => {
+    setOpenConfirmDialog(true); // Open ConfirmDialog
   };
 
   const handleProjectDeatailClick = () => {
@@ -241,6 +245,13 @@ const ProjectCard = ({ project, isSelected, avatarManger }) => {
         projectData={editingProject}
         isUpdate={true}
         project={project}
+      />
+       <ConfirmDialog
+        open={openConfirmDialog}
+        onClose={() => setOpenConfirmDialog(false)}
+        onConfirm={confirmDeleteProject}
+        title="Xác nhận xoá dự án"
+        content={`Bạn có chắc chắn muốn xoá dự án "${project.name}" không?`}
       />
     </>
   );

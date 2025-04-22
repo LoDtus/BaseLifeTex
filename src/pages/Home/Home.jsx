@@ -17,6 +17,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import { setOpenProjectMenu } from "@/redux/propertiesSlice";
 import { setViewMode } from "../../redux/viewModeSlice";
+import ConfirmDialog from "../../components/ConfirmDialog";
 
 export default function Home() {
   const dispatch = useDispatch();
@@ -33,6 +34,8 @@ export default function Home() {
   const [selectedTasks, setSelectedTasks] = useState([]);
   const [keyword, setKeyword] = useState("");
   const [timer, setTimer] = useState(null);
+  const [openConfirmDialog, setOpenConfirmDialog] = useState(false); // Trạng thái mở ConfirmDialog
+  const [confirmAction, setConfirmAction] = useState(null); // Lưu trữ hành động
   const openProjectMenu = useSelector(
     (state) => state.properties.openProjectMenu
   );
@@ -81,7 +84,7 @@ export default function Home() {
     }
   }, [idProject, getMemberByProject]);
 
-  const handleDeleteSelected = async () => {
+  const handleDeleteSelected = () => {
     if (selectedTasks.length === 0) {
       toast.warning("Vui lòng chọn vấn đề muốn xóa !");
       return;
@@ -91,29 +94,31 @@ export default function Home() {
     //   `Bạn có chắc muốn xóa ${selectedTasks.length} task không?`
     // );
     // if (!confirmDelete) return;
-
-    try {
-      const result = await dispatch(
-        deleteManyTasksRedux(selectedTasks)
-      ).unwrap();
-      if (result && result.length > 0) {
-        setSelectedTasks([]);
-        dispatch(
-          getListTaskByProjectId({
-            projectId: idProject,
-            page: Page,
-            limit: viewMode === "list" ? 20 : 100,
-          })
-        );
-        toast.success("Xóa thành công.");
-      } else {
+    setConfirmAction(() => async () => {
+      try {
+        const result = await dispatch(
+          deleteManyTasksRedux(selectedTasks)
+        ).unwrap();
+        if (result && result.length > 0) {
+          setSelectedTasks([]);
+          dispatch(
+            getListTaskByProjectId({
+              projectId: idProject,
+              page: Page,
+              limit: viewMode === "list" ? 20 : 100,
+            })
+          );
+          toast.success("Xóa thành công.");
+        } else {
+          toast.error("Xóa thất bại!");
+        }
+      } catch (error) {
+        // eslint-disable-next-line no-console
+        console.log(error);
         toast.error("Xóa thất bại!");
       }
-    } catch (error) {
-      // eslint-disable-next-line no-console
-      console.log(error);
-      toast.error("Xóa thất bại!");
-    }
+     });
+     setOpenConfirmDialog(true); // Mở ConfirmDialog
   };
 
   const openFilter = Boolean(anchorElFilter);
@@ -268,6 +273,17 @@ export default function Home() {
           />
         )}
       </div>
+      {/* ConfirmDialog Component */}
+      <ConfirmDialog
+        open={openConfirmDialog}
+        onClose={() => setOpenConfirmDialog(false)}
+        onConfirm={() => {
+          confirmAction();
+          setOpenConfirmDialog(false);
+        }}
+        title={`Xóa ${selectedTasks.length} task`}
+        message={`Bạn có chắc muốn xóa ${selectedTasks.length} task không?`}
+      />
     </div>
   );
 }
