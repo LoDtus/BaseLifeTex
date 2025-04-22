@@ -64,6 +64,7 @@ const ProjectDetailModal = ({ project, open, onClose, onEdit }) => {
           Xóa
         </Button>,
       ]}
+      bodyStyle={{ maxHeight: "60vh", overflowY: "auto" }}
     >
       <div className="flex">
         <div className="basis-[60%]">
