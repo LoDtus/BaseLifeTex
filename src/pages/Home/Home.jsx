@@ -18,6 +18,7 @@ import { toast } from "react-toastify";
 import { setOpenProjectMenu } from "@/redux/propertiesSlice";
 import { setViewMode } from "../../redux/viewModeSlice";
 import ConfirmDialog from "../../components/ConfirmDialog";
+import img from "../../../public/imgs/basic-user.png";
 
 export default function Home() {
   const dispatch = useDispatch();
@@ -195,7 +196,7 @@ export default function Home() {
             {listMember?.slice(0, 5)?.map((member, index) => (
               <Avatar
                 key={index}
-                src={member.avatar ? member.avatar : "/imgs/basic-user.png"}
+                src={member?.avatar || img}
                 alt={`Avatar ${index + 1}`}
                 className="avatar"
               />
@@ -205,7 +206,7 @@ export default function Home() {
                 <img
                   onClick={(e) => setAnchorEl(e.currentTarget)}
                   key={index}
-                  src={avatar}
+                  src={avatar || img}
                   alt={`Avatar ${index + 1}`}
                   className="avatar"
                 />

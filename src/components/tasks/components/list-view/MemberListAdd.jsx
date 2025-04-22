@@ -15,6 +15,7 @@ import "../../styles/MemberListAdd.scss";
 import CloseIcon from "@mui/icons-material/Close";
 import { addMemberTask } from "@/services/issueService";
 import { getlistUserInProjects } from "@/services/taskService";
+import img from "../../../../../public/imgs/basic-user.png"
 
 export default function MemberListContentAdd({
   onClose,
@@ -163,7 +164,7 @@ export default function MemberListContentAdd({
               }
               label={
                 <Box sx={{ display: "flex", alignItems: "center" }}>
-                  <Avatar src={member?.avatar} />
+                  <Avatar src={member?.avatar || img} />
                   <Typography sx={{ ml: 1 }}>{member.userName}</Typography>
                 </Box>
               }

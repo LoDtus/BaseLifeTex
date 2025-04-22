@@ -27,6 +27,7 @@ import customParseFormat from "dayjs/plugin/customParseFormat";
 
 import { getListTaskByProjectId } from "../../../../redux/taskSlice";
 import Loading from "../../../common/Loading";
+import imgss from "../../../../../public/imgs/basic-user.png";
 import ConfirmDialog from "./ConfirmDialog";
 dayjs.extend(customParseFormat);
 const dateFormat = "DD-MM-YYYY";
@@ -218,7 +219,6 @@ const [latestTaskId, setLatestTaskId] = useState("");
             />
             <span className="font-semibold ">Chọn tất cả</span>
           </div>
-
           {/* Danh sách thành viên */}
 
           {filteredMemberList.map((member) => (
@@ -243,8 +243,7 @@ const [latestTaskId, setLatestTaskId] = useState("");
 
                 <img
                   src={
-                    member.avatar ||
-                    "https://upload.wikimedia.org/wikipedia/commons/thumb/5/59/User-avatar.svg/2048px-User-avatar.svg.png"
+                    member?.avatar || imgss
                   }
                   alt={member.email}
                   className="w-[40px] h-[40px] rounded-full mr-2"
