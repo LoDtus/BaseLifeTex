@@ -56,29 +56,30 @@ export default function TaskDetails() {
     const curDate = new Date();
     setDeadline(Math.floor((endDate - curDate) / (1000 * 60 * 60 * 24)));
 
-    setMemberList([]);
-    task?.assigneeId.map((member, index) => {
-      return setMemberList((prev) => [
-        ...prev,
-        <div
-          key={index}
-          className="flex items-center py-1 px-2 mt-1 rounded-md cursor-pointer duration-200 hover:bg-light-gray active:scale-90"
-        >
-          <img
-            className="w-[35px] h-[35px] rounded-full aspect-square !mr-1"
-            src={
-              member.avatar ||
-              "https://upload.wikimedia.org/wikipedia/commons/thumb/5/59/User-avatar.svg/2048px-User-avatar.svg.png"
-            }
-            alt={member.email}
-          />
-          <div className="flex flex-col">
-            <span className="font-semibold">{member.userName}</span>
-            <span className="text-[12px] text-dark-gray">{member.email}</span>
+    const memberListConTent = (
+      <div className="max-h-[250px] overflow-auto pr-1">
+        {task.assigneeId.map((member, index) => (
+          <div
+            key={index}
+            className="flex items-center py-1 px-2 mt-1 rounded-md cursor-pointer duration-200 hover:bg-light-gray active:scale-90"
+          >
+            <img
+              className="w-[35px] h-[35px] rounded-full aspect-square !mr-1"
+              src={
+                member.avatar ||
+                "https://upload.wikimedia.org/wikipedia/commons/thumb/5/59/User-avatar.svg/2048px-User-avatar.svg.png"
+              }
+              alt={member.email}
+            />
+            <div className="flex flex-col">
+              <span className="font-semibold">{member.userName}</span>
+              <span className="text-[12px] text-dark-gray">{member.email}</span>
+            </div>
           </div>
-        </div>,
-      ]);
-    });
+        ))}
+      </div>
+    );
+    setMemberList(memberListConTent);
   }, [task]);
   useEffect(() => {
     if (!taskId) return;
@@ -197,11 +198,7 @@ export default function TaskDetails() {
         </div>
 
         <div className={task?.image && "flex"}>
-          <div
-            className={
-              task?.image && "basis-[60%]"
-            }
-          >
+          <div className={task?.image && "basis-[60%]"}>
             <div className="text-[12px] mt-1 text-white font-semibold">
               <span
                 className={`py-1 px-3 !mr-1 rounded-full
@@ -278,7 +275,11 @@ export default function TaskDetails() {
                   ? "Khóa công việc"
                   : ""}
               </span>
-              {task?.code && <span className="py-1 px-3 rounded-full bg-blue">Mã code: {task.code}</span>}
+              {task?.code && (
+                <span className="py-1 px-3 rounded-full bg-blue">
+                  Mã code: {task.code}
+                </span>
+              )}
             </div>
             <div className="font-semibold text-3xl normal-case mt-3">
               {task?.title.trim()}
@@ -305,20 +306,20 @@ export default function TaskDetails() {
               </span>
               <div className="grow"></div>
               <div className="flex items-center">
-                {task?.assigneeId.map((assignee) => (
+                {task?.assigneeId.length > 0 && (
                   <img
                     className="w-[25px] h-[25px] !mr-1 aspect-square rounded-full cursor-pointer
                                             duration-200 active:scale-90"
                     src={
-                      assignee.avatar ||
+                      task.assigneeId[0].avatar ||
                       "https://upload.wikimedia.org/wikipedia/commons/thumb/5/59/User-avatar.svg/2048px-User-avatar.svg.png"
                     }
-                    alt={assignee.email}
+                    alt={task.assigneeId[0].email}
                   />
-                ))}
+                )}
                 <Popover
                   placement="rightTop"
-                  title={"Thành viên"}
+                  title={"Thành viên tham gia"}
                   content={memberList}
                   trigger="click"
                 >
@@ -456,17 +457,15 @@ export default function TaskDetails() {
         </div>
       </div>
       <ConfirmDialog
-  open={isConfirmOpen}
-  onClose={() => setIsConfirmOpen(false)}
-  onConfirm={() => {
-    confirmDeleteTask();
-    setIsConfirmOpen(false);
-  }}
-  title="Xác nhận xoá công việc"
-  description="Bạn có chắc chắn muốn xoá công việc này không? Hành động này không thể hoàn tác."
-/>
-
-
+        open={isConfirmOpen}
+        onClose={() => setIsConfirmOpen(false)}
+        onConfirm={() => {
+          confirmDeleteTask();
+          setIsConfirmOpen(false);
+        }}
+        title="Xác nhận xoá công việc"
+        description="Bạn có chắc chắn muốn xoá công việc này không? Hành động này không thể hoàn tác."
+      />
     </div>
   );
 }
