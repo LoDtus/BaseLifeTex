@@ -116,6 +116,7 @@ export default function MemberListContentAdd({
           }}
         />
       </Box>
+
       <Box
         sx={{
           flex: 1,
@@ -168,15 +169,20 @@ export default function MemberListContentAdd({
               }
             />
           ))}
-
-          <Button
-            variant="contained"
-            onClick={addMember}
-            style={{ marginBottom: "20px" }}
-          >
-            Chọn
-          </Button>
         </FormGroup>
+      </Box>
+      <Box
+        sx={{
+          paddingTop: "10px",
+          backgroundColor: "#fff",
+          textAlign: "center",
+          flexShrink: 0,
+          marginRight: "13px",
+        }}
+      >
+        <Button variant="contained" fullWidth onClick={addMember}>
+          Chọn
+        </Button>
       </Box>
     </Box>
   );

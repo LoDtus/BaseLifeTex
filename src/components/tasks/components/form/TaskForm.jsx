@@ -21,6 +21,7 @@ import { getTaskDetailById } from "@/services/taskService";
 import { addTask, updateTask } from "@/services/taskService";
 
 import "react-toastify/dist/ReactToastify.css";
+
 const { TextArea } = Input;
 import customParseFormat from "dayjs/plugin/customParseFormat";
 
@@ -437,18 +438,42 @@ export default function TaskForm() {
 
   function deleteTask() {}
 
-  function closeForm() {
+  const { confirm } = Modal;
+
+  const handleCloseForm = ({
+    taskName,
+    link,
+    description,
+    startDate,
+    endDate,
+    dispatch,
+  }) => {
     const isFormDirty = taskName || link || description || startDate || endDate;
 
     if (isFormDirty) {
-      const confirmClose = window.confirm(
-        "Bạn có chắc chắn muốn đóng? Dữ liệu chưa được lưu sẽ bị mất."
-      );
-      if (!confirmClose) return;
+      confirm({
+        title: "Bạn có chắc chắn muốn đóng?",
+        content: "Dữ liệu chưa được lưu sẽ bị mất.",
+        okText: "Đồng ý",
+        cancelText: "Hủy",
+        onOk() {
+          dispatch(setTaskForm("CLOSE"));
+        },
+      });
+    } else {
+      dispatch(setTaskForm("CLOSE"));
     }
-
-    dispatch(setTaskForm("CLOSE"));
-  }
+  };
+  const closeForm = () => {
+    handleCloseForm({
+      taskName,
+      link,
+      description,
+      startDate,
+      endDate,
+      dispatch,
+    });
+  };
 
   // ✅ Thêm vào useEffect để hỗ trợ dán ảnh bằng Ctrl + V
   useEffect(() => {
