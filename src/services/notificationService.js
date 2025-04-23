@@ -52,3 +52,16 @@ export const deleteNotifi = async (notifiId) => {
     throw error;
   }
 };
+// Xóa tất cả thông báo của user
+export const deleteAllNotifications = async (accessToken) => {
+  try {
+    const response = await axiosInstance.delete("/notifi/all", {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    });
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
