@@ -80,7 +80,7 @@ export default function HomeHeader({ setSearchTerm }) {
 
           <div className="avatar-container position-relative d-flex align-items-center">
             <img
-              src={avatar}
+              src={avatar || "https://upload.wikimedia.org/wikipedia/commons/thumb/5/59/User-avatar.svg/2048px-User-avatar.svg.png"}
               alt="avatar"
               className="user-icon me-2"
               onClick={toggleModal}

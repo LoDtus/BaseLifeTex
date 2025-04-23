@@ -195,7 +195,7 @@ export default function Home() {
             {listMember?.slice(0, 5)?.map((member, index) => (
               <Avatar
                 key={index}
-                src={member.avatar ? member.avatar : "/imgs/basic-user.png"}
+                src={member.avatar ? member.avatar : "https://upload.wikimedia.org/wikipedia/commons/thumb/5/59/User-avatar.svg/2048px-User-avatar.svg.png"}
                 alt={`Avatar ${index + 1}`}
                 className="avatar"
               />
@@ -205,7 +205,7 @@ export default function Home() {
                 <img
                   onClick={(e) => setAnchorEl(e.currentTarget)}
                   key={index}
-                  src={avatar}
+                  src={avatar || "https://upload.wikimedia.org/wikipedia/commons/thumb/5/59/User-avatar.svg/2048px-User-avatar.svg.png"}
                   alt={`Avatar ${index + 1}`}
                   className="avatar"
                 />
