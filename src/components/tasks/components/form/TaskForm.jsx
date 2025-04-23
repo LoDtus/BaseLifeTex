@@ -64,8 +64,6 @@ export default function TaskForm() {
   const [alert, setAlert] = useState([]);
   const [memberList, setMemberList] = useState([]);
   const [visibleAssignee, setVisibleAssignee] = useState(false);
-  const [showPostAddConfirm, setShowPostAddConfirm] = useState(false);
-  const [latestTaskId, setLatestTaskId] = useState("");
 
   const [configStartDate, setConfigStartDate] = useState(
     dayjs(dayjs().format(dateFormat), dateFormat)
@@ -243,7 +241,7 @@ export default function TaskForm() {
 
                 <img
                   src={
-                    member.avatar ||
+                    member?.avatar ||
                     "https://upload.wikimedia.org/wikipedia/commons/thumb/5/59/User-avatar.svg/2048px-User-avatar.svg.png"
                   }
                   alt={member.email}
@@ -284,23 +282,23 @@ export default function TaskForm() {
       setImg(url || null);
     }
   }
-  const handlePostAddAction = (action) => {
-    setShowPostAddConfirm(false);
+  // const handlePostAddAction = (action) => {
+  //   setShowPostAddConfirm(false);
 
-    switch (action) {
-      case "DETAILS":
-        dispatch(setTaskForm(`DETAILS_${latestTaskId}`));
-        break;
-      case "CLOSE":
-        dispatch(setTaskForm("CLOSE"));
-        break;
-      case "ADD_MORE":
-        resetForm(); // gọi hàm reset form
-        break;
-    }
+  //   switch (action) {
+  //     case "DETAILS":
+  //       dispatch(setTaskForm(`DETAILS_${latestTaskId}`));
+  //       break;
+  //     case "CLOSE":
+  //       dispatch(setTaskForm("CLOSE"));
+  //       break;
+  //     case "ADD_MORE":
+  //       resetForm(); // gọi hàm reset form
+  //       break;
+  //   }
 
-    openSystemNoti("success", "Đã thêm công việc");
-  };
+  //   openSystemNoti("success", "Đã thêm công việc");
+  // };
   const resetForm = () => {
     setTaskName("");
     setDescription("");
@@ -316,6 +314,7 @@ export default function TaskForm() {
     setConfigStartDate(dayjs(dayjs().format(dateFormat), dateFormat));
     setConfigEndDate(null);
     setMinDate(dayjs(dayjs().format(dateFormat), dateFormat));
+    dispatch(setTaskForm("ADD"));
   };
 
   async function saveTask() {
@@ -392,8 +391,7 @@ export default function TaskForm() {
 
         if (response.success) {
           newTaskId = response.data._id;
-          setLatestTaskId(newTaskId);
-          setShowPostAddConfirm(true);
+          openSystemNoti("success", "Đã thêm công việc");
           dispatch(
             getListTaskByProjectId({
               projectId: projectId,
@@ -810,10 +808,10 @@ export default function TaskForm() {
             {img && <span className="mt-2 text-dark-gray">Ảnh mô tả</span>}
           </label>
           <div className="sticky bottom-0 w-full mt-2 pt-2 z-10">
-            <div className=" flex justify-end">
+            <div className=" flex justify-end gap-2">
               <Button
                 className="w-[130px] !font-semibold flex items-center justify-center"
-                color="blue"
+                color="green"
                 variant="solid"
                 loading={loading}
                 onClick={() => saveTask()}
@@ -823,9 +821,28 @@ export default function TaskForm() {
                     ? "Đang thêm..."
                     : "Đang cập nhật..."
                   : taskState.slice(0, 4).includes("ADD")
-                  ? "Thêm"
+                  ? "Lưu"
                   : "Cập nhật"}
               </Button>
+              {taskState.slice(0, 4).includes("ADD") && (
+                <>
+                  <Button
+                    className="w-[100px] !font-semibold"
+                    type="primary"
+                    onClick={() => resetForm()}
+                  >
+                    Thêm tiếp
+                  </Button>
+                  <Button
+                    className="w-[100px] !font-semibold"
+                    type="primary"
+                    danger
+                    onClick={closeForm}
+                  >
+                    Đóng
+                  </Button>
+                </>
+              )}
               {taskState.slice(0, 4).includes("UPDATE") && (
                 <Button
                   className="w-[100px] !font-semibold !ml-1"
@@ -840,20 +857,6 @@ export default function TaskForm() {
           </div>
         </div>
       </div>
-      {showPostAddConfirm && (
-        <ConfirmDialog
-          open={showPostAddConfirm}
-          title="Bạn có muốn chuyển đến chi tiết công việc?"
-          description="Bạn muốn làm gì sau khi thêm công việc thành công?"
-          actions={[
-            { label: "Có", value: "DETAILS" },
-            { label: "Không", value: "CLOSE" },
-            { label: "Thêm tiếp", value: "ADD_MORE" },
-          ]}
-          onClose={() => setShowPostAddConfirm(false)}
-          onSelect={(action) => handlePostAddAction(action)}
-        />
-      )}
     </div>
   );
 }
