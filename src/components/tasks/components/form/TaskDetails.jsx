@@ -15,7 +15,7 @@ import {
 import dayjs from "dayjs";
 import { deleteTaskById } from "../../../../services/taskService";
 import ConfirmDialog from "../../../ConfirmDialog";
-import img from "../../../../../public/imgs/basic-user.png"
+import img from "../../../../../public/imgs/basic-user.png";
 
 export default function TaskDetails() {
   const dispatch = useDispatch();
@@ -66,9 +66,7 @@ export default function TaskDetails() {
           >
             <img
               className="w-[35px] h-[35px] rounded-full aspect-square !mr-1"
-              src={
-                member.avatar || img
-              }
+              src={member.avatar || img}
               alt={member.email}
             />
             <div className="flex flex-col">
@@ -310,9 +308,7 @@ export default function TaskDetails() {
                   <img
                     className="w-[25px] h-[25px] !mr-1 aspect-square rounded-full cursor-pointer
                                             duration-200 active:scale-90"
-                    src={
-                      task.assigneeId[0].avatar || img
-                    }
+                    src={task.assigneeId[0].avatar || img}
                     alt={task.assigneeId[0].email}
                   />
                 )}
@@ -391,9 +387,7 @@ export default function TaskDetails() {
               <div className="w-fit mb-1 flex items-center cursor-pointer duration-200 active:scale-90">
                 <img
                   className="w-[35px] h-[35px] !mr-1 aspect-square rounded-full"
-                  src={
-                    cmt.userId?.avatar || img
-                  }
+                  src={cmt.userId?.avatar || img}
                   alt={cmt.userId?.email}
                   onError={(e) => {
                     e.target.onerror = null;
@@ -430,9 +424,7 @@ export default function TaskDetails() {
           <div className="flex items-center mt-2">
             <img
               className="w-[35px] h-[35px] rounded-full !mr-1"
-              src={
-                user?.avatar || img
-              }
+              src={user?.avatar || img}
               alt=""
             />
             <Input

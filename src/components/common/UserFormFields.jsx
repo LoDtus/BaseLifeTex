@@ -14,7 +14,11 @@ const UserFormFields = ({
       <div className="card-header">
         <label className="avatar-upload">
           <img
-            src={user?.avatar || previewAvatar}
+            src={
+              previewAvatar ||
+              user.avatar ||
+              "https://upload.wikimedia.org/wikipedia/commons/thumb/5/59/User-avatar.svg/2048px-User-avatar.svg.png"
+            }
             alt="avatar"
             className="avatar"
           />

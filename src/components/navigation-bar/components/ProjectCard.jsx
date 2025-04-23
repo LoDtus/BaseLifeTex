@@ -101,7 +101,7 @@ const ProjectCard = ({ project, isSelected, avatarManger }) => {
     setProjectDetailModal(true);
   };
 
-  // console.log("User data:", user);
+  console.log("User data:", user);
 
   return (
     <>

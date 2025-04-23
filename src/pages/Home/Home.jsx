@@ -18,7 +18,6 @@ import { toast } from "react-toastify";
 import { setOpenProjectMenu } from "@/redux/propertiesSlice";
 import { setViewMode } from "../../redux/viewModeSlice";
 import ConfirmDialog from "../../components/ConfirmDialog";
-import img from "../../../public/imgs/basic-user.png";
 
 export default function Home() {
   const dispatch = useDispatch();
@@ -118,8 +117,8 @@ export default function Home() {
         console.log(error);
         toast.error("Xóa thất bại!");
       }
-     });
-     setOpenConfirmDialog(true); // Mở ConfirmDialog
+    });
+    setOpenConfirmDialog(true); // Mở ConfirmDialog
   };
 
   const openFilter = Boolean(anchorElFilter);
@@ -196,7 +195,7 @@ export default function Home() {
             {listMember?.slice(0, 5)?.map((member, index) => (
               <Avatar
                 key={index}
-                src={member?.avatar || img}
+                src={member.avatar ? member.avatar : "/imgs/basic-user.png"}
                 alt={`Avatar ${index + 1}`}
                 className="avatar"
               />
@@ -206,7 +205,7 @@ export default function Home() {
                 <img
                   onClick={(e) => setAnchorEl(e.currentTarget)}
                   key={index}
-                  src={avatar || img}
+                  src={avatar}
                   alt={`Avatar ${index + 1}`}
                   className="avatar"
                 />

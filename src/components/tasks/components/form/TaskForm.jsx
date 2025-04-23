@@ -27,7 +27,6 @@ import customParseFormat from "dayjs/plugin/customParseFormat";
 
 import { getListTaskByProjectId } from "../../../../redux/taskSlice";
 import Loading from "../../../common/Loading";
-import imgss from "../../../../../public/imgs/basic-user.png";
 import ConfirmDialog from "./ConfirmDialog";
 dayjs.extend(customParseFormat);
 const dateFormat = "DD-MM-YYYY";
@@ -138,7 +137,7 @@ export default function TaskForm() {
       member.userName.toLowerCase().includes(searchKeyword.toLowerCase()) ||
       member.email.toLowerCase().includes(searchKeyword.toLowerCase())
   );
-  console.log(filteredMemberList);
+
   const asigneeList = [
     {
       key: "customDropdown",
@@ -219,6 +218,7 @@ export default function TaskForm() {
             />
             <span className="font-semibold ">Chọn tất cả</span>
           </div>
+
           {/* Danh sách thành viên */}
 
           {filteredMemberList.map((member) => (
@@ -242,7 +242,10 @@ export default function TaskForm() {
                 />
 
                 <img
-                  src={member?.avatar || imgss}
+                  src={
+                    member.avatar ||
+                    "https://upload.wikimedia.org/wikipedia/commons/thumb/5/59/User-avatar.svg/2048px-User-avatar.svg.png"
+                  }
                   alt={member.email}
                   className="w-[40px] h-[40px] rounded-full mr-2"
                 />
@@ -807,7 +810,7 @@ export default function TaskForm() {
             {img && <span className="mt-2 text-dark-gray">Ảnh mô tả</span>}
           </label>
           <div className="sticky bottom-0 w-full mt-2 pt-2 z-10">
-            <div className=" flex justify-end gap-1">
+            <div className=" flex justify-end">
               <Button
                 className="w-[130px] !font-semibold flex items-center justify-center"
                 color="blue"
@@ -823,7 +826,6 @@ export default function TaskForm() {
                   ? "Thêm"
                   : "Cập nhật"}
               </Button>
-
               {taskState.slice(0, 4).includes("UPDATE") && (
                 <Button
                   className="w-[100px] !font-semibold !ml-1"
