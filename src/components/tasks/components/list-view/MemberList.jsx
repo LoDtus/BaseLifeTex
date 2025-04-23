@@ -1,7 +1,6 @@
 import React from "react";
 import { Avatar, Box, IconButton, Typography } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
-import img from "../../../../../public/imgs/basic-user.png"
 
 const MemberListContent = ({ onClose, members }) => {
   return (
@@ -64,7 +63,7 @@ const MemberListContent = ({ onClose, members }) => {
               }}
             >
               <Avatar
-                src={member?.avatar || img }
+                src={member?.avatar || "https://upload.wikimedia.org/wikipedia/commons/thumb/5/59/User-avatar.svg/2048px-User-avatar.svg.png" }
               />
               <Typography sx={{ ml: 1 }}>
                 {member.userName || "Không có tên"}

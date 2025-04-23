@@ -4,15 +4,17 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import NotificationsIcon from "@mui/icons-material/Notifications";
 import { Badge, Button, IconButton, Popover, Typography } from "@mui/material";
 import React, { useEffect, useState } from "react";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import { socket } from "../../config/socket.js";
 import {
+  deleteAllNotifications,
   deleteNotifi,
   getAllNotificationsByUser,
   updateIsRead,
 } from "../../services/notificationService";
 import ConfirmDialog from "../ConfirmDialog.jsx";
+import { deleteAllNotificationsSuccess } from "../../redux/notificationSlice.js";
 const DISPLAY_LIMIT = 5;
 
 export default function NotificationPopup() {
@@ -21,6 +23,7 @@ export default function NotificationPopup() {
   const [notifications, setNotifications] = useState([]);
   const [openConfirmDialog, setOpenConfirmDialog] = useState(false);
   const [selectedNotiId, setSelectedNotiId] = useState(null);
+  const dispatch = useDispatch();
 
   const userId = useSelector(
     (state) => state.auth.login.currentUser?.data?.user?._id
@@ -117,6 +120,23 @@ export default function NotificationPopup() {
       handleCloseConfirmDialog();
     }
   };
+
+  const accessToken = useSelector((state) => state.auth.login.accessToken); // 👈 dùng đúng hook
+
+  const handleDeleteAll = async () => {
+    try {
+      await deleteAllNotifications(accessToken);
+      setNotifications([]); // cập nhật UI
+      toast.success("Đã xóa tất cả thông báo!");
+    } catch (error) {
+      console.error("Lỗi khi xóa thông báo:", error);
+      toast.error(
+        `Xóa thông báo thất bại: ${
+          error.response?.data?.message || error.message
+        }`
+      );
+    }
+  };
   return (
     <div>
       {/* Icon chuông + số thông báo chưa đọc */}
@@ -147,6 +167,16 @@ export default function NotificationPopup() {
           {/* Tổng số thông báo */}
           <Typography variant="subtitle2" sx={{ px: 2, fontWeight: "bold" }}>
             Tổng số thông báo: {notifications.length}
+            {notifications.length > 0 && (
+              <Button
+                size="small"
+                sx={{ px: 2, fontWeight: "bold", marginLeft: "45px" }}
+                color="error"
+                onClick={handleDeleteAll}
+              >
+                Xoá tất cả
+              </Button>
+            )}
           </Typography>
 
           {/* Hiển thị danh sách thông báo */}

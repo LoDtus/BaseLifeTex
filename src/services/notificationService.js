@@ -48,10 +48,20 @@ export const deleteNotifi = async (notifiId) => {
     const response = await axiosInstance.delete(`/notifi/${notifiId}`);
     return response.data;
   } catch (error) {
-    console.error(
-      "Không thể xóa thông báo:",
-      error.response?.data || error
-    );
+    console.error("Không thể xóa thông báo:", error.response?.data || error);
+    throw error;
+  }
+};
+// Xóa tất cả thông báo của user
+export const deleteAllNotifications = async (accessToken) => {
+  try {
+    const response = await axiosInstance.delete("/notifi/all", {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    });
+    return response.data;
+  } catch (error) {
     throw error;
   }
 };

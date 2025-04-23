@@ -27,7 +27,6 @@ import customParseFormat from "dayjs/plugin/customParseFormat";
 
 import { getListTaskByProjectId } from "../../../../redux/taskSlice";
 import Loading from "../../../common/Loading";
-import imgss from "../../../../../public/imgs/basic-user.png";
 import ConfirmDialog from "./ConfirmDialog";
 dayjs.extend(customParseFormat);
 const dateFormat = "DD-MM-YYYY";
@@ -217,6 +216,7 @@ export default function TaskForm() {
             />
             <span className="font-semibold ">Chọn tất cả</span>
           </div>
+
           {/* Danh sách thành viên */}
 
           {filteredMemberList.map((member) => (
