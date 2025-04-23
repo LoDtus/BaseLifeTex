@@ -63,11 +63,14 @@ export default function TaskDetails() {
     const curDate = normalizeDate(new Date());
 
     const isSameDay = startDate.getTime() === endDate.getTime();
-    const diffInDays = Math.floor((endDate - curDate) / (1000 * 60 * 60 * 24));
+    const isFullyPast = startDate < curDate && endDate < curDate;
+    let diffInDays = Math.floor((endDate - curDate) / (1000 * 60 * 60 * 24));
 
-    // Nếu startDate = endDate => set deadline = 'sắp hết hạn'
-    if (isSameDay) {
-      setDeadline(0); // hoặc bạn có thể dùng hẳn 1 biến kiểu string như: 'same'
+    if (isFullyPast) {
+      diffInDays = Math.floor((curDate - endDate) / (1000 * 60 * 60 * 24));
+      setDeadline(-diffInDays);
+    } else if (isSameDay && startDate >= curDate) {
+      setDeadline(0);
     } else {
       setDeadline(diffInDays);
     }
@@ -316,13 +319,11 @@ export default function TaskDetails() {
                                     : ""
                                 }`}
               >
-                {task?.startDate === task?.endDate
-                  ? "Bạn sắp hết hạn"
-                  : deadline > 0
+                {deadline > 0
                   ? `Còn ${Math.abs(deadline)} ngày`
                   : deadline < 0
                   ? `Quá hạn ${Math.abs(deadline)} ngày`
-                  : "Hết hạn hôm nay"}
+                  : "hết hạn hôm nay"}
               </span>
               <div className="grow"></div>
               <div className="flex items-center">

@@ -405,6 +405,7 @@ export default function TaskForm() {
           return openSystemNoti("error", response.message);
         }
       } else {
+        console.log("Type trước khi cập nhật:", type);
         const response = await updateTask(taskState.slice(7), {
           image: imgAdd ? imgAdd : img,
           // image: "",
@@ -422,6 +423,7 @@ export default function TaskForm() {
         });
 
         if (response.success) {
+          console.log("Task trả về:", response.data);
           newTaskId = response.data._id;
           openSystemNoti("success", "Đã cập nhật công việc");
           dispatch(setTaskForm(`DETAILS_${newTaskId}`));
