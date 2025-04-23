@@ -65,8 +65,6 @@ export default function TaskForm() {
   const [alert, setAlert] = useState([]);
   const [memberList, setMemberList] = useState([]);
   const [visibleAssignee, setVisibleAssignee] = useState(false);
-  const [showPostAddConfirm, setShowPostAddConfirm] = useState(false);
-const [latestTaskId, setLatestTaskId] = useState("");
 
   const [configStartDate, setConfigStartDate] = useState(
     dayjs(dayjs().format(dateFormat), dateFormat)
@@ -242,9 +240,7 @@ const [latestTaskId, setLatestTaskId] = useState("");
                 />
 
                 <img
-                  src={
-                    member?.avatar || imgss
-                  }
+                  src={member?.avatar || imgss}
                   alt={member.email}
                   className="w-[40px] h-[40px] rounded-full mr-2"
                 />
@@ -283,23 +279,23 @@ const [latestTaskId, setLatestTaskId] = useState("");
       setImg(url || null);
     }
   }
-  const handlePostAddAction = (action) => {
-    setShowPostAddConfirm(false);
-  
-    switch (action) {
-      case "DETAILS":
-        dispatch(setTaskForm(`DETAILS_${latestTaskId}`));
-        break;
-      case "CLOSE":
-        dispatch(setTaskForm("CLOSE"));
-        break;
-      case "ADD_MORE":
-        resetForm(); // gọi hàm reset form
-        break;
-    }
-  
-    openSystemNoti("success", "Đã thêm công việc");
-  };
+  // const handlePostAddAction = (action) => {
+  //   setShowPostAddConfirm(false);
+
+  //   switch (action) {
+  //     case "DETAILS":
+  //       dispatch(setTaskForm(`DETAILS_${latestTaskId}`));
+  //       break;
+  //     case "CLOSE":
+  //       dispatch(setTaskForm("CLOSE"));
+  //       break;
+  //     case "ADD_MORE":
+  //       resetForm(); // gọi hàm reset form
+  //       break;
+  //   }
+
+  //   openSystemNoti("success", "Đã thêm công việc");
+  // };
   const resetForm = () => {
     setTaskName("");
     setDescription("");
@@ -315,8 +311,9 @@ const [latestTaskId, setLatestTaskId] = useState("");
     setConfigStartDate(dayjs(dayjs().format(dateFormat), dateFormat));
     setConfigEndDate(null);
     setMinDate(dayjs(dayjs().format(dateFormat), dateFormat));
+    dispatch(setTaskForm("ADD"));
   };
-    
+
   async function saveTask() {
     setLoading(true);
     let shouldCloseForm = false; // ✅ Mặc định là sẽ đóng form
@@ -391,8 +388,7 @@ const [latestTaskId, setLatestTaskId] = useState("");
 
         if (response.success) {
           newTaskId = response.data._id;
-          setLatestTaskId(newTaskId);
-          setShowPostAddConfirm(true);
+          openSystemNoti("success", "Đã thêm công việc");
           dispatch(
             getListTaskByProjectId({
               projectId: projectId,
@@ -809,10 +805,10 @@ const [latestTaskId, setLatestTaskId] = useState("");
             {img && <span className="mt-2 text-dark-gray">Ảnh mô tả</span>}
           </label>
           <div className="sticky bottom-0 w-full mt-2 pt-2 z-10">
-            <div className=" flex justify-end gap-1">
+            <div className=" flex justify-end gap-2">
               <Button
                 className="w-[130px] !font-semibold flex items-center justify-center"
-                color="blue"
+                color="green"
                 variant="solid"
                 loading={loading}
                 onClick={() => saveTask()}
@@ -822,10 +818,28 @@ const [latestTaskId, setLatestTaskId] = useState("");
                     ? "Đang thêm..."
                     : "Đang cập nhật..."
                   : taskState.slice(0, 4).includes("ADD")
-                  ? "Thêm"
+                  ? "Lưu"
                   : "Cập nhật"}
               </Button>
-
+              {taskState.slice(0, 4).includes("ADD") && (
+                <>
+                  <Button
+                    className="w-[100px] !font-semibold"
+                    type="primary"
+                    onClick={() => resetForm()}
+                  >
+                    Thêm tiếp
+                  </Button>
+                  <Button
+                    className="w-[100px] !font-semibold"
+                    type="primary"
+                    danger
+                    onClick={closeForm}
+                  >
+                    Đóng
+                  </Button>
+                </>
+              )}
               {taskState.slice(0, 4).includes("UPDATE") && (
                 <Button
                   className="w-[100px] !font-semibold !ml-1"
@@ -840,21 +854,6 @@ const [latestTaskId, setLatestTaskId] = useState("");
           </div>
         </div>
       </div>
-      {showPostAddConfirm && (
-  <ConfirmDialog
-    open={showPostAddConfirm}
-    title="Bạn có muốn chuyển đến chi tiết công việc?"
-    description="Bạn muốn làm gì sau khi thêm công việc thành công?"
-    actions={[
-      { label: "Có", value: "DETAILS" },
-      { label: "Không", value: "CLOSE" },
-      { label: "Thêm tiếp", value: "ADD_MORE" },
-    ]}
-    onClose={() => setShowPostAddConfirm(false)}
-    onSelect={(action) => handlePostAddAction(action)}
-  />
-)}
-
     </div>
   );
 }
