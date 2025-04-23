@@ -240,7 +240,10 @@ export default function TaskForm() {
                 />
 
                 <img
-                  src={member?.avatar || imgss}
+                  src={
+                    member?.avatar ||
+                    "https://upload.wikimedia.org/wikipedia/commons/thumb/5/59/User-avatar.svg/2048px-User-avatar.svg.png"
+                  }
                   alt={member.email}
                   className="w-[40px] h-[40px] rounded-full mr-2"
                 />
