@@ -277,17 +277,19 @@ const AddProjectModal = ({ open, onClose, project }) => {
   );
 
   return (
-    <Dialog open={open} onClose={onClose} fullWidth maxWidth="md">
+    <Dialog open={open} onClose={onClose} fullWidth maxWidth="md" PaperProps={{
+      className: "!rounded-2xl", 
+    }}>
       <DialogTitle
-        className="text-center"
-        sx={{ marginBottom: 0, paddingBottom: 0 }}
+        className="text-center border-b-1 border-black p-3 border-gray"
+        sx={{ marginBottom: 0, paddingBottom: 0, fontWeight: 600  }}
       >
         {project?._id ? "Cập Nhật Dự Án" : "Tạo Dự Án"}
       </DialogTitle>
       <form
         onSubmit={handleSubmit}
         style={{
-          padding: "16px",
+          padding: "0px 16px 16px",
         }}
       >
         <DialogContent
