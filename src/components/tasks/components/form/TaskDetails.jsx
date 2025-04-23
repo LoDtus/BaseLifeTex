@@ -52,9 +52,25 @@ export default function TaskDetails() {
   useEffect(() => {
     if (!task) return;
 
-    const endDate = new Date(task?.endDate);
-    const curDate = new Date();
-    setDeadline(Math.floor((endDate - curDate) / (1000 * 60 * 60 * 24)));
+    const normalizeDate = (date) => {
+      const d = new Date(date);
+      d.setHours(0, 0, 0, 0);
+      return d;
+    };
+
+    const endDate = normalizeDate(task?.endDate);
+    const startDate = normalizeDate(task?.startDate);
+    const curDate = normalizeDate(new Date());
+
+    const isSameDay = startDate.getTime() === endDate.getTime();
+    const diffInDays = Math.floor((endDate - curDate) / (1000 * 60 * 60 * 24));
+
+    // Nếu startDate = endDate => set deadline = 'sắp hết hạn'
+    if (isSameDay) {
+      setDeadline(0); // hoặc bạn có thể dùng hẳn 1 biến kiểu string như: 'same'
+    } else {
+      setDeadline(diffInDays);
+    }
 
     const memberListConTent = (
       <div className="max-h-[250px] overflow-auto pr-1">
@@ -65,7 +81,10 @@ export default function TaskDetails() {
           >
             <img
               className="w-[35px] h-[35px] rounded-full aspect-square !mr-1"
-              src={member.avatar || "https://upload.wikimedia.org/wikipedia/commons/thumb/5/59/User-avatar.svg/2048px-User-avatar.svg.png"}
+              src={
+                member.avatar ||
+                "https://upload.wikimedia.org/wikipedia/commons/thumb/5/59/User-avatar.svg/2048px-User-avatar.svg.png"
+              }
               alt={member.email}
             />
             <div className="flex flex-col">
@@ -292,14 +311,18 @@ export default function TaskDetails() {
                                     ? "bg-green"
                                     : deadline < 0
                                     ? "bg-red"
+                                    : task?.startDate === task?.endDate
+                                    ? "bg-yellow-500"
                                     : ""
                                 }`}
               >
-                {deadline > 0
+                {task?.startDate === task?.endDate
+                  ? "Bạn sắp hết hạn"
+                  : deadline > 0
                   ? `Còn ${Math.abs(deadline)} ngày`
                   : deadline < 0
                   ? `Quá hạn ${Math.abs(deadline)} ngày`
-                  : ""}
+                  : "Hết hạn hôm nay"}
               </span>
               <div className="grow"></div>
               <div className="flex items-center">
@@ -307,7 +330,10 @@ export default function TaskDetails() {
                   <img
                     className="w-[25px] h-[25px] !mr-1 aspect-square rounded-full cursor-pointer
                                             duration-200 active:scale-90"
-                    src={task.assigneeId[0].avatar || "https://upload.wikimedia.org/wikipedia/commons/thumb/5/59/User-avatar.svg/2048px-User-avatar.svg.png"}
+                    src={
+                      task.assigneeId[0].avatar ||
+                      "https://upload.wikimedia.org/wikipedia/commons/thumb/5/59/User-avatar.svg/2048px-User-avatar.svg.png"
+                    }
                     alt={task.assigneeId[0].email}
                   />
                 )}
@@ -386,11 +412,15 @@ export default function TaskDetails() {
               <div className="w-fit mb-1 flex items-center cursor-pointer duration-200 active:scale-90">
                 <img
                   className="w-[35px] h-[35px] !mr-1 aspect-square rounded-full"
-                  src={cmt.userId?.avatar || "https://upload.wikimedia.org/wikipedia/commons/thumb/5/59/User-avatar.svg/2048px-User-avatar.svg.png"}
+                  src={
+                    cmt.userId?.avatar ||
+                    "https://upload.wikimedia.org/wikipedia/commons/thumb/5/59/User-avatar.svg/2048px-User-avatar.svg.png"
+                  }
                   alt={cmt.userId?.email}
                   onError={(e) => {
                     e.target.onerror = null;
-                    e.target.src = "https://upload.wikimedia.org/wikipedia/commons/thumb/5/59/User-avatar.svg/2048px-User-avatar.svg.png";
+                    e.target.src =
+                      "https://upload.wikimedia.org/wikipedia/commons/thumb/5/59/User-avatar.svg/2048px-User-avatar.svg.png";
                   }}
                 />
                 <div className="flex flex-col">
@@ -423,7 +453,10 @@ export default function TaskDetails() {
           <div className="flex items-center mt-2">
             <img
               className="w-[35px] h-[35px] rounded-full !mr-1"
-              src={user?.avatar || "https://upload.wikimedia.org/wikipedia/commons/thumb/5/59/User-avatar.svg/2048px-User-avatar.svg.png"}
+              src={
+                user?.avatar ||
+                "https://upload.wikimedia.org/wikipedia/commons/thumb/5/59/User-avatar.svg/2048px-User-avatar.svg.png"
+              }
               alt=""
             />
             <Input
