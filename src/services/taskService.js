@@ -123,7 +123,7 @@ export const updateTask = async (id, data) => {
   formData.append("projectId", data.projectId);
   formData.append("assignerId", data.assignerId);
   formData.append("priority", data.priority);
-  // formData.append("type", data.type); // Be chưa cho cập nhật type
+  formData.append("type", data.type); // Be chưa cho cập nhật type
 
   const response = await axiosInstance.put(`/tasks/${id}`, formData, {
     headers: {

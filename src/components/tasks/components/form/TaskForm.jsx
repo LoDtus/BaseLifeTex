@@ -32,9 +32,9 @@ dayjs.extend(customParseFormat);
 const dateFormat = "DD-MM-YYYY";
 
 const priorityList = [
-  { key: "0", label: <span>Thấp</span> },
-  { key: "1", label: <span>Trung bình</span> },
-  { key: "2", label: <span>Cao</span> },
+  { key: 0, label: <span>Thấp</span> },
+  { key: 1, label: <span>Trung bình</span> },
+  { key: 2, label: <span>Cao</span> },
 ];
 
 const typeList = [
@@ -56,7 +56,7 @@ export default function TaskForm() {
   const [img, setImg] = useState(null);
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
-  const [priority, setPriority] = useState("0");
+  const [priority, setPriority] = useState(0);
   const [status, setStatus] = useState(1);
   const [type, setType] = useState("new_request");
   const [imgAdd, setImgAdd] = useState(null);
@@ -534,7 +534,6 @@ export default function TaskForm() {
     document.addEventListener("paste", handlePaste);
     return () => document.removeEventListener("paste", handlePaste);
   }, []);
-
   const handleDeleteImage = () => {
     setImg("");
     setImgAdd(null);
@@ -690,15 +689,15 @@ export default function TaskForm() {
                   placement="bottom"
                   menu={{
                     items: priorityList,
-                    onClick: ({ key }) => setPriority(key),
+                    onClick: ({ key }) => setPriority(Number(key)),
                   }}
                 >
                   <Button>
-                    {priority === "0"
+                    {priority === 0
                       ? "Thấp"
-                      : priority === "1"
+                      : priority === 1
                       ? "Trung bình"
-                      : priority === "2"
+                      : priority === 2
                       ? "Cao"
                       : "Chưa có"}
                   </Button>
@@ -814,7 +813,8 @@ export default function TaskForm() {
                 color="green"
                 variant="solid"
                 loading={loading}
-                onClick={() => saveTask()}
+                onClick={() => saveTask()
+                }
               >
                 {loading
                   ? taskState.slice(0, 4).includes("ADD")
