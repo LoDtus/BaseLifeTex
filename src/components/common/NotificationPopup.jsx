@@ -2,7 +2,14 @@ import CircleIcon from "@mui/icons-material/Circle";
 import CloseIcon from "@mui/icons-material/Close";
 import DeleteIcon from "@mui/icons-material/Delete";
 import NotificationsIcon from "@mui/icons-material/Notifications";
-import { Badge, Button, IconButton, Popover, Typography } from "@mui/material";
+import {
+  Badge,
+  Button,
+  IconButton,
+  Popover,
+  Typography,
+  Box,
+} from "@mui/material";
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
@@ -15,6 +22,7 @@ import {
 } from "../../services/notificationService";
 import ConfirmDialog from "../ConfirmDialog.jsx";
 import { deleteAllNotificationsSuccess } from "../../redux/notificationSlice.js";
+
 const DISPLAY_LIMIT = 5;
 
 export default function NotificationPopup() {
@@ -165,19 +173,28 @@ export default function NotificationPopup() {
           </div>
 
           {/* Tổng số thông báo */}
-          <Typography variant="subtitle2" sx={{ px: 2, fontWeight: "bold" }}>
-            Tổng số thông báo: {notifications.length}
+          <Box
+            display="flex"
+            justifyContent="space-between"
+            alignItems="center"
+            px={2}
+            py={1}
+          >
+            <Typography variant="subtitle2" fontWeight="bold">
+              Tổng số thông báo: {notifications.length}
+            </Typography>
+
             {notifications.length > 0 && (
               <Button
                 size="small"
-                sx={{ px: 2, fontWeight: "bold", marginLeft: "45px" }}
                 color="error"
+                sx={{ fontWeight: "bold" }}
                 onClick={handleDeleteAll}
               >
                 Xoá tất cả
               </Button>
             )}
-          </Typography>
+          </Box>
 
           {/* Hiển thị danh sách thông báo */}
           {visibleNotifications.map((noti) => (
