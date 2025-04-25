@@ -165,11 +165,22 @@ export default function NotificationPopup() {
         transformOrigin={{ vertical: "top", horizontal: "right" }}
       >
         <div style={{ width: "341px", paddingBottom: "10px" }}>
-          {/* Nút đóng */}
-          <div style={{ display: "flex", justifyContent: "flex-end" }}>
-            <IconButton onClick={handleClose}>
-              <CloseIcon fontSize="small" />
-            </IconButton>
+          <div
+            style={{
+              position: "sticky",
+              top: 0,
+              zIndex: 1,
+              backgroundColor: "white",
+              padding: "5px 0",
+              borderBottom: "1px solid #ddd",
+            }}
+          >
+            {/* Nút đóng */}
+            <div style={{ display: "flex", justifyContent: "flex-end" }}>
+              <IconButton onClick={handleClose}>
+                <CloseIcon fontSize="small" />
+              </IconButton>
+            </div>
           </div>
 
           {/* Tổng số thông báo */}

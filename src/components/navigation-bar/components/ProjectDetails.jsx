@@ -17,9 +17,28 @@ const ProjectDetailModal = ({ project, open, onClose, onEdit }) => {
   useEffect(() => {
     if (!project) return;
 
-    const endDate = new Date(project?.endDate);
-    const curDate = new Date();
-    setDeadline(Math.floor((endDate - curDate) / (1000 * 60 * 60 * 24)));
+    const normalizeDate = (date) => {
+      const d = new Date(date);
+      d.setHours(0, 0, 0, 0);
+      return d;
+    };
+
+    const endDate = normalizeDate(project?.endDate);
+    const startDate = normalizeDate(project?.startDate);
+    const curDate = normalizeDate(new Date());
+
+    const isSameDay = startDate.getTime() === endDate.getTime();
+    const isFullyPast = startDate < curDate && endDate < curDate;
+    let diffInDays = Math.floor((endDate - curDate) / (1000 * 60 * 60 * 24));
+
+    if (isFullyPast) {
+      diffInDays = Math.floor((curDate - endDate) / (1000 * 60 * 60 * 24));
+      setDeadline(-diffInDays);
+    } else if (isSameDay && startDate >= curDate) {
+      setDeadline(0);
+    } else {
+      setDeadline(diffInDays);
+    }
   }, [project]);
 
   if (!project) return null;
@@ -135,7 +154,8 @@ const ProjectDetailModal = ({ project, open, onClose, onEdit }) => {
                                               ? "bg-green"
                                               : deadline < 0
                                               ? "bg-red"
-                                              : deadline == 0
+                                              : project?.startDate ===
+                                                project?.endDate
                                               ? "bg-yellow"
                                               : ""
                                           }`}
@@ -144,9 +164,7 @@ const ProjectDetailModal = ({ project, open, onClose, onEdit }) => {
                 ? `Còn ${Math.abs(deadline)} ngày`
                 : deadline < 0
                 ? `Quá hạn ${Math.abs(deadline)} ngày`
-                : deadline == 0
-                ? `bạn sắp hết hạn`
-                : ""}
+                : "hết hạn hôm nay"}
             </span>
           </div>
           <div className="flex items-center text-1xl font-semibold mt-2">
