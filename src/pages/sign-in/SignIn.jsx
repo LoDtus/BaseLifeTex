@@ -97,8 +97,7 @@ export default function SignIn() {
                       onChange={(e) => setPassword(e.target.value)}
                       error={!!passwordError}
                       helperText={passwordError}
-                      inputProps={{
-                        style: { width: "85%" },
+                      InputProps={{
                         endAdornment: (
                           <InputAdornment position="end">
                             <IconButton
@@ -107,13 +106,14 @@ export default function SignIn() {
                               size="small"
                             >
                               {showPassword ? (
-                                <VisibilityOff sx={{ fontSize: 10 }} />
+                                <VisibilityOff sx={{ fontSize: 18 }} />
                               ) : (
-                                <Visibility sx={{ fontSize: 10 }} />
+                                <Visibility sx={{ fontSize: 18 }} />
                               )}
                             </IconButton>
                           </InputAdornment>
                         ),
+                        style: { width: "90%" },
                       }}
                     />
                     <LockIcon className="login-input-icon" />

@@ -61,12 +61,15 @@ export default function HomeHeader({ setSearchTerm }) {
               <SearchIcon sx={{ fontSize: 20 }} />
             </InputGroup.Text>
             <Form.Control
-              className="   border-[0.5px] 
+              style={{ borderWidth: "0.5px" }}
+              className="
   
     focus:outline-none 
     text-sm 
     rounded-sm 
    px-1.5 py-[4px]
+ 
+   border-gray
    "
               placeholder="Tìm kiếm dự án..."
               value={searchText}
@@ -80,7 +83,10 @@ export default function HomeHeader({ setSearchTerm }) {
 
           <div className="avatar-container position-relative d-flex align-items-center">
             <img
-              src={avatar || "https://upload.wikimedia.org/wikipedia/commons/thumb/5/59/User-avatar.svg/2048px-User-avatar.svg.png"}
+              src={
+                avatar ||
+                "https://upload.wikimedia.org/wikipedia/commons/thumb/5/59/User-avatar.svg/2048px-User-avatar.svg.png"
+              }
               alt="avatar"
               className="user-icon me-2"
               onClick={toggleModal}

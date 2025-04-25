@@ -157,28 +157,38 @@ export default function NotificationPopup() {
         transformOrigin={{ vertical: "top", horizontal: "right" }}
       >
         <div style={{ width: "341px", paddingBottom: "10px" }}>
-          {/* Nút đóng */}
-          <div style={{ display: "flex", justifyContent: "flex-end" }}>
-            <IconButton onClick={handleClose}>
-              <CloseIcon fontSize="small" />
-            </IconButton>
+          <div
+            style={{
+              position: "sticky",
+              top: 0,
+              zIndex: 1,
+              backgroundColor: "white",
+              padding: "5px 0",
+              borderBottom: "1px solid #ddd",
+            }}
+          >
+            {/* Nút đóng */}
+            <div style={{ display: "flex", justifyContent: "flex-end" }}>
+              <IconButton onClick={handleClose}>
+                <CloseIcon fontSize="small" />
+              </IconButton>
+            </div>
+
+            {/* Tổng số thông báo */}
+            <Typography variant="subtitle2" sx={{ px: 2, fontWeight: "bold" }}>
+              Tổng số thông báo: {notifications.length}
+              {notifications.length > 0 && (
+                <Button
+                  size="small"
+                  sx={{ px: 2, fontWeight: "bold", marginLeft: "35px" }}
+                  color="error"
+                  onClick={handleDeleteAll}
+                >
+                  Xoá tất cả
+                </Button>
+              )}
+            </Typography>
           </div>
-
-          {/* Tổng số thông báo */}
-          <Typography variant="subtitle2" sx={{ px: 2, fontWeight: "bold" }}>
-            Tổng số thông báo: {notifications.length}
-            {notifications.length > 0 && (
-              <Button
-                size="small"
-                sx={{ px: 2, fontWeight: "bold", marginLeft: "45px" }}
-                color="error"
-                onClick={handleDeleteAll}
-              >
-                Xoá tất cả
-              </Button>
-            )}
-          </Typography>
-
           {/* Hiển thị danh sách thông báo */}
           {visibleNotifications.map((noti) => (
             <div
