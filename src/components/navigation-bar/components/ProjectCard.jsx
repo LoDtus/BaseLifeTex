@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import styles from "../styles/ProjectCard.module.scss";
 import Popover from "@mui/material/Popover";
 import ContactCard from "./ContactCard";
+import { UserOutlined, SettingOutlined } from "@ant-design/icons";
 import { convertStatus, convertDateYMD } from "@/utils/convertUtils";
 import { useDispatch } from "react-redux";
 import { deleteProject } from "@/redux/projectSlice";
@@ -13,6 +14,7 @@ import AddProjectModal from "./AddProjectModal";
 import { toast } from "react-toastify";
 import { getListProjectByUser } from "../../../redux/projectSlice";
 import ConfirmDialog from "../../ConfirmDialog";
+import { colors } from "@mui/material";
 
 const ProjectCard = ({ project, isSelected, avatarManger }) => {
   const dispatch = useDispatch();
@@ -145,7 +147,10 @@ const ProjectCard = ({ project, isSelected, avatarManger }) => {
           </div>
           <img
             className={styles.avatarUser}
-            src={user?.avatar || "https://upload.wikimedia.org/wikipedia/commons/thumb/5/59/User-avatar.svg/2048px-User-avatar.svg.png"}
+            src={
+              user?.avatar ||
+              "https://upload.wikimedia.org/wikipedia/commons/thumb/5/59/User-avatar.svg/2048px-User-avatar.svg.png"
+            }
             alt="Avatar"
           />
 
@@ -154,7 +159,10 @@ const ProjectCard = ({ project, isSelected, avatarManger }) => {
         <div className={styles.projectFooter}>
           <img
             className={styles.avatar}
-            src={project?.managerId?.avatar || "https://upload.wikimedia.org/wikipedia/commons/thumb/5/59/User-avatar.svg/2048px-User-avatar.svg.png"}
+            src={
+              project?.managerId?.avatar ||
+              "https://upload.wikimedia.org/wikipedia/commons/thumb/5/59/User-avatar.svg/2048px-User-avatar.svg.png"
+            }
             onClick={handleClick}
             alt="Avatar"
           />
