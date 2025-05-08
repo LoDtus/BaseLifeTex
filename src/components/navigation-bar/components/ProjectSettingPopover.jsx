@@ -1,83 +1,29 @@
-import React from "react";
-import {
-  Dialog,
-  DialogContent,
-  Box,
-  Typography,
-  IconButton,
-} from "@mui/material";
-import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
-import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
-import DeleteOutlineOutlinedIcon from "@mui/icons-material/DeleteOutlineOutlined";
-import CloseIcon from "@mui/icons-material/Close";
+import React, { useEffect, useRef } from "react";
+import { createPortal } from "react-dom";
 
-const ProjectSettingPopover = ({
-  open,
-  onClose,
-  onViewWorkflow,
-  onEditWorkflow,
-  onDeleteWorkflow,
-}) => {
-  return (
-    <Dialog
-      open={open}
-      onClose={onClose}
-      PaperProps={{
-        sx: {
-          borderRadius: 3,
-          minWidth: 300,
-          maxWidth: 400,
-          boxShadow: 10,
-        },
-      }}
-    >
-      <DialogContent>
-        <Box
-          display="flex"
-          justifyContent="space-between"
-          alignItems="center"
-          mb={2}
-        >
-          <Typography variant="h6">Tuỳ chọn</Typography>
-          <IconButton onClick={onClose}>
-            <CloseIcon />
-          </IconButton>
-        </Box>
+const ProjectSettingPopover = ({ onClose }) => {
+  const popoverRef = useRef(null);
 
-        <Box display="flex" flexDirection="column" gap={2}>
-          <Box
-            display="flex"
-            alignItems="center"
-            sx={{ cursor: "pointer", "&:hover": { color: "primary.main" } }}
-          >
-            <InfoOutlinedIcon sx={{ mr: 1 }} />
-            <Typography>Xem chi tiết workflow</Typography>
-          </Box>
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (popoverRef.current && !popoverRef.current.contains(event.target)) {
+        onClose(); // click ngoài thì đóng
+      }
+    };
 
-          <Box
-            display="flex"
-            alignItems="center"
-            sx={{ cursor: "pointer", "&:hover": { color: "primary.main" } }}
-            onClick={() => {
-              onClose();
-              onEditWorkflow();
-            }}
-          >
-            <EditOutlinedIcon sx={{ mr: 1 }} />
-            <Typography>Sửa workflow</Typography>
-          </Box>
-
-          <Box
-            display="flex"
-            alignItems="center"
-            sx={{ cursor: "pointer", "&:hover": { color: "error.main" } }}
-          >
-            <DeleteOutlineOutlinedIcon sx={{ mr: 1 }} />
-            <Typography>Xoá workflow</Typography>
-          </Box>
-        </Box>
-      </DialogContent>
-    </Dialog>
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [onClose]);
+  return createPortal(
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[999999]">
+      <div
+        ref={popoverRef}
+        className="bg-white shadow-lg rounded-xl p-4 w-[200px] border"
+      >
+        xin chào
+      </div>
+    </div>,
+    document.body
   );
 };
 
