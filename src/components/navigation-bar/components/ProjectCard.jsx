@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import styles from "../styles/ProjectCard.module.scss";
 import Popover from "@mui/material/Popover";
 import ContactCard from "./ContactCard";
+import { UserOutlined, SettingOutlined } from "@ant-design/icons";
 import { convertStatus, convertDateYMD } from "@/utils/convertUtils";
 import { useDispatch } from "react-redux";
 import { deleteProject } from "@/redux/projectSlice";
