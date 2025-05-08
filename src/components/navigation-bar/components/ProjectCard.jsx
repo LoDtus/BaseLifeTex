@@ -145,7 +145,10 @@ const ProjectCard = ({ project, isSelected, avatarManger }) => {
           </div>
           <img
             className={styles.avatarUser}
-            src={user?.avatar || "https://upload.wikimedia.org/wikipedia/commons/thumb/5/59/User-avatar.svg/2048px-User-avatar.svg.png"}
+            src={
+              user?.avatar ||
+              "https://upload.wikimedia.org/wikipedia/commons/thumb/5/59/User-avatar.svg/2048px-User-avatar.svg.png"
+            }
             alt="Avatar"
           />
 
@@ -154,7 +157,10 @@ const ProjectCard = ({ project, isSelected, avatarManger }) => {
         <div className={styles.projectFooter}>
           <img
             className={styles.avatar}
-            src={project?.managerId?.avatar || "https://upload.wikimedia.org/wikipedia/commons/thumb/5/59/User-avatar.svg/2048px-User-avatar.svg.png"}
+            src={
+              project?.managerId?.avatar ||
+              "https://upload.wikimedia.org/wikipedia/commons/thumb/5/59/User-avatar.svg/2048px-User-avatar.svg.png"
+            }
             onClick={handleClick}
             alt="Avatar"
           />
