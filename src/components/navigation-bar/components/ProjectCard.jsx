@@ -14,7 +14,9 @@ import AddProjectModal from "./AddProjectModal";
 import { toast } from "react-toastify";
 import { getListProjectByUser } from "../../../redux/projectSlice";
 import ConfirmDialog from "../../ConfirmDialog";
-import { colors } from "@mui/material";
+import { IconButton } from "@mui/material";
+import SettingsIcon from "@mui/icons-material/Settings";
+import ProjectSettingPopover from "./ProjectSettingPopover";
 
 const ProjectCard = ({ project, isSelected, avatarManger }) => {
   const dispatch = useDispatch();
@@ -30,7 +32,6 @@ const ProjectCard = ({ project, isSelected, avatarManger }) => {
   const [openConfirmDialog, setOpenConfirmDialog] = useState(false); // New state for ConfirmDialog
 
   useEffect(() => {
-    console.log("Project Modal state:", projectModal);
     setProjectModal(false);
   }, [project]);
   const getStatusButtonClass = () => {
@@ -102,7 +103,19 @@ const ProjectCard = ({ project, isSelected, avatarManger }) => {
     setProjectDetailModal(true);
   };
 
-  console.log("User data:", user);
+  // ////////////////////////////////////////////////////////////////////////
+  const [anchorElSetting, setAnchorElSetting] = useState(null);
+  const openSetting = Boolean(anchorElSetting);
+
+  const handleSettingClick = (event) => {
+    event.stopPropagation(); // tránh ảnh hưởng sự kiện cha
+    setAnchorElSetting(event.currentTarget);
+  };
+
+  const handleSettingClose = (event) => {
+    event?.stopPropagation?.(); // tránh lỗi nếu gọi từ onClose mặc định
+    setAnchorElSetting(null);
+  };
 
   return (
     <>
@@ -210,12 +223,21 @@ const ProjectCard = ({ project, isSelected, avatarManger }) => {
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   viewBox="0 0 512 512"
-                  className="w-[25px] h-[25px] aspect-square relative top-0 left-1"
+                  className="w-[24px] h-[24px] aspect-square relative top-0 left-1"
                 >
                   <path d="M256 512A256 256 0 1 0 256 0a256 256 0 1 0 0 512zM216 336l24 0 0-64-24 0c-13.3 0-24-10.7-24-24s10.7-24 24-24l48 0c13.3 0 24 10.7 24 24l0 88 8 0c13.3 0 24 10.7 24 24s-10.7 24-24 24l-80 0c-13.3 0-24-10.7-24-24s10.7-24 24-24zm40-208a32 32 0 1 1 0 64 32 32 0 1 1 0-64z" />
                 </svg>
               </div>
             )}
+          <IconButton
+            size="small"
+            aria-label="Cài đặt"
+            className="p-0 h-[24px]"
+            style={{ marginLeft: "8px" }}
+            onClick={handleSettingClick}
+          >
+            <SettingsIcon sx={{ fontSize: 25 }} />
+          </IconButton>
         </div>
         <Popover
           id={id}
@@ -257,6 +279,17 @@ const ProjectCard = ({ project, isSelected, avatarManger }) => {
         onConfirm={confirmDeleteProject}
         title="Xác nhận xoá dự án"
         content={`Bạn có chắc chắn muốn xoá dự án "${project.name}" không?`}
+      />
+      <ProjectSettingPopover
+        open={openSetting}
+        anchorEl={anchorElSetting}
+        onClose={handleSettingClose}
+        onViewDetail={() => setProjectDetailModal(true)}
+        onEdit={() => {
+          setEditingProject(project?._id);
+          setProjectModal(true);
+        }}
+        onDelete={() => setOpenConfirmDialog(true)}
       />
     </>
   );
