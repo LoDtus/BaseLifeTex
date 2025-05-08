@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import styles from "../styles/ProjectCard.module.scss";
 import Popover from "@mui/material/Popover";
 import ContactCard from "./ContactCard";
@@ -103,19 +103,7 @@ const ProjectCard = ({ project, isSelected, avatarManger }) => {
     setProjectDetailModal(true);
   };
 
-  // ////////////////////////////////////////////////////////////////////////
-  const [anchorElSetting, setAnchorElSetting] = useState(null);
-  const openSetting = Boolean(anchorElSetting);
-
-  const handleSettingClick = (event) => {
-    event.stopPropagation(); // tránh ảnh hưởng sự kiện cha
-    setAnchorElSetting(event.currentTarget);
-  };
-
-  const handleSettingClose = (event) => {
-    event?.stopPropagation?.(); // tránh lỗi nếu gọi từ onClose mặc định
-    setAnchorElSetting(null);
-  };
+  const [showSettingPopover, setShowSettingPopover] = useState(false);
 
   return (
     <>
@@ -234,7 +222,9 @@ const ProjectCard = ({ project, isSelected, avatarManger }) => {
             aria-label="Cài đặt"
             className="p-0 h-[24px]"
             style={{ marginLeft: "8px" }}
-            onClick={handleSettingClick}
+            onClick={(e) => {
+              setShowSettingPopover(!showSettingPopover), e.stopPropagation();
+            }}
           >
             <SettingsIcon sx={{ fontSize: 25 }} />
           </IconButton>
@@ -280,17 +270,9 @@ const ProjectCard = ({ project, isSelected, avatarManger }) => {
         title="Xác nhận xoá dự án"
         content={`Bạn có chắc chắn muốn xoá dự án "${project.name}" không?`}
       />
-      <ProjectSettingPopover
-        open={openSetting}
-        anchorEl={anchorElSetting}
-        onClose={handleSettingClose}
-        onViewDetail={() => setProjectDetailModal(true)}
-        onEdit={() => {
-          setEditingProject(project?._id);
-          setProjectModal(true);
-        }}
-        onDelete={() => setOpenConfirmDialog(true)}
-      />
+      {showSettingPopover && (
+        <ProjectSettingPopover onClose={() => setShowSettingPopover(false)} />
+      )}
     </>
   );
 };
