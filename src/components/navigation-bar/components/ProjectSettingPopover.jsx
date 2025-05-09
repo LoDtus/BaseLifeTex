@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import { Table, Popconfirm, message, Modal } from "antd";
+import { Table, Popconfirm, message, Modal, Checkbox } from "antd";
 
 import {
   EditOutlined,
@@ -10,7 +10,7 @@ import {
   CheckCircleTwoTone,
   CloseCircleTwoTone,
 } from "@ant-design/icons";
-import { Button, Input, Checkbox, Dropdown, Menu } from "antd";
+import { Button, Input, Dropdown, Menu } from "antd";
 const ProjectSettingPopover = ({ onClose }) => {
   const popoverRef = useRef(null);
   const [activeTab, setActiveTab] = useState("workflow");
@@ -20,8 +20,9 @@ const ProjectSettingPopover = ({ onClose }) => {
   const [fromState, setFromState] = useState("");
   const [toState, setToState] = useState("");
   const [flows, setFlows] = useState([]);
+  const [selectedRowKeys, setSelectedRowKeys] = useState([]);
 
-  const permissions = ["view", "Add", "Edit", "Delete", "Comment", "Drag"];
+  const permissions = ["View", "Add", "Edit", "Delete", "Comment", "Drag"];
   const roles = [
     {
       role: "PM",
@@ -59,7 +60,27 @@ const ProjectSettingPopover = ({ onClose }) => {
     setUsers((prev) => prev.filter((u) => u.key !== key));
     message.success("Đã xóa người dùng");
   };
+  // xóa tất cả người dùng
 
+  const handleDeleteMultipleUsers = () => {
+    const remaining = users.filter(
+      (user) => !selectedRowKeys.includes(user.key)
+    );
+    setUsers(remaining);
+    setSelectedRowKeys([]);
+    message.success("Đã xóa các người dùng được chọn.");
+  };
+
+  // checkbox
+
+  const onSelectChange = (newSelectedRowKeys) => {
+    setSelectedRowKeys(newSelectedRowKeys);
+  };
+  const rowSelection = {
+    selectedRowKeys,
+    onChange: onSelectChange,
+    preserveSelectedRowKeys: false,
+  };
   const userColumns = [
     {
       title: "STT",
@@ -108,16 +129,16 @@ const ProjectSettingPopover = ({ onClose }) => {
   };
   useEffect(() => {
     const handleClickOutside = (event) => {
-      // Nếu có modal đang mở và click nằm trong modal => bỏ qua
-      const modalNode = document.querySelector(".ant-modal");
-      if (
-        modalNode &&
-        (modalNode === event.target || modalNode.contains(event.target))
-      ) {
-        return;
-      }
+      const path = event.composedPath();
+      const isInPopover = path.some(
+        (el) =>
+          el instanceof HTMLElement &&
+          (el.classList.contains("ant-modal") ||
+            el.classList.contains("ant-popover"))
+      );
 
-      // Nếu click ngoài popover thì đóng popover
+      if (isInPopover) return;
+
       if (popoverRef.current && !popoverRef.current.contains(event.target)) {
         onClose();
       }
@@ -372,18 +393,31 @@ const ProjectSettingPopover = ({ onClose }) => {
                     <PlusOutlined />
                     Thêm người
                   </button>
-                  <button className="text-lg text-red-500 hover:text-white border border-transparent hover:border-red-500 hover:bg-red-500 rounded px-2 py-1 transition-all duration-200">
-                    <DeleteOutlined />
-                  </button>
+                  <div className="mb-2">
+                    {selectedRowKeys.length > 0 && (
+                      <Popconfirm
+                        title={`Xóa ${selectedRowKeys.length} người dùng?`}
+                        onConfirm={handleDeleteMultipleUsers}
+                        okText="Xóa"
+                        cancelText="Hủy"
+                      >
+                        <button className="text-lg text-red-500 hover:text-white border border-transparent hover:border-red-500 hover:bg-red-500 rounded px-2 py-1 transition-all duration-200">
+                          <DeleteOutlined />
+                        </button>
+                      </Popconfirm>
+                    )}
+                  </div>
                 </div>
 
                 <div className="mt-4">
                   <Table
+                    rowSelection={rowSelection}
                     dataSource={users}
                     columns={userColumns}
                     pagination={false}
                     size="small"
                     bordered
+                    rowKey="key"
                   />
                 </div>
               </div>

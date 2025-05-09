@@ -815,8 +815,7 @@ export default function TaskForm() {
                 color="green"
                 variant="solid"
                 loading={loading}
-                onClick={() => saveTask()
-                }
+                onClick={() => saveTask()}
               >
                 {loading
                   ? taskState.slice(0, 4).includes("ADD")
