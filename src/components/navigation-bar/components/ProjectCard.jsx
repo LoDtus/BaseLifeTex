@@ -217,17 +217,22 @@ const ProjectCard = ({ project, isSelected, avatarManger }) => {
                 </svg>
               </div>
             )}
-          <IconButton
-            size="small"
-            aria-label="Cài đặt"
-            className="p-0 h-[24px]"
-            style={{ marginLeft: "8px" }}
-            onClick={(e) => {
-              setShowSettingPopover(!showSettingPopover), e.stopPropagation();
-            }}
-          >
-            <SettingsIcon sx={{ fontSize: 25 }} />
-          </IconButton>
+          {user?._id &&
+            project?.managerId?._id &&
+            project.managerId._id === user._id && (
+              <IconButton
+                size="small"
+                aria-label="Cài đặt"
+                className="p-0 h-[24px]"
+                style={{ marginLeft: "8px" }}
+                onClick={(e) => {
+                  setShowSettingPopover(!showSettingPopover),
+                    e.stopPropagation();
+                }}
+              >
+                <SettingsIcon sx={{ fontSize: 25 }} />
+              </IconButton>
+            )}
         </div>
         <Popover
           id={id}
