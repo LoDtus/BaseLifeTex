@@ -229,17 +229,20 @@ const ProjectCard = ({ project, isSelected, avatarManger }) => {
                 </svg>
               </div>
             )}
-          {user?._id && project?.managerId?._id === user._id && (
-            <IconButton
-              size="small"
-              aria-label="Cài đặt"
-              onClick={handleSettingsClick}
-              className="p-0 h-[24px]"
-              style={{ marginLeft: "8px" }}
-            >
-              <SettingsIcon sx={{ fontSize: 25 }} />
-            </IconButton>
-          )}
+
+          {user?._id &&
+            project?.managerId?._id &&
+            project.managerId._id === user._id && (
+              <IconButton
+                size="small"
+                aria-label="Cài đặt"
+                className="p-0 h-[24px]"
+                style={{ marginLeft: "8px" }}
+                onClick={handleSettingsClick}
+              >
+                <SettingsIcon sx={{ fontSize: 25 }} />
+              </IconButton>
+            )}
         </div>
         <Popover
           id={id}

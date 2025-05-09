@@ -35,6 +35,7 @@ import CloseIcon from "@mui/icons-material/Close";
 import { Label } from "@mui/icons-material";
 import { Input } from "antd";
 import DeleteIcon from "@mui/icons-material/Delete";
+import EditIcon from "@mui/icons-material/Edit";
 
 const users = Array.from({ length: 23 }, (_, i) => ({
   id: i + 1,
@@ -197,11 +198,11 @@ const ProjectSettingPopover = ({ open, onClose }) => {
                           key={status}
                           secondaryAction={
                             <>
-                              <IconButton edge="end" color="success">
-                                ✓
+                              <IconButton edge="end" color="primary">
+                                <EditIcon />
                               </IconButton>
                               <IconButton edge="end" color="error">
-                                ✕
+                                <DeleteIcon />
                               </IconButton>
                             </>
                           }
