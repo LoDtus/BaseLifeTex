@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import styles from "../styles/ProjectCard.module.scss";
 import Popover from "@mui/material/Popover";
 import ContactCard from "./ContactCard";
@@ -103,20 +103,20 @@ const ProjectCard = ({ project, isSelected, avatarManger }) => {
     setProjectDetailModal(true);
   };
 
-  // ////////////////////////////////////////////////////////////////////////
-  const [anchorElSetting, setAnchorElSetting] = useState(null);
-  const openSetting = Boolean(anchorElSetting);
+  const [showSettingPopover, setShowSettingPopover] = useState(false);
+  const [popoverAnchorEl, setPopoverAnchorEl] = useState(null);
 
-  const handleSettingClick = (event) => {
-    event.stopPropagation(); // tránh ảnh hưởng sự kiện cha
-    setAnchorElSetting(event.currentTarget);
+  const handleSettingsClick = (event) => {
+    event.stopPropagation();
+    setPopoverAnchorEl(event.currentTarget);
+    setShowSettingPopover(true);
   };
 
-  const handleSettingClose = (event) => {
-    event?.stopPropagation?.(); // tránh lỗi nếu gọi từ onClose mặc định
-    setAnchorElSetting(null);
+  const handlePopoverClose = () => {
+    setPopoverAnchorEl(null);
+    setShowSettingPopover(false);
   };
-
+  const isSettingsOpen = Boolean(popoverAnchorEl);
   return (
     <>
       <div
@@ -229,30 +229,16 @@ const ProjectCard = ({ project, isSelected, avatarManger }) => {
                 </svg>
               </div>
             )}
-          {user?._id === project?.managerId?._id && (
-            <>
-              <IconButton
-                size="small"
-                aria-label="Cài đặt"
-                className="p-0 h-[24px]"
-                style={{ marginLeft: "8px" }}
-                onClick={handleSettingClick}
-              >
-                <SettingsIcon sx={{ fontSize: 25 }} />
-              </IconButton>
-
-              <ProjectSettingPopover
-                open={openSetting}
-                anchorEl={anchorElSetting}
-                onClose={handleSettingClose}
-                onViewDetail={() => setProjectDetailModal(true)}
-                onEdit={() => {
-                  setEditingProject(project?._id);
-                  setProjectModal(true);
-                }}
-                onDelete={() => setOpenConfirmDialog(true)}
-              />
-            </>
+          {user?._id && project?.managerId?._id === user._id && (
+            <IconButton
+              size="small"
+              aria-label="Cài đặt"
+              onClick={handleSettingsClick}
+              className="p-0 h-[24px]"
+              style={{ marginLeft: "8px" }}
+            >
+              <SettingsIcon sx={{ fontSize: 25 }} />
+            </IconButton>
           )}
         </div>
         <Popover
@@ -296,6 +282,17 @@ const ProjectCard = ({ project, isSelected, avatarManger }) => {
         title="Xác nhận xoá dự án"
         content={`Bạn có chắc chắn muốn xoá dự án "${project.name}" không?`}
       />
+      {showSettingPopover &&
+        user?._id &&
+        project?.managerId?._id &&
+        project.managerId._id === user._id && (
+          <ProjectSettingPopover
+            anchorEl={popoverAnchorEl}
+            open={isSettingsOpen}
+            onClose={handlePopoverClose}
+            project={project}
+          />
+        )}
     </>
   );
 };
