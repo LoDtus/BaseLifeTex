@@ -1,490 +1,450 @@
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
+import { Table, Popconfirm, message, Modal, Checkbox } from "antd";
+
 import {
-  Dialog,
-  DialogContent,
-  Tabs,
-  Tab,
-  Box,
-  Button,
-  TextField,
-  Checkbox,
-  FormControlLabel,
-  Typography,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Paper,
-  Divider,
-  List,
-  ListItem,
-  ListItemText,
-  IconButton,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
-  TablePagination,
-  DialogTitle,
-  DialogActions,
-  Collapse,
-} from "@mui/material";
-import CloseIcon from "@mui/icons-material/Close";
-import { Label } from "@mui/icons-material";
-import { Input } from "antd";
-import DeleteIcon from "@mui/icons-material/Delete";
-import EditIcon from "@mui/icons-material/Edit";
+  EditOutlined,
+  DeleteOutlined,
+  PlusOutlined,
+  DownOutlined,
+  CheckCircleTwoTone,
+  CloseCircleTwoTone,
+} from "@ant-design/icons";
+import { Button, Input, Dropdown, Menu } from "antd";
+const ProjectSettingPopover = ({ onClose }) => {
+  const popoverRef = useRef(null);
+  const [activeTab, setActiveTab] = useState("workflow");
+  const [users, setUsers] = useState([]);
+  const [openFunction, setOpenFunction] = useState(false);
+  //state quản lý luồng
+  const [fromState, setFromState] = useState("");
+  const [toState, setToState] = useState("");
+  const [flows, setFlows] = useState([]);
+  const [selectedRowKeys, setSelectedRowKeys] = useState([]);
 
-const users = Array.from({ length: 23 }, (_, i) => ({
-  id: i + 1,
-  name: `Người dùng ${i + 1}`,
-  email: `user${i + 1}@gmail.com`,
-}));
-
-const ProjectSettingPopover = ({ open, onClose }) => {
-  const [tabIndex, setTabIndex] = useState(0);
-
-  const handleTabChange = (event, newValue) => {
-    setTabIndex(newValue);
-  };
-
-  const [selectedRoles, setSelectedRoles] = useState([]);
-
-  const handleRoleChange = (event) => {
-    const { value } = event.target;
-    setSelectedRoles(value);
-  };
-
-  const [selected, setSelected] = useState([]);
-
-  const users = [
-    { id: 1, name: "Ngô Tiến Đạt", email: "datnt050224@gmail.com" },
-    { id: 2, name: "Nguyễn Văn A", email: "a@gmail.com" },
-    { id: 3, name: "Trần Thị B", email: "b@gmail.com" },
-  ];
-
-  const handleSelectAll = (event) => {
-    if (event.target.checked) {
-      const allIds = users.map((user) => user.id);
-      setSelected(allIds);
-    } else {
-      setSelected([]);
-    }
-  };
-
-  const handleSelectOne = (id) => {
-    setSelected((prev) =>
-      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
-    );
-  };
-
-  const isAllSelected = selected.length === users.length;
-  const isIndeterminate = selected.length > 0 && selected.length < users.length;
-
-  const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(5);
-  const [openPermissionMatrix, setOpenPermissionMatrix] = useState(false);
-  const [currentUser, setCurrentUser] = useState(null);
-
-  const handleChangePage = (_, newPage) => setPage(newPage);
-  const handleChangeRowsPerPage = (e) => {
-    setRowsPerPage(parseInt(e.target.value, 10));
-    setPage(0);
-  };
-
-  const handleOpenMatrix = (user) => {
-    setCurrentUser(user);
-    setOpenPermissionMatrix(true);
-  };
-
-  const handleCloseMatrix = () => {
-    setOpenPermissionMatrix(false);
-    setCurrentUser(null);
-  };
-
-  const paginatedUsers = users.slice(
-    page * rowsPerPage,
-    page * rowsPerPage + rowsPerPage
-  );
-
-  const currentPageIds = paginatedUsers.map((u) => u.id);
-  const ROLES = ["Test", "Dev", "PM", "USER"];
-  const PERMISSIONS = ["View", "Add", "Edit", "Delete", "Comment", "Drag"];
-
-  const initialTableData = ROLES.map((role) => ({
-    role,
-    permissions: {
-      View: true,
-      Add: false,
-      Edit: false,
-      Delete: false,
-      Comment: true,
-      Drag: true,
+  const permissions = ["View", "Add", "Edit", "Delete", "Comment", "Drag"];
+  const roles = [
+    {
+      role: "PM",
+      rights: [1, 1, 1, 1, 0, 1],
     },
-  }));
+    {
+      role: "Dev",
+      rights: [1, 0, 0, 0, 1, 1],
+    },
+    {
+      role: "Test",
+      rights: [1, 0, 0, 0, 1, 1],
+    },
+    {
+      role: "BA",
+      rights: [1, 0, 0, 0, 1, 1],
+    },
+    {
+      role: "User",
+      rights: [1, 0, 0, 0, 1, 1],
+    },
+  ];
+  const handleAddUser = () => {
+    const fakeUser = {
+      key: Date.now(),
+      userName: `User ${users.length + 1}`,
+      email: `user${users.length + 1}@example.com`,
+    };
+    setUsers((prev) => [...prev, fakeUser]);
+    message.success("Đã thêm người");
+  };
 
-  const [showMatrix, setShowMatrix] = useState(false);
-  const [tableData, setTableData] = useState(initialTableData);
+  // Xóa người
+  const handleDeleteUser = (key) => {
+    setUsers((prev) => prev.filter((u) => u.key !== key));
+    message.success("Đã xóa người dùng");
+  };
+  // xóa tất cả người dùng
 
-  const toggleMatrix = () => setShowMatrix(!showMatrix);
-
-  const handleSelectRole = (role) => {
-    setSelectedRoles((prev) =>
-      prev.includes(role) ? prev.filter((r) => r !== role) : [...prev, role]
+  const handleDeleteMultipleUsers = () => {
+    const remaining = users.filter(
+      (user) => !selectedRowKeys.includes(user.key)
     );
+    setUsers(remaining);
+    setSelectedRowKeys([]);
+    message.success("Đã xóa các người dùng được chọn.");
   };
 
-  const handleDeletePermissions = () => {
-    const updated = tableData.map((item) => {
-      if (selectedRoles.includes(item.role)) {
-        return {
-          ...item,
-          permissions: PERMISSIONS.reduce((acc, key) => {
-            acc[key] = false;
-            return acc;
-          }, {}),
-        };
-      }
-      return item;
-    });
-    setTableData(updated);
-    setSelectedRoles([]);
+  // checkbox
+
+  const onSelectChange = (newSelectedRowKeys) => {
+    setSelectedRowKeys(newSelectedRowKeys);
   };
-  const handleDeleteSelectedUsers = () => {
-    const updated = users.filter((user) => !selected.includes(user.id));
-    setUsers(updated);
-    setSelected([]);
+  const rowSelection = {
+    selectedRowKeys,
+    onChange: onSelectChange,
+    preserveSelectedRowKeys: false,
   };
-
-  const handleDeleteUser = (id) => {
-    const updated = users.filter((user) => user.id !== id);
-    setUsers(updated);
-  };
-
-  return (
-    <Dialog open={open} onClose={onClose} maxWidth="lg" fullWidth>
-      <DialogContent sx={{ display: "flex", p: 0, height: 600 }}>
-        {/* Sidebar */}
-        <Box sx={{ width: "20%", bgcolor: "#f1f1f1", p: 2 }}>
-          <Tabs
-            orientation="vertical"
-            value={tabIndex}
-            onChange={handleTabChange}
-            variant="fullWidth"
-            sx={{ height: "100%" }}
-          >
-            <Tab label="Quản lý luồng" />
-            <Tab label="Quản lý vai trò" />
-          </Tabs>
-        </Box>
-
-        {/* Main Content */}
-        <Box sx={{ width: "80%", p: 3, overflowY: "auto" }}>
-          {/* Tab 0: Quản lý luồng */}
-          {tabIndex === 0 && (
-            <>
-              <Typography variant="h6" gutterBottom>
-                TRẠNG THÁI
-              </Typography>
-              <Box sx={{ display: "flex", gap: 3 }}>
-                {/* Left: Trạng thái */}
-                <Box sx={{ flex: 1 }}>
-                  <List dense>
-                    {["Draft", "In Review", "Approved", "Done", "Archived"].map(
-                      (status, idx) => (
-                        <ListItem
-                          key={status}
-                          secondaryAction={
-                            <>
-                              <IconButton edge="end" color="primary">
-                                <EditIcon />
-                              </IconButton>
-                              <IconButton edge="end" color="error">
-                                <DeleteIcon />
-                              </IconButton>
-                            </>
-                          }
-                        >
-                          <ListItemText primary={status} />
-                        </ListItem>
-                      )
-                    )}
-                  </List>
-                  <Button variant="text" sx={{ mt: 1 }}>
-                    + Thêm trạng thái
-                  </Button>
-                </Box>
-
-                {/* Right: Roles & thêm luồng */}
-                <Box sx={{ flex: 1 }}>
-                  <Typography variant="subtitle1" gutterBottom>
-                    ROLES
-                  </Typography>
-                  <Box
-                    sx={{ display: "flex", flexWrap: "wrap", gap: 2, mb: 2 }}
-                  >
-                    {["PM", "ADMIN", "TEST", "DEV", "USER", "BA"].map(
-                      (role) => (
-                        <FormControlLabel
-                          key={role}
-                          control={<Checkbox />}
-                          label={role}
-                        />
-                      )
-                    )}
-                  </Box>
-                  <TextField
-                    label="Từ trạng thái"
-                    fullWidth
-                    margin="dense"
-                    defaultValue="Draft"
-                  />
-                  <TextField
-                    label="Đến trạng thái"
-                    fullWidth
-                    margin="dense"
-                    defaultValue="InReview"
-                  />
-                  <Button variant="contained" sx={{ mt: 2 }}>
-                    Thêm luồng
-                  </Button>
-                  <Box sx={{ mt: 2 }}>
-                    <Typography variant="body2">
-                      - <b>InReview → Approved (PM)</b>{" "}
-                      <Button size="small">Edit</Button>
-                      <Button size="small" color="error">
-                        Delete
-                      </Button>
-                    </Typography>
-                  </Box>
-                </Box>
-              </Box>
-            </>
-          )}
-
-          {/* Tab 1: Quản lý vai trò */}
-          {tabIndex === 1 && (
-            <>
-              <Typography
-                variant="h6"
-                gutterBottom
-                style={{
-                  marginTop: "30px",
-                }}
-              >
-                <InputLabel style={{ marginBottom: "10px" }}>ROLES</InputLabel>
-                <Box sx={{ mb: 2 }}>
-                  <FormControl fullWidth>
-                    <InputLabel id="role-select-label">Chọn Vai Trò</InputLabel>
-                    <Select
-                      labelId="role-select-label"
-                      id="role-select"
-                      multiple
-                      value={selectedRoles}
-                      onChange={handleRoleChange}
-                      label="Chọn Vai Trò"
-                      renderValue={(selected) => selected.join(", ")}
-                    >
-                      {["PM", "ADMIN", "TEST", "DEV", "USER", "BA"].map(
-                        (role) => (
-                          <MenuItem key={role} value={role}>
-                            <Checkbox
-                              checked={selectedRoles.indexOf(role) > -1}
-                            />
-                            <ListItemText primary={role} />
-                          </MenuItem>
-                        )
-                      )}
-                    </Select>
-                  </FormControl>
-                </Box>
-              </Typography>
-              <Box
-                sx={{ display: "flex", justifyContent: "space-between", mb: 2 }}
-              >
-                <TextField
-                  label="Tìm kiếm..."
-                  size="small"
-                  sx={{ width: "60%" }}
-                />
-                <Box>
-                  {/* Nút mở/đóng Form ma trận + Icon Xóa */}
-                  <Box
-                    sx={{
-                      display: "flex",
-                      gap: 2,
-                      alignItems: "center",
-                      mb: 2,
-                    }}
-                  >
-                    <Button
-                      variant="contained"
-                      color="warning"
-                      onClick={toggleMatrix}
-                    >
-                      Chức năng
-                    </Button>
-                  </Box>
-
-                  {/* Collapse chứa bảng Table ma trận quyền */}
-                  <Collapse in={showMatrix} unmountOnExit>
-                    <Box
-                      mt={2}
-                      p={2}
-                      border="1px dashed gray"
-                      borderRadius="8px"
-                    >
-                      <TableContainer component={Paper}>
-                        <Table size="small">
-                          <TableHead>
-                            <TableRow>
-                              <TableCell padding="checkbox" />
-                              <TableCell>
-                                <strong>Roles</strong>
-                              </TableCell>
-                              {PERMISSIONS.map((perm) => (
-                                <TableCell key={perm} align="center">
-                                  <strong>{perm}</strong>
-                                </TableCell>
-                              ))}
-                            </TableRow>
-                          </TableHead>
-                          <TableBody>
-                            {tableData.map(({ role, permissions }) => (
-                              <TableRow key={role}>
-                                <TableCell padding="checkbox">
-                                  <Checkbox
-                                    checked={selectedRoles.includes(role)}
-                                    onChange={() => handleSelectRole(role)}
-                                  />
-                                </TableCell>
-                                <TableCell>{role}</TableCell>
-                                {PERMISSIONS.map((perm) => (
-                                  <TableCell key={perm} align="center">
-                                    {permissions[perm] ? "✅" : ""}
-                                  </TableCell>
-                                ))}
-                              </TableRow>
-                            ))}
-                          </TableBody>
-                        </Table>
-                      </TableContainer>
-                    </Box>
-                  </Collapse>
-                </Box>
-              </Box>
-              <Box
-                sx={{ display: "flex", alignItems: "center", gap: 89, mb: 2 }}
-              >
-                <Button variant="contained">+ Thêm người</Button>
-                <IconButton
-                  onClick={handleDeleteSelectedUsers}
-                  color="error"
-                  disabled={selected.length === 0}
-                >
-                  <DeleteIcon />
-                </IconButton>
-              </Box>
-
-              <TableContainer component={Paper}>
-                <Table>
-                  <TableHead>
-                    <TableRow>
-                      <TableCell padding="checkbox">
-                        <Checkbox
-                          checked={isAllSelected}
-                          indeterminate={isIndeterminate}
-                          onChange={handleSelectAll}
-                        />
-                      </TableCell>
-                      <TableCell>STT</TableCell>
-                      <TableCell>Tên người dùng</TableCell>
-                      <TableCell>Email</TableCell>
-                      <TableCell>Thao tác</TableCell>
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {paginatedUsers.map((user, index) => (
-                      <TableRow key={user.id}>
-                        <TableCell padding="checkbox">
-                          <Checkbox
-                            checked={selected.includes(user.id)}
-                            onChange={() => handleSelectOne(user.id)}
-                          />
-                        </TableCell>
-                        <TableCell>{page * rowsPerPage + index + 1}</TableCell>
-                        <TableCell>{user.name}</TableCell>
-                        <TableCell>{user.email}</TableCell>
-                        <TableCell>
-                          <Button
-                            variant="contained"
-                            color="error"
-                            size="small"
-                            onClick={() => handleDeleteUser(user.id)}
-                          >
-                            DELETE
-                          </Button>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-                <TablePagination
-                  rowsPerPageOptions={[5, 10, 20]}
-                  component="div"
-                  count={users.length}
-                  rowsPerPage={rowsPerPage}
-                  page={page}
-                  onPageChange={handleChangePage}
-                  onRowsPerPageChange={handleChangeRowsPerPage}
-                />
-              </TableContainer>
-
-              {/* Dialog hiển thị ma trận quyền */}
-              <Dialog
-                open={openPermissionMatrix}
-                onClose={handleCloseMatrix}
-                maxWidth="sm"
-                fullWidth
-              >
-                <DialogTitle>
-                  Ma trận quyền - {selected.length} người dùng
-                </DialogTitle>
-                <DialogContent>
-                  <Typography variant="subtitle2" gutterBottom>
-                    Áp dụng cho:
-                  </Typography>
-                  <ul>
-                    {users
-                      .filter((u) => selected.includes(u.id))
-                      .map((u) => (
-                        <li key={u.id}>{u.name}</li>
-                      ))}
-                  </ul>
-                  {/* Form ma trận quyền ở đây */}
-                  <p>[Form ma trận quyền sẽ được hiển thị tại đây]</p>
-                </DialogContent>
-
-                <DialogActions>
-                  <Button onClick={handleCloseMatrix}>Đóng</Button>
-                  <Button variant="contained">Lưu</Button>
-                </DialogActions>
-              </Dialog>
-            </>
-          )}
-        </Box>
-
-        {/* Close button (top-right corner) */}
-        <IconButton
-          onClick={onClose}
-          sx={{ position: "absolute", top: 10, right: 10 }}
+  const userColumns = [
+    {
+      title: "STT",
+      dataIndex: "stt",
+      key: "stt",
+      render: (_, __, index) => index + 1,
+      width: 60,
+    },
+    {
+      title: "Username",
+      dataIndex: "userName",
+      key: "userName",
+    },
+    {
+      title: "Email",
+      dataIndex: "email",
+      key: "email",
+    },
+    {
+      title: "Xóa",
+      key: "action",
+      render: (_, record) => (
+        <Popconfirm
+          title="Bạn có chắc muốn xóa?"
+          onConfirm={() => handleDeleteUser(record.key)}
+          okText="Xóa"
+          cancelText="Hủy"
         >
-          <CloseIcon />
-        </IconButton>
-      </DialogContent>
-    </Dialog>
+          <Button danger size="small">
+            Xóa
+          </Button>
+        </Popconfirm>
+      ),
+      width: 80,
+    },
+  ];
+  const handleAddFlow = () => {
+    if (!fromState || !toState) return;
+
+    setFlows([...flows, { from: fromState, to: toState }]);
+    setFromState("");
+    setToState("");
+  };
+  const handleDelete = (index) => {
+    setFlows(flows.filter((_, i) => i !== index));
+  };
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      const path = event.composedPath();
+      const isInPopover = path.some(
+        (el) =>
+          el instanceof HTMLElement &&
+          (el.classList.contains("ant-modal") ||
+            el.classList.contains("ant-popover"))
+      );
+
+      if (isInPopover) return;
+
+      if (popoverRef.current && !popoverRef.current.contains(event.target)) {
+        onClose();
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [onClose]);
+
+  return createPortal(
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[1000]">
+      <div
+        ref={popoverRef}
+        className="bg-white shadow-lg flex rounded-xl w-full max-w-screen-lg h-[600px] overflow-y-auto border p-6 mx-auto"
+      >
+        <div className="bg-[#e6e6e6] w-[30%]  flex flex-col items-center py-4 gap-6 font-bold ">
+          <h1>WORK FLOW</h1>
+          <button
+            onClick={() => setActiveTab("workflow")}
+            className={`w-48 py-2 border rounded transition ${
+              activeTab === "workflow"
+                ? "border-blue-500 bg-blue-100"
+                : "border-gray-400 hover:border-blue-500 hover:bg-blue-50"
+            }`}
+          >
+            Quản lý luồng
+          </button>
+          <button
+            onClick={() => setActiveTab("roles")}
+            className={`w-48 py-2 border rounded transition ${
+              activeTab === "roles"
+                ? "border-gray-500 bg-gray-100"
+                : "border-gray-400 hover:border-gray-500 hover:bg-gray-100"
+            }`}
+          >
+            Quản lý vai trò
+          </button>
+        </div>
+        <div className="w-[70%] h-full flex flex-col items-center">
+          {activeTab === "workflow" && (
+            <div className="flex w-full h-full overflow-hidden">
+              <div className="flex gap-6 px-6 w-full">
+                {/* Cột trái - 30% */}
+                <div className="w-[30%] border-r pr-4 pt-4 overflow-y-auto">
+                  <h3 className="text-lg font-semibold mb-4 text-center">
+                    TRẠNG THÁI
+                  </h3>
+                  <ul className="list-disc pl-5 text-sm">
+                    {[
+                      {
+                        label: "Draft",
+                        bg: "bg-yellow-100",
+                        text: "text-yellow-800",
+                      },
+                      {
+                        label: "In Review",
+                        bg: "bg-orange-100",
+                        text: "text-orange-800",
+                      },
+                      {
+                        label: "Approved",
+                        bg: "bg-green-100",
+                        text: "text-green-800",
+                      },
+                      {
+                        label: "Done",
+                        bg: "bg-blue-100",
+                        text: "text-blue-800",
+                      },
+                      {
+                        label: "Archived",
+                        bg: "bg-gray-100",
+                        text: "text-gray-800",
+                      },
+                    ].map((item) => (
+                      <li
+                        key={item.label}
+                        className="flex items-center justify-between mb-2"
+                      >
+                        <span
+                          className={`${item.bg} ${item.text} px-2 py-1 rounded`}
+                        >
+                          {item.label}
+                        </span>
+                        <div className="flex gap-1">
+                          <Button
+                            icon={<DeleteOutlined />}
+                            className="text-red-500 hover:text-red-700"
+                            type="link"
+                          />
+                          <Button
+                            icon={<EditOutlined />}
+                            className="text-blue-500 hover:text-blue-700"
+                            type="link"
+                          />
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
+                  <div className="flex justify-center mt-4">
+                    <button className="flex items-center gap-1 border border-gray-400 rounded px-3 py-1 hover:border-green-500 hover:bg-green-100 transition">
+                      <PlusOutlined />
+                      Thêm trạng thái
+                    </button>
+                  </div>
+                </div>
+
+                {/* Cột phải - 70% */}
+                <div className="w-[70%] px-4 pt-4 mx-auto overflow-y-auto max-w-[800px]">
+                  <h3 className="text-lg font-semibold mb-4 text-center">
+                    ROLES
+                  </h3>
+                  <div className="flex justify-center gap-6 flex-wrap text-sm">
+                    {["ADMIN", "PM", "DEV", "TEST", "BA", "USER"].map(
+                      (role) => (
+                        <label key={role} className="flex items-center gap-2">
+                          <input
+                            type="radio"
+                            name="userRole"
+                            value={role}
+                            className="accent-blue-500"
+                          />
+                          <span>{role}</span>
+                        </label>
+                      )
+                    )}
+                  </div>
+                  <div className="flex flex-col gap-4 pt-4">
+                    <div className="flex flex-col items-start mt-3">
+                      <label className="font-medium">Từ trạng thái:</label>
+                      <input
+                        type="text"
+                        className="border px-2 py-1 rounded w-full"
+                        placeholder="Ví dụ: Draft"
+                        value={fromState}
+                        onChange={(e) => setFromState(e.target.value)}
+                      />
+                    </div>
+                    <div className="flex flex-col items-start">
+                      <label className="font-medium">Đến trạng thái:</label>
+                      <input
+                        type="text"
+                        className="border px-2 py-1 rounded w-full"
+                        placeholder="Ví dụ: Done"
+                        value={toState}
+                        onChange={(e) => setToState(e.target.value)}
+                      />
+                    </div>
+                  </div>
+                  <div className="flex justify-center mt-4">
+                    <button
+                      onClick={handleAddFlow}
+                      className="flex items-center gap-1 border border-gray-400 rounded px-3 py-1 hover:border-blue-500 hover:bg-blue-500 transition"
+                    >
+                      Thêm luồng
+                    </button>
+                  </div>
+                  <div className="mt-2 pt-1">
+                    <h5 className="font-semibold mb-2">Các luồng đã tạo:</h5>
+                    {flows.length === 0 ? (
+                      <p className="text-gray-500">
+                        Chưa có luồng nào được tạo.
+                      </p>
+                    ) : (
+                      <ul className="list-disc pl-3 space-y-1">
+                        {flows.map((flow, index) => (
+                          <li
+                            key={index}
+                            className="flex justify-between items-center border p-2 rounded gap-2"
+                          >
+                            <span className="flex-1">
+                              {flow.from} ➝ {flow.to}
+                            </span>
+                            <button
+                              onClick={() => handleDelete(index)}
+                              className="text-red-500 hover:underline ml-4"
+                            >
+                              🗑 Xóa
+                            </button>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {activeTab === "roles" && (
+            <div className="w-full px-4">
+              <h2 className="text-lg font-semibold pt-4 mb-4 text-center">
+                QUẢN LÝ VAI TRÒ
+              </h2>
+
+              <div className="flex justify-center items-center gap-4">
+                <Input placeholder="Chọn vai trò" readOnly className="!w-60" />
+              </div>
+
+              {/* Dòng này sẽ nằm sát trái */}
+              <div className="w-full mt-4">
+                <div className="text-left font-medium ">DANH SÁCH TEST</div>
+
+                <div className="mt-4 flex items-center gap-4 justify-between ">
+                  <Input
+                    placeholder="Tìm kiếm vai trò..."
+                    className="!w-64"
+                    allowClear
+                  />
+                  <button
+                    onClick={() => setOpenFunction(true)}
+                    className="bg-yellow-500 text-white px-2 py-1 rounded hover:bg-blue-600"
+                  >
+                    chức năng
+                  </button>
+                </div>
+
+                <div className="mt-4 flex items-center justify-between">
+                  <button
+                    onClick={handleAddUser}
+                    className="flex items-center gap-1 border border-gray-400 rounded px-3 py-1 hover:border-green-500 hover:bg-green-100 transition"
+                  >
+                    <PlusOutlined />
+                    Thêm người
+                  </button>
+                  <div className="mb-2">
+                    {selectedRowKeys.length > 0 && (
+                      <Popconfirm
+                        title={`Xóa ${selectedRowKeys.length} người dùng?`}
+                        onConfirm={handleDeleteMultipleUsers}
+                        okText="Xóa"
+                        cancelText="Hủy"
+                      >
+                        <button className="text-lg text-red-500 hover:text-white border border-transparent hover:border-red-500 hover:bg-red-500 rounded px-2 py-1 transition-all duration-200">
+                          <DeleteOutlined />
+                        </button>
+                      </Popconfirm>
+                    )}
+                  </div>
+                </div>
+
+                <div className="mt-4">
+                  <Table
+                    rowSelection={rowSelection}
+                    dataSource={users}
+                    columns={userColumns}
+                    pagination={false}
+                    size="small"
+                    bordered
+                    rowKey="key"
+                  />
+                </div>
+              </div>
+            </div>
+          )}
+          <Modal
+            title="Ma trận phân quyền theo vai trò"
+            open={openFunction}
+            onCancel={() => setOpenFunction(false)}
+            footer={null}
+            width={800}
+          >
+            <div className="overflow-auto">
+              <table className="table-auto border-collapse w-full text-center">
+                <thead>
+                  <tr>
+                    <th className="border px-4 py-2 bg-gray-100">
+                      Quyền / Vai trò
+                    </th>
+                    {roles.map((role) => (
+                      <th
+                        key={role.role}
+                        className="border px-4 py-2 bg-gray-100"
+                      >
+                        {role.role}
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {permissions.map((permission, rowIdx) => (
+                    <tr key={permission}>
+                      <td className="border px-4 py-2 font-medium">
+                        {permission}
+                      </td>
+                      {roles.map((role) => (
+                        <td key={role.role} className="border px-4 py-2">
+                          {role.rights[rowIdx] ? (
+                            <CheckCircleTwoTone twoToneColor="#52c41a" />
+                          ) : (
+                            <CloseCircleTwoTone twoToneColor="#ff4d4f" />
+                          )}
+                        </td>
+                      ))}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </Modal>
+        </div>
+      </div>
+    </div>,
+    document.body
   );
 };
 

@@ -104,19 +104,7 @@ const ProjectCard = ({ project, isSelected, avatarManger }) => {
   };
 
   const [showSettingPopover, setShowSettingPopover] = useState(false);
-  const [popoverAnchorEl, setPopoverAnchorEl] = useState(null);
 
-  const handleSettingsClick = (event) => {
-    event.stopPropagation();
-    setPopoverAnchorEl(event.currentTarget);
-    setShowSettingPopover(true);
-  };
-
-  const handlePopoverClose = () => {
-    setPopoverAnchorEl(null);
-    setShowSettingPopover(false);
-  };
-  const isSettingsOpen = Boolean(popoverAnchorEl);
   return (
     <>
       <div
@@ -229,7 +217,6 @@ const ProjectCard = ({ project, isSelected, avatarManger }) => {
                 </svg>
               </div>
             )}
-
           {user?._id &&
             project?.managerId?._id &&
             project.managerId._id === user._id && (
@@ -238,7 +225,10 @@ const ProjectCard = ({ project, isSelected, avatarManger }) => {
                 aria-label="Cài đặt"
                 className="p-0 h-[24px]"
                 style={{ marginLeft: "8px" }}
-                onClick={handleSettingsClick}
+                onClick={(e) => {
+                  setShowSettingPopover(!showSettingPopover),
+                    e.stopPropagation();
+                }}
               >
                 <SettingsIcon sx={{ fontSize: 25 }} />
               </IconButton>
@@ -285,17 +275,9 @@ const ProjectCard = ({ project, isSelected, avatarManger }) => {
         title="Xác nhận xoá dự án"
         content={`Bạn có chắc chắn muốn xoá dự án "${project.name}" không?`}
       />
-      {showSettingPopover &&
-        user?._id &&
-        project?.managerId?._id &&
-        project.managerId._id === user._id && (
-          <ProjectSettingPopover
-            anchorEl={popoverAnchorEl}
-            open={isSettingsOpen}
-            onClose={handlePopoverClose}
-            project={project}
-          />
-        )}
+      {showSettingPopover && (
+        <ProjectSettingPopover onClose={() => setShowSettingPopover(false)} />
+      )}
     </>
   );
 };
