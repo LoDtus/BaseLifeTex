@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import { Table, Popconfirm, message, Modal, Checkbox } from "antd";
+import { Table, Popconfirm, message, Modal, Checkbox, Select } from "antd";
 
 import {
   EditOutlined,
@@ -10,6 +10,8 @@ import {
   CheckCircleTwoTone,
   CloseCircleTwoTone,
   SyncOutlined,
+  ReadOutlined,
+  SearchOutlined,
 } from "@ant-design/icons";
 import { Button, Input, Dropdown, Menu } from "antd";
 const ProjectSettingPopover = ({ onClose }) => {
@@ -25,7 +27,10 @@ const ProjectSettingPopover = ({ onClose }) => {
   const [editingIndex, setEditingIndex] = useState(null);
   const [editingFlow, setEditingFlow] = useState({ from: "", to: "" });
   const [isEditing, setIsEditing] = useState(false);
+  const [selectedRole, setSelectedRole] = useState(null);
+  const { Option } = Select;
 
+  const roleOptions = ["PM", "Dev", "Test", "BA", "User"];
   const permissions = ["View", "Add", "Edit", "Delete", "Comment", "Drag"];
   const roles = [
     {
@@ -156,6 +161,7 @@ const ProjectSettingPopover = ({ onClose }) => {
         (el) =>
           el instanceof HTMLElement &&
           (el.classList.contains("ant-modal") ||
+            el.classList.contains("ant-select-dropdown") ||
             el.classList.contains("ant-popover"))
       );
 
@@ -271,7 +277,7 @@ const ProjectSettingPopover = ({ onClose }) => {
                 </div>
 
                 {/* Cột phải - 70% */}
-                <div className="w-[70%] px-4 pt-4 mx-auto overflow-y-auto max-w-[800px]">
+                <div className="w-[70%] px-2 pt-4 mx-auto overflow-y-auto max-w-[800px]">
                   <h3 className="text-lg font-semibold mb-4 text-center">
                     ROLES
                   </h3>
@@ -301,16 +307,7 @@ const ProjectSettingPopover = ({ onClose }) => {
                         onChange={(e) => setFromState(e.target.value)}
                       />
                     </div>
-                    <div className="flex justify-end gap-2 ">
-                      {isEditing && (
-                        <button
-                          onClick={handleSaveEdit}
-                          className="text-green-600 hover:underline"
-                        >
-                          💾 Lưu chỉnh sửa
-                        </button>
-                      )}
-                    </div>
+
                     <div className="flex flex-col items-start">
                       <label className="font-medium">Đến trạng thái:</label>
                       <input
@@ -320,6 +317,16 @@ const ProjectSettingPopover = ({ onClose }) => {
                         value={toState}
                         onChange={(e) => setToState(e.target.value)}
                       />
+                    </div>
+                    <div className="flex justify-end gap-2 ">
+                      {isEditing && (
+                        <button
+                          onClick={handleSaveEdit}
+                          className="text-green-600 hover:underline"
+                        >
+                          💾 Lưu chỉnh sửa
+                        </button>
+                      )}
                     </div>
                   </div>
                   <div className="flex justify-center mt-4">
@@ -375,16 +382,29 @@ const ProjectSettingPopover = ({ onClose }) => {
               </h2>
 
               <div className="flex justify-center items-center gap-4">
-                <Input placeholder="Chọn vai trò" readOnly className="!w-60" />
+                <Select
+                  placeholder="Chọn vai trò"
+                  className={`!w-60 transition duration-200 ${
+                    selectedRole ? "bg-blue-50" : ""
+                  }`}
+                  value={selectedRole} // Quan trọng để hiển thị vai trò đã chọn
+                  options={roleOptions.map((role) => ({
+                    label: role,
+                    value: role,
+                  }))}
+                  onChange={(value) => {
+                    setSelectedRole(value);
+                    console.log("Vai trò đã chọn:", value);
+                  }}
+                />
               </div>
 
               {/* Dòng này sẽ nằm sát trái */}
               <div className="w-full mt-4">
-                <div className="text-left font-medium ">DANH SÁCH TEST</div>
-
                 <div className="mt-4 flex items-center gap-4 justify-between ">
                   <Input
-                    placeholder="Tìm kiếm vai trò..."
+                    placeholder="Tìm kiếm người dùng..."
+                    prefix={<SearchOutlined />}
                     className="!w-64"
                     allowClear
                   />
@@ -404,6 +424,7 @@ const ProjectSettingPopover = ({ onClose }) => {
                     <PlusOutlined />
                     Thêm người
                   </button>
+
                   <div className="mb-2">
                     {selectedRowKeys.length > 0 && (
                       <Popconfirm
@@ -419,13 +440,16 @@ const ProjectSettingPopover = ({ onClose }) => {
                     )}
                   </div>
                 </div>
-
-                <div className="mt-4">
+                <div className="text-left font-bold  mt-4">
+                  <ReadOutlined style={{ marginRight: "4px" }} />
+                  DANH SÁCH TEST
+                </div>
+                <div className="mt-2">
                   <Table
                     rowSelection={rowSelection}
                     dataSource={users}
                     columns={userColumns}
-                    pagination={false}
+                    pagination={{ pageSize: 5 }}
                     size="small"
                     bordered
                     rowKey="key"
