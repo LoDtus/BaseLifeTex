@@ -9,6 +9,7 @@ import {
   DownOutlined,
   CheckCircleTwoTone,
   CloseCircleTwoTone,
+  SyncOutlined,
 } from "@ant-design/icons";
 import { Button, Input, Dropdown, Menu } from "antd";
 const ProjectSettingPopover = ({ onClose }) => {
@@ -21,6 +22,9 @@ const ProjectSettingPopover = ({ onClose }) => {
   const [toState, setToState] = useState("");
   const [flows, setFlows] = useState([]);
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
+  const [editingIndex, setEditingIndex] = useState(null);
+  const [editingFlow, setEditingFlow] = useState({ from: "", to: "" });
+  const [isEditing, setIsEditing] = useState(false);
 
   const permissions = ["View", "Add", "Edit", "Delete", "Comment", "Drag"];
   const roles = [
@@ -54,7 +58,25 @@ const ProjectSettingPopover = ({ onClose }) => {
     setUsers((prev) => [...prev, fakeUser]);
     message.success("Đã thêm người");
   };
+  const handleEdit = (index) => {
+    setIsEditing(true);
+    const flowToEdit = flows[index];
+    setEditingIndex(index);
 
+    setEditingFlow({ ...flowToEdit });
+    setFromState(flowToEdit.from);
+    setToState(flowToEdit.to);
+  };
+
+  const handleSaveEdit = () => {
+    setIsEditing(false);
+    const updatedFlows = [...flows];
+    updatedFlows[editingIndex] = { from: fromState, to: toState };
+    setFlows(updatedFlows);
+    setEditingIndex(null);
+    setFromState("");
+    setToState("");
+  };
   // Xóa người
   const handleDeleteUser = (key) => {
     setUsers((prev) => prev.filter((u) => u.key !== key));
@@ -279,6 +301,16 @@ const ProjectSettingPopover = ({ onClose }) => {
                         onChange={(e) => setFromState(e.target.value)}
                       />
                     </div>
+                    <div className="flex justify-end gap-2 ">
+                      {isEditing && (
+                        <button
+                          onClick={handleSaveEdit}
+                          className="text-green-600 hover:underline"
+                        >
+                          💾 Lưu chỉnh sửa
+                        </button>
+                      )}
+                    </div>
                     <div className="flex flex-col items-start">
                       <label className="font-medium">Đến trạng thái:</label>
                       <input
@@ -299,7 +331,10 @@ const ProjectSettingPopover = ({ onClose }) => {
                     </button>
                   </div>
                   <div className="mt-2 pt-1">
-                    <h5 className="font-semibold mb-2">Các luồng đã tạo:</h5>
+                    <h5 className="font-semibold mb-2 ">
+                      <SyncOutlined style={{ marginRight: "6px" }} />
+                      Các luồng đã tạo:
+                    </h5>
                     {flows.length === 0 ? (
                       <p className="text-gray-500">
                         Chưa có luồng nào được tạo.
@@ -307,13 +342,16 @@ const ProjectSettingPopover = ({ onClose }) => {
                     ) : (
                       <ul className="list-disc pl-3 space-y-1">
                         {flows.map((flow, index) => (
-                          <li
-                            key={index}
-                            className="flex justify-between items-center border p-2 rounded gap-2"
-                          >
+                          <li className="flex justify-between items-center border p-2 rounded gap-3">
                             <span className="flex-1">
                               {flow.from} ➝ {flow.to}
                             </span>
+                            <button
+                              onClick={() => handleEdit(index)}
+                              className="text-blue-500 hover:underline"
+                            >
+                              ✏️ Chỉnh sửa
+                            </button>
                             <button
                               onClick={() => handleDelete(index)}
                               className="text-red-500 hover:underline ml-4"
