@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { Table, Popconfirm, message, Modal, Checkbox, Select } from "antd";
+import styles from "../styles/ProjectSettingPopover.module.scss";
 
 import {
   EditOutlined,
@@ -184,14 +185,14 @@ const ProjectSettingPopover = ({ onClose }) => {
         ref={popoverRef}
         className="bg-white shadow-lg flex rounded-xl w-full max-w-screen-lg h-[600px] overflow-y-auto border p-6 mx-auto"
       >
-        <div className="bg-[#e6e6e6] w-[30%]  flex flex-col items-center py-4 gap-6 font-bold ">
-          <h1>WORK FLOW</h1>
+        <div className="bg-[#f9f9f9] w-[30%] font-bold" style={{paddingLeft:40}}>
+          <h1 className={styles.projectSetting__title}>WORK FLOW</h1>
           <button
             onClick={() => setActiveTab("workflow")}
-            className={`w-48 py-2 border rounded transition ${
+            className={`w-48 py-2 border rounded transition block my-2 ${
               activeTab === "workflow"
-                ? "border-blue-500 bg-blue-100"
-                : "border-gray-400 hover:border-blue-500 hover:bg-blue-50"
+                ? "text-white bg-[#5f646a]"
+                : "hover:bg-[#5f646a] hover:text-white bg-[#eaecf0]"
             }`}
           >
             Quản lý luồng
@@ -200,8 +201,8 @@ const ProjectSettingPopover = ({ onClose }) => {
             onClick={() => setActiveTab("roles")}
             className={`w-48 py-2 border rounded transition ${
               activeTab === "roles"
-                ? "border-gray-500 bg-gray-100"
-                : "border-gray-400 hover:border-gray-500 hover:bg-gray-100"
+                ? "text-white bg-[#5f646a]"
+                : "hover:bg-[#5f646a] hover:text-white bg-[#eaecf0]"
             }`}
           >
             Quản lý vai trò
@@ -209,11 +210,11 @@ const ProjectSettingPopover = ({ onClose }) => {
         </div>
         <div className="w-[70%] h-full flex flex-col items-center">
           {activeTab === "workflow" && (
-            <div className="flex w-full h-full overflow-hidden">
-              <div className="flex gap-6 px-6 w-full">
+            <div className="flex w-full h-full overflow-hidden p-3">
+              <div className="flex w-full border border-black rounded-2xl">
                 {/* Cột trái - 30% */}
-                <div className="w-[30%] border-r pr-4 pt-4 overflow-y-auto">
-                  <h3 className="text-lg font-semibold mb-4 text-center">
+                <div className="w-[30%] border-r pr-4  pt-4 overflow-y-auto" style={{paddingRight:5}}>
+                  <h3 className={`mb-4 text-center ${styles.projectSetting__statusHeader}`}>
                     TRẠNG THÁI
                   </h3>
                   <ul className="list-disc pl-5 text-sm">
@@ -256,20 +257,18 @@ const ProjectSettingPopover = ({ onClose }) => {
                         <div className="flex gap-1">
                           <Button
                             icon={<DeleteOutlined />}
-                            className="text-red-500 hover:text-red-700"
-                            type="link"
+                            type="primary" danger
                           />
                           <Button
                             icon={<EditOutlined />}
-                            className="text-blue-500 hover:text-blue-700"
-                            type="link"
+                            type="primary" 
                           />
                         </div>
                       </li>
                     ))}
                   </ul>
                   <div className="flex justify-center mt-4">
-                    <button className="flex items-center gap-1 border border-gray-400 rounded px-3 py-1 hover:border-green-500 hover:bg-green-100 transition">
+                    <button className="flex items-center gap-1 border border-gray-400 rounded px-3 py-1 hover:text-white hover:bg-[rgba(80,80,78,0.6)] transition">
                       <PlusOutlined />
                       Thêm trạng thái
                     </button>
@@ -377,7 +376,7 @@ const ProjectSettingPopover = ({ onClose }) => {
 
           {activeTab === "roles" && (
             <div className="w-full px-4">
-              <h2 className="text-lg font-semibold pt-4 mb-4 text-center">
+              <h2 className={`text-lg font-semibold pt-4 mb-4 text-center ${styles.projectSetting__roleTitle}`}>
                 QUẢN LÝ VAI TRÒ
               </h2>
 
@@ -419,7 +418,7 @@ const ProjectSettingPopover = ({ onClose }) => {
                 <div className="mt-4 flex items-center justify-between">
                   <button
                     onClick={handleAddUser}
-                    className="flex items-center gap-1 border border-gray-400 rounded px-3 py-1 hover:border-green-500 hover:bg-green-100 transition"
+                    className="flex items-center gap-1 border border-gray-400 rounded px-3 py-1 hover:bg-[#5f646a] hover:text-white  transition"
                   >
                     <PlusOutlined />
                     Thêm người
