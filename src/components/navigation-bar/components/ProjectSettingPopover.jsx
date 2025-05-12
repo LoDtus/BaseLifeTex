@@ -114,16 +114,19 @@ const ProjectSettingPopover = ({ onClose }) => {
       key: "stt",
       render: (_, __, index) => index + 1,
       width: 60,
+      align: "center", // Căn giữa
     },
     {
-      title: "Username",
+      title: "Tên",
       dataIndex: "userName",
       key: "userName",
+      align: "center",
     },
     {
       title: "Email",
       dataIndex: "email",
       key: "email",
+      align: "center",
     },
     {
       title: "Xóa",
@@ -141,8 +144,10 @@ const ProjectSettingPopover = ({ onClose }) => {
         </Popconfirm>
       ),
       width: 80,
+      align: "center",
     },
   ];
+
   const handleAddFlow = () => {
     if (!fromState || !toState) return;
 
@@ -193,7 +198,10 @@ const ProjectSettingPopover = ({ onClose }) => {
         ref={popoverRef}
         className="bg-white shadow-lg flex rounded-xl w-full max-w-screen-lg h-[600px] overflow-y-auto border p-6 mx-auto"
       >
-        <div className="bg-[#f9f9f9] w-[30%] font-bold" style={{paddingLeft:40}}>
+        <div
+          className="bg-[#f9f9f9] w-[30%] font-bold"
+          style={{ paddingLeft: 40 }}
+        >
           <h1 className={styles.projectSetting__title}>WORK FLOW</h1>
           <button
             onClick={() => setActiveTab("workflow")}
@@ -221,60 +229,88 @@ const ProjectSettingPopover = ({ onClose }) => {
             <div className="flex w-full h-full overflow-hidden p-3">
               <div className="flex w-full border border-black rounded-2xl">
                 {/* Cột trái - 30% */}
-                <div className="w-[30%] border-r pr-4  pt-4 overflow-y-auto" style={{paddingRight:5}}>
-                  <h3 className={`mb-4 text-center ${styles.projectSetting__statusHeader}`}>
+                <div
+                  className="w-[30%] border-r pr-4  pt-4 overflow-y-auto"
+                  style={{ paddingRight: 5 }}
+                >
+                  <h3
+                    className={`mb-4 text-center ${styles.projectSetting__statusHeader}`}
+                  >
                     TRẠNG THÁI
                   </h3>
-                  <ul className="list-disc pl-5 text-sm">
+                  <ul className="list-disc pl-4 text-sm">
                     {[
                       {
-                        label: "Draft",
-                        bg: "bg-yellow-100",
-                        text: "text-yellow-800",
-                      },
-                      {
-                        label: "In Review",
-                        bg: "bg-orange-100",
-                        text: "text-orange-800",
-                      },
-                      {
-                        label: "Approved",
-                        bg: "bg-green-100",
-                        text: "text-green-800",
-                      },
-                      {
-                        label: "Done",
+                        label: "Công việc mới",
                         bg: "bg-blue-100",
                         text: "text-blue-800",
                       },
                       {
-                        label: "Archived",
+                        label: "Đang thực hiện",
+                        bg: "bg-yellow-100",
+                        text: "text-yellow-800",
+                      },
+                      {
+                        label: "Kiểm thử",
+                        bg: "bg-purple-100",
+                        text: "text-purple-800",
+                      },
+                      {
+                        label: "Hoàn thành",
+                        bg: "bg-green-100",
+                        text: "text-green-800",
+                      },
+                      {
+                        label: "Đóng công việc",
                         bg: "bg-gray-100",
                         text: "text-gray-800",
+                      },
+                      {
+                        label: "Tạm dừng",
+                        bg: "bg-amber-100",
+                        text: "text-amber-800",
+                      },
+                      {
+                        label: "Khóa công việc",
+                        bg: "bg-red-100",
+                        text: "text-red-800",
                       },
                     ].map((item) => (
                       <li
                         key={item.label}
-                        className="flex items-center justify-between mb-2"
+                        className="flex items-center justify-between mb-2 space-x-4"
                       >
                         <span
-                          className={`${item.bg} ${item.text} px-2 py-1 rounded`}
+                          className={`${item.bg} ${item.text} px-3 rounded`}
+                          style={{
+                            flex: 1,
+                            height: "35px",
+                            display: "flex",
+                            alignItems: "center",
+                            textOverflow: "ellipsis",
+                            overflow: "hidden",
+                            whiteSpace: "nowrap",
+                            fontSize: "0.6rem",
+                            fontWeight: "600",
+                            marginLeft: "-15px",
+                            marginRight: "10px",
+                          }}
                         >
                           {item.label}
                         </span>
-                        <div className="flex gap-1">
+
+                        <div className="flex gap-2">
                           <Button
                             icon={<DeleteOutlined />}
-                            type="primary" danger
+                            type="primary"
+                            danger
                           />
-                          <Button
-                            icon={<EditOutlined />}
-                            type="primary" 
-                          />
+                          <Button icon={<EditOutlined />} type="primary" />
                         </div>
                       </li>
                     ))}
                   </ul>
+
                   <div className="flex justify-center mt-4">
                     <button className="flex items-center gap-1 border border-gray-400 rounded px-3 py-1 hover:text-white hover:bg-[rgba(80,80,78,0.6)] transition">
                       <PlusOutlined />
@@ -384,7 +420,9 @@ const ProjectSettingPopover = ({ onClose }) => {
 
           {activeTab === "roles" && (
             <div className="w-full px-4">
-              <h2 className={`text-lg font-semibold pt-4 mb-4 text-center ${styles.projectSetting__roleTitle}`}>
+              <h2
+                className={`text-lg font-semibold pt-4 mb-4 text-center ${styles.projectSetting__roleTitle}`}
+              >
                 QUẢN LÝ VAI TRÒ
               </h2>
 
