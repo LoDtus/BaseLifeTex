@@ -64,13 +64,11 @@ const ProjectSettingPopover = ({ onClose }) => {
     message.success("Đã thêm người");
   };
   const handleEdit = (index) => {
+    const flow = flows[index];
+    setFromState(flow.from);
+    setToState(flow.to);
     setIsEditing(true);
-    const flowToEdit = flows[index];
-    setEditingIndex(index);
-
-    setEditingFlow({ ...flowToEdit });
-    setFromState(flowToEdit.from);
-    setToState(flowToEdit.to);
+    setEditingIndex(index); // dùng để biết đang edit flow nào
   };
 
   const handleSaveEdit = () => {
@@ -152,8 +150,18 @@ const ProjectSettingPopover = ({ onClose }) => {
     setToState("");
   };
   const handleDelete = (index) => {
-    setFlows(flows.filter((_, i) => i !== index));
+    const newFlows = flows.filter((_, i) => i !== index);
+    setFlows(newFlows);
+
+    // Nếu đang chỉnh sửa flow bị xóa thì reset input và trạng thái
+    if (isEditing && editingIndex === index) {
+      setFromState("");
+      setToState("");
+      setIsEditing(false);
+      setEditingIndex(null);
+    }
   };
+
   useEffect(() => {
     const handleClickOutside = (event) => {
       const path = event.composedPath();
