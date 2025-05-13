@@ -311,12 +311,20 @@ const ProjectSettingPopover = ({ onClose }) => {
                         )}
 
                         <div className="flex gap-2">
-                          <Button
-                            icon={<DeleteOutlined />}
-                            type="primary"
-                            danger
-                            onClick={() => handleDeleteLabel(item.label)}
-                          />
+                          <Popconfirm
+                            title="bạn có chắc xóa trạng thái này không"
+                            okText="xóa"
+                            cancelText="hủy"
+                            onConfirm={() => handleDeleteLabel(item.label)}
+                          >
+                            {" "}
+                            <Button
+                              icon={<DeleteOutlined />}
+                              type="primary"
+                              danger
+                            />
+                          </Popconfirm>
+
                           <Button
                             icon={<EditOutlined />}
                             type="primary"
@@ -327,16 +335,13 @@ const ProjectSettingPopover = ({ onClose }) => {
                     ))}
 
                     {/* Thêm trạng thái mới */}
-                    <li className="flex items-center justify-between mt-4 space-x-2">
+                    <li className="flex items-center justify-center mt-4 space-x-2">
                       <input
                         value={addStatusValue}
                         onChange={(e) => setAddStatusValue(e.target.value)}
                         placeholder="Nhập trạng thái mới"
                         className="flex-1 px-2 py-1 text-sm border rounded"
                       />
-                      <Button type="dashed" onClick={handleAddStatus}>
-                        Thêm
-                      </Button>
                     </li>
                   </ul>
                   <div className="flex justify-center mt-4">
@@ -344,7 +349,7 @@ const ProjectSettingPopover = ({ onClose }) => {
                       type="dashed"
                       block
                       onClick={handleAddStatus}
-                      className="flex items-center gap-1 border border-gray-400 rounded px-3 py-1 hover:text-white hover:bg-[rgba(80,80,78,0.6)] transition"
+                      className="flex items-center gap-1 border border-gray-400 rounded px-3 py-1 hover:text-white hover:bg-[rgba(142,235,128,0.6)] transition"
                     >
                       <PlusOutlined />
                       Thêm trạng thái
@@ -375,23 +380,29 @@ const ProjectSettingPopover = ({ onClose }) => {
                   <div className="flex flex-col gap-4 pt-4">
                     <div className="flex flex-col items-start mt-3">
                       <label className="font-medium">Từ trạng thái:</label>
-                      <input
-                        type="text"
-                        className="border px-2 py-1 rounded w-full"
-                        placeholder="Ví dụ: Draft"
+                      <Select
+                        className="w-full"
+                        placeholder="Chọn trạng thái bắt đầu"
                         value={fromState}
-                        onChange={(e) => setFromState(e.target.value)}
+                        onChange={(value) => setFromState(value)}
+                        options={statuses.map((s) => ({
+                          label: s.label,
+                          value: s.label,
+                        }))}
                       />
                     </div>
 
                     <div className="flex flex-col items-start">
                       <label className="font-medium">Đến trạng thái:</label>
-                      <input
-                        type="text"
-                        className="border px-2 py-1 rounded w-full"
-                        placeholder="Ví dụ: Done"
+                      <Select
+                        className="w-full"
+                        placeholder="Chọn trạng thái kết thúc"
                         value={toState}
-                        onChange={(e) => setToState(e.target.value)}
+                        onChange={(value) => setToState(value)}
+                        options={statuses.map((s) => ({
+                          label: s.label,
+                          value: s.label,
+                        }))}
                       />
                     </div>
                     <div className="flex justify-end gap-2 ">
@@ -435,12 +446,16 @@ const ProjectSettingPopover = ({ onClose }) => {
                             >
                               ✏️ Chỉnh sửa
                             </button>
-                            <button
-                              onClick={() => handleDelete(index)}
-                              className="text-red-500 hover:underline ml-4"
+                            <Popconfirm
+                              title="bạn có chắc chắn xóa luồng này không ?"
+                              cancelText="xóa"
+                              okText="hủy"
+                              onConfirm={() => handleDelete(index)}
                             >
-                              🗑 Xóa
-                            </button>
+                              <button className="text-red-500 hover:underline ml-4">
+                                🗑 Xóa
+                              </button>
+                            </Popconfirm>
                           </li>
                         ))}
                       </ul>
