@@ -65,11 +65,13 @@ const ProjectSettingPopover = ({ onClose }) => {
     message.success("Đã thêm người");
   };
   const handleEdit = (index) => {
-    const flow = flows[index];
-    setFromState(flow.from);
-    setToState(flow.to);
     setIsEditing(true);
-    setEditingIndex(index); // dùng để biết đang edit flow nào
+    const flowToEdit = flows[index];
+    setEditingIndex(index);
+
+    setEditingFlow({ ...flowToEdit });
+    setFromState(flowToEdit.from);
+    setToState(flowToEdit.to);
   };
 
   const handleSaveEdit = () => {
@@ -114,19 +116,16 @@ const ProjectSettingPopover = ({ onClose }) => {
       key: "stt",
       render: (_, __, index) => index + 1,
       width: 60,
-      align: "center", // Căn giữa
     },
     {
-      title: "Tên",
+      title: "Username",
       dataIndex: "userName",
       key: "userName",
-      align: "center",
     },
     {
       title: "Email",
       dataIndex: "email",
       key: "email",
-      align: "center",
     },
     {
       title: "Xóa",
@@ -138,16 +137,14 @@ const ProjectSettingPopover = ({ onClose }) => {
           okText="Xóa"
           cancelText="Hủy"
         >
-          <Button danger size="small">
-            Xóa
+          <Button danger size="small" type="primary">
+            <DeleteOutlined />
           </Button>
         </Popconfirm>
       ),
       width: 80,
-      align: "center",
     },
   ];
-
   const handleAddFlow = () => {
     if (!fromState || !toState) return;
 
@@ -156,18 +153,8 @@ const ProjectSettingPopover = ({ onClose }) => {
     setToState("");
   };
   const handleDelete = (index) => {
-    const newFlows = flows.filter((_, i) => i !== index);
-    setFlows(newFlows);
-
-    // Nếu đang chỉnh sửa flow bị xóa thì reset input và trạng thái
-    if (isEditing && editingIndex === index) {
-      setFromState("");
-      setToState("");
-      setIsEditing(false);
-      setEditingIndex(null);
-    }
+    setFlows(flows.filter((_, i) => i !== index));
   };
-
   useEffect(() => {
     const handleClickOutside = (event) => {
       const path = event.composedPath();
@@ -198,10 +185,7 @@ const ProjectSettingPopover = ({ onClose }) => {
         ref={popoverRef}
         className="bg-white shadow-lg flex rounded-xl w-full max-w-screen-lg h-[600px] overflow-y-auto border p-6 mx-auto"
       >
-        <div
-          className="bg-[#f9f9f9] w-[30%] font-bold"
-          style={{ paddingLeft: 40 }}
-        >
+        <div className="bg-[#f9f9f9] w-[30%] font-bold" style={{paddingLeft:40}}>
           <h1 className={styles.projectSetting__title}>WORK FLOW</h1>
           <button
             onClick={() => setActiveTab("workflow")}
@@ -229,88 +213,60 @@ const ProjectSettingPopover = ({ onClose }) => {
             <div className="flex w-full h-full overflow-hidden p-3">
               <div className="flex w-full border border-black rounded-2xl">
                 {/* Cột trái - 30% */}
-                <div
-                  className="w-[30%] border-r pr-4  pt-4 overflow-y-auto"
-                  style={{ paddingRight: 5 }}
-                >
-                  <h3
-                    className={`mb-4 text-center ${styles.projectSetting__statusHeader}`}
-                  >
+                <div className="w-[30%] border-r pr-4  pt-4 overflow-y-auto" style={{paddingRight:5}}>
+                  <h3 className={`mb-4 text-center ${styles.projectSetting__statusHeader}`}>
                     TRẠNG THÁI
                   </h3>
-                  <ul className="list-disc pl-4 text-sm">
+                  <ul className="list-disc pl-5 text-sm">
                     {[
                       {
-                        label: "Công việc mới",
-                        bg: "bg-blue-100",
-                        text: "text-blue-800",
-                      },
-                      {
-                        label: "Đang thực hiện",
+                        label: "Draft",
                         bg: "bg-yellow-100",
                         text: "text-yellow-800",
                       },
                       {
-                        label: "Kiểm thử",
-                        bg: "bg-purple-100",
-                        text: "text-purple-800",
+                        label: "In Review",
+                        bg: "bg-orange-100",
+                        text: "text-orange-800",
                       },
                       {
-                        label: "Hoàn thành",
+                        label: "Approved",
                         bg: "bg-green-100",
                         text: "text-green-800",
                       },
                       {
-                        label: "Đóng công việc",
+                        label: "Done",
+                        bg: "bg-blue-100",
+                        text: "text-blue-800",
+                      },
+                      {
+                        label: "Archived",
                         bg: "bg-gray-100",
                         text: "text-gray-800",
-                      },
-                      {
-                        label: "Tạm dừng",
-                        bg: "bg-amber-100",
-                        text: "text-amber-800",
-                      },
-                      {
-                        label: "Khóa công việc",
-                        bg: "bg-red-100",
-                        text: "text-red-800",
                       },
                     ].map((item) => (
                       <li
                         key={item.label}
-                        className="flex items-center justify-between mb-2 space-x-4"
+                        className="flex items-center justify-between mb-2"
                       >
                         <span
-                          className={`${item.bg} ${item.text} px-3 rounded`}
-                          style={{
-                            flex: 1,
-                            height: "35px",
-                            display: "flex",
-                            alignItems: "center",
-                            textOverflow: "ellipsis",
-                            overflow: "hidden",
-                            whiteSpace: "nowrap",
-                            fontSize: "0.6rem",
-                            fontWeight: "600",
-                            marginLeft: "-15px",
-                            marginRight: "10px",
-                          }}
+                          className={`${item.bg} ${item.text} px-2 py-1 rounded`}
                         >
                           {item.label}
                         </span>
-
-                        <div className="flex gap-2">
+                        <div className="flex gap-1">
                           <Button
                             icon={<DeleteOutlined />}
-                            type="primary"
-                            danger
+                            type="primary" danger
                           />
-                          <Button icon={<EditOutlined />} type="primary" />
+                          <Button
+                            icon={<EditOutlined />}
+                            type="primary" 
+                          />
                         </div>
                       </li>
                     ))}
                   </ul>
-
                   <div className="flex justify-center mt-4">
                     <button className="flex items-center gap-1 border border-gray-400 rounded px-3 py-1 hover:text-white hover:bg-[rgba(80,80,78,0.6)] transition">
                       <PlusOutlined />
@@ -420,9 +376,7 @@ const ProjectSettingPopover = ({ onClose }) => {
 
           {activeTab === "roles" && (
             <div className="w-full px-4">
-              <h2
-                className={`text-lg font-semibold pt-4 mb-4 text-center ${styles.projectSetting__roleTitle}`}
-              >
+              <h2 className={`text-lg font-semibold pt-4 mb-4 text-center ${styles.projectSetting__roleTitle}`}>
                 QUẢN LÝ VAI TRÒ
               </h2>
 
@@ -470,7 +424,7 @@ const ProjectSettingPopover = ({ onClose }) => {
                     Thêm người
                   </button>
 
-                  <div className="mb-2">
+                  <div className="">
                     {selectedRowKeys.length > 0 && (
                       <Popconfirm
                         title={`Xóa ${selectedRowKeys.length} người dùng?`}
@@ -478,9 +432,9 @@ const ProjectSettingPopover = ({ onClose }) => {
                         okText="Xóa"
                         cancelText="Hủy"
                       >
-                        <button className="text-lg text-red-500 hover:text-white border border-transparent hover:border-red-500 hover:bg-red-500 rounded px-2 py-1 transition-all duration-200">
+                        <Button type="primary" danger  size="small">
                           <DeleteOutlined />
-                        </button>
+                        </Button>
                       </Popconfirm>
                     )}
                   </div>
