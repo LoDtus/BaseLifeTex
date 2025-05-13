@@ -179,6 +179,50 @@ const ProjectSettingPopover = ({ onClose }) => {
     };
   }, [onClose]);
 
+  const [statuses, setStatuses] = useState([
+    { label: "Công việc mới", bg: "bg-blue-100", text: "text-blue-800" },
+    { label: "Đang thực hiện", bg: "bg-yellow-100", text: "text-yellow-800" },
+    { label: "Kiểm thử", bg: "bg-purple-100", text: "text-purple-800" },
+    { label: "Hoàn thành", bg: "bg-green-100", text: "text-green-800" },
+    { label: "Đóng công việc", bg: "bg-gray-100", text: "text-gray-800" },
+    { label: "Tạm dừng", bg: "bg-amber-100", text: "text-amber-800" },
+    { label: "Khóa công việc", bg: "bg-red-100", text: "text-red-800" },
+  ]);
+  const [editingLabel, setEditingLabel] = useState(null);
+  const [newStatusLabel, setNewStatusLabel] = useState("");
+  const [addStatusValue, setAddStatusValue] = useState("");
+
+  const handleDeleteLabel = (label) => {
+    setStatuses((prev) => prev.filter((item) => item.label !== label));
+  };
+
+  const handleEditLabel = (label) => {
+    setEditingLabel(label); // Gán nhãn đang sửa
+    setNewStatusLabel(label); // Giá trị ban đầu trong ô input
+  };
+
+  const handleSaveEditLabel = (oldLabel) => {
+    setStatuses((prev) =>
+      prev.map((item) =>
+        item.label === oldLabel ? { ...item, label: newStatusLabel } : item
+      )
+    );
+    setEditingLabel(null);
+  };
+
+  const handleAddStatus = () => {
+    if (!addStatusValue.trim()) return;
+    setStatuses((prev) => [
+      ...prev,
+      {
+        label: addStatusValue,
+        bg: "bg-slate-100",
+        text: "text-slate-800",
+      },
+    ]);
+    setAddStatusValue("");
+  };
+
   return createPortal(
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[1000]">
       <div
@@ -225,62 +269,83 @@ const ProjectSettingPopover = ({ onClose }) => {
                   >
                     TRẠNG THÁI
                   </h3>
-                  <ul className="list-disc pl-5 text-sm">
-                    {[
-                      {
-                        label: "Draft",
-                        bg: "bg-yellow-100",
-                        text: "text-yellow-800",
-                      },
-                      {
-                        label: "In Review",
-                        bg: "bg-orange-100",
-                        text: "text-orange-800",
-                      },
-                      {
-                        label: "Approved",
-                        bg: "bg-green-100",
-                        text: "text-green-800",
-                      },
-                      {
-                        label: "Done",
-                        bg: "bg-blue-100",
-                        text: "text-blue-800",
-                      },
-                      {
-                        label: "Archived",
-                        bg: "bg-gray-100",
-                        text: "text-gray-800",
-                      },
-                    ].map((item) => (
+
+                  <ul className="list-disc pl-4 text-sm">
+                    {statuses.map((item) => (
                       <li
                         key={item.label}
                         className="flex items-center justify-between mb-2"
                       >
-                        <span
-                          className={`${item.bg} ${item.text} px-2 py-1 rounded`}
-                        >
-                          {item.label}
-                        </span>
-                        <div className="flex gap-1">
-                          <Popconfirm
-                            title="bạn có chắc xóa trạng thái này không"
-                            okText="xóa"
-                            cancelText="hủy"
+                        {editingLabel === item.label ? (
+                          <input
+                            value={newStatusLabel}
+                            onChange={(e) => setNewStatusLabel(e.target.value)}
+                            onBlur={() => handleSaveEditLabel(item.label)}
+                            autoFocus
+                            className="flex-1 px-2 py-1 text-sm border rounded"
+                            style={{
+                              height: "35px",
+                              marginLeft: "-15px",
+                              marginRight: "10px",
+                            }}
+                          />
+                        ) : (
+                          <span
+                            className={`${item.bg} ${item.text} px-3 rounded`}
+                            style={{
+                              flex: 1,
+                              height: "35px",
+                              display: "flex",
+                              alignItems: "center",
+                              textOverflow: "ellipsis",
+                              overflow: "hidden",
+                              whiteSpace: "nowrap",
+                              fontSize: "0.6rem",
+                              fontWeight: "600",
+                              marginLeft: "-15px",
+                              marginRight: "10px",
+                            }}
                           >
-                            <Button
-                              icon={<DeleteOutlined />}
-                              type="primary"
-                              danger
-                            />
-                          </Popconfirm>
-                          <Button icon={<EditOutlined />} type="primary" />
+                            {item.label}
+                          </span>
+                        )}
+
+                        <div className="flex gap-2">
+                          <Button
+                            icon={<DeleteOutlined />}
+                            type="primary"
+                            danger
+                            onClick={() => handleDeleteLabel(item.label)}
+                          />
+                          <Button
+                            icon={<EditOutlined />}
+                            type="primary"
+                            onClick={() => handleEditLabel(item.label)}
+                          />
                         </div>
                       </li>
                     ))}
+
+                    {/* Thêm trạng thái mới */}
+                    <li className="flex items-center justify-between mt-4 space-x-2">
+                      <input
+                        value={addStatusValue}
+                        onChange={(e) => setAddStatusValue(e.target.value)}
+                        placeholder="Nhập trạng thái mới"
+                        className="flex-1 px-2 py-1 text-sm border rounded"
+                      />
+                      <Button type="dashed" onClick={handleAddStatus}>
+                        Thêm
+                      </Button>
+                    </li>
                   </ul>
                   <div className="flex justify-center mt-4">
-                    <button className="flex items-center gap-1 border border-gray-400 rounded px-3 py-1 hover:text-white hover:bg-[rgba(80,80,78,0.6)] transition">
+                    <button
+                      type="dashed"
+                      block
+                      onClick={handleAddStatus}
+                      className="flex items-center gap-1 border border-gray-400 rounded px-3 py-1 hover:text-white hover:bg-[rgba(80,80,78,0.6)] transition"
+                    >
                       <PlusOutlined />
                       Thêm trạng thái
                     </button>
