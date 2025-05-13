@@ -340,7 +340,10 @@ const ProjectSettingPopover = ({ onClose }) => {
                         value={addStatusValue}
                         onChange={(e) => setAddStatusValue(e.target.value)}
                         placeholder="Nhập trạng thái mới"
-                        className="flex-1 px-2 py-1 text-sm border rounded"
+                        className="flex-1 px-1 py-1 text-sm border rounded"
+                        style={{
+                          marginLeft: "-15px",
+                        }}
                       />
                     </li>
                   </ul>
