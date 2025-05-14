@@ -353,6 +353,7 @@ function KanbanBoard({ selectedTasks, setSelectedTasks }) {
       coordinateGetter: sortableKeyboardCoordinates,
     })
   );
+  const statuses = useSelector((state) => state.status.statuses);
 
   return (
     <div className="mt-1">

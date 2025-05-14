@@ -65,7 +65,9 @@ const ProjectSettingPopover = ({ onClose }) => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [onClose]);
 
-  const handleDeleteLabel = (label) => dispatch(deleteStatus(label));
+  const handleDeleteLabel = (label) => {
+    dispatch(deleteStatus(label));
+  };
 
   const handleEditLabel = (label) => {
     setEditingLabel(label);
@@ -115,6 +117,95 @@ const ProjectSettingPopover = ({ onClose }) => {
 
   const handleDelete = (index) => setFlows(flows.filter((_, i) => i !== index));
 
+  const handleAddUser = () => {
+    const fakeUser = {
+      id: users.length + 1,
+      name: `Người dùng ${users.length + 1}`,
+      email: `user${users.length + 1}@example.com`,
+    };
+    setUsers((prev) => [...prev, fakeUser]);
+    message.success("Đã thêm người");
+  };
+  const onSelectChange = (newSelectedRowKeys) => {
+    setSelectedRowKeys(newSelectedRowKeys);
+  };
+  const rowSelection = {
+    selectedRowKeys,
+    onChange: onSelectChange,
+    preserveSelectedRowKeys: false,
+  };
+  const userColumns = [
+    {
+      title: "STT",
+      dataIndex: "stt",
+      key: "stt",
+      render: (_, __, index) => index + 1,
+      width: 60,
+    },
+    {
+      title: "Username",
+      dataIndex: "user",
+      key: "user",
+    },
+    {
+      title: "Email",
+      dataIndex: "email",
+      key: "email",
+    },
+    {
+      title: "Xóa",
+      key: "action",
+      render: (_, record) => (
+        <Popconfirm
+          title="Bạn có chắc muốn xóa?"
+          onConfirm={() => handleDeleteUser(record.key)}
+          okText="Xóa"
+          cancelText="Hủy"
+        >
+          <Button danger size="small" type="primary">
+            <DeleteOutlined />
+          </Button>
+        </Popconfirm>
+      ),
+      width: 80,
+    },
+  ];
+  const handleDeleteMultipleUsers = () => {
+    const remaining = users.filter(
+      (user) => !selectedRowKeys.includes(user.key)
+    );
+    setUsers(remaining);
+    setSelectedRowKeys([]);
+    message.success("Đã xóa các người dùng được chọn.");
+  };
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      const path = event.composedPath();
+      const isInPopover = path.some(
+        (el) =>
+          el instanceof HTMLElement &&
+          (el.classList.contains("ant-modal") ||
+            el.classList.contains("ant-select-dropdown") ||
+            el.classList.contains("ant-popover"))
+      );
+
+      if (isInPopover) return;
+
+      if (popoverRef.current && !popoverRef.current.contains(event.target)) {
+        onClose();
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [onClose]);
+
+  const handleDeleteUser = (key) => {
+    setUsers((prev) => prev.filter((u) => u.key !== key));
+    message.success("Đã xóa người dùng");
+  };
   return createPortal(
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[1000]">
       <div
@@ -348,6 +439,138 @@ const ProjectSettingPopover = ({ onClose }) => {
               </div>
             </div>
           )}
+          {activeTab === "roles" && (
+            <div className="w-full px-4">
+              <h2
+                className={`text-lg font-semibold pt-4 mb-4 text-center ${styles.projectSetting__roleTitle}`}
+              >
+                QUẢN LÝ VAI TRÒ
+              </h2>
+
+              <div className="flex justify-center items-center gap-4">
+                <Select
+                  placeholder="Chọn vai trò"
+                  className={`!w-60 transition duration-200 ${
+                    selectedRole ? "bg-blue-50" : ""
+                  }`}
+                  value={selectedRole}
+                  options={roleOptions.map((role) => ({
+                    label: role,
+                    value: role,
+                  }))}
+                  onChange={(value) => {
+                    setSelectedRole(value);
+                    console.log("Vai trò đã chọn:", value);
+                  }}
+                />
+              </div>
+
+              {/* Dòng tìm kiếm và chức năng */}
+              <div className="w-full mt-4">
+                <div className="mt-4 flex items-center gap-4 justify-between">
+                  <Input
+                    placeholder="Tìm kiếm người dùng..."
+                    prefix={<SearchOutlined />}
+                    className="!w-64"
+                    allowClear
+                  />
+                  <button
+                    onClick={() => setOpenFunction(true)}
+                    className="bg-yellow-500 text-white px-2 py-1 rounded hover:bg-blue-600"
+                  >
+                    chức năng
+                  </button>
+                </div>
+
+                {/* Thêm người dùng và xóa nhiều */}
+                <div className="mt-4 flex items-center justify-between">
+                  <button
+                    onClick={handleAddUser}
+                    className="flex items-center gap-1 border border-gray-400 rounded px-3 py-1 hover:bg-[#5f646a] hover:text-white transition"
+                  >
+                    <PlusOutlined />
+                    Thêm người
+                  </button>
+
+                  {selectedRowKeys.length > 0 && (
+                    <Popconfirm
+                      title={`Xóa ${selectedRowKeys.length} người dùng?`}
+                      onConfirm={handleDeleteMultipleUsers}
+                      okText="Xóa"
+                      cancelText="Hủy"
+                    >
+                      <Button type="primary" danger size="small">
+                        <DeleteOutlined />
+                      </Button>
+                    </Popconfirm>
+                  )}
+                </div>
+
+                <div className="text-left font-bold mt-4">
+                  <ReadOutlined style={{ marginRight: "4px" }} />
+                  DANH SÁCH TEST
+                </div>
+
+                <div className="mt-2">
+                  <Table
+                    rowSelection={rowSelection}
+                    dataSource={users}
+                    columns={userColumns}
+                    pagination={{ pageSize: 5 }}
+                    size="small"
+                    bordered
+                    rowKey="key"
+                  />
+                </div>
+              </div>
+            </div>
+          )}
+
+          <Modal
+            title="Ma trận phân quyền theo vai trò"
+            open={openFunction}
+            onCancel={() => setOpenFunction(false)}
+            footer={null}
+            width={800}
+          >
+            <div className="overflow-auto">
+              <table className="table-auto border-collapse w-full text-center">
+                <thead>
+                  <tr>
+                    <th className="border px-4 py-2 bg-gray-100">
+                      Quyền / Vai trò
+                    </th>
+                    {roles.map((role) => (
+                      <th
+                        key={role.role}
+                        className="border px-4 py-2 bg-gray-100"
+                      >
+                        {role.role}
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {permissions.map((permission, rowIdx) => (
+                    <tr key={permission}>
+                      <td className="border px-4 py-2 font-medium">
+                        {permission}
+                      </td>
+                      {roles.map((role) => (
+                        <td key={role.role} className="border px-4 py-2">
+                          {role.rights[rowIdx] ? (
+                            <CheckCircleTwoTone twoToneColor="#52c41a" />
+                          ) : (
+                            <CloseCircleTwoTone twoToneColor="#ff4d4f" />
+                          )}
+                        </td>
+                      ))}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </Modal>
         </div>
       </div>
     </div>,

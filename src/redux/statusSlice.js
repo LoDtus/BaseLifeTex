@@ -1,4 +1,4 @@
-// src/redux/statusSlice.js
+// redux/statusSlice.js
 import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
@@ -30,8 +30,12 @@ const statusSlice = createSlice({
     deleteStatus: (state, action) => {
       state.statuses = state.statuses.filter((s) => s.label !== action.payload);
     },
+    setStatuses: (state, action) => {
+      state.statuses = action.payload;
+    },
   },
 });
 
-export const { addStatus, editStatus, deleteStatus } = statusSlice.actions;
+export const { addStatus, editStatus, deleteStatus, setStatuses } =
+  statusSlice.actions;
 export default statusSlice.reducer;
