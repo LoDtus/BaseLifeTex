@@ -146,9 +146,12 @@ const ProjectSettingPopover = ({ onClose }) => {
     },
   ];
   const handleAddFlow = () => {
-    if (!fromState || !toState) return;
+    if (!fromState || !toState || !selectedRole) {
+      message.warning("Vui lòng chọn đầy đủ trạng thái và vai trò.");
+      return;
+    }
 
-    setFlows([...flows, { from: fromState, to: toState }]);
+    setFlows([...flows, { from: fromState, to: toState, role: selectedRole }]);
     setFromState("");
     setToState("");
   };
@@ -374,6 +377,8 @@ const ProjectSettingPopover = ({ onClose }) => {
                             name="userRole"
                             value={role}
                             className="accent-blue-500"
+                            checked={selectedRole === role}
+                            onChange={(e) => setSelectedRole(e.target.value)}
                           />
                           <span>{role}</span>
                         </label>
@@ -441,7 +446,8 @@ const ProjectSettingPopover = ({ onClose }) => {
                         {flows.map((flow, index) => (
                           <li className="flex justify-between items-center border p-2 rounded gap-3">
                             <span className="flex-1">
-                              {flow.from} ➝ {flow.to}
+                              {flow.from} ➝ {flow.to}{" "}
+                              <strong>({flow.role})</strong>
                             </span>
                             <button
                               onClick={() => handleEdit(index)}
@@ -451,8 +457,8 @@ const ProjectSettingPopover = ({ onClose }) => {
                             </button>
                             <Popconfirm
                               title="bạn có chắc chắn xóa luồng này không ?"
-                              cancelText="xóa"
-                              okText="hủy"
+                              okText="xóa"
+                              cancelText="hủy"
                               onConfirm={() => handleDelete(index)}
                             >
                               <button className="text-red-500 hover:underline ml-4">
