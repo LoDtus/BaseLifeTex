@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import { Table, Popconfirm, message, Modal, Select } from "antd";
+import { Table, Popconfirm, message, Modal, Select, Pagination } from "antd";
 import styles from "../styles/ProjectSettingPopover.module.scss";
 import {
   EditOutlined,
@@ -41,6 +41,12 @@ const ProjectSettingPopover = ({ onClose }) => {
   const [addStatusValue, setAddStatusValue] = useState("");
 
   // phan trang
+  const itemsPerPage = 2;
+  const [currentPage, setCurrentPage] = useState(1);
+
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const paginatedFlows = flows.slice(startIndex, endIndex);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -343,7 +349,8 @@ const ProjectSettingPopover = ({ onClose }) => {
                     <div className="flex justify-between items-center mb-2">
                       <h5 className="font-semibold">
                         <SyncOutlined style={{ marginRight: "6px" }} />
-                        Các luồng đã tạo:
+                        Các luồng đã tạo:{" "}
+                        {flows.length > 0 ? `(${flows.length})` : ""}
                       </h5>
                       {flows.length > 0 && (
                         <Popconfirm
@@ -364,37 +371,53 @@ const ProjectSettingPopover = ({ onClose }) => {
                         Chưa có luồng nào được tạo.
                       </p>
                     ) : (
-                      <ul className="list-disc pl-3 space-y-1">
-                        {flows.map((flow, index) => (
-                          <li
-                            key={index}
-                            className="flex justify-between items-center border p-2 rounded gap-3"
-                          >
-                            <span className="flex-1">
-                              {flow.from} ➝ {flow.to}{" "}
-                              <strong>
-                                {flow.role ? `(${flow.role})` : ""}
-                              </strong>
-                            </span>
-                            <button
-                              onClick={() => handleEdit(index)}
-                              className="text-blue-500 hover:underline"
+                      <>
+                        <ul className="list-disc pl-3 space-y-1">
+                          {paginatedFlows.map((flow, index) => (
+                            <li
+                              key={startIndex + index}
+                              className="flex justify-between items-center border p-2 rounded gap-3"
                             >
-                              ✏️ Chỉnh sửa
-                            </button>
-                            <Popconfirm
-                              title="Bạn có chắc chắn xóa luồng này không?"
-                              cancelText="Hủy"
-                              okText="Xóa"
-                              onConfirm={() => handleDelete(index)}
-                            >
-                              <button className="text-red-500 hover:underline ml-4">
-                                🗑 Xóa
+                              <span className="flex-1">
+                                {flow.from} ➝ {flow.to}{" "}
+                                <strong>
+                                  {flow.role ? `(${flow.role})` : ""}
+                                </strong>
+                              </span>
+                              <button
+                                onClick={() => handleEdit(startIndex + index)}
+                                className="text-blue-500 hover:underline"
+                              >
+                                ✏️ Chỉnh sửa
                               </button>
-                            </Popconfirm>
-                          </li>
-                        ))}
-                      </ul>
+                              <Popconfirm
+                                title="Bạn có chắc chắn xóa luồng này không?"
+                                cancelText="Hủy"
+                                okText="Xóa"
+                                onConfirm={() =>
+                                  handleDelete(startIndex + index)
+                                }
+                              >
+                                <button className="text-red-500 hover:underline ml-4">
+                                  🗑 Xóa
+                                </button>
+                              </Popconfirm>
+                            </li>
+                          ))}
+                        </ul>
+
+                        {flows.length > itemsPerPage && (
+                          <div className="mt-2 flex justify-end">
+                            <Pagination
+                              current={currentPage}
+                              pageSize={itemsPerPage}
+                              total={flows.length}
+                              onChange={(page) => setCurrentPage(page)}
+                              size="small"
+                            />
+                          </div>
+                        )}
+                      </>
                     )}
                   </div>
                 </div>
