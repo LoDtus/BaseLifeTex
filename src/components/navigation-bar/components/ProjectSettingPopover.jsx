@@ -15,19 +15,24 @@ import {
 import { Button, Input } from "antd";
 import { useDispatch, useSelector } from "react-redux";
 import { addStatus, deleteStatus, editStatus } from "@/redux/statusSlice";
-
+import {
+  addTransition,
+  editTransition,
+  deleteTransition,
+  clearTransitions,
+} from "@/redux/workflowSlice";
 const ProjectSettingPopover = ({ onClose }) => {
   const popoverRef = useRef(null);
   const dispatch = useDispatch();
   const statuses = useSelector((state) => state.status.statuses);
 
   const [activeTab, setActiveTab] = useState("workflow");
-  const [users, setUsers] = useState([]);
-  const [openFunction, setOpenFunction] = useState(false);
+
   const [fromState, setFromState] = useState("");
   const [toState, setToState] = useState("");
-  const [flows, setFlows] = useState([]);
-  const [selectedRowKeys, setSelectedRowKeys] = useState([]);
+
+  const flows = useSelector((state) => state.workflow.transitions);
+
   const [editingIndex, setEditingIndex] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
   const [selectedRole, setSelectedRole] = useState(null);
@@ -35,15 +40,7 @@ const ProjectSettingPopover = ({ onClose }) => {
   const [newStatusLabel, setNewStatusLabel] = useState("");
   const [addStatusValue, setAddStatusValue] = useState("");
 
-  const roleOptions = ["PM", "Dev", "Test", "BA", "User"];
-  const permissions = ["View", "Add", "Edit", "Delete", "Comment", "Drag"];
-  const roles = [
-    { role: "PM", rights: [1, 1, 1, 1, 0, 1] },
-    { role: "Dev", rights: [1, 0, 0, 0, 1, 1] },
-    { role: "Test", rights: [1, 0, 0, 0, 1, 1] },
-    { role: "BA", rights: [1, 0, 0, 0, 1, 1] },
-    { role: "User", rights: [1, 0, 0, 0, 1, 1] },
-  ];
+  // phan trang
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -90,10 +87,22 @@ const ProjectSettingPopover = ({ onClose }) => {
   };
 
   const handleAddFlow = () => {
-    if (!fromState || !toState) return;
-    setFlows([...flows, { from: fromState, to: toState }]);
+    if (!fromState || !toState || !selectedRole) {
+      message.warning(
+        "Vui lòng nhập đẩy đủ trạng thái và vai trò trước khi thêm"
+      );
+      return;
+    }
+    dispatch(
+      addTransition({
+        from: fromState,
+        to: toState,
+        role: selectedRole,
+      })
+    );
     setFromState("");
     setToState("");
+    setSelectedRole(null);
   };
 
   const handleEdit = (index) => {
@@ -102,18 +111,36 @@ const ProjectSettingPopover = ({ onClose }) => {
     setEditingIndex(index);
     setFromState(flowToEdit.from);
     setToState(flowToEdit.to);
+    setSelectedRole(flowToEdit.role);
   };
 
   const handleSaveEdit = () => {
-    const updated = [...flows];
-    updated[editingIndex] = { from: fromState, to: toState };
-    setFlows(updated);
+    if (!fromState || !toState || !selectedRole) {
+      message.warning("Vui lòng chọn đầy đủ trạng thái và vai trò!");
+      return;
+    }
+
+    dispatch(
+      editTransition({
+        index: editingIndex,
+        updated: {
+          from: fromState,
+          to: toState,
+          role: selectedRole,
+        },
+      })
+    );
+
     setIsEditing(false);
+    setEditingIndex(null);
     setFromState("");
     setToState("");
+    setSelectedRole(null);
   };
 
-  const handleDelete = (index) => setFlows(flows.filter((_, i) => i !== index));
+  const handleDelete = (index) => {
+    dispatch(deleteTransition(index));
+  };
 
   return createPortal(
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[1000]">
@@ -121,11 +148,11 @@ const ProjectSettingPopover = ({ onClose }) => {
         ref={popoverRef}
         className="bg-white rounded-xl w-full max-w-screen-lg h-[600px] overflow-y-auto border p-6 mx-auto flex"
       >
-        <div className="bg-[#f9f9f9] w-[30%] font-bold pl-10">
+        <div className="bg-[#f9f9f9] w-[30%] font-bold pl-10 text-center">
           <h1 className={styles.projectSetting__title}>WORK FLOW</h1>
           <button
             onClick={() => setActiveTab("workflow")}
-            className={`w-48 py-2 border rounded transition block my-2 ${
+            className={`w-48 py-2 border rounded transition  my-2 ${
               activeTab === "workflow"
                 ? "text-white bg-[#5f646a]"
                 : "hover:bg-[#5f646a] hover:text-white bg-[#eaecf0]"
@@ -300,17 +327,38 @@ const ProjectSettingPopover = ({ onClose }) => {
                   <div className="flex justify-center mt-4">
                     <button
                       onClick={handleAddFlow}
-                      className="flex items-center gap-1 border border-gray-400 rounded px-3 py-1 hover:border-blue-500 hover:bg-blue-500 transition"
+                      className={`flex items-center gap-1 border rounded px-3 py-1 transition
+    ${
+      !fromState || !toState || !selectedRole
+        ? "cursor-not-allowed opacity-50"
+        : "hover:border-blue-500 hover:bg-blue-500"
+    }
+  `}
                     >
                       Thêm luồng
                     </button>
                   </div>
 
                   <div className="mt-2 pt-1">
-                    <h5 className="font-semibold mb-2 ">
-                      <SyncOutlined style={{ marginRight: "6px" }} />
-                      Các luồng đã tạo:
-                    </h5>
+                    <div className="flex justify-between items-center mb-2">
+                      <h5 className="font-semibold">
+                        <SyncOutlined style={{ marginRight: "6px" }} />
+                        Các luồng đã tạo:
+                      </h5>
+                      {flows.length > 0 && (
+                        <Popconfirm
+                          title="Bạn có chắc muốn xóa tất cả các luồng không?"
+                          okText="Xóa"
+                          cancelText="Hủy"
+                          onConfirm={() => dispatch(clearTransitions())}
+                        >
+                          <button className="text-red-500 hover:underline text-sm">
+                            🧹 Xóa tất cả
+                          </button>
+                        </Popconfirm>
+                      )}
+                    </div>
+
                     {flows.length === 0 ? (
                       <p className="text-gray-500">
                         Chưa có luồng nào được tạo.
@@ -324,7 +372,9 @@ const ProjectSettingPopover = ({ onClose }) => {
                           >
                             <span className="flex-1">
                               {flow.from} ➝ {flow.to}{" "}
-                              <strong>({flow.role})</strong>
+                              <strong>
+                                {flow.role ? `(${flow.role})` : ""}
+                              </strong>
                             </span>
                             <button
                               onClick={() => handleEdit(index)}

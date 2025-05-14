@@ -8,6 +8,7 @@ import loadingReducer from "./loadingSlice";
 import propertiesReducer from "./propertiesSlice";
 import viewModeReducer from "./viewModeSlice";
 import statusReducer from "./statusSlice"; // ✅ thêm
+import workflowReducer from "./workflowSlice";
 
 const persistConfig = {
   key: "root",
@@ -27,8 +28,9 @@ const rootReducer = combineReducers({
   project: projectReducer,
   properties: propertiesReducer,
   viewMode: viewModeReducer,
-  status: statusReducer, // ✅ thêm reducer trạng thái
+  // ✅ thêm reducer trạng thái
   status: persistReducer(statusPersistConfig, statusReducer),
+  workflow: workflowReducer,
 });
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);
