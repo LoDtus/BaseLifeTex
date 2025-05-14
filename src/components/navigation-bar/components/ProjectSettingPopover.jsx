@@ -40,6 +40,10 @@ const ProjectSettingPopover = ({ onClose }) => {
   const [newStatusLabel, setNewStatusLabel] = useState("");
   const [addStatusValue, setAddStatusValue] = useState("");
 
+  const [selectedRowKeys, setSelectedRowKeys] = useState([]);
+  const [openFunction, setOpenFunction] = useState(false);
+  const [users, setUsers] = useState([]);
+
   // phan trang
 
   useEffect(() => {
@@ -143,6 +147,17 @@ const ProjectSettingPopover = ({ onClose }) => {
   const handleDelete = (index) => {
     dispatch(deleteTransition(index));
   };
+
+  const roleOptions = ["PM", "Dev", "Test", "BA", "User"];
+  const permissions = ["View", "Add", "Edit", "Delete", "Comment", "Drag"];
+
+  const roles = [
+    { role: "PM", rights: [1, 1, 1, 1, 0, 1] },
+    { role: "Dev", rights: [1, 0, 0, 0, 1, 1] },
+    { role: "Test", rights: [1, 0, 0, 0, 1, 1] },
+    { role: "BA", rights: [1, 0, 0, 0, 1, 1] },
+    { role: "User", rights: [1, 0, 0, 0, 1, 1] },
+  ];
 
   const handleAddUser = () => {
     const fakeUser = {
