@@ -7,10 +7,17 @@ import storage from "redux-persist/lib/storage";
 import loadingReducer from "./loadingSlice";
 import propertiesReducer from "./propertiesSlice";
 import viewModeReducer from "./viewModeSlice";
+import statusReducer from "./statusSlice"; // ✅ thêm
+
 const persistConfig = {
   key: "root",
   storage,
-  whitelist: ["auth"],
+  whitelist: ["auth"], // ✅ không cần thêm status nếu không cần persist
+};
+
+const statusPersistConfig = {
+  key: "status",
+  storage,
 };
 
 const rootReducer = combineReducers({
@@ -20,6 +27,8 @@ const rootReducer = combineReducers({
   project: projectReducer,
   properties: propertiesReducer,
   viewMode: viewModeReducer,
+  status: statusReducer, // ✅ thêm reducer trạng thái
+  status: persistReducer(statusPersistConfig, statusReducer),
 });
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);
