@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
+import { getMembers } from "../../../services/projectService";
 import { Table, Popconfirm, message, Modal, Select, Pagination } from "antd";
 import styles from "../styles/ProjectSettingPopover.module.scss";
 import {
@@ -12,30 +13,45 @@ import {
   ReadOutlined,
   SearchOutlined,
 } from "@ant-design/icons";
-import { Button, Input } from "antd";
+
 import { useDispatch, useSelector } from "react-redux";
-import { addStatus, deleteStatus, editStatus } from "@/redux/statusSlice";
 import {
-  addTransition,
-  editTransition,
-  deleteTransition,
-  clearTransitions,
+  fetchWorkflowSteps,
+  addWorkflowStep,
+  removeWorkflowStep,
+  editWorkflowStep,
+  fetchWorkflowByProject,
+  setWorkflowId,
+} from "@/redux/statusSlice";
+import {
+  fetchWorkflowTransitions,
+  addWorkflowTransition,
+  editWorkflowTransition,
+  removeWorkflowTransition,
+  clearWorkflowTransitions,
 } from "@/redux/workflowSlice";
+import {
+  getDetailWorkFlow,
+  fetchOrCreateWorkflow,
+  createWorkflowTransition,
+  updateWorkflowTransition,
+  deleteWorkflowTransition,
+} from "../../../services/workflowService.js";
 const ProjectSettingPopover = ({ onClose }) => {
   const popoverRef = useRef(null);
   const dispatch = useDispatch();
-  const statuses = useSelector((state) => state.status.statuses);
+  const steps = useSelector((state) => state.workflow.steps || []);
 
   const [activeTab, setActiveTab] = useState("workflow");
 
   const [fromState, setFromState] = useState("");
   const [toState, setToState] = useState("");
 
-  const flows = useSelector((state) => state.workflow.transitions);
+  const transitions = useSelector((state) => state.workflow.transitions);
 
   const [editingIndex, setEditingIndex] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
-  const [selectedRole, setSelectedRole] = useState(null);
+  const [selectedRole, setSelectedRole] = useState([]);
   const [editingLabel, setEditingLabel] = useState(null);
   const [newStatusLabel, setNewStatusLabel] = useState("");
   const [addStatusValue, setAddStatusValue] = useState("");
@@ -43,15 +59,64 @@ const ProjectSettingPopover = ({ onClose }) => {
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
   const [openFunction, setOpenFunction] = useState(false);
   const [users, setUsers] = useState([]);
+  const workflow = useSelector((state) => state.workflow.currentWorkflow);
 
+  const user = useSelector((state) => state.auth.user);
+  const projectId = useSelector((state) => state.project.currentProjectId);
+  //lay info user
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [members, setMembers] = useState([]);
+  const [loading, setLoading] = useState(false);
   // phan trang
   const itemsPerPage = 2;
   const [currentPage, setCurrentPage] = useState(1);
 
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
-  const paginatedFlows = flows.slice(startIndex, endIndex);
+  const paginatedFlows = transitions.slice(startIndex, endIndex);
 
+  // useEffect(() => {
+  //   // Khi mở popup, lấy status + transitions từ backend
+  //   async function fetchData() {
+  //     try {
+  //       const statusData = await getStatuses(projectId);
+  //       dispatch(setStatuses(statusData)); // cập nhật status vào redux
+
+  //       const transitionsData = await getTransitions(projectId);
+  //       dispatch(setTransitions(transitionsData)); // cập nhật transitions vào redux
+  //     } catch (error) {
+  //       message.error("Lỗi khi tải dữ liệu workflow từ server");
+  //     }
+  //   }
+  //   fetchData();
+  // }, [projectId, dispatch]);
+  useEffect(() => {
+    if (projectId && user?._id) {
+      dispatch(fetchWorkflowByProject(projectId));
+    }
+  }, [projectId, user?._id]);
+
+  useEffect(() => {
+    if (projectId) {
+      dispatch(fetchOrCreateWorkflow(projectId)).then((res) => {
+        if (res.payload && res.payload._id) {
+          dispatch(setWorkflowId(res.payload._id)); // QUAN TRỌNG
+          dispatch(fetchWorkflowSteps(res.payload._id)); // Gọi luôn steps nếu cần
+        }
+      });
+    }
+  }, [projectId]);
+  const workflowId = useSelector((state) => state.workflow.workflowId);
+
+  useEffect(() => {
+    if (projectId) {
+      dispatch(fetchOrCreateWorkflow(projectId)).then((res) => {
+        if (res.payload && res.payload._id) {
+          dispatch(setWorkflowId(res.payload._id)); // bạn cần lưu workflowId ở đâu đó
+        }
+      });
+    }
+  }, [projectId]);
   useEffect(() => {
     const handleClickOutside = (event) => {
       const path = event.composedPath();
@@ -73,7 +138,8 @@ const ProjectSettingPopover = ({ onClose }) => {
   }, [onClose]);
 
   const handleDeleteLabel = (label) => {
-    dispatch(deleteStatus(label));
+    dispatch(removeWorkflowStep(label));
+    message.success("Đã xóa trạng thái");
   };
 
   const handleEditLabel = (label) => {
@@ -82,76 +148,140 @@ const ProjectSettingPopover = ({ onClose }) => {
   };
 
   const handleSaveEditLabel = (oldLabel) => {
-    dispatch(editStatus({ oldLabel, newLabel: newStatusLabel }));
+    dispatch(editWorkflowStep({ oldLabel, newLabel: newStatusLabel }));
     setEditingLabel(null);
   };
 
   const handleAddStatus = () => {
     if (!addStatusValue.trim()) return;
-    dispatch(
-      addStatus({
-        label: addStatusValue,
-        bg: "bg-slate-100",
-        text: "text-slate-800",
-      })
-    );
+
+    if (!workflowId) {
+      message.error("Workflow chưa được tạo hoặc chưa có ID");
+      return;
+    }
+
+    const payload = {
+      workflowId,
+      nameStep: addStatusValue.trim(),
+      stepOrder: steps.length + 1,
+      requiredRole: [1, 3],
+      isFinal: false,
+    };
+
+    dispatch(addWorkflowStep(payload));
     setAddStatusValue("");
   };
-
-  const handleAddFlow = () => {
-    if (!fromState || !toState || !selectedRole) {
+  const resetTransitionForm = () => {
+    setFromState("");
+    setToState("");
+    setSelectedRole([]);
+    setIsEditing(false);
+    setEditingIndex(null);
+  };
+  const handleAddFlow = async () => {
+    if (!fromState || !toState || selectedRole.length === 0) {
+      //!selectedRole
       message.warning(
         "Vui lòng nhập đẩy đủ trạng thái và vai trò trước khi thêm"
       );
       return;
     }
-    dispatch(
-      addTransition({
+    try {
+      const newTransition = {
         from: fromState,
         to: toState,
         role: selectedRole,
-      })
-    );
-    setFromState("");
-    setToState("");
-    setSelectedRole(null);
+      };
+      const savedTransition = await createWorkflowTransition(
+        projectId,
+        newTransition
+      );
+      dispatch(addWorkflowTransition(savedTransition));
+      message.success("Đã thêm luồng mới");
+      resetTransitionForm();
+    } catch (error) {
+      message.error("Thêm luồng thất bại");
+    }
+    // dispatch(
+    //   addTransition({
+    //     from: fromState,
+    //     to: toState,
+    //     role: selectedRole,
+    //   })
+    // );
+    // setFromState("");
+    // setToState("");
+    // setSelectedRole([]);
   };
 
   const handleEdit = (index) => {
-    setIsEditing(true);
-    const flowToEdit = flows[index];
+    const trans = transitions[index];
+    if (!trans) return;
+    setFromState(trans.from);
+    setToState(trans.to);
+    setSelectedRole(Array.isArray(trans.role) ? trans.role : []);
     setEditingIndex(index);
-    setFromState(flowToEdit.from);
-    setToState(flowToEdit.to);
-    setSelectedRole(flowToEdit.role);
+    setIsEditing(true);
   };
-
-  const handleSaveEdit = () => {
-    if (!fromState || !toState || !selectedRole) {
+  const handleSaveEdit = async () => {
+    if (!fromState || !toState || selectedRole.length === 0) {
       message.warning("Vui lòng chọn đầy đủ trạng thái và vai trò!");
       return;
     }
+    try {
+      const editingTransition = transitions[editingIndex];
+      if (!editingTransition) return;
 
-    dispatch(
-      editTransition({
-        index: editingIndex,
-        updated: {
-          from: fromState,
-          to: toState,
-          role: selectedRole,
-        },
-      })
-    );
+      const updatedTransition = {
+        from: fromState,
+        to: toState,
+        role: selectedRole,
+      };
+      const savedTransition = await updateWorkflowTransition(
+        projectId,
+        editingTransition.id,
+        updatedTransition
+      );
+      dispatch(
+        editWorkflowTransition({
+          index: editingIndex,
+          updated: savedTransition,
+        })
+      );
+      message.success("Cập nhật luồng thành công");
+      resetTransitionForm();
+    } catch (error) {
+      message.error("Cập nhật luồng thất bại");
+    }
+    // dispatch(
+    //   editTransition({
+    //     index: editingIndex,
+    //     updated: {
+    //       from: fromState,
+    //       to: toState,
+    //       role: selectedRole,
+    //     },
+    //   })
+    // );
 
-    setIsEditing(false);
-    setEditingIndex(null);
-    setFromState("");
-    setToState("");
-    setSelectedRole(null);
+    // setIsEditing(false);
+    // setEditingIndex(null);
+    // setFromState("");
+    // setToState("");
+    // setSelectedRole([]);
   };
 
-  const handleDelete = (index) => {
-    dispatch(deleteTransition(index));
+  const handleDelete = async (index) => {
+    // dispatch(deleteTransition(index));
+    try {
+      const transitionToDelete = transitions[index];
+      if (!transitionToDelete) return;
+      await deleteWorkflowTransition(projectId, transitionToDelete.id);
+      dispatch(removeWorkflowTransition(index));
+      message.success("Xóa luồng thành công");
+    } catch (error) {
+      message.error("Xóa luồng thất bại");
+    }
   };
 
   const roleOptions = ["PM", "Dev", "Test", "BA", "User"];
@@ -165,14 +295,26 @@ const ProjectSettingPopover = ({ onClose }) => {
     { role: "User", rights: [1, 0, 0, 0, 1, 1] },
   ];
 
-  const handleAddUser = () => {
-    const fakeUser = {
-      id: users.length + 1,
-      name: `Người dùng ${users.length + 1}`,
-      email: `user${users.length + 1}@example.com`,
-    };
-    setUsers((prev) => [...prev, fakeUser]);
-    message.success("Đã thêm người");
+  // const handleAddUser = () => {
+  //   const fakeUser = {
+  //     id: users.length + 1,
+  //     name: `Người dùng ${users.length + 1}`,
+  //     email: `user${users.length + 1}@example.com`,
+  //   };
+  //   setUsers((prev) => [...prev, fakeUser]);
+  //   message.success("Đã thêm người");
+  // };
+  const handleAddUser = async () => {
+    setIsModalVisible(true);
+    setLoading(true);
+    try {
+      const data = await getMembers(projectId); // đảm bảo projectId được truyền đúng
+      setMembers(data);
+    } catch (error) {
+      console.error("Lỗi khi lấy danh sách thành viên:", error);
+    } finally {
+      setLoading(false);
+    }
   };
   const onSelectChange = (newSelectedRowKeys) => {
     setSelectedRowKeys(newSelectedRowKeys);
@@ -295,65 +437,68 @@ const ProjectSettingPopover = ({ onClose }) => {
                     TRẠNG THÁI
                   </h3>
                   <ul className="list-disc pl-4 text-sm">
-                    {statuses.map((item) => (
-                      <li
-                        key={item.label}
-                        className="flex items-center justify-between mb-2"
-                      >
-                        {editingLabel === item.label ? (
-                          <input
-                            value={newStatusLabel}
-                            onChange={(e) => setNewStatusLabel(e.target.value)}
-                            onBlur={() => handleSaveEditLabel(item.label)}
-                            autoFocus
-                            className="flex-1 px-2 py-1 text-sm border rounded"
-                            style={{
-                              height: "35px",
-                              marginLeft: "-15px",
-                              marginRight: "10px",
-                            }}
-                          />
-                        ) : (
-                          <span
-                            className={`${item.bg} ${item.text} px-3 rounded`}
-                            style={{
-                              flex: 1,
-                              height: "35px",
-                              display: "flex",
-                              alignItems: "center",
-                              textOverflow: "ellipsis",
-                              overflow: "hidden",
-                              whiteSpace: "nowrap",
-                              fontSize: "0.6rem",
-                              fontWeight: "600",
-                              marginLeft: "-15px",
-                              marginRight: "10px",
-                            }}
-                          >
-                            {item.label}
-                          </span>
-                        )}
-                        <div className="flex gap-2">
-                          <Popconfirm
-                            title="Bạn có chắc xóa?"
-                            okText="Xóa"
-                            cancelText="Hủy"
-                            onConfirm={() => handleDeleteLabel(item.label)}
-                          >
-                            <Button
-                              icon={<DeleteOutlined />}
-                              type="primary"
-                              danger
+                    {Array.isArray(steps) &&
+                      steps.map((item) => (
+                        <li
+                          key={item.label}
+                          className="flex items-center justify-between mb-2"
+                        >
+                          {editingLabel === item.label ? (
+                            <input
+                              value={newStatusLabel}
+                              onChange={(e) =>
+                                setNewStatusLabel(e.target.value)
+                              }
+                              onBlur={() => handleSaveEditLabel(item.label)}
+                              autoFocus
+                              className="flex-1 px-2 py-1 text-sm border rounded"
+                              style={{
+                                height: "35px",
+                                marginLeft: "-15px",
+                                marginRight: "10px",
+                              }}
                             />
-                          </Popconfirm>
-                          <Button
-                            icon={<EditOutlined />}
-                            type="primary"
-                            onClick={() => handleEditLabel(item.label)}
-                          />
-                        </div>
-                      </li>
-                    ))}
+                          ) : (
+                            <span
+                              className={`${item.bg} ${item.text} px-3 rounded`}
+                              style={{
+                                flex: 1,
+                                height: "35px",
+                                display: "flex",
+                                alignItems: "center",
+                                textOverflow: "ellipsis",
+                                overflow: "hidden",
+                                whiteSpace: "nowrap",
+                                fontSize: "0.6rem",
+                                fontWeight: "600",
+                                marginLeft: "-15px",
+                                marginRight: "10px",
+                              }}
+                            >
+                              {item.label}
+                            </span>
+                          )}
+                          <div className="flex gap-2">
+                            <Popconfirm
+                              title="Bạn có chắc xóa?"
+                              okText="Xóa"
+                              cancelText="Hủy"
+                              onConfirm={() => handleDeleteLabel(item.label)}
+                            >
+                              <Button
+                                icon={<DeleteOutlined />}
+                                type="primary"
+                                danger
+                              />
+                            </Popconfirm>
+                            <Button
+                              icon={<EditOutlined />}
+                              type="primary"
+                              onClick={() => handleEditLabel(item.label)}
+                            />
+                          </div>
+                        </li>
+                      ))}
                     <li className="flex items-center justify-center mt-4 space-x-2">
                       <input
                         value={addStatusValue}
@@ -367,6 +512,7 @@ const ProjectSettingPopover = ({ onClose }) => {
                   <div className="flex justify-center mt-4">
                     <button
                       type="button"
+                      disabled={!workflow?._id}
                       onClick={handleAddStatus}
                       className="flex items-center gap-1 border border-gray-400 rounded px-3 py-1 hover:text-white hover:bg-green-400 transition"
                     >
@@ -384,12 +530,19 @@ const ProjectSettingPopover = ({ onClose }) => {
                       (role) => (
                         <label key={role} className="flex items-center gap-2">
                           <input
-                            type="radio"
-                            name="userRole"
+                            type="checkbox"
                             value={role}
                             className="accent-blue-500"
-                            checked={selectedRole === role}
-                            onChange={(e) => setSelectedRole(e.target.value)}
+                            checked={selectedRole.includes(role)}
+                            onChange={(e) => {
+                              if (e.target.checked) {
+                                setSelectedRole([...selectedRole, role]);
+                              } else {
+                                setSelectedRole(
+                                  selectedRole.filter((r) => r !== role)
+                                );
+                              }
+                            }}
                           />
                           <span>{role}</span>
                         </label>
@@ -405,10 +558,14 @@ const ProjectSettingPopover = ({ onClose }) => {
                         placeholder="Chọn trạng thái bắt đầu"
                         value={fromState}
                         onChange={(value) => setFromState(value)}
-                        options={statuses.map((s) => ({
-                          label: s.label,
-                          value: s.label,
-                        }))}
+                        options={
+                          Array.isArray(steps)
+                            ? steps.map((s) => ({
+                                label: s.label,
+                                value: s.label,
+                              }))
+                            : []
+                        }
                       />
                     </div>
                     <div className="flex flex-col items-start">
@@ -418,10 +575,14 @@ const ProjectSettingPopover = ({ onClose }) => {
                         placeholder="Chọn trạng thái kết thúc"
                         value={toState}
                         onChange={(value) => setToState(value)}
-                        options={statuses.map((s) => ({
-                          label: s.label,
-                          value: s.label,
-                        }))}
+                        options={
+                          Array.isArray(steps)
+                            ? steps.map((s) => ({
+                                label: s.label,
+                                value: s.label,
+                              }))
+                            : []
+                        }
                       />
                     </div>
                     {isEditing && (
@@ -456,14 +617,16 @@ const ProjectSettingPopover = ({ onClose }) => {
                       <h5 className="font-semibold">
                         <SyncOutlined style={{ marginRight: "6px" }} />
                         Các luồng đã tạo:{" "}
-                        {flows.length > 0 ? `(${flows.length})` : ""}
+                        {transitions.length > 0
+                          ? `(${transitions.length})`
+                          : ""}
                       </h5>
-                      {flows.length > 0 && (
+                      {transitions.length > 0 && (
                         <Popconfirm
                           title="Bạn có chắc muốn xóa tất cả các luồng không?"
                           okText="Xóa"
                           cancelText="Hủy"
-                          onConfirm={() => dispatch(clearTransitions())}
+                          onConfirm={() => dispatch(clearWorkflowTransitions())}
                         >
                           <button className="text-red-500 hover:underline text-sm">
                             🧹 Xóa tất cả
@@ -472,7 +635,7 @@ const ProjectSettingPopover = ({ onClose }) => {
                       )}
                     </div>
 
-                    {flows.length === 0 ? (
+                    {transitions.length === 0 ? (
                       <p className="text-gray-500">
                         Chưa có luồng nào được tạo.
                       </p>
@@ -512,12 +675,12 @@ const ProjectSettingPopover = ({ onClose }) => {
                           ))}
                         </ul>
 
-                        {flows.length > itemsPerPage && (
+                        {transitions.length > itemsPerPage && (
                           <div className="mt-2 flex justify-end">
                             <Pagination
                               current={currentPage}
                               pageSize={itemsPerPage}
-                              total={flows.length}
+                              total={transitions.length}
                               onChange={(page) => setCurrentPage(page)}
                               size="small"
                             />
@@ -554,6 +717,7 @@ const ProjectSettingPopover = ({ onClose }) => {
                     console.log("Vai trò đã chọn:", value);
                   }}
                 />
+                <Button type="primary">Lọc</Button>
               </div>
 
               {/* Dòng tìm kiếm và chức năng */}
@@ -582,6 +746,32 @@ const ProjectSettingPopover = ({ onClose }) => {
                     <PlusOutlined />
                     Thêm người
                   </button>
+                  <Modal
+                    title="Chọn thành viên"
+                    open={isModalVisible}
+                    onCancel={() => setIsModalVisible(false)}
+                    footer={null}
+                  >
+                    {loading ? (
+                      <div className="text-center py-4">Đang tải...</div>
+                    ) : (
+                      <div className="max-h-[300px] overflow-y-auto">
+                        {members.map((member) => (
+                          <div
+                            key={member._id}
+                            className="flex items-center gap-2 py-2 border-b"
+                          >
+                            <img
+                              src={member.avatar}
+                              alt={member.name}
+                              className="w-8 h-8 rounded-full"
+                            />
+                            <span>{member.name}</span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </Modal>
 
                   {selectedRowKeys.length > 0 && (
                     <Popconfirm

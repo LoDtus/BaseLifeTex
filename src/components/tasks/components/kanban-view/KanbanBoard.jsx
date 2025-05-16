@@ -35,13 +35,29 @@ function transformTasksData(tasks, statuses) {
     if (!acc[statusLabel]) {
       acc[statusLabel] = { title: statusLabel, tasks: [] };
     }
+
+    // debug data
+    console.log("Task assigneeId:", task.assigneeId);
+
     acc[statusLabel].tasks.push({
       ...task,
       id: task._id,
       userName:
-        task.assigneeId.length > 0 ? task.assigneeId[0].userName : "Chưa giao",
-      assigneeUserNames: task.assigneeId.map((a) => a.userName),
-      assigneeId: task.assigneeId.map((a) => ({ ...a, id: a._id })),
+        Array.isArray(task.assigneeId) &&
+        task.assigneeId.length > 0 &&
+        task.assigneeId[0]?.userName
+          ? task.assigneeId[0].userName
+          : "Chưa giao",
+      assigneeUserNames: Array.isArray(task.assigneeId)
+        ? task.assigneeId
+            .filter((a) => a && typeof a.userName === "string")
+            .map((a) => a.userName)
+        : [],
+      assigneeId: Array.isArray(task.assigneeId)
+        ? task.assigneeId
+            .filter((a) => a && a._id)
+            .map((a) => ({ ...a, id: a._id }))
+        : [],
     });
   });
   return acc;
@@ -57,7 +73,11 @@ function KanbanBoard({ selectedTasks, setSelectedTasks }) {
   const [activeId, setActiveId] = useState(null);
 
   useEffect(() => {
-    if (listTask && statuses.length > 0) {
+    if (
+      Array.isArray(listTask) &&
+      Array.isArray(statuses) &&
+      statuses.length > 0
+    ) {
       const formattedData = transformTasksData(listTask, statuses);
       setColumns(formattedData);
     }
