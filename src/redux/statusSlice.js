@@ -15,18 +15,6 @@ const initialState = {
   error: null,
 };
 
-export const fetchWorkflowByProject = createAsyncThunk(
-  "workflow/fetchByProject",
-  async (projectId, thunkAPI) => {
-    try {
-      const workflow = await getWorkflowByProject(projectId);
-      return workflow;
-    } catch (err) {
-      return thunkAPI.rejectWithValue(err.response?.data || err.message);
-    }
-  }
-);
-
 export const fetchWorkflowSteps = createAsyncThunk(
   "workflow/fetchSteps",
   async (workflowId, thunkAPI) => {
@@ -82,17 +70,13 @@ const workflowSlice = createSlice({
   reducers: {
     clearWorkflowSteps: (state) => {
       state.steps = [];
-      state.workflowId = null;
     },
-    setWorkflowId: (state, action) => {
-      state.workflowId = action.payload;
-    },
+    // setWorkflowId: (state, action) => {
+    //   state.workflowId = action.payload;
+    // },
   },
   extraReducers: (builder) => {
     builder
-      .addCase(fetchWorkflowByProject.fulfilled, (state, action) => {
-        state.currentWorkflow = action.payload; // lưu lại workflow hiện tại
-      })
       .addCase(fetchWorkflowSteps.pending, (state) => {
         state.loading = true;
         state.error = null;
