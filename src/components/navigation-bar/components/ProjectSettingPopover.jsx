@@ -69,12 +69,14 @@ const ProjectSettingPopover = ({ onClose }) => {
   const [openFunction, setOpenFunction] = useState(false);
   const [users, setUsers] = useState([]);
   const workflows = useSelector((state) => state.workflow.currentWorkflow);
-
+  const user = useSelector((state) => state.auth.user);
   const useQuery = () => new URLSearchParams(useLocation().search);
   const query = useQuery();
+  const managerId = user?._id; // hoặc lấy managerId từ dự án
   const projectId = query.get("idProject");
-  const user = useSelector((state) => state.auth.user);
-  console.log("projectId từ URL:", projectId);
+const name = `Workflow dự án ${projectId}`;
+
+
 
   // phan trang
   const itemsPerPage = 2;
@@ -86,7 +88,7 @@ const ProjectSettingPopover = ({ onClose }) => {
 
   // useEffect(() => {
   //   if (projectId && user?._id) {
-  //     dispatch(fetchWorkflowByProject(projectId));
+  //     dispatch(addworkflow(projectId));
   //   }
   // }, [projectId, user?._id]);
 
@@ -102,26 +104,7 @@ const ProjectSettingPopover = ({ onClose }) => {
   // }, [projectId]);
   const workflowId = useSelector((state) => state.workflow.workflowId);
 
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      const path = event.composedPath();
-      const isInPopover = path.some(
-        (el) =>
-          el instanceof HTMLElement &&
-          (el.classList.contains("ant-modal") ||
-            el.classList.contains("ant-select-dropdown") ||
-            el.classList.contains("ant-popover"))
-      );
-
-      if (isInPopover) return;
-      if (popoverRef.current && !popoverRef.current.contains(event.target)) {
-        onClose();
-      }
-    };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, [onClose]);
-
+  
   const handleDeleteLabel = (label) => {
     dispatch(removeWorkflowStep(label));
     message.success("Đã xóa trạng thái");
@@ -141,20 +124,20 @@ const ProjectSettingPopover = ({ onClose }) => {
     if (!addStatusValue.trim()) return;
 
     try {
-      let workflowId = workflow?._id;
+      let newWorkflowId  = workflow?._id;
 
       // Nếu chưa có workflowId thì tạo mới
-      if (!workflowId) {
-        const created = await addworkflow({ projectId });
-        workflowId = created?.data?._id;
+      if (!newWorkflowId) {
+        const created = await addworkflow({ projectId, managerId, name });
+        newWorkflowId = created?.data?._id;
 
-        if (!workflowId) {
-          message.error("Không thể tạo workflow mới");
+        if (!newWorkflowId) {
+     
           return;
         }
 
         setWorkflow(created.data);
-        dispatch(setWorkflowId(workflowId));
+        dispatch(setWorkflowId(newWorkflowId));
       }
 
       // Tạo payload để thêm bước
@@ -304,6 +287,7 @@ const ProjectSettingPopover = ({ onClose }) => {
       }
     })();
   }, [projectId]);
+  console.log("workflow ", workflow);
   const roles = [
     { role: "PM", rights: [1, 1, 1, 1, 0, 1] },
     { role: "Dev", rights: [1, 0, 0, 0, 1, 1] },
@@ -447,15 +431,32 @@ const ProjectSettingPopover = ({ onClose }) => {
               <div className="flex w-full border border-black rounded-2xl">
                 <div className="w-[30%] border-r pr-4 pt-4 overflow-y-auto">
                   <button
-                    onClick={() =>
-                      addworkflow({
-                        name: "shds",
-                        projectmanager: "67fbb3d01d921c631a80240c",
-                        projectId: "67d8dde4edc970e80f2ed0ae",
-                      })
-                    }
+                     onClick={async () => {
+    if (!projectId) {
+      message.error("Không có projectId hoặc managerId");
+      return;
+    }
+    try {
+      const res = await addworkflow({
+        name: `Workflow dự án ${projectId}`,
+       
+        projectId,
+      });
+      if (res?.data?._id) {
+        dispatch(setWorkflowId(res.data._id));
+        message.success("Tạo workflow thành công");
+        // Có thể fetch thêm bước nếu cần
+        dispatch(fetchWorkflowSteps(res.data._id));
+      }
+      // } else {
+      //   message.error("Tạo workflow thất bại");
+      // }
+    } catch (error) {
+      message.error("Lỗi khi tạo workflow");
+    }
+  }}
                   >
-                    lấy workflow
+                    add workflow
                   </button>
 
                   <h3
