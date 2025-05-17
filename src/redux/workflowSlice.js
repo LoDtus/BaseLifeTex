@@ -3,7 +3,6 @@ import {
   createWorkflowTransition,
   updateWorkflowTransition,
   deleteWorkflowTransition,
-  fetchOrCreateWorkflow,
   getWorkflowTransitionsByWorkflowId, // bạn cần tự implement service này nếu chưa có
 } from "@/services/workflowService";
 
@@ -79,9 +78,7 @@ const workflowSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      .addCase(fetchOrCreateWorkflow.fulfilled, (state, action) => {
-        state.currentWorkflow = action.payload;
-      })
+
       // Transitions
       .addCase(fetchWorkflowTransitions.pending, (state) => {
         state.loadingTransitions = true;

@@ -1,12 +1,39 @@
 import axiosInstance from "./apiService";
+import { message } from "antd";
 import { setWorkflowTransitions } from "@/redux/workflowSlice";
 import { createAsyncThunk } from "@reduxjs/toolkit";
 
 const baseUrl = import.meta.env.VITE_BACKEND_URL;
 
 // Lấy chi tiết workflow theo projectId
-export const getWorkflowDetailByProject = (projectId) =>
-  axiosInstance.get(`${baseUrl}/work-flow/${projectId}`);
+export const getworkflowbyid = async (id) => {
+  try {
+    const respoonse = await axiosInstance.get(`/work-flow/${id}`);
+    message.success("lấy workflow thành công");
+    return respoonse?.data;
+  } catch (error) {
+    console.log(error);
+  }
+};
+export const addworkflow = async (data) => {
+  try {
+    const response = await axiosInstance.post(`/work-flow`, data);
+    message.success("Tạo workflow thành công");
+    return response.data; // response.data có workflow với _id (workflowId)
+  } catch (error) {
+    message.error("Không thể tạo workflow mới");
+    throw error;
+  }
+};
+// export const addworkflow = async (pro) => {
+//   try {
+//     const respoonse = await axiosInstance.post(`/work-flow`, pro);
+//     message.success("thanh con");
+//     return respoonse;
+//   } catch (error) {
+//     console.log(error);
+//   }
+// };
 
 // Gọi và dispatch dữ liệu workflow (steps + transitions)
 export const getDetailWorkFlow = (projectId) => async (dispatch) => {
@@ -21,28 +48,6 @@ export const getDetailWorkFlow = (projectId) => async (dispatch) => {
   }
 };
 // trong workflowSlice.js
-export const fetchOrCreateWorkflow = createAsyncThunk(
-  "workflow/fetchOrCreate",
-  async (projectId, thunkAPI) => {
-    try {
-      const trimmedId = projectId.trim();
-      const res = await axiosInstance.get(`/work-flow/${trimmedId}`);
-      return res.data;
-    } catch (err) {
-      if (err.response?.status === 404) {
-        // nếu chưa có workflow → tạo mới
-        const managerId = thunkAPI.getState().auth.login.user._id;
-        const created = await axiosInstance.post(`/work-flow`, {
-          projectId: projectId.trim(),
-          projectmanager: managerId,
-          name: `Workflow ${projectId.trim()}`,
-        });
-        return created.data;
-      }
-      return thunkAPI.rejectWithValue(err.response?.data || err.message);
-    }
-  }
-);
 
 export const fetchWorkflowByProject = createAsyncThunk(
   "workflow/fetchWorkflowByProject",

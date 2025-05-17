@@ -1,7 +1,16 @@
 import React, { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import { getMembers } from "../../../services/projectService";
-import { Table, Popconfirm, message, Modal, Select, Pagination } from "antd";
+
+import {
+  Table,
+  Popconfirm,
+  message,
+  Modal,
+  Select,
+  Pagination,
+  Button,
+  Input,
+} from "antd";
 import styles from "../styles/ProjectSettingPopover.module.scss";
 import {
   EditOutlined,
@@ -16,27 +25,27 @@ import {
 
 import { useDispatch, useSelector } from "react-redux";
 import {
-  fetchWorkflowSteps,
   addWorkflowStep,
   removeWorkflowStep,
   editWorkflowStep,
-  fetchWorkflowByProject,
   setWorkflowId,
+  fetchWorkflowSteps,
 } from "@/redux/statusSlice";
 import {
-  fetchWorkflowTransitions,
   addWorkflowTransition,
   editWorkflowTransition,
   removeWorkflowTransition,
   clearWorkflowTransitions,
 } from "@/redux/workflowSlice";
 import {
-  getDetailWorkFlow,
-  fetchOrCreateWorkflow,
+  getworkflowbyid,
+  addworkflow,
   createWorkflowTransition,
   updateWorkflowTransition,
   deleteWorkflowTransition,
 } from "../../../services/workflowService.js";
+
+import { useLocation } from "react-router-dom";
 const ProjectSettingPopover = ({ onClose }) => {
   const popoverRef = useRef(null);
   const dispatch = useDispatch();
@@ -59,14 +68,16 @@ const ProjectSettingPopover = ({ onClose }) => {
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
   const [openFunction, setOpenFunction] = useState(false);
   const [users, setUsers] = useState([]);
-  const workflow = useSelector((state) => state.workflow.currentWorkflow);
-
+  const workflows = useSelector((state) => state.workflow.currentWorkflow);
   const user = useSelector((state) => state.auth.user);
-  const projectId = useSelector((state) => state.project.currentProjectId);
-  //lay info user
-  const [isModalVisible, setIsModalVisible] = useState(false);
-  const [members, setMembers] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const useQuery = () => new URLSearchParams(useLocation().search);
+  const query = useQuery();
+  const managerId = user?._id; // hoặc lấy managerId từ dự án
+  const projectId = query.get("idProject");
+const name = `Workflow dự án ${projectId}`;
+
+
+
   // phan trang
   const itemsPerPage = 2;
   const [currentPage, setCurrentPage] = useState(1);
@@ -76,67 +87,24 @@ const ProjectSettingPopover = ({ onClose }) => {
   const paginatedFlows = transitions.slice(startIndex, endIndex);
 
   // useEffect(() => {
-  //   // Khi mở popup, lấy status + transitions từ backend
-  //   async function fetchData() {
-  //     try {
-  //       const statusData = await getStatuses(projectId);
-  //       dispatch(setStatuses(statusData)); // cập nhật status vào redux
-
-  //       const transitionsData = await getTransitions(projectId);
-  //       dispatch(setTransitions(transitionsData)); // cập nhật transitions vào redux
-  //     } catch (error) {
-  //       message.error("Lỗi khi tải dữ liệu workflow từ server");
-  //     }
+  //   if (projectId && user?._id) {
+  //     dispatch(addworkflow(projectId));
   //   }
-  //   fetchData();
-  // }, [projectId, dispatch]);
-  useEffect(() => {
-    if (projectId && user?._id) {
-      dispatch(fetchWorkflowByProject(projectId));
-    }
-  }, [projectId, user?._id]);
+  // }, [projectId, user?._id]);
 
-  useEffect(() => {
-    if (projectId) {
-      dispatch(fetchOrCreateWorkflow(projectId)).then((res) => {
-        if (res.payload && res.payload._id) {
-          dispatch(setWorkflowId(res.payload._id)); // QUAN TRỌNG
-          dispatch(fetchWorkflowSteps(res.payload._id)); // Gọi luôn steps nếu cần
-        }
-      });
-    }
-  }, [projectId]);
+  // useEffect(() => {
+  //   if (projectId) {
+  //     dispatch(addworkflow(projectId)).then((res) => {
+  //       if (res.payload && res.payload._id) {
+  //         dispatch(setWorkflowId(res.payload._id)); // QUAN TRỌNG
+  //         dispatch(fetchWorkflowSteps(res.payload._id)); // Gọi luôn steps nếu cần
+  //       }
+  //     });
+  //   }
+  // }, [projectId]);
   const workflowId = useSelector((state) => state.workflow.workflowId);
 
-  useEffect(() => {
-    if (projectId) {
-      dispatch(fetchOrCreateWorkflow(projectId)).then((res) => {
-        if (res.payload && res.payload._id) {
-          dispatch(setWorkflowId(res.payload._id)); // bạn cần lưu workflowId ở đâu đó
-        }
-      });
-    }
-  }, [projectId]);
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      const path = event.composedPath();
-      const isInPopover = path.some(
-        (el) =>
-          el instanceof HTMLElement &&
-          (el.classList.contains("ant-modal") ||
-            el.classList.contains("ant-select-dropdown") ||
-            el.classList.contains("ant-popover"))
-      );
-
-      if (isInPopover) return;
-      if (popoverRef.current && !popoverRef.current.contains(event.target)) {
-        onClose();
-      }
-    };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, [onClose]);
-
+  
   const handleDeleteLabel = (label) => {
     dispatch(removeWorkflowStep(label));
     message.success("Đã xóa trạng thái");
@@ -152,24 +120,42 @@ const ProjectSettingPopover = ({ onClose }) => {
     setEditingLabel(null);
   };
 
-  const handleAddStatus = () => {
+  const handleAddStatus = async () => {
     if (!addStatusValue.trim()) return;
 
-    if (!workflowId) {
-      message.error("Workflow chưa được tạo hoặc chưa có ID");
-      return;
+    try {
+      let newWorkflowId  = workflow?._id;
+
+      // Nếu chưa có workflowId thì tạo mới
+      if (!newWorkflowId) {
+        const created = await addworkflow({ projectId, managerId, name });
+        newWorkflowId = created?.data?._id;
+
+        if (!newWorkflowId) {
+     
+          return;
+        }
+
+        setWorkflow(created.data);
+        dispatch(setWorkflowId(newWorkflowId));
+      }
+
+      // Tạo payload để thêm bước
+      const payload = {
+        workflowId,
+        nameStep: addStatusValue.trim(),
+        stepOrder: 1,
+        requiredRole: [1, 3],
+        isFinal: false,
+      };
+
+      dispatch(addWorkflowStep(payload));
+      dispatch(fetchWorkflowSteps(workflowId));
+      setAddStatusValue("");
+    } catch (error) {
+      console.error("❌ Lỗi khi thêm trạng thái:", error);
+      message.error("Thêm trạng thái thất bại");
     }
-
-    const payload = {
-      workflowId,
-      nameStep: addStatusValue.trim(),
-      stepOrder: steps.length + 1,
-      requiredRole: [1, 3],
-      isFinal: false,
-    };
-
-    dispatch(addWorkflowStep(payload));
-    setAddStatusValue("");
   };
   const resetTransitionForm = () => {
     setFromState("");
@@ -286,7 +272,22 @@ const ProjectSettingPopover = ({ onClose }) => {
 
   const roleOptions = ["PM", "Dev", "Test", "BA", "User"];
   const permissions = ["View", "Add", "Edit", "Delete", "Comment", "Drag"];
+  const [workflow, setWorkflow] = useState(null);
+  useEffect(() => {
+    if (!projectId) return;
 
+    (async () => {
+      try {
+        const res = await getworkflowbyid(projectId);
+        if (res?.data) {
+          setWorkflow(res.data);
+        }
+      } catch (err) {
+        console.error("❌ Không lấy được workflow:", err);
+      }
+    })();
+  }, [projectId]);
+  console.log("workflow ", workflow);
   const roles = [
     { role: "PM", rights: [1, 1, 1, 1, 0, 1] },
     { role: "Dev", rights: [1, 0, 0, 0, 1, 1] },
@@ -305,16 +306,13 @@ const ProjectSettingPopover = ({ onClose }) => {
   //   message.success("Đã thêm người");
   // };
   const handleAddUser = async () => {
-    setIsModalVisible(true);
-    setLoading(true);
-    try {
-      const data = await getMembers(projectId); // đảm bảo projectId được truyền đúng
-      setMembers(data);
-    } catch (error) {
-      console.error("Lỗi khi lấy danh sách thành viên:", error);
-    } finally {
-      setLoading(false);
-    }
+    const fakeUser = {
+      id: users.length + 1,
+      name: `Người dùng ${users.length + 1}`,
+      email: `user${users.length + 1}@example.com`,
+    };
+    setUsers((prev) => [...prev, fakeUser]);
+    message.success("Đã thêm người");
   };
   const onSelectChange = (newSelectedRowKeys) => {
     setSelectedRowKeys(newSelectedRowKeys);
@@ -324,6 +322,7 @@ const ProjectSettingPopover = ({ onClose }) => {
     onChange: onSelectChange,
     preserveSelectedRowKeys: false,
   };
+
   const userColumns = [
     {
       title: "STT",
@@ -431,6 +430,35 @@ const ProjectSettingPopover = ({ onClose }) => {
             <div className="flex w-full h-full overflow-hidden p-3">
               <div className="flex w-full border border-black rounded-2xl">
                 <div className="w-[30%] border-r pr-4 pt-4 overflow-y-auto">
+                  <button
+                     onClick={async () => {
+    if (!projectId) {
+      message.error("Không có projectId hoặc managerId");
+      return;
+    }
+    try {
+      const res = await addworkflow({
+        name: `Workflow dự án ${projectId}`,
+       
+        projectId,
+      });
+      if (res?.data?._id) {
+        dispatch(setWorkflowId(res.data._id));
+        message.success("Tạo workflow thành công");
+        // Có thể fetch thêm bước nếu cần
+        dispatch(fetchWorkflowSteps(res.data._id));
+      }
+      // } else {
+      //   message.error("Tạo workflow thất bại");
+      // }
+    } catch (error) {
+      message.error("Lỗi khi tạo workflow");
+    }
+  }}
+                  >
+                    add workflow
+                  </button>
+
                   <h3
                     className={`mb-4 text-center ${styles.projectSetting__statusHeader}`}
                   >
@@ -512,7 +540,6 @@ const ProjectSettingPopover = ({ onClose }) => {
                   <div className="flex justify-center mt-4">
                     <button
                       type="button"
-                      disabled={!workflow?._id}
                       onClick={handleAddStatus}
                       className="flex items-center gap-1 border border-gray-400 rounded px-3 py-1 hover:text-white hover:bg-green-400 transition"
                     >
