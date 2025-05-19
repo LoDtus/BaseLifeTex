@@ -31,15 +31,7 @@ export default function KanbanColumn({
     NOT_DO: 7,
   };
 
-  const backgroundColorMap = {
-    PREPARE: "#E3F2FD",
-    IN_PROGRESS: "#FFF3E0",
-    TEST: "#F3E5F5",
-    FINISH: "#E8F5E9",
-    CLOSE: "#ECEFF1",
-    PAUSE: "#FFFDE7",
-    NOT_DO: "#F7CBCB",
-  };
+ 
   const statusValue = statusMapReverse[columnId];
   const [searchParams] = useSearchParams();
   const idProject = searchParams.get("idProject");
@@ -55,7 +47,7 @@ export default function KanbanColumn({
       className={`h-full !ml-1 pd-2-custom border border-gray-border rounded-md bg-[#f4f5f7] overflow-y-auto overflow-x-hidden
                 ${isOver ? "kanban-column-over" : ""}`}
       style={{
-        backgroundColor: backgroundColorMap[columnId] || "#f4f5f7",
+        backgroundColor: column.color || "#f4f5f7",
         height: "calc(100vh - 150px)",
         width: "14.2%",
         overflowY: "auto",
@@ -67,7 +59,7 @@ export default function KanbanColumn({
     >
       <div
         className="sticky top-0 z-10 "
-        style={{ backgroundColor: backgroundColorMap[columnId] || "#f4f5f7" }}
+        style={{ backgroundColor: column.color || "#f4f5f7" }}
       >
         <h3 className="flex items-center justify-center mb-2 mt-2">
           <span className="font-semibold !text-sm">{column.title}</span>

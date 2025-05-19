@@ -1,3 +1,5 @@
+
+
 import {
   closestCorners,
   DndContext,
@@ -8,84 +10,78 @@ import {
   KeyboardSensor,
 } from "@dnd-kit/core";
 import { sortableKeyboardCoordinates } from "@dnd-kit/sortable";
-import React, { useEffect,useMemo, useState } from "react";
+import React, { useEffect, useState } from "react";
 import KanbanColumn from "./KanbanColumn";
 import { updateTaskStatus } from "@/services/taskService";
 import { useSearchParams } from "react-router-dom";
 import { getListTaskByProjectId } from "@/redux/taskSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
-
-function createEmptyColumns(statuses) {
-  const columns = {};
-  statuses.forEach((status) => {
-    columns[status.label] = {
-      title: status.label,
-      tasks: [],
-    };
-  });
-  return columns;
-}
-
-function transformTasksData(tasks, statuses) {
-  const acc = createEmptyColumns(statuses);
-  tasks.forEach((task) => {
-    const statusLabel = task.statusLabel || "Công việc mới";
-    if (!acc[statusLabel]) {
-      acc[statusLabel] = { title: statusLabel, tasks: [] };
-    }
-
-    acc[statusLabel].tasks.push({
-      ...task,
-      id: task._id,
-      userName:
-        Array.isArray(task.assigneeId) &&
-        task.assigneeId.length > 0 &&
-        task.assigneeId[0]?.userName
-          ? task.assigneeId[0].userName
-          : "Chưa giao",
-      assigneeUserNames: Array.isArray(task.assigneeId)
-        ? task.assigneeId
-            .filter((a) => a && typeof a.userName === "string")
-            .map((a) => a.userName)
-        : [],
-      assigneeId: Array.isArray(task.assigneeId)
-        ? task.assigneeId
-            .filter((a) => a && a._id)
-            .map((a) => ({ ...a, id: a._id }))
-        : [],
-    });
-  });
-  return acc;
-}
+import { fetchWorkflowSteps } from "@/redux/statusSlice";
 
 function KanbanBoard({ selectedTasks, setSelectedTasks }) {
   const dispatch = useDispatch();
   const listTask = useSelector((state) => state.task.listTask);
-  const statuses = useSelector((state) => state.status.steps);
+  const workflowSteps = useSelector((state) => state.status.steps);
   const [columns, setColumns] = useState({});
   const [searchParams] = useSearchParams();
   const idProject = searchParams.get("idProject");
   const [activeId, setActiveId] = useState(null);
-
-  useEffect(() => {
-    if (
-      Array.isArray(listTask) &&
-      Array.isArray(statuses) &&
-      statuses.length > 0
-    ) {
-      const formattedData = transformTasksData(listTask, statuses);
-      setColumns(formattedData);
-    }
-  }, [listTask, statuses]);
-
+  const colors = [
+ "#ffe5e5", // đỏ rất nhạt
+  "#ffefd6", // cam rất nhạt
+  "#ffffe0", // vàng rất nhạt
+  "#e6fff2", // xanh nhạt pha trắng
+  "#e0faff", // xanh da trời nhạt hơn
+  "#e6eeff", // xanh dương pha trắng
+  "#eeeaff", // tím rất nhạt
+  "#fff0f5", // hồng pastel
+  "#eafff5", // xanh bạc hà pha trắng
+  "#f7f7ff", 
+  ];
   useEffect(() => {
     if (idProject) {
-      dispatch(
-        getListTaskByProjectId({ projectId: idProject, page: 1, limit: 100 })
-      );
+      dispatch(fetchWorkflowSteps({ projectId: idProject }));
+      dispatch(getListTaskByProjectId({ projectId: idProject }));
     }
   }, [idProject, dispatch]);
+
+  useEffect(() => {
+    if (workflowSteps.length > 0) {
+      const initialColumns = {};
+      workflowSteps.forEach((step, index) => {
+        initialColumns[step._id] = {
+          id: step._id,
+          title: step.nameStep,
+          color: colors[index % colors.length],
+          tasks: listTask.filter(task => task.status === step._id),
+        };
+      });
+
+      listTask.forEach((task) => {
+        const stepId = task.status || workflowSteps[0]._id;
+        if (initialColumns[stepId]) {
+          initialColumns[stepId].tasks.push({
+            ...task,
+            id: task._id,
+            nameStep:
+              Array.isArray(task.assigneeId) && task.assigneeId[0]?.nameStep
+                ? task.assigneeId[0].nameStep
+                : "Chưa giao",
+          });
+        }
+      });
+
+      setColumns(initialColumns);
+    }
+  }, [workflowSteps, listTask]);
+
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
 
   const onDragStart = (event) => {
     setActiveId(event.active.id);
@@ -98,99 +94,45 @@ function KanbanBoard({ selectedTasks, setSelectedTasks }) {
     const sourceKey = Object.keys(columns).find((key) =>
       columns[key].tasks.some((task) => task.id === active.id)
     );
-    if (!sourceKey) return;
+    const destKey = Object.keys(columns).find((key) => key === over.id);
+    if (!sourceKey || !destKey || sourceKey === destKey) return;
 
-    const destKey = columns[over.id]
-      ? over.id
-      : Object.keys(columns).find((key) =>
-          columns[key].tasks.some((task) => task.id === over.id)
-        );
-    if (!destKey || sourceKey === destKey) return;
+    const sourceTasks = [...columns[sourceKey].tasks];
+    const movedTaskIndex = sourceTasks.findIndex((t) => t.id === active.id);
+    const [movedTask] = sourceTasks.splice(movedTaskIndex, 1);
 
-    const sourceColumn = columns[sourceKey];
-    const oldIndex = sourceColumn.tasks.findIndex((t) => t.id === active.id);
-    const newIndex = columns[destKey].tasks.findIndex((t) => t.id === over.id);
+    const destTasks = [...columns[destKey].tasks];
+    destTasks.unshift(movedTask);
 
-    const updatedSourceTasks = [...sourceColumn.tasks];
-    const [movedTask] = updatedSourceTasks.splice(oldIndex, 1);
-
-    setColumns((prev) => ({
-      ...prev,
-      [sourceKey]: { ...prev[sourceKey], tasks: updatedSourceTasks },
-      [destKey]: {
-        ...prev[destKey],
-        tasks: [
-          ...prev[destKey].tasks.slice(0, newIndex >= 0 ? newIndex : 0),
-          movedTask,
-          ...prev[destKey].tasks.slice(newIndex >= 0 ? newIndex : 0),
-        ],
-      },
-    }));
+    setColumns({
+      ...columns,
+      [sourceKey]: { ...columns[sourceKey], tasks: sourceTasks },
+      [destKey]: { ...columns[destKey], tasks: destTasks },
+    });
   };
 
   const onDragEnd = async (event) => {
     const { active, over } = event;
+    setActiveId(null);
     if (!over) return;
 
     const sourceKey = Object.keys(columns).find((key) =>
       columns[key].tasks.some((task) => task.id === active.id)
     );
-    if (!sourceKey) return;
+    const destKey = over.id;
+    if (!sourceKey || !destKey || sourceKey === destKey) return;
 
-    const destKey = columns[over.id]
-      ? over.id
-      : Object.keys(columns).find((key) =>
-          columns[key].tasks.some((task) => task.id === over.id)
-        );
-    if (!destKey || sourceKey === destKey) return;
-
-    const taskToMove = columns[sourceKey].tasks.find((t) => t.id === active.id);
-    if (!taskToMove) return;
-
-    const destStatus = statuses.find((s) => s.label === destKey);
-    if (!destStatus) {
-      toast.error("Không tìm thấy trạng thái đích");
-      return;
-    }
-
-    const previousColumns = { ...columns };
-
-    setColumns((prev) => {
-      const updated = { ...prev };
-      updated[sourceKey].tasks = updated[sourceKey].tasks.filter(
-        (t) => t.id !== active.id
-      );
-      updated[destKey].tasks = [
-        { ...taskToMove, statusLabel: destKey },
-        ...updated[destKey].tasks,
-      ];
-      return updated;
-    });
+    const movedTask = columns[sourceKey].tasks.find((t) => t.id === active.id);
+    if (!movedTask) return;
 
     try {
-      await updateTaskStatus(
-        taskToMove.id,
-        taskToMove.statusCode,
-        destStatus.code // hoặc destStatus._id nếu backend yêu cầu
-      );
-
+      await updateTaskStatus(movedTask.id, sourceKey, destKey);
       toast.success("Cập nhật trạng thái thành công");
-
-      dispatch(
-        getListTaskByProjectId({ projectId: idProject, page: 1, limit: 100 })
-      );
-    } catch (err) {
-      toast.error("Lỗi khi cập nhật trạng thái");
-      setColumns(previousColumns); // revert
+      dispatch(getListTaskByProjectId({ projectId: idProject }));
+    } catch (error) {
+      toast.error("Lỗi cập nhật trạng thái");
     }
   };
-
-  const sensors = useSensors(
-    useSensor(PointerSensor),
-    useSensor(KeyboardSensor, {
-      coordinateGetter: sortableKeyboardCoordinates,
-    })
-  );
 
   return (
     <div className="mt-1">
@@ -199,10 +141,7 @@ function KanbanBoard({ selectedTasks, setSelectedTasks }) {
         collisionDetection={closestCorners}
         onDragStart={onDragStart}
         onDragOver={onDragOver}
-        onDragEnd={(e) => {
-          onDragEnd(e);
-          setActiveId(null);
-        }}
+        onDragEnd={onDragEnd}
       >
         <div className="flex h-full">
           {Object.entries(columns).map(([key, column]) => (
@@ -210,8 +149,8 @@ function KanbanBoard({ selectedTasks, setSelectedTasks }) {
               key={key}
               columnId={key}
               column={column}
-              setSelectedTasks={setSelectedTasks}
               selectedTasks={selectedTasks}
+              setSelectedTasks={setSelectedTasks}
             />
           ))}
         </div>
@@ -222,7 +161,7 @@ function KanbanBoard({ selectedTasks, setSelectedTasks }) {
                 .flatMap((col) => col.tasks)
                 .find((t) => t.id === activeId);
               return task ? (
-                <div className="p-4 bg-white shadow-lg rounded-md w-[160px]">
+                <div className="p-4 bg-white shadow rounded w-[160px]">
                   <p className="font-medium">{task.name}</p>
                   <p className="text-xs text-gray-500 text-center">
                     {task.userName}
@@ -237,3 +176,5 @@ function KanbanBoard({ selectedTasks, setSelectedTasks }) {
 }
 
 export default KanbanBoard;
+
+

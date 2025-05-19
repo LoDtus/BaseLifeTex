@@ -189,6 +189,9 @@ const paginatedFlows = safeTransitions.slice(startIndex, endIndex);
   setIsEditing(false);
   setEditingIndex(null);
   };
+  
+  const fromStep = fromState;
+  const toStep = toState;
   const currentWorkflowId = workflows?.[0]?._id ?? null;
  const handleAddFlow = async () => {
   if (!fromState || !toState || !selectedRole?.length) {
@@ -196,11 +199,12 @@ const paginatedFlows = safeTransitions.slice(startIndex, endIndex);
     return;
   }
 
-  const fromStep = fromState;
-  const toStep = toState;
   const allowedRoles = selectedRole.map((role) => role.value);
   
-
+if (fromStep === toStep) {
+    message.error("Trạng thái bắt đầu và kết thúc không được giống nhau.");
+    return;
+}
   if (!currentWorkflowId) {
     message.error("Vui lòng tạo workflow trước khi thêm trạng thái.");
     return;
@@ -244,14 +248,19 @@ const paginatedFlows = safeTransitions.slice(startIndex, endIndex);
       message.warning("Vui lòng chọn đầy đủ trạng thái và vai trò!");
       return;
     }
+
       const allowedRoles = selectedRole.map((role) => role.value);
+      if (fromStep === toStep) {
+    message.error("Trạng thái bắt đầu và kết thúc không được giống nhau.");
+    return;
+}
     try {
       const editingTransition = transitions[editingIndex];
       if (!editingTransition) return;
 
       const updatedTransition = {
-        fromStep: fromState,
-        toStep: toState,
+        fromStep,
+        toStep,
         allowedRoles,
       };
 
