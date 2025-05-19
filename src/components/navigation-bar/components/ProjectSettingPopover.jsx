@@ -30,7 +30,7 @@ import {
   editWorkflowStep,
   setWorkflowId,
   fetchWorkflowSteps,
-  creatworkflow
+  creatworkflow,
 } from "@/redux/statusSlice";
 import {
   fetchWorkflowTransitions,
@@ -40,27 +40,22 @@ import {
   clearWorkflowTransitions,
   // setWorkflowId,
 } from "@/redux/workflowSlice";
-import {
-  getworkflowbyid,
-
- 
-} from "../../../services/workflowService.js";
+import { getworkflowbyid } from "../../../services/workflowService.js";
 
 import { useLocation } from "react-router-dom";
+import { deleteRoles, getById } from "../../../services/projectRoleService.js";
+import AssignRoleModal from "./AssignRoleModal.jsx";
 const ProjectSettingPopover = ({ onClose }) => {
   const popoverRef = useRef(null);
   const dispatch = useDispatch();
   const steps = useSelector((state) => state.status.steps);
-
-  console.log("steps có lấy từ redux", steps);
   const [activeTab, setActiveTab] = useState("workflow");
- const [workflows, setWorkflows] = useState([]);
+  const [workflows, setWorkflows] = useState([]);
   const [fromState, setFromState] = useState(null);
   const [toState, setToState] = useState(null);
 
   const transitions = useSelector((state) => state.workflow.transitions);
   const safeTransitions = Array.isArray(transitions) ? transitions : [];
-  console.log("transitions", transitions);
 
   const [editingIndex, setEditingIndex] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
@@ -73,9 +68,7 @@ const ProjectSettingPopover = ({ onClose }) => {
   const [openFunction, setOpenFunction] = useState(false);
   const [users, setUsers] = useState([]);
 
-const workflowIdFromStatus = useSelector(state => state.status.workflowId);
-
-console.log("workflowIdFromStatus", workflowIdFromStatus);
+  const workflowIdFromStatus = useSelector((state) => state.status.workflowId);
   const user = useSelector((state) => state.auth.user);
   const useQuery = () => new URLSearchParams(useLocation().search);
   const query = useQuery();
@@ -85,12 +78,12 @@ console.log("workflowIdFromStatus", workflowIdFromStatus);
   // phan trang
   const itemsPerPage = 2;
   const [currentPage, setCurrentPage] = useState(1);
-useEffect(() => {
-  setCurrentPage(1);
-}, [safeTransitions]);
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [safeTransitions]);
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
-const paginatedFlows = safeTransitions.slice(startIndex, endIndex);
+  const paginatedFlows = safeTransitions.slice(startIndex, endIndex);
   // màu trạng thái
   const colors = [
     "#ffadad", // đỏ nhạt
@@ -161,7 +154,7 @@ const paginatedFlows = safeTransitions.slice(startIndex, endIndex);
     const payload = {
       workflowId: currentWorkflowId,
       nameStep: addStatusValue.trim(),
-      stepOrder: 1, 
+      stepOrder: 1,
       requiredRole: [1, 3],
       isFinal: false,
     };
@@ -184,45 +177,44 @@ const paginatedFlows = safeTransitions.slice(startIndex, endIndex);
 
   const resetTransitionForm = () => {
     setFromState(null);
-  setToState(null);
-  setSelectedRole([]);
-  setIsEditing(false);
-  setEditingIndex(null);
+    setToState(null);
+    setSelectedRole([]);
+    setIsEditing(false);
+    setEditingIndex(null);
   };
   const currentWorkflowId = workflows?.[0]?._id ?? null;
- const handleAddFlow = async () => {
-  if (!fromState || !toState || !selectedRole?.length) {
-    message.warning("Vui lòng nhập đầy đủ trạng thái và vai trò");
-    return;
-  }
+  const handleAddFlow = async () => {
+    if (!fromState || !toState || !selectedRole?.length) {
+      message.warning("Vui lòng nhập đầy đủ trạng thái và vai trò");
+      return;
+    }
 
-  const fromStep = fromState;
-  const toStep = toState;
-  const allowedRoles = selectedRole.map((role) => role.value);
-  
+    const fromStep = fromState;
+    const toStep = toState;
+    const allowedRoles = selectedRole.map((role) => role.value);
 
-  if (!currentWorkflowId) {
-    message.error("Vui lòng tạo workflow trước khi thêm trạng thái.");
-    return;
-  }
+    if (!currentWorkflowId) {
+      message.error("Vui lòng tạo workflow trước khi thêm trạng thái.");
+      return;
+    }
 
-  try {
-    await dispatch(
-      addWorkflowTransition({
-        workflowId: currentWorkflowId,
-        fromStep,
-        toStep,
-        allowedRoles,
-      })
-    ).unwrap();
-    await dispatch(fetchWorkflowTransitions(currentWorkflowId)).unwrap();
-    message.success("Thêm luồng thành công");
-    resetTransitionForm();
-  } catch (err) {
-    console.error("Lỗi thêm luồng:", err);
-    message.error("Thêm luồng thất bại");
-  }
-};
+    try {
+      await dispatch(
+        addWorkflowTransition({
+          workflowId: currentWorkflowId,
+          fromStep,
+          toStep,
+          allowedRoles,
+        })
+      ).unwrap();
+      await dispatch(fetchWorkflowTransitions(currentWorkflowId)).unwrap();
+      message.success("Thêm luồng thành công");
+      resetTransitionForm();
+    } catch (err) {
+      console.error("Lỗi thêm luồng:", err);
+      message.error("Thêm luồng thất bại");
+    }
+  };
 
   const handleEdit = (index) => {
     const trans = transitions[index];
@@ -230,11 +222,11 @@ const paginatedFlows = safeTransitions.slice(startIndex, endIndex);
 
     setFromState(trans.fromStep); // chú ý dùng fromStep
     setToState(trans.toStep); // dùng toStep
-   setSelectedRole(
-  Array.isArray(trans.allowedRoles)
-    ? trans.allowedRoles.map((r) => ({ label: r, value: r }))
-    : []
-);
+    setSelectedRole(
+      Array.isArray(trans.allowedRoles)
+        ? trans.allowedRoles.map((r) => ({ label: r, value: r }))
+        : []
+    );
     setEditingIndex(index);
     setIsEditing(true);
   };
@@ -244,7 +236,7 @@ const paginatedFlows = safeTransitions.slice(startIndex, endIndex);
       message.warning("Vui lòng chọn đầy đủ trạng thái và vai trò!");
       return;
     }
-      const allowedRoles = selectedRole.map((role) => role.value);
+    const allowedRoles = selectedRole.map((role) => role.value);
     try {
       const editingTransition = transitions[editingIndex];
       if (!editingTransition) return;
@@ -262,7 +254,7 @@ const paginatedFlows = safeTransitions.slice(startIndex, endIndex);
           data: updatedTransition,
         })
       ).unwrap();
-    await dispatch(fetchWorkflowTransitions(currentWorkflowId)).unwrap();
+      await dispatch(fetchWorkflowTransitions(currentWorkflowId)).unwrap();
       message.success("Cập nhật luồng thành công");
       resetTransitionForm();
     } catch (error) {
@@ -277,16 +269,15 @@ const paginatedFlows = safeTransitions.slice(startIndex, endIndex);
 
       // dispatch async thunk removeWorkflowTransition và unwrap
       await dispatch(removeWorkflowTransition(transitionToDelete._id)).unwrap();
- await dispatch(fetchWorkflowTransitions(currentWorkflowId)).unwrap();
+      await dispatch(fetchWorkflowTransitions(currentWorkflowId)).unwrap();
       message.success("Xóa luồng thành công");
     } catch (error) {
       console.error("Lỗi xóa luồng:", error);
       message.error("Xóa luồng thất bại");
     }
   };
-  const roleOptions = ["PM", "Dev", "Test", "BA", "User"];
   const permissions = ["View", "Add", "Edit", "Delete", "Comment", "Drag"];
- 
+
   useEffect(() => {
     if (!projectId) return;
 
@@ -311,25 +302,35 @@ const paginatedFlows = safeTransitions.slice(startIndex, endIndex);
     { role: "BA", rights: [1, 0, 0, 0, 1, 1] },
     { role: "User", rights: [1, 0, 0, 0, 1, 1] },
   ];
+  const [selectedRolea, setSelectedRolea] = useState(0);
+  const { Option } = Select;
+  const location = useLocation(); // lấy URL hiện tại
+  const queryParams = new URLSearchParams(location.search); // phân tích chuỗi query
+  const idProject = queryParams.get("idProject"); // lấy giá trị idProject
+  const [check, setcheck] = useState(false);
+  const [search, setSearch] = useState("");
+  const [filterUser, setfilterUser] = useState([]);
+  const [isAssignRoleModalOpen, setIsAssignRoleModalOpen] = useState(false);
 
-  // const handleAddUser = () => {
-  //   const fakeUser = {
-  //     id: users.length + 1,
-  //     name: `Người dùng ${users.length + 1}`,
-  //     email: `user${users.length + 1}@example.com`,
-  //   };
-  //   setUsers((prev) => [...prev, fakeUser]);
-  //   message.success("Đã thêm người");
-  // };
-  const handleAddUser = async () => {
-    const fakeUser = {
-      id: users.length + 1,
-      name: `Người dùng ${users.length + 1}`,
-      email: `user${users.length + 1}@example.com`,
-    };
-    setUsers((prev) => [...prev, fakeUser]);
-    message.success("Đã thêm người");
+  useEffect(() => {
+    (async () => {
+      const data = await getById(idProject);
+      setUsers(data);
+    })();
+  }, [check]);
+
+  const ROLES = {
+    PM: 0,
+    DEV: 1,
+    TEST: 2,
+    BA: 3,
+    USER: 4,
   };
+  const roleOptions = Object.keys(ROLES).map((key) => ({
+    label: key, // Hiển thị trên dropdown
+    value: ROLES[key], // Giá trị thực được lưu
+  }));
+
   const onSelectChange = (newSelectedRowKeys) => {
     setSelectedRowKeys(newSelectedRowKeys);
   };
@@ -349,13 +350,11 @@ const paginatedFlows = safeTransitions.slice(startIndex, endIndex);
     },
     {
       title: "Username",
-      dataIndex: "user",
-      key: "user",
+      dataIndex: ["userId", "userName"],
     },
     {
       title: "Email",
-      dataIndex: "email",
-      key: "email",
+      dataIndex: ["userId", "email"],
     },
     {
       title: "Xóa",
@@ -363,7 +362,9 @@ const paginatedFlows = safeTransitions.slice(startIndex, endIndex);
       render: (_, record) => (
         <Popconfirm
           title="Bạn có chắc muốn xóa?"
-          onConfirm={() => handleDeleteUser(record.key)}
+          onConfirm={() =>
+            handleDeleteUser(record?.projectId, [record?.userId?._id])
+          }
           okText="Xóa"
           cancelText="Hủy"
         >
@@ -375,14 +376,7 @@ const paginatedFlows = safeTransitions.slice(startIndex, endIndex);
       width: 80,
     },
   ];
-  const handleDeleteMultipleUsers = () => {
-    const remaining = users.filter(
-      (user) => !selectedRowKeys.includes(user.key)
-    );
-    setUsers(remaining);
-    setSelectedRowKeys([]);
-    message.success("Đã xóa các người dùng được chọn.");
-  };
+
   useEffect(() => {
     const handleClickOutside = (event) => {
       const path = event.composedPath();
@@ -407,10 +401,65 @@ const paginatedFlows = safeTransitions.slice(startIndex, endIndex);
     };
   }, [onClose]);
 
-  const handleDeleteUser = (key) => {
-    setUsers((prev) => prev.filter((u) => u.key !== key));
-    message.success("Đã xóa người dùng");
+  // Xóa người
+  const handleDeleteUser = async (projectId, userId) => {
+    try {
+      const remove = await deleteRoles(projectId, userId, selectedRolea);
+      setcheck((prev) => !prev); // chỉ rely on API
+      setSelectedRolea((prev) => prev); // ép render lại filter
+      if (remove) {
+        message.success("Đã xóa người dùng");
+      }
+    } catch (error) {
+      console.log(error);
+      message.success("Xoá thất bại");
+    }
   };
+  // xóa tất cả người dùng
+  const handleDeleteMultipleUsers = async () => {
+    try {
+      const promises = await deleteRoles(
+        idProject,
+        selectedRowKeys,
+        selectedRolea
+      );
+      setSelectedRowKeys([]);
+      setcheck((prev) => !prev); // Gọi lại API để cập nhật danh sách
+      if (promises) {
+        message.success("Đã xóa tất cả người dùng được chọn.");
+      }
+    } catch (error) {
+      console.error(error);
+      message.error("Xóa người dùng thất bại.");
+    }
+  };
+  const filteredData =
+    selectedRolea === null
+      ? []
+      : (users || []).filter((item) => item.role === selectedRolea);
+  useEffect(() => {
+    if (search.trim() !== "") {
+      const normalizeString = (str) =>
+        str
+          .toLowerCase()
+          .normalize("NFD") // chuẩn hóa Unicode
+          .replace(/[\u0300-\u036f]/g, "") // loại dấu
+          .replace(/\s+/g, " ") // xóa khoảng trắng thừa
+          .trim();
+
+      const keyword = normalizeString(search);
+
+      const filtered = filteredData.filter((note) => {
+        const title = normalizeString(note.userId.userName);
+        return title.includes(keyword);
+      });
+
+      setfilterUser(filtered);
+    } else {
+      setfilterUser([]);
+    }
+  }, [users, search, check]);
+  const userRoles = search.trim() !== "" ? filterUser : filteredData;
   return createPortal(
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[1000]">
       <div
@@ -446,28 +495,31 @@ const paginatedFlows = safeTransitions.slice(startIndex, endIndex);
             <div className="flex w-full h-full overflow-hidden p-3">
               <div className="flex w-full border border-black rounded-2xl">
                 <div className="w-[30%] border-r pr-4 pt-4 overflow-y-auto">
-                 <button
-  onClick={async () => {
-    if (!projectId) {
-      message.error("Không có projectId hoặc managerId");
-      return;
-    }
-    try {
-      const actionResult = await dispatch(creatworkflow(projectId));
-      if (creatworkflow.fulfilled.match(actionResult)) {
-        message.success("Tạo workflow thành công");
-        // workflowId và currentWorkflow đã được cập nhật trong slice (theo extraReducers)
-      } else {
-        message.error("Hiện tại đã có workflow trong dự án này");
-      }
-    } catch (error) {
-      message.error("Tạo workflow thất bại");
-    }
-  }}
->
-  add workflow
-</button>
-
+                  <button
+                    onClick={async () => {
+                      if (!projectId) {
+                        message.error("Không có projectId hoặc managerId");
+                        return;
+                      }
+                      try {
+                        const actionResult = await dispatch(
+                          creatworkflow(projectId)
+                        );
+                        if (creatworkflow.fulfilled.match(actionResult)) {
+                          message.success("Tạo workflow thành công");
+                          // workflowId và currentWorkflow đã được cập nhật trong slice (theo extraReducers)
+                        } else {
+                          message.error(
+                            "Hiện tại đã có workflow trong dự án này"
+                          );
+                        }
+                      } catch (error) {
+                        message.error("Tạo workflow thất bại");
+                      }
+                    }}
+                  >
+                    add workflow
+                  </button>
 
                   <h3
                     className={`mb-4 text-center ${styles.projectSetting__statusHeader}`}
@@ -693,8 +745,9 @@ const paginatedFlows = safeTransitions.slice(startIndex, endIndex);
 
                             return (
                               <li
-                             key={`${flow.fromStep}-${flow.toStep}-${(flow.allowedRoles || []).join("-")}`}
-
+                                key={`${flow.fromStep}-${flow.toStep}-${(
+                                  flow.allowedRoles || []
+                                ).join("-")}`}
                                 className="flex justify-between items-center border p-2 rounded gap-3"
                               >
                                 <span className="flex-1">
@@ -761,29 +814,25 @@ const paginatedFlows = safeTransitions.slice(startIndex, endIndex);
                 <Select
                   placeholder="Chọn vai trò"
                   className={`!w-60 transition duration-200 ${
-                    selectedRole ? "bg-blue-50" : ""
+                    selectedRolea ? "bg-blue-50" : ""
                   }`}
-                  value={selectedRole}
-                  options={roleOptions.map((role) => ({
-                    label: role,
-                    value: role,
-                  }))}
+                  value={selectedRolea} // Quan trọng để hiển thị vai trò đã chọn
+                  options={roleOptions}
                   onChange={(value) => {
-                    setSelectedRole(value);
-                    console.log("Vai trò đã chọn:", value);
+                    setSelectedRolea(value);
                   }}
                 />
-                <Button type="primary">Lọc</Button>
               </div>
 
-              {/* Dòng tìm kiếm và chức năng */}
+              {/* Dòng này sẽ nằm sát trái */}
               <div className="w-full mt-4">
-                <div className="mt-4 flex items-center gap-4 justify-between">
+                <div className="mt-4 flex items-center gap-4 justify-between ">
                   <Input
                     placeholder="Tìm kiếm người dùng..."
                     prefix={<SearchOutlined />}
                     className="!w-64"
                     allowClear
+                    onChange={(e) => setSearch(e.target.value)}
                   />
                   <button
                     onClick={() => setOpenFunction(true)}
@@ -793,70 +842,43 @@ const paginatedFlows = safeTransitions.slice(startIndex, endIndex);
                   </button>
                 </div>
 
-                {/* Thêm người dùng và xóa nhiều */}
                 <div className="mt-4 flex items-center justify-between">
                   <button
-                    onClick={handleAddUser}
-                    className="flex items-center gap-1 border border-gray-400 rounded px-3 py-1 hover:bg-[#5f646a] hover:text-white transition"
+                    onClick={() => setIsAssignRoleModalOpen(true)}
+                    className="flex items-center gap-1 border border-gray-400 rounded px-3 py-1 hover:bg-[#5f646a] hover:text-white  transition"
                   >
                     <PlusOutlined />
                     Thêm người
                   </button>
-                  <Modal
-                    title="Chọn thành viên"
-                    open={isModalVisible}
-                    onCancel={() => setIsModalVisible(false)}
-                    footer={null}
-                  >
-                    {loading ? (
-                      <div className="text-center py-4">Đang tải...</div>
-                    ) : (
-                      <div className="max-h-[300px] overflow-y-auto">
-                        {members.map((member) => (
-                          <div
-                            key={member._id}
-                            className="flex items-center gap-2 py-2 border-b"
-                          >
-                            <img
-                              src={member.avatar}
-                              alt={member.name}
-                              className="w-8 h-8 rounded-full"
-                            />
-                            <span>{member.name}</span>
-                          </div>
-                        ))}
-                      </div>
+
+                  <div className="">
+                    {selectedRowKeys.length > 0 && (
+                      <Popconfirm
+                        title={`Xóa ${selectedRowKeys.length} người dùng?`}
+                        onConfirm={handleDeleteMultipleUsers}
+                        okText="Xóa"
+                        cancelText="Hủy"
+                      >
+                        <Button type="primary" danger size="small">
+                          <DeleteOutlined />
+                        </Button>
+                      </Popconfirm>
                     )}
-                  </Modal>
-
-                  {selectedRowKeys.length > 0 && (
-                    <Popconfirm
-                      title={`Xóa ${selectedRowKeys.length} người dùng?`}
-                      onConfirm={handleDeleteMultipleUsers}
-                      okText="Xóa"
-                      cancelText="Hủy"
-                    >
-                      <Button type="primary" danger size="small">
-                        <DeleteOutlined />
-                      </Button>
-                    </Popconfirm>
-                  )}
+                  </div>
                 </div>
-
-                <div className="text-left font-bold mt-4">
+                <div className="text-left font-bold  mt-4">
                   <ReadOutlined style={{ marginRight: "4px" }} />
                   DANH SÁCH TEST
                 </div>
-
                 <div className="mt-2">
                   <Table
+                    rowKey={(record) => record?.userId?._id}
                     rowSelection={rowSelection}
-                    dataSource={users}
+                    dataSource={userRoles}
                     columns={userColumns}
                     pagination={{ pageSize: 5 }}
                     size="small"
                     bordered
-                    rowKey="key"
                   />
                 </div>
               </div>
@@ -909,6 +931,15 @@ const paginatedFlows = safeTransitions.slice(startIndex, endIndex);
             </div>
           </Modal>
         </div>
+        {isAssignRoleModalOpen && (
+          <AssignRoleModal
+            id={idProject}
+            onClose={() => setIsAssignRoleModalOpen(false)}
+            role={userRoles}
+            selectedRolea={selectedRolea}
+            onSuccess={() => setcheck((prev) => !prev)}
+          />
+        )}
       </div>
     </div>,
     document.body
