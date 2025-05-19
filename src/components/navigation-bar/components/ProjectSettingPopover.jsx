@@ -30,6 +30,7 @@ import {
   editWorkflowStep,
   setWorkflowId,
   fetchWorkflowSteps,
+  creatworkflow
 } from "@/redux/statusSlice";
 import {
   addWorkflowTransition,
@@ -40,10 +41,8 @@ import {
 } from "@/redux/workflowSlice";
 import {
   getworkflowbyid,
-  addworkflow,
-  createWorkflowTransition,
-  updateWorkflowTransition,
-  deleteWorkflowTransition,
+
+ 
 } from "../../../services/workflowService.js";
 
 import { useLocation } from "react-router-dom";
@@ -70,8 +69,10 @@ const ProjectSettingPopover = ({ onClose }) => {
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
   const [openFunction, setOpenFunction] = useState(false);
   const [users, setUsers] = useState([]);
-const workflowId = useSelector((state) => state.workflow.workflowId);
-console.log("check workflow", workflowId);
+
+const workflowIdFromStatus = useSelector(state => state.status.workflowId);
+
+console.log("workflowIdFromStatus", workflowIdFromStatus);
   const user = useSelector((state) => state.auth.user);
   const useQuery = () => new URLSearchParams(useLocation().search);
   const query = useQuery();
@@ -439,30 +440,28 @@ console.log("check workflow", workflowId);
             <div className="flex w-full h-full overflow-hidden p-3">
               <div className="flex w-full border border-black rounded-2xl">
                 <div className="w-[30%] border-r pr-4 pt-4 overflow-y-auto">
-                  <button
-                    onClick={async () => {
-                      if (!projectId) {
-                        message.error("Không có projectId hoặc managerId");
-                        return;
-                      }
-                      try {
-                        const res = await addworkflow({ projectId });
-                        if (res?.data?._id) {
-                          dispatch(setWorkflowId(res.data._id));
-                          // Bổ sung dispatch set currentWorkflow
-                          dispatch({
-                            type: "workflow/setCurrentWorkflow",
-                            payload: res.data,
-                          });
-                          message.success("Tạo workflow thành công");
-                        }
-                      } catch (error) {
-                        message.error("Tạo workflow thất bại");
-                      }
-                    }}
-                  >
-                    add workflow
-                  </button>
+                 <button
+  onClick={async () => {
+    if (!projectId) {
+      message.error("Không có projectId hoặc managerId");
+      return;
+    }
+    try {
+      const actionResult = await dispatch(creatworkflow(projectId));
+      if (creatworkflow.fulfilled.match(actionResult)) {
+        message.success("Tạo workflow thành công");
+        // workflowId và currentWorkflow đã được cập nhật trong slice (theo extraReducers)
+      } else {
+        message.error("Tạo workflow thất bại");
+      }
+    } catch (error) {
+      message.error("Tạo workflow thất bại");
+    }
+  }}
+>
+  add workflow
+</button>
+
 
                   <h3
                     className={`mb-4 text-center ${styles.projectSetting__statusHeader}`}

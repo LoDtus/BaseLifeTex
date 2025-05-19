@@ -18,7 +18,6 @@ export const getworkflowbyid = async (id) => {
 export const addworkflow = async (data) => {
   try {
     const response = await axiosInstance.post(`/work-flow`, data);
-    message.success("Tạo workflow thành công");
     return response.data; // response.data có workflow với _id (workflowId)
   } catch (error) {
     message.error("Không thể tạo workflow mới");

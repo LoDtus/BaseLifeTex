@@ -73,9 +73,9 @@ const workflowSlice = createSlice({
     setWorkflowTransitions: (state, action) => {
       state.transitions = action.payload;
     },
-    setWorkflowId: (state, action) => {
-      state.workflowId = action.payload;
-    },
+    // setWorkflowId: (state, action) => {
+    //   state.workflowId = action.payload;
+    // },
   },
   extraReducers: (builder) => {
     builder
@@ -143,6 +143,6 @@ export const {
   clearWorkflowSteps,
   clearWorkflowTransitions,
   setWorkflowTransitions,
-  setWorkflowId,
+  // setWorkflowId,
 } = workflowSlice.actions;
 export default workflowSlice.reducer;

@@ -86,6 +86,10 @@ const workflowSlice = createSlice({
     setWorkflowId: (state, action) => {
       state.workflowId = action.payload;
     },
+      setCurrentWorkflow: (state, action) => {
+    state.currentWorkflow = action.payload;
+  },
+  
     // setWorkflowId: (state, action) => {
     //   state.workflowId = action.payload;
     // },
@@ -132,6 +136,6 @@ const workflowSlice = createSlice({
   },
 });
 
-export const { clearWorkflowSteps, setWorkflowId } = workflowSlice.actions;
+export const { clearWorkflowSteps, setWorkflowId,setCurrentWorkflow  } = workflowSlice.actions;
 
 export default workflowSlice.reducer;
