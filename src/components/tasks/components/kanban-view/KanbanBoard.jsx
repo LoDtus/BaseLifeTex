@@ -7,7 +7,6 @@ import {
   DragOverlay,
   KeyboardSensor,
 } from "@dnd-kit/core";
-
 import { sortableKeyboardCoordinates } from "@dnd-kit/sortable";
 import React, { useEffect, useState } from "react";
 import KanbanColumn from "./KanbanColumn";
@@ -35,9 +34,6 @@ function transformTasksData(tasks, statuses) {
     if (!acc[statusLabel]) {
       acc[statusLabel] = { title: statusLabel, tasks: [] };
     }
-
-    // debug data
-    console.log("Task assigneeId:", task.assigneeId);
 
     acc[statusLabel].tasks.push({
       ...task,
@@ -104,7 +100,7 @@ function KanbanBoard({ selectedTasks, setSelectedTasks }) {
     );
     if (!sourceKey) return;
 
-    const destKey = Object.keys(columns).includes(over.id)
+    const destKey = columns[over.id]
       ? over.id
       : Object.keys(columns).find((key) =>
           columns[key].tasks.some((task) => task.id === over.id)
@@ -115,13 +111,20 @@ function KanbanBoard({ selectedTasks, setSelectedTasks }) {
     const oldIndex = sourceColumn.tasks.findIndex((t) => t.id === active.id);
     const newIndex = columns[destKey].tasks.findIndex((t) => t.id === over.id);
 
-    const newTasks = [...sourceColumn.tasks];
-    const [movedTask] = newTasks.splice(oldIndex, 1);
-    newTasks.splice(newIndex >= 0 ? newIndex : 0, 0, movedTask);
+    const updatedSourceTasks = [...sourceColumn.tasks];
+    const [movedTask] = updatedSourceTasks.splice(oldIndex, 1);
 
     setColumns((prev) => ({
       ...prev,
-      [sourceKey]: { ...prev[sourceKey], tasks: newTasks },
+      [sourceKey]: { ...prev[sourceKey], tasks: updatedSourceTasks },
+      [destKey]: {
+        ...prev[destKey],
+        tasks: [
+          ...prev[destKey].tasks.slice(0, newIndex >= 0 ? newIndex : 0),
+          movedTask,
+          ...prev[destKey].tasks.slice(newIndex >= 0 ? newIndex : 0),
+        ],
+      },
     }));
   };
 
@@ -130,21 +133,25 @@ function KanbanBoard({ selectedTasks, setSelectedTasks }) {
     if (!over) return;
 
     const sourceKey = Object.keys(columns).find((key) =>
-      columns[key].tasks.find((task) => task.id === active.id)
+      columns[key].tasks.some((task) => task.id === active.id)
     );
     if (!sourceKey) return;
 
-    let destKey = over.id;
-    if (!columns[over.id]) {
-      destKey = Object.keys(columns).find((key) =>
-        columns[key].tasks.find((task) => task.id === over.id)
-      );
-    }
-
+    const destKey = columns[over.id]
+      ? over.id
+      : Object.keys(columns).find((key) =>
+          columns[key].tasks.some((task) => task.id === over.id)
+        );
     if (!destKey || sourceKey === destKey) return;
 
     const taskToMove = columns[sourceKey].tasks.find((t) => t.id === active.id);
     if (!taskToMove) return;
+
+    const destStatus = statuses.find((s) => s.label === destKey);
+    if (!destStatus) {
+      toast.error("Không tìm thấy trạng thái đích");
+      return;
+    }
 
     const previousColumns = { ...columns };
 
@@ -164,16 +171,17 @@ function KanbanBoard({ selectedTasks, setSelectedTasks }) {
       await updateTaskStatus(
         taskToMove.id,
         taskToMove.statusCode,
-        destStatusCode
+        destStatus.code // hoặc destStatus._id nếu backend yêu cầu
       );
 
       toast.success("Cập nhật trạng thái thành công");
+
       dispatch(
         getListTaskByProjectId({ projectId: idProject, page: 1, limit: 100 })
       );
     } catch (err) {
       toast.error("Lỗi khi cập nhật trạng thái");
-      setColumns(previousColumns);
+      setColumns(previousColumns); // revert
     }
   };
 

@@ -70,8 +70,8 @@ const ProjectSettingPopover = ({ onClose }) => {
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
   const [openFunction, setOpenFunction] = useState(false);
   const [users, setUsers] = useState([]);
-  const WorkflowId = useSelector((state) => state.status.workflowId);
-  console.log("check worklow", WorkflowId);
+const workflowId = useSelector((state) => state.workflow.workflowId);
+console.log("check workflow", workflowId);
   const user = useSelector((state) => state.auth.user);
   const useQuery = () => new URLSearchParams(useLocation().search);
   const query = useQuery();
@@ -98,25 +98,6 @@ const ProjectSettingPopover = ({ onClose }) => {
     "#e0ffe7", // xanh bạc hà nhạt
     "#f0f0ff", // xanh tím nhạt (lavender nhạt)
   ];
-
-  // useEffect(() => {
-  //   if (projectId && user?._id) {
-  //     dispatch(addworkflow(projectId));
-  //   }
-  // }, [projectId, user?._id]);
-
-  // useEffect(() => {
-  //   if (projectId) {
-  //     dispatch(addworkflow(projectId)).then((res) => {
-  //       if (res.payload && res.payload._id) {
-  //         dispatch(setWorkflowId(res.payload._id)); // QUAN TRỌNG
-  //         dispatch(fetchWorkflowSteps(res.payload._id)); // Gọi luôn steps nếu cần
-  //       }
-  //     });
-  //   }
-  // }, [projectId]);
-  // const workflowId = useSelector((state) => state.workflow.workflowId);
-  // const workflowId = workflow && workflow.length > 0 ? workflow[0]._id : null;
 
   const handleDeleteLabel = async (workflowStepId) => {
     try {
@@ -174,7 +155,7 @@ const ProjectSettingPopover = ({ onClose }) => {
     const payload = {
       workflowId: currentWorkflowId,
       nameStep: addStatusValue.trim(),
-      stepOrder: 1, // CÓ THỂ cập nhật thành stepList.length + 1 nếu cần
+      stepOrder: 1, 
       requiredRole: [1, 3],
       isFinal: false,
     };
@@ -196,52 +177,45 @@ const ProjectSettingPopover = ({ onClose }) => {
   };
 
   const resetTransitionForm = () => {
-    setFromState("");
-    setToState("");
-    setSelectedRole([]);
-    setIsEditing(false);
-    setEditingIndex(null);
+    setFromState(null);
+  setToState(null);
+  setSelectedRole([]);
+  setIsEditing(false);
+  setEditingIndex(null);
   };
-  const handleAddFlow = async () => {
-    if (!fromState || !toState || !selectedRole?.length) {
-      message.warning("Vui lòng nhập đầy đủ trạng thái và vai trò");
-      return;
-    }
+ const handleAddFlow = async () => {
+  if (!fromState || !toState || !selectedRole?.length) {
+    message.warning("Vui lòng nhập đầy đủ trạng thái và vai trò");
+    return;
+  }
 
-    // fromState, toState giờ đã là string _id, không cần lấy _id nữa
-    const fromStep = fromState;
-    const toStep = toState;
+  const fromStep = fromState;
+  const toStep = toState;
+  const allowedRoles = selectedRole.map((role) => role.value);
+  const currentWorkflowId = workflows?.[0]?._id ?? null;
 
-    if (!fromStep || !toStep) {
-      message.error("Trạng thái không hợp lệ");
-      return;
-    }
+  if (!currentWorkflowId) {
+    message.error("Vui lòng tạo workflow trước khi thêm trạng thái.");
+    return;
+  }
 
-    const allowedRoles = selectedRole.map((role) => role.value);
-
-    const currentWorkflowId = workflows?.[0]?._id ?? null;
-
-    if (!currentWorkflowId) {
-      message.error("Vui lòng tạo workflow trước khi thêm trạng thái.");
-      return;
-    }
-    try {
-      const transition = await createWorkflowTransition({
+  try {
+    await dispatch(
+      addWorkflowTransition({
         workflowId: currentWorkflowId,
         fromStep,
         toStep,
         allowedRoles,
-      });
+      })
+    ).unwrap();
 
-      dispatch(addWorkflowTransition(transition));
-      message.success("Thêm luồng thành công");
-
-      resetTransitionForm();
-    } catch (err) {
-      console.error("Lỗi thêm luồng:", err);
-      message.error("Thêm luồng thất bại");
-    }
-  };
+    message.success("Thêm luồng thành công");
+    resetTransitionForm();
+  } catch (err) {
+    console.error("Lỗi thêm luồng:", err);
+    message.error("Thêm luồng thất bại");
+  }
+};
 
   const handleEdit = (index) => {
     const trans = transitions[index];
@@ -249,9 +223,11 @@ const ProjectSettingPopover = ({ onClose }) => {
 
     setFromState(trans.fromStep); // chú ý dùng fromStep
     setToState(trans.toStep); // dùng toStep
-    setSelectedRole(
-      Array.isArray(trans.allowedRoles) ? trans.allowedRoles : []
-    );
+   setSelectedRole(
+  Array.isArray(trans.allowedRoles)
+    ? trans.allowedRoles.map((r) => ({ label: r, value: r }))
+    : []
+);
     setEditingIndex(index);
     setIsEditing(true);
   };
@@ -261,6 +237,7 @@ const ProjectSettingPopover = ({ onClose }) => {
       message.warning("Vui lòng chọn đầy đủ trạng thái và vai trò!");
       return;
     }
+      const allowedRoles = selectedRole.map((role) => role.value);
     try {
       const editingTransition = transitions[editingIndex];
       if (!editingTransition) return;
@@ -268,7 +245,7 @@ const ProjectSettingPopover = ({ onClose }) => {
       const updatedTransition = {
         fromStep: fromState,
         toStep: toState,
-        allowedRoles: selectedRole,
+        allowedRoles,
       };
 
       // dispatch async thunk editWorkflowTransition và unwrap để xử lý lỗi
