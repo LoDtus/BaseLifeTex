@@ -36,6 +36,7 @@ import {
   editWorkflowTransition,
   removeWorkflowTransition,
   clearWorkflowTransitions,
+  // setWorkflowId,
 } from "@/redux/workflowSlice";
 import {
   getworkflowbyid,
@@ -49,12 +50,13 @@ import { useLocation } from "react-router-dom";
 const ProjectSettingPopover = ({ onClose }) => {
   const popoverRef = useRef(null);
   const dispatch = useDispatch();
-  const steps = useSelector((state) => state.workflow.steps || []);
+  const steps = useSelector((state) => state.status.steps);
 
+  console.log("steps có lấy từ redux", steps);
   const [activeTab, setActiveTab] = useState("workflow");
 
-  const [fromState, setFromState] = useState("");
-  const [toState, setToState] = useState("");
+  const [fromState, setFromState] = useState(null);
+  const [toState, setToState] = useState(null);
 
   const transitions = useSelector((state) => state.workflow.transitions);
 
@@ -68,15 +70,13 @@ const ProjectSettingPopover = ({ onClose }) => {
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
   const [openFunction, setOpenFunction] = useState(false);
   const [users, setUsers] = useState([]);
-  const workflows = useSelector((state) => state.workflow.currentWorkflow);
+  const WorkflowId = useSelector((state) => state.status.workflowId);
+  console.log("check worklow", WorkflowId);
   const user = useSelector((state) => state.auth.user);
   const useQuery = () => new URLSearchParams(useLocation().search);
   const query = useQuery();
   const managerId = user?._id; // hoặc lấy managerId từ dự án
   const projectId = query.get("idProject");
-const name = `Workflow dự án ${projectId}`;
-
-
 
   // phan trang
   const itemsPerPage = 2;
@@ -85,6 +85,19 @@ const name = `Workflow dự án ${projectId}`;
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
   const paginatedFlows = transitions.slice(startIndex, endIndex);
+  // màu trạng thái
+  const colors = [
+    "#ffadad", // đỏ nhạt
+    "#ffd6a5", // cam nhạt
+    "#fdffb6", // vàng nhạt
+    "#caffbf", // xanh nhạt
+    "#9bf6ff", // xanh da trời nhạt
+    "#a0c4ff", // xanh dương nhạt
+    "#bdb2ff", // tím nhạt
+    "#ffe0f0", // hồng phấn nhạt
+    "#e0ffe7", // xanh bạc hà nhạt
+    "#f0f0ff", // xanh tím nhạt (lavender nhạt)
+  ];
 
   // useEffect(() => {
   //   if (projectId && user?._id) {
@@ -102,61 +115,86 @@ const name = `Workflow dự án ${projectId}`;
   //     });
   //   }
   // }, [projectId]);
-  const workflowId = useSelector((state) => state.workflow.workflowId);
+  // const workflowId = useSelector((state) => state.workflow.workflowId);
+  // const workflowId = workflow && workflow.length > 0 ? workflow[0]._id : null;
 
-  
-  const handleDeleteLabel = (label) => {
-    dispatch(removeWorkflowStep(label));
-    message.success("Đã xóa trạng thái");
+  const handleDeleteLabel = async (workflowStepId) => {
+    try {
+      const res = await dispatch(removeWorkflowStep(workflowStepId));
+      if (res.meta.requestStatus === "fulfilled") {
+        message.success("Đã xóa trạng thái");
+        const currentWorkflowId = workflows?.[0]?._id ?? null;
+        if (currentWorkflowId) {
+          await dispatch(fetchWorkflowSteps(currentWorkflowId));
+        }
+      } else {
+        message.error("Xóa trạng thái thất bại");
+      }
+    } catch (error) {
+      message.error("Xóa trạng thái thất bại");
+    }
+  };
+  const handleEditLabel = (id, currentName) => {
+    setEditingLabel(id);
+    setNewStatusLabel(currentName);
   };
 
-  const handleEditLabel = (label) => {
-    setEditingLabel(label);
-    setNewStatusLabel(label);
+  const handleSaveEditLabel = async (workflowStepId) => {
+    try {
+      const res = await dispatch(
+        editWorkflowStep({
+          workflowStepId,
+          data: { nameStep: newStatusLabel },
+        })
+      );
+      if (res.meta.requestStatus === "fulfilled") {
+        message.success("Cập nhật trạng thái thành công");
+        setEditingLabel(null);
+        const currentWorkflowId = workflows?.[0]?._id ?? null;
+        if (currentWorkflowId) {
+          await dispatch(fetchWorkflowSteps(currentWorkflowId));
+        }
+      } else {
+        message.error("Cập nhật trạng thái thất bại");
+      }
+    } catch (error) {
+      message.error("Cập nhật trạng thái thất bại");
+    }
   };
-
-  const handleSaveEditLabel = (oldLabel) => {
-    dispatch(editWorkflowStep({ oldLabel, newLabel: newStatusLabel }));
-    setEditingLabel(null);
-  };
-
   const handleAddStatus = async () => {
     if (!addStatusValue.trim()) return;
 
+    const currentWorkflowId = workflows?.[0]?._id ?? null;
+
+    if (!currentWorkflowId) {
+      message.error("Vui lòng tạo workflow trước khi thêm trạng thái.");
+      return;
+    }
+
+    const payload = {
+      workflowId: currentWorkflowId,
+      nameStep: addStatusValue.trim(),
+      stepOrder: 1, // CÓ THỂ cập nhật thành stepList.length + 1 nếu cần
+      requiredRole: [1, 3],
+      isFinal: false,
+    };
+
     try {
-      let newWorkflowId  = workflow?._id;
+      const res = await dispatch(addWorkflowStep(payload));
 
-      // Nếu chưa có workflowId thì tạo mới
-      if (!newWorkflowId) {
-        const created = await addworkflow({ projectId, managerId, name });
-        newWorkflowId = created?.data?._id;
-
-        if (!newWorkflowId) {
-     
-          return;
-        }
-
-        setWorkflow(created.data);
-        dispatch(setWorkflowId(newWorkflowId));
+      if (res.meta.requestStatus === "fulfilled") {
+        message.success("Thêm trạng thái thành công");
+        setAddStatusValue("");
+        await dispatch(fetchWorkflowSteps(currentWorkflowId));
+      } else {
+        message.error("Thêm trạng thái thất bại");
       }
-
-      // Tạo payload để thêm bước
-      const payload = {
-        workflowId,
-        nameStep: addStatusValue.trim(),
-        stepOrder: 1,
-        requiredRole: [1, 3],
-        isFinal: false,
-      };
-
-      dispatch(addWorkflowStep(payload));
-      dispatch(fetchWorkflowSteps(workflowId));
-      setAddStatusValue("");
     } catch (error) {
       console.error("❌ Lỗi khi thêm trạng thái:", error);
       message.error("Thêm trạng thái thất bại");
     }
   };
+
   const resetTransitionForm = () => {
     setFromState("");
     setToState("");
@@ -165,50 +203,59 @@ const name = `Workflow dự án ${projectId}`;
     setEditingIndex(null);
   };
   const handleAddFlow = async () => {
-    if (!fromState || !toState || selectedRole.length === 0) {
-      //!selectedRole
-      message.warning(
-        "Vui lòng nhập đẩy đủ trạng thái và vai trò trước khi thêm"
-      );
+    if (!fromState || !toState || !selectedRole?.length) {
+      message.warning("Vui lòng nhập đầy đủ trạng thái và vai trò");
+      return;
+    }
+
+    // fromState, toState giờ đã là string _id, không cần lấy _id nữa
+    const fromStep = fromState;
+    const toStep = toState;
+
+    if (!fromStep || !toStep) {
+      message.error("Trạng thái không hợp lệ");
+      return;
+    }
+
+    const allowedRoles = selectedRole.map((role) => role.value);
+
+    const currentWorkflowId = workflows?.[0]?._id ?? null;
+
+    if (!currentWorkflowId) {
+      message.error("Vui lòng tạo workflow trước khi thêm trạng thái.");
       return;
     }
     try {
-      const newTransition = {
-        from: fromState,
-        to: toState,
-        role: selectedRole,
-      };
-      const savedTransition = await createWorkflowTransition(
-        projectId,
-        newTransition
-      );
-      dispatch(addWorkflowTransition(savedTransition));
-      message.success("Đã thêm luồng mới");
+      const transition = await createWorkflowTransition({
+        workflowId: currentWorkflowId,
+        fromStep,
+        toStep,
+        allowedRoles,
+      });
+
+      dispatch(addWorkflowTransition(transition));
+      message.success("Thêm luồng thành công");
+
       resetTransitionForm();
-    } catch (error) {
+    } catch (err) {
+      console.error("Lỗi thêm luồng:", err);
       message.error("Thêm luồng thất bại");
     }
-    // dispatch(
-    //   addTransition({
-    //     from: fromState,
-    //     to: toState,
-    //     role: selectedRole,
-    //   })
-    // );
-    // setFromState("");
-    // setToState("");
-    // setSelectedRole([]);
   };
 
   const handleEdit = (index) => {
     const trans = transitions[index];
     if (!trans) return;
-    setFromState(trans.from);
-    setToState(trans.to);
-    setSelectedRole(Array.isArray(trans.role) ? trans.role : []);
+
+    setFromState(trans.fromStep); // chú ý dùng fromStep
+    setToState(trans.toStep); // dùng toStep
+    setSelectedRole(
+      Array.isArray(trans.allowedRoles) ? trans.allowedRoles : []
+    );
     setEditingIndex(index);
     setIsEditing(true);
   };
+
   const handleSaveEdit = async () => {
     if (!fromState || !toState || selectedRole.length === 0) {
       message.warning("Vui lòng chọn đầy đủ trạng thái và vai trò!");
@@ -219,75 +266,60 @@ const name = `Workflow dự án ${projectId}`;
       if (!editingTransition) return;
 
       const updatedTransition = {
-        from: fromState,
-        to: toState,
-        role: selectedRole,
+        fromStep: fromState,
+        toStep: toState,
+        allowedRoles: selectedRole,
       };
-      const savedTransition = await updateWorkflowTransition(
-        projectId,
-        editingTransition.id,
-        updatedTransition
-      );
-      dispatch(
+
+      // dispatch async thunk editWorkflowTransition và unwrap để xử lý lỗi
+      await dispatch(
         editWorkflowTransition({
-          index: editingIndex,
-          updated: savedTransition,
+          id: editingTransition._id,
+          data: updatedTransition,
         })
-      );
+      ).unwrap();
+
       message.success("Cập nhật luồng thành công");
       resetTransitionForm();
     } catch (error) {
+      console.error("Lỗi cập nhật luồng:", error);
       message.error("Cập nhật luồng thất bại");
     }
-    // dispatch(
-    //   editTransition({
-    //     index: editingIndex,
-    //     updated: {
-    //       from: fromState,
-    //       to: toState,
-    //       role: selectedRole,
-    //     },
-    //   })
-    // );
-
-    // setIsEditing(false);
-    // setEditingIndex(null);
-    // setFromState("");
-    // setToState("");
-    // setSelectedRole([]);
   };
-
   const handleDelete = async (index) => {
-    // dispatch(deleteTransition(index));
     try {
       const transitionToDelete = transitions[index];
       if (!transitionToDelete) return;
-      await deleteWorkflowTransition(projectId, transitionToDelete.id);
-      dispatch(removeWorkflowTransition(index));
+
+      // dispatch async thunk removeWorkflowTransition và unwrap
+      await dispatch(removeWorkflowTransition(transitionToDelete._id)).unwrap();
+
       message.success("Xóa luồng thành công");
     } catch (error) {
+      console.error("Lỗi xóa luồng:", error);
       message.error("Xóa luồng thất bại");
     }
   };
-
   const roleOptions = ["PM", "Dev", "Test", "BA", "User"];
   const permissions = ["View", "Add", "Edit", "Delete", "Comment", "Drag"];
-  const [workflow, setWorkflow] = useState(null);
+  const [workflows, setWorkflows] = useState([]);
   useEffect(() => {
     if (!projectId) return;
 
     (async () => {
       try {
         const res = await getworkflowbyid(projectId);
-        if (res?.data) {
-          setWorkflow(res.data);
+        if (Array.isArray(res?.data)) {
+          setWorkflows(res.data);
+        } else {
+          setWorkflows([]);
         }
       } catch (err) {
         console.error("❌ Không lấy được workflow:", err);
       }
     })();
   }, [projectId]);
-  console.log("workflow ", workflow);
+
   const roles = [
     { role: "PM", rights: [1, 1, 1, 1, 0, 1] },
     { role: "Dev", rights: [1, 0, 0, 0, 1, 1] },
@@ -431,30 +463,26 @@ const name = `Workflow dự án ${projectId}`;
               <div className="flex w-full border border-black rounded-2xl">
                 <div className="w-[30%] border-r pr-4 pt-4 overflow-y-auto">
                   <button
-                     onClick={async () => {
-    if (!projectId) {
-      message.error("Không có projectId hoặc managerId");
-      return;
-    }
-    try {
-      const res = await addworkflow({
-        name: `Workflow dự án ${projectId}`,
-       
-        projectId,
-      });
-      if (res?.data?._id) {
-        dispatch(setWorkflowId(res.data._id));
-        message.success("Tạo workflow thành công");
-        // Có thể fetch thêm bước nếu cần
-        dispatch(fetchWorkflowSteps(res.data._id));
-      }
-      // } else {
-      //   message.error("Tạo workflow thất bại");
-      // }
-    } catch (error) {
-      message.error("Lỗi khi tạo workflow");
-    }
-  }}
+                    onClick={async () => {
+                      if (!projectId) {
+                        message.error("Không có projectId hoặc managerId");
+                        return;
+                      }
+                      try {
+                        const res = await addworkflow({ projectId });
+                        if (res?.data?._id) {
+                          dispatch(setWorkflowId(res.data._id));
+                          // Bổ sung dispatch set currentWorkflow
+                          dispatch({
+                            type: "workflow/setCurrentWorkflow",
+                            payload: res.data,
+                          });
+                          message.success("Tạo workflow thành công");
+                        }
+                      } catch (error) {
+                        message.error("Tạo workflow thất bại");
+                      }
+                    }}
                   >
                     add workflow
                   </button>
@@ -466,18 +494,18 @@ const name = `Workflow dự án ${projectId}`;
                   </h3>
                   <ul className="list-disc pl-4 text-sm">
                     {Array.isArray(steps) &&
-                      steps.map((item) => (
+                      steps.map((item, index) => (
                         <li
-                          key={item.label}
+                          key={item._id}
                           className="flex items-center justify-between mb-2"
                         >
-                          {editingLabel === item.label ? (
+                          {editingLabel === item._id ? (
                             <input
                               value={newStatusLabel}
                               onChange={(e) =>
                                 setNewStatusLabel(e.target.value)
                               }
-                              onBlur={() => handleSaveEditLabel(item.label)}
+                              onBlur={() => handleSaveEditLabel(item._id)}
                               autoFocus
                               className="flex-1 px-2 py-1 text-sm border rounded"
                               style={{
@@ -488,8 +516,9 @@ const name = `Workflow dự án ${projectId}`;
                             />
                           ) : (
                             <span
-                              className={`${item.bg} ${item.text} px-3 rounded`}
+                              className={` ${item.text} px-3 rounded`}
                               style={{
+                                backgroundColor: colors[index % colors.length],
                                 flex: 1,
                                 height: "35px",
                                 display: "flex",
@@ -503,7 +532,7 @@ const name = `Workflow dự án ${projectId}`;
                                 marginRight: "10px",
                               }}
                             >
-                              {item.label}
+                              {item.nameStep}
                             </span>
                           )}
                           <div className="flex gap-2">
@@ -511,7 +540,7 @@ const name = `Workflow dự án ${projectId}`;
                               title="Bạn có chắc xóa?"
                               okText="Xóa"
                               cancelText="Hủy"
-                              onConfirm={() => handleDeleteLabel(item.label)}
+                              onConfirm={() => handleDeleteLabel(item._id)}
                             >
                               <Button
                                 icon={<DeleteOutlined />}
@@ -522,7 +551,9 @@ const name = `Workflow dự án ${projectId}`;
                             <Button
                               icon={<EditOutlined />}
                               type="primary"
-                              onClick={() => handleEditLabel(item.label)}
+                              onClick={() =>
+                                handleEditLabel(item._id, item.nameStep)
+                              }
                             />
                           </div>
                         </li>
@@ -537,6 +568,7 @@ const name = `Workflow dự án ${projectId}`;
                       />
                     </li>
                   </ul>
+
                   <div className="flex justify-center mt-4">
                     <button
                       type="button"
@@ -588,8 +620,8 @@ const name = `Workflow dự án ${projectId}`;
                         options={
                           Array.isArray(steps)
                             ? steps.map((s) => ({
-                                label: s.label,
-                                value: s.label,
+                                label: s.nameStep,
+                                value: s._id,
                               }))
                             : []
                         }
@@ -605,8 +637,8 @@ const name = `Workflow dự án ${projectId}`;
                         options={
                           Array.isArray(steps)
                             ? steps.map((s) => ({
-                                label: s.label,
-                                value: s.label,
+                                label: s.nameStep,
+                                value: s._id,
                               }))
                             : []
                         }
@@ -669,37 +701,55 @@ const name = `Workflow dự án ${projectId}`;
                     ) : (
                       <>
                         <ul className="list-disc pl-3 space-y-1">
-                          {paginatedFlows.map((flow, index) => (
-                            <li
-                              key={startIndex + index}
-                              className="flex justify-between items-center border p-2 rounded gap-3"
-                            >
-                              <span className="flex-1">
-                                {flow.from} ➝ {flow.to}{" "}
-                                <strong>
-                                  {flow.role ? `(${flow.role})` : ""}
-                                </strong>
-                              </span>
-                              <button
-                                onClick={() => handleEdit(startIndex + index)}
-                                className="text-blue-500 hover:underline"
+                          {paginatedFlows.map((flow, index) => {
+                            const fromStep = steps.find(
+                              (s) => s._id === flow.fromStep
+                            );
+                            const toStep = steps.find(
+                              (s) => s._id === flow.toStep
+                            );
+
+                            return (
+                              <li
+                                key={`${flow.from}-${flow.to}-${(
+                                  flow.role || []
+                                )
+                                  .map((r) => r.value || r)
+                                  .join("-")}`}
+                                className="flex justify-between items-center border p-2 rounded gap-3"
                               >
-                                ✏️ Chỉnh sửa
-                              </button>
-                              <Popconfirm
-                                title="Bạn có chắc chắn xóa luồng này không?"
-                                cancelText="Hủy"
-                                okText="Xóa"
-                                onConfirm={() =>
-                                  handleDelete(startIndex + index)
-                                }
-                              >
-                                <button className="text-red-500 hover:underline ml-4">
-                                  🗑 Xóa
+                                <span className="flex-1">
+                                  {fromStep.nameStep || "Không xác định"} ➝{" "}
+                                  {toStep.nameStep || "Không xác định"}
+                                  {flow.role?.length > 0 && (
+                                    <strong>
+                                      (
+                                      {flow.role
+                                        .map((r) => r.label || r)
+                                        .join(", ")}
+                                      )
+                                    </strong>
+                                  )}
+                                </span>
+                                <button
+                                  onClick={() => handleEdit(index)}
+                                  className="text-blue-500 hover:underline"
+                                >
+                                  ✏️ Chỉnh sửa
                                 </button>
-                              </Popconfirm>
-                            </li>
-                          ))}
+                                <Popconfirm
+                                  title="Bạn có chắc chắn xóa luồng này không?"
+                                  cancelText="Hủy"
+                                  okText="Xóa"
+                                  onConfirm={() => handleDelete(index)}
+                                >
+                                  <button className="text-red-500 hover:underline ml-4">
+                                    🗑 Xóa
+                                  </button>
+                                </Popconfirm>
+                              </li>
+                            );
+                          })}
                         </ul>
 
                         {transitions.length > itemsPerPage && (

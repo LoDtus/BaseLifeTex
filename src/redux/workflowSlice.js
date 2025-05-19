@@ -7,6 +7,7 @@ import {
 } from "@/services/workflowService";
 
 const initialState = {
+  workflowId: null,
   transitions: [],
   currentWorkflow: null,
   loadingTransitions: false,
@@ -92,8 +93,21 @@ const workflowSlice = createSlice({
         state.loadingTransitions = false;
         state.errorTransitions = action.payload;
       })
+      .addCase(addWorkflowTransition.pending, (state) => {
+        state.loadingTransitions = true;
+        state.errorTransitions = null;
+      })
       .addCase(addWorkflowTransition.fulfilled, (state, action) => {
         state.transitions.push(action.payload);
+        state.loadingTransitions = false;
+      })
+      .addCase(addWorkflowTransition.rejected, (state, action) => {
+        state.loadingTransitions = false;
+        state.errorTransitions = action.payload;
+      })
+      .addCase(editWorkflowTransition.pending, (state) => {
+        state.loadingTransitions = true;
+        state.errorTransitions = null;
       })
       .addCase(editWorkflowTransition.fulfilled, (state, action) => {
         const index = state.transitions.findIndex(
@@ -102,11 +116,25 @@ const workflowSlice = createSlice({
         if (index !== -1) {
           state.transitions[index] = action.payload;
         }
+        state.loadingTransitions = false;
+      })
+      .addCase(editWorkflowTransition.rejected, (state, action) => {
+        state.loadingTransitions = false;
+        state.errorTransitions = action.payload;
+      })
+      .addCase(removeWorkflowTransition.pending, (state) => {
+        state.loadingTransitions = true;
+        state.errorTransitions = null;
       })
       .addCase(removeWorkflowTransition.fulfilled, (state, action) => {
         state.transitions = state.transitions.filter(
           (t) => t._id !== action.payload
         );
+        state.loadingTransitions = false;
+      })
+      .addCase(removeWorkflowTransition.rejected, (state, action) => {
+        state.loadingTransitions = false;
+        state.errorTransitions = action.payload;
       });
   },
 });
@@ -115,5 +143,6 @@ export const {
   clearWorkflowSteps,
   clearWorkflowTransitions,
   setWorkflowTransitions,
+  setWorkflowId,
 } = workflowSlice.actions;
 export default workflowSlice.reducer;

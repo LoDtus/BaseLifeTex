@@ -44,7 +44,7 @@ export const addWorkflowStep = createAsyncThunk(
     console.log("Gửi payload tạo workflow step:", data);
     try {
       const step = await createWorkflowStep(data);
-      return step.data; // thường trả về step.data
+      return step; // thường trả về step.data
     } catch (err) {
       return thunkAPI.rejectWithValue(err.response?.data || err.message);
     }
@@ -82,6 +82,10 @@ const workflowSlice = createSlice({
     clearWorkflowSteps: (state) => {
       state.steps = [];
     },
+
+    setWorkflowId: (state, action) => {
+      state.workflowId = action.payload;
+    },
     // setWorkflowId: (state, action) => {
     //   state.workflowId = action.payload;
     // },
@@ -91,17 +95,17 @@ const workflowSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-    .addCase(creatworkflow.fulfilled, (state, action) => {
-  state.workflowId = action.payload._id;
-  state.currentWorkflow = action.payload;
-  state.steps = []; // reset steps nếu cần
-})
+      .addCase(creatworkflow.fulfilled, (state, action) => {
+        state.workflowId = action.payload._id;
+        state.currentWorkflow = action.payload;
+        state.steps = []; // reset steps nếu cần
+      })
       .addCase(fetchWorkflowSteps.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
       .addCase(fetchWorkflowSteps.fulfilled, (state, action) => {
-        console.log("✅ Kết quả fetchWorkflowSteps:", action.payload); // Kiểm tra xem có phải mảng không
+        console.log("✅ Kết quả fetchWorkflowSteps:", action.payload);
         state.steps = Array.isArray(action.payload) ? action.payload : [];
         state.loading = false;
       })
@@ -114,6 +118,7 @@ const workflowSlice = createSlice({
         state.steps.push(action.payload);
       })
       .addCase(editWorkflowStep.fulfilled, (state, action) => {
+        console.log("Payload sửa step:", action.payload);
         const index = state.steps.findIndex(
           (step) => step._id === action.payload._id
         );
