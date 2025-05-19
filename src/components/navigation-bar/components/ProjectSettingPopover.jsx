@@ -192,8 +192,10 @@ const ProjectSettingPopover = ({ onClose }) => {
       return;
     }
 
-    const fromStep = fromState;
-    const toStep = toState;
+   if (fromState === toState) {
+      message.warning("Trạng thái bắt đầu và kết thúc không được giống nhau");
+      return;
+    }
     const allowedRoles = selectedRole.map((role) => role.value);
 
     if (!currentWorkflowId) {
@@ -240,6 +242,8 @@ const ProjectSettingPopover = ({ onClose }) => {
       return;
     }
     const allowedRoles = selectedRole.map((role) => role.value);
+    if (fromState === toState) {
+      message.warning("Trạng thái bắt đầu và kết thúc không được giống nhau")}
     try {
       const editingTransition = transitions[editingIndex];
       if (!editingTransition) return;
