@@ -86,8 +86,8 @@ const workflowSlice = createSlice({
         state.errorTransitions = null;
       })
       .addCase(fetchWorkflowTransitions.fulfilled, (state, action) => {
-        state.transitions = action.payload;
-        state.loadingTransitions = false;
+         state.transitions = action.payload.data || []; // lấy mảng data
+  state.loadingTransitions = false;
       })
       .addCase(fetchWorkflowTransitions.rejected, (state, action) => {
         state.loadingTransitions = false;

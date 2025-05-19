@@ -8,7 +8,7 @@ import {
   KeyboardSensor,
 } from "@dnd-kit/core";
 import { sortableKeyboardCoordinates } from "@dnd-kit/sortable";
-import React, { useEffect, useState } from "react";
+import React, { useEffect,useMemo, useState } from "react";
 import KanbanColumn from "./KanbanColumn";
 import { updateTaskStatus } from "@/services/taskService";
 import { useSearchParams } from "react-router-dom";
@@ -62,7 +62,7 @@ function transformTasksData(tasks, statuses) {
 function KanbanBoard({ selectedTasks, setSelectedTasks }) {
   const dispatch = useDispatch();
   const listTask = useSelector((state) => state.task.listTask);
-  const statuses = useSelector((state) => state.status.statuses);
+  const statuses = useSelector((state) => state.status.steps);
   const [columns, setColumns] = useState({});
   const [searchParams] = useSearchParams();
   const idProject = searchParams.get("idProject");

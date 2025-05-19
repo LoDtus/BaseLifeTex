@@ -33,6 +33,7 @@ import {
   creatworkflow
 } from "@/redux/statusSlice";
 import {
+  fetchWorkflowTransitions,
   addWorkflowTransition,
   editWorkflowTransition,
   removeWorkflowTransition,
@@ -53,11 +54,13 @@ const ProjectSettingPopover = ({ onClose }) => {
 
   console.log("steps có lấy từ redux", steps);
   const [activeTab, setActiveTab] = useState("workflow");
-
+ const [workflows, setWorkflows] = useState([]);
   const [fromState, setFromState] = useState(null);
   const [toState, setToState] = useState(null);
 
   const transitions = useSelector((state) => state.workflow.transitions);
+  const safeTransitions = Array.isArray(transitions) ? transitions : [];
+  console.log("transitions", transitions);
 
   const [editingIndex, setEditingIndex] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
@@ -82,10 +85,12 @@ console.log("workflowIdFromStatus", workflowIdFromStatus);
   // phan trang
   const itemsPerPage = 2;
   const [currentPage, setCurrentPage] = useState(1);
-
+useEffect(() => {
+  setCurrentPage(1);
+}, [safeTransitions]);
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
-  const paginatedFlows = transitions.slice(startIndex, endIndex);
+const paginatedFlows = safeTransitions.slice(startIndex, endIndex);
   // màu trạng thái
   const colors = [
     "#ffadad", // đỏ nhạt
@@ -184,6 +189,7 @@ console.log("workflowIdFromStatus", workflowIdFromStatus);
   setIsEditing(false);
   setEditingIndex(null);
   };
+  const currentWorkflowId = workflows?.[0]?._id ?? null;
  const handleAddFlow = async () => {
   if (!fromState || !toState || !selectedRole?.length) {
     message.warning("Vui lòng nhập đầy đủ trạng thái và vai trò");
@@ -193,7 +199,7 @@ console.log("workflowIdFromStatus", workflowIdFromStatus);
   const fromStep = fromState;
   const toStep = toState;
   const allowedRoles = selectedRole.map((role) => role.value);
-  const currentWorkflowId = workflows?.[0]?._id ?? null;
+  
 
   if (!currentWorkflowId) {
     message.error("Vui lòng tạo workflow trước khi thêm trạng thái.");
@@ -209,7 +215,7 @@ console.log("workflowIdFromStatus", workflowIdFromStatus);
         allowedRoles,
       })
     ).unwrap();
-
+    await dispatch(fetchWorkflowTransitions(currentWorkflowId)).unwrap();
     message.success("Thêm luồng thành công");
     resetTransitionForm();
   } catch (err) {
@@ -256,7 +262,7 @@ console.log("workflowIdFromStatus", workflowIdFromStatus);
           data: updatedTransition,
         })
       ).unwrap();
-
+    await dispatch(fetchWorkflowTransitions(currentWorkflowId)).unwrap();
       message.success("Cập nhật luồng thành công");
       resetTransitionForm();
     } catch (error) {
@@ -271,7 +277,7 @@ console.log("workflowIdFromStatus", workflowIdFromStatus);
 
       // dispatch async thunk removeWorkflowTransition và unwrap
       await dispatch(removeWorkflowTransition(transitionToDelete._id)).unwrap();
-
+ await dispatch(fetchWorkflowTransitions(currentWorkflowId)).unwrap();
       message.success("Xóa luồng thành công");
     } catch (error) {
       console.error("Lỗi xóa luồng:", error);
@@ -280,7 +286,7 @@ console.log("workflowIdFromStatus", workflowIdFromStatus);
   };
   const roleOptions = ["PM", "Dev", "Test", "BA", "User"];
   const permissions = ["View", "Add", "Edit", "Delete", "Comment", "Drag"];
-  const [workflows, setWorkflows] = useState([]);
+ 
   useEffect(() => {
     if (!projectId) return;
 
@@ -452,7 +458,7 @@ console.log("workflowIdFromStatus", workflowIdFromStatus);
         message.success("Tạo workflow thành công");
         // workflowId và currentWorkflow đã được cập nhật trong slice (theo extraReducers)
       } else {
-        message.error("Tạo workflow thất bại");
+        message.error("Hiện tại đã có workflow trong dự án này");
       }
     } catch (error) {
       message.error("Tạo workflow thất bại");
@@ -652,11 +658,11 @@ console.log("workflowIdFromStatus", workflowIdFromStatus);
                       <h5 className="font-semibold">
                         <SyncOutlined style={{ marginRight: "6px" }} />
                         Các luồng đã tạo:{" "}
-                        {transitions.length > 0
-                          ? `(${transitions.length})`
+                        {safeTransitions.length > 0
+                          ? `(${safeTransitions.length})`
                           : ""}
                       </h5>
-                      {transitions.length > 0 && (
+                      {safeTransitions.length > 0 && (
                         <Popconfirm
                           title="Bạn có chắc muốn xóa tất cả các luồng không?"
                           okText="Xóa"
@@ -670,7 +676,7 @@ console.log("workflowIdFromStatus", workflowIdFromStatus);
                       )}
                     </div>
 
-                    {transitions.length === 0 ? (
+                    {safeTransitions.length === 0 ? (
                       <p className="text-gray-500">
                         Chưa có luồng nào được tạo.
                       </p>
@@ -687,16 +693,13 @@ console.log("workflowIdFromStatus", workflowIdFromStatus);
 
                             return (
                               <li
-                                key={`${flow.from}-${flow.to}-${(
-                                  flow.role || []
-                                )
-                                  .map((r) => r.value || r)
-                                  .join("-")}`}
+                             key={`${flow.fromStep}-${flow.toStep}-${(flow.allowedRoles || []).join("-")}`}
+
                                 className="flex justify-between items-center border p-2 rounded gap-3"
                               >
                                 <span className="flex-1">
-                                  {fromStep.nameStep || "Không xác định"} ➝{" "}
-                                  {toStep.nameStep || "Không xác định"}
+                                  {fromStep?.nameStep || "Không xác định"} ➝{" "}
+                                  {toStep?.nameStep || "Không xác định"}
                                   {flow.role?.length > 0 && (
                                     <strong>
                                       (
@@ -728,12 +731,12 @@ console.log("workflowIdFromStatus", workflowIdFromStatus);
                           })}
                         </ul>
 
-                        {transitions.length > itemsPerPage && (
+                        {safeTransitions.length > itemsPerPage && (
                           <div className="mt-2 flex justify-end">
                             <Pagination
                               current={currentPage}
                               pageSize={itemsPerPage}
-                              total={transitions.length}
+                              total={safeTransitions.length}
                               onChange={(page) => setCurrentPage(page)}
                               size="small"
                             />
