@@ -38,6 +38,7 @@ import {
   editWorkflowTransition,
   removeWorkflowTransition,
   clearWorkflowTransitions,
+  deleteAllWorkflowTransitionsThunk,
   // setWorkflowId,
 } from "@/redux/workflowSlice";
 import { getworkflowbyid } from "../../../services/workflowService.js";
@@ -74,7 +75,9 @@ const ProjectSettingPopover = ({ onClose }) => {
   const query = useQuery();
   const managerId = user?._id; // hoặc lấy managerId từ dự án
   const projectId = query.get("idProject");
-
+const findRoleOptionByValue = (value) => {
+  return roleOptions.find((option) => option.value === value);
+};
   // phan trang
   const itemsPerPage = 2;
   const [currentPage, setCurrentPage] = useState(1);
@@ -197,7 +200,7 @@ const ProjectSettingPopover = ({ onClose }) => {
       return;
     }
     const allowedRoles = selectedRole.map((role) => role.value);
-
+console.log("allowedRoles to send:", allowedRoles);
     if (!currentWorkflowId) {
       message.error("Vui lòng tạo workflow trước khi thêm trạng thái.");
       return;
@@ -227,11 +230,13 @@ const ProjectSettingPopover = ({ onClose }) => {
 
     setFromState(trans.fromStep); // chú ý dùng fromStep
     setToState(trans.toStep); // dùng toStep
-    setSelectedRole(
-      Array.isArray(trans.allowedRoles)
-        ? trans.allowedRoles.map((r) => ({ label: r, value: r }))
-        : []
-    );
+  setSelectedRole(
+  Array.isArray(trans.allowedRoles)
+    ? trans.allowedRoles
+        .map((r) => findRoleOptionByValue(r))
+        .filter(Boolean) 
+    : []
+);
     setEditingIndex(index);
     setIsEditing(true);
   };
@@ -283,6 +288,26 @@ const ProjectSettingPopover = ({ onClose }) => {
       message.error("Xóa luồng thất bại");
     }
   };
+  const handleDeleteAllTransitions = async () => {
+  if (!currentWorkflowId) {
+    message.error("Vui lòng tạo workflow trước khi xoá các luồng.");
+    return;
+  }
+
+  const confirm = window.confirm("Bạn có chắc chắn muốn xoá tất cả các luồng?");
+  if (!confirm) return;
+
+  try {
+    await dispatch(deleteAllWorkflowTransitionsThunk(currentWorkflowId)).unwrap();
+    await dispatch(fetchWorkflowTransitions(currentWorkflowId)).unwrap();
+    message.success("Đã xoá tất cả luồng thành công.");
+    resetTransitionForm();
+  } catch (error) {
+    console.error("Lỗi xoá tất cả luồng:", error);
+    message.error("Xoá tất cả luồng thất bại.");
+  }
+};
+
   const permissions = ["View", "Add", "Edit", "Delete", "Comment", "Drag"];
 
   useEffect(() => {
@@ -337,7 +362,9 @@ const ProjectSettingPopover = ({ onClose }) => {
     label: key, // Hiển thị trên dropdown
     value: ROLES[key], // Giá trị thực được lưu
   }));
-
+const ROLES_REVERSE = Object.fromEntries(
+  Object.entries(ROLES).map(([key, val]) => [val, key])
+);
   const onSelectChange = (newSelectedRowKeys) => {
     setSelectedRowKeys(newSelectedRowKeys);
   };
@@ -626,22 +653,20 @@ const ProjectSettingPopover = ({ onClose }) => {
                     ROLES
                   </h3>
                   <div className="flex justify-center gap-6 flex-wrap text-sm">
-                    {["ADMIN", "PM", "DEV", "TEST", "BA", "USER"].map(
+                    {[ "PM", "DEV", "TEST", "BA", "USER"].map(
                       (role) => (
                         <label key={role} className="flex items-center gap-2">
                           <input
                             type="checkbox"
                             value={role}
                             className="accent-blue-500"
-                            checked={selectedRole.includes(role)}
+                            checked={selectedRole.some(r => r.value === ROLES[role])}
                             onChange={(e) => {
-                              if (e.target.checked) {
-                                setSelectedRole([...selectedRole, role]);
-                              } else {
-                                setSelectedRole(
-                                  selectedRole.filter((r) => r !== role)
-                                );
-                              }
+                               if (e.target.checked) {
+    setSelectedRole([...selectedRole, { label: role, value: ROLES[role] }]);
+  } else {
+    setSelectedRole(selectedRole.filter(r => r.value !== ROLES[role]));
+  }
                             }}
                           />
                           <span>{role}</span>
@@ -726,7 +751,7 @@ const ProjectSettingPopover = ({ onClose }) => {
                           title="Bạn có chắc muốn xóa tất cả các luồng không?"
                           okText="Xóa"
                           cancelText="Hủy"
-                          onConfirm={() => dispatch(clearWorkflowTransitions())}
+                         onClick={handleDeleteAllTransitions}
                         >
                           <button className="text-red-500 hover:underline text-sm">
                             🧹 Xóa tất cả
@@ -760,15 +785,13 @@ const ProjectSettingPopover = ({ onClose }) => {
                                 <span className="flex-1">
                                   {fromStep?.nameStep || "Không xác định"} ➝{" "}
                                   {toStep?.nameStep || "Không xác định"}
-                                  {flow.role?.length > 0 && (
-                                    <strong>
-                                      (
-                                      {flow.role
-                                        .map((r) => r.label || r)
-                                        .join(", ")}
-                                      )
-                                    </strong>
-                                  )}
+    {flow.allowedRoles?.length > 0 && (
+  <strong className="ml-2 text-sm text-gray-600">
+    (
+    {flow.allowedRoles.map((roleValue) => ROLES_REVERSE[roleValue] || "?").join(", ")}
+    )
+  </strong>
+)}
                                 </span>
                                 <button
                                   onClick={() => handleEdit(index)}

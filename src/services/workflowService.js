@@ -168,3 +168,17 @@ export const deleteWorkflowTransition = async (id) => {
     throw error.response?.data || error.message;
   }
 };
+// Xoá tất cả transitions theo workflowId
+export const deleteAllWorkflowTransitions = async (workflowId) => {
+  try {
+    const res = await axiosInstance.delete(
+      `${baseUrl}/work-flow/delete-all/workflow-transition/${workflowId}`
+    );
+    message.success(res?.data?.message || "Xoá tất cả transition thành công");
+    return res.data;
+  } catch (error) {
+    console.error("Lỗi xoá tất cả transitions:", error);
+    message.error(error.response?.data?.message || "Xoá thất bại");
+    throw error.response?.data || error.message;
+  }
+};

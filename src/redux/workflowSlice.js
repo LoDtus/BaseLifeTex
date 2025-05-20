@@ -4,6 +4,7 @@ import {
   updateWorkflowTransition,
   deleteWorkflowTransition,
   getWorkflowTransitionsByWorkflowId, // bạn cần tự implement service này nếu chưa có
+  deleteAllWorkflowTransitions
 } from "@/services/workflowService";
 
 const initialState = {
@@ -62,7 +63,17 @@ export const removeWorkflowTransition = createAsyncThunk(
     }
   }
 );
-
+export const deleteAllWorkflowTransitionsThunk = createAsyncThunk(
+  "workflow/deleteAllTransitions",
+  async (workflowId, thunkAPI) => {
+    try {
+      const result = await deleteAllWorkflowTransitions(workflowId);
+      return result.deletedCount; // hoặc return workflowId nếu bạn muốn xoá local state theo id
+    } catch (err) {
+      return thunkAPI.rejectWithValue(err.response?.data || err.message);
+    }
+  }
+);
 const workflowSlice = createSlice({
   name: "workflow",
   initialState,
@@ -81,6 +92,18 @@ const workflowSlice = createSlice({
     builder
 
       // Transitions
+      .addCase(deleteAllWorkflowTransitionsThunk.pending, (state) => {
+  state.loadingTransitions = true;
+  state.errorTransitions = null;
+})
+.addCase(deleteAllWorkflowTransitionsThunk.fulfilled, (state, action) => {
+  state.transitions = []; // Xóa sạch transitions trong Redux store
+  state.loadingTransitions = false;
+})
+.addCase(deleteAllWorkflowTransitionsThunk.rejected, (state, action) => {
+  state.loadingTransitions = false;
+  state.errorTransitions = action.payload;
+})
       .addCase(fetchWorkflowTransitions.pending, (state) => {
         state.loadingTransitions = true;
         state.errorTransitions = null;
@@ -136,6 +159,8 @@ const workflowSlice = createSlice({
         state.loadingTransitions = false;
         state.errorTransitions = action.payload;
       });
+    
+      
   },
 });
 
