@@ -85,6 +85,7 @@ export const getTaskByPagination = async (projectId, page, limit) => {
 };
 
 export const addTask = async (data) => {
+   console.log("🎯 Payload tạo task:", data);
   const formData = new FormData();
   formData.append("image", data.image);
   formData.append("assigneeId", data.assigneeId);

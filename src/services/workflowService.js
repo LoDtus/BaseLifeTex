@@ -24,17 +24,7 @@ export const addworkflow = async (data) => {
     throw error;
   }
 };
-// export const addworkflow = async (pro) => {
-//   try {
-//     const respoonse = await axiosInstance.post(`/work-flow`, pro);
-//     message.success("thanh con");
-//     return respoonse;
-//   } catch (error) {
-//     console.log(error);
-//   }
-// };
 
-// Gọi và dispatch dữ liệu workflow (steps + transitions)
 export const getDetailWorkFlow = (projectId) => async (dispatch) => {
   try {
     const res = await axiosInstance.get(`${baseUrl}/work-flow/${projectId}`);
@@ -176,6 +166,7 @@ export const deleteWorkflowTransition = async (id) => {
     await axiosInstance.delete(
       `${baseUrl}/work-flow/workflow-transition/${id}`
     );
+     return id;
   } catch (error) {
     throw error.response?.data || error.message;
   }

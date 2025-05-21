@@ -19,7 +19,7 @@ import { getMembers } from "@/services/projectService";
 import { openSystemNoti } from "@/utils/systemUtils";
 import { getTaskDetailById } from "@/services/taskService";
 import { addTask, updateTask } from "@/services/taskService";
-
+import { fetchWorkflowSteps,setWorkflowId } from "@/redux/statusSlice";
 import "react-toastify/dist/ReactToastify.css";
 
 const { TextArea } = Input;
@@ -57,14 +57,17 @@ export default function TaskForm() {
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
   const [priority, setPriority] = useState(0);
-  const [status, setStatus] = useState(1);
+  const [status, setStatus] = useState(null);
+ const listProject = useSelector((state) => state.project.listProject);
+  const selectedProject = listProject.find((p) => p._id === projectId);
   const [type, setType] = useState("new_request");
   const [imgAdd, setImgAdd] = useState(null);
   const inpStates = useInputStates([taskName, link, description]);
   const [alert, setAlert] = useState([]);
   const [memberList, setMemberList] = useState([]);
   const [visibleAssignee, setVisibleAssignee] = useState(false);
-
+  const workflowId = useSelector((state) => state.status.workflowId);
+  const workflowSteps = useSelector((state) => state.status.steps);
   const [configStartDate, setConfigStartDate] = useState(
     dayjs(dayjs().format(dateFormat), dateFormat)
   );
@@ -73,6 +76,13 @@ export default function TaskForm() {
     dayjs(dayjs().format(dateFormat), dateFormat)
   );
   const [loading, setLoading] = useState(false);
+ useEffect(() => {
+    if (selectedProject?.workflowId) {
+      dispatch(setWorkflowId(selectedProject.workflowId));
+      dispatch(fetchWorkflowSteps(selectedProject.workflowId));
+    }
+  }, [selectedProject, dispatch]);
+      const firstStepId = workflowSteps[0]._id;
   useEffect(() => {
     if (taskState.slice(0, 7).includes("UPDATE")) {
       const taskId = taskState.slice(7);
@@ -382,7 +392,7 @@ export default function TaskForm() {
           description: description,
           startDate: startDate.format("YYYY-MM-DD"),
           endDate: endDate.format("YYYY-MM-DD"),
-          status: 1,
+          status: firstStepId,
           projectId: projectId,
           assignerId: user._id,
           priority: priority,

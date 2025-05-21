@@ -107,6 +107,22 @@ useEffect(() => {
     dispatch(fetchWorkflowTransitions(currentWorkflowId));
   }
 }, [currentWorkflowId, dispatch]);
+//hàm để ttheme xoá stepsỏrder
+const normalizeStepOrder = async (workflowId, steps, dispatch) => {
+  const sortedSteps = [...steps].sort((a, b) => a.stepOrder - b.stepOrder);
+  
+  for (let i = 0; i < sortedSteps.length; i++) {
+    const step = sortedSteps[i];
+    if (step.stepOrder !== i + 1) {
+      await dispatch(editWorkflowStep({ 
+        workflowStepId: step._id, 
+        data: { stepOrder: i + 1 } 
+      }));
+    }
+  }
+
+  await dispatch(fetchWorkflowSteps(workflowId)); // làm mới lại danh sách sau khi cập nhật
+};
   const handleDeleteAllSteps = async () => {
   if (!currentWorkflowId) {
     message.error("Vui lòng tạo workflow trước khi xoá các trạng thái.");
@@ -123,22 +139,26 @@ useEffect(() => {
     message.error("Xoá tất cả trạng thái thất bại.");
   }
 };
-  const handleDeleteLabel = async (workflowStepId) => {
-    try {
-      const res = await dispatch(removeWorkflowStep(workflowStepId));
-      if (res.meta.requestStatus === "fulfilled") {
-        message.success("Đã xóa trạng thái");
- 
-        if (currentWorkflowId) {
-          await dispatch(fetchWorkflowSteps(currentWorkflowId));
-        }
-      } else {
-        message.error("Xóa trạng thái thất bại");
+ const handleDeleteLabel = async (workflowStepId) => {
+  try {
+    const res = await dispatch(removeWorkflowStep(workflowStepId));
+
+    if (res.meta.requestStatus === "fulfilled") {
+      message.success("Đã xóa trạng thái");
+
+      if (currentWorkflowId) {
+        // ✅ Lấy lại steps sau khi xóa
+        const updatedSteps = steps.filter((step) => step._id !== workflowStepId);
+        await normalizeStepOrder(currentWorkflowId, updatedSteps, dispatch);
       }
-    } catch (error) {
+    } else {
       message.error("Xóa trạng thái thất bại");
     }
-  };
+  } catch (error) {
+    message.error("Xóa trạng thái thất bại");
+    console.error("❌ Lỗi khi xóa step:", error);
+  }
+};
   const handleEditLabel = (id, currentName) => {
     setEditingLabel(id);
     setNewStatusLabel(currentName);
@@ -176,12 +196,13 @@ useEffect(() => {
       message.error("Vui lòng tạo workflow trước khi thêm trạng thái.");
       return;
     }
-
+  const maxOrder = steps.length > 0
+    ? Math.max(...steps.map((s) => s.stepOrder || 0))
+    : 0;
     const payload = {
       workflowId: currentWorkflowId,
       nameStep: addStatusValue.trim(),
-      stepOrder: 1,
-      requiredRole: [1, 3],
+      stepOrder:maxOrder + 1,
       isFinal: false,
     };
 
@@ -214,56 +235,71 @@ useEffect(() => {
   };
   
 
-  const handleAddFlow = async () => {
-    if (!fromState || !toState || !selectedRole?.length) {
-      message.warning("Vui lòng nhập đầy đủ trạng thái và vai trò");
-      return;
-    }
+ const handleAddFlow = async () => {
+  if (!fromState || !toState || !selectedRole?.length) {
+    message.warning("Vui lòng nhập đầy đủ trạng thái và vai trò");
+    return;
+  }
 
-   if (fromState === toState) {
-      message.warning("Trạng thái bắt đầu và kết thúc không được giống nhau");
-      return;
-    }
-    const allowedRoles = selectedRole.map((role) => role.value);
-console.log("allowedRoles to send:", allowedRoles);
-    if (!currentWorkflowId) {
-      message.error("Vui lòng tạo workflow trước khi thêm trạng thái.");
-      return;
-    }
+  if (fromState === toState) {
+    message.warning("Trạng thái bắt đầu và kết thúc không được giống nhau");
+    return;
+  }
 
-    try {
-      await dispatch(
-        addWorkflowTransition({
-          workflowId: currentWorkflowId,
-          fromStep,
-          toStep,
-          allowedRoles,
-        })
-      ).unwrap();
-      // await dispatch(fetchWorkflowTransitions(currentWorkflowId)).unwrap();
-      message.success("Thêm luồng thành công");
-      resetTransitionForm();
-    } catch (err) {
-      console.error("Lỗi thêm luồng:", err);
-      message.error("Thêm luồng thất bại");
+  const allowedRoles = selectedRole.map((role) => role.value);
+
+  if (!currentWorkflowId) {
+    message.error("Vui lòng tạo workflow trước khi thêm trạng thái.");
+    return;
+  }
+
+  // ✅ Kiểm tra trùng luồng
+  const exists = transitions?.some(
+    (t) => t.from === fromStep && t.to === toStep
+  );
+
+  if (exists) {
+    message.warning("Luồng đã tồn tại.");
+    return;
+  }
+
+  try {
+    await dispatch(
+      addWorkflowTransition({
+        workflowId: currentWorkflowId,
+        fromStep,
+        toStep,
+        allowedRoles,
+      })
+    ).unwrap();
+
+    message.success("Thêm luồng thành công");
+    resetTransitionForm();
+  } catch (err) {
+    console.error("Lỗi thêm luồng:", err);
+
+    if (err?.message?.includes("đã tồn tại")) {
+      message.error("Luồng đã tồn tại, vui lòng kiểm tra lại.");
+    } else {
+      message.error("Đã có lỗi xảy ra khi thêm luồng.");
     }
-  };
+  }
+};
 
-  const handleEdit = (index) => {
-    const trans = transitions[index];
-    if (!trans) return;
 
-    setFromState(trans.fromStep); // chú ý dùng fromStep
-    setToState(trans.toStep); // dùng toStep
+  const handleEdit = (id) => {
+    const trans = transitions.find((t) => t._id === id);
+  if (!trans) return;
+
+  setFromState(trans.fromStep);
+  setToState(trans.toStep);
   setSelectedRole(
-  Array.isArray(trans.allowedRoles)
-    ? trans.allowedRoles
-        .map((r) => findRoleOptionByValue(r))
-        .filter(Boolean) 
-    : []
-);
-    setEditingIndex(index);
-    setIsEditing(true);
+    Array.isArray(trans.allowedRoles)
+      ? trans.allowedRoles.map((r) => findRoleOptionByValue(r)).filter(Boolean)
+      : []
+  );
+  setEditingIndex(id); 
+  setIsEditing(true);
   };
 
   const handleSaveEdit = async () => {
@@ -273,9 +309,11 @@ console.log("allowedRoles to send:", allowedRoles);
     }
     const allowedRoles = selectedRole.map((role) => role.value);
     if (fromState === toState) {
-      message.warning("Trạng thái bắt đầu và kết thúc không được giống nhau")}
+      message.warning("Trạng thái bắt đầu và kết thúc không được giống nhau")
+      return;
+    }
     try {
-      const editingTransition = transitions[editingIndex];
+     const editingTransition = transitions.find((t) => t._id === editingIndex);
       if (!editingTransition) return;
 
       const updatedTransition = {
@@ -296,23 +334,25 @@ console.log("allowedRoles to send:", allowedRoles);
       resetTransitionForm();
     } catch (error) {
       console.error("Lỗi cập nhật luồng:", error);
-      message.error("Cập nhật luồng thất bại");
+      message.error("Luồng đã tồn tại, vui lòng kiểm tra lại.");
     }
   };
-  const handleDelete = async (index) => {
-    try {
-      const transitionToDelete = transitions[index];
-      if (!transitionToDelete) return;
+  const handleDelete = async (id) => {
+  try {
+    const transitionToDelete = transitions.find((t) => t._id === id);
+    if (!transitionToDelete) {
+      console.warn("Không tìm thấy transition cần xoá");
+      return;
+    }
 
-      // dispatch async thunk removeWorkflowTransition và unwrap
-      await dispatch(removeWorkflowTransition(transitionToDelete._id)).unwrap();
-      // await dispatch(fetchWorkflowTransitions(currentWorkflowId)).unwrap();
-      message.success("Xóa luồng thành công");
-    } catch (error) {
-      console.error("Lỗi xóa luồng:", error);
-      message.error("Xóa luồng thất bại");
-    }
-  };
+    await dispatch(removeWorkflowTransition(transitionToDelete._id)).unwrap();
+    message.success("Xóa luồng thành công");
+  } catch (error) {
+    console.error("Lỗi xóa luồng:", error);
+    message.error("Xóa luồng thất bại");
+  }
+};
+
   const handleDeleteAllTransitions = async () => {
   if (!currentWorkflowId) {
     message.error("Vui lòng tạo workflow trước khi xoá các luồng.");
@@ -324,7 +364,8 @@ console.log("allowedRoles to send:", allowedRoles);
 
   try {
     await dispatch(deleteAllWorkflowTransitionsThunk(currentWorkflowId)).unwrap();
-    // await dispatch(fetchWorkflowTransitions(currentWorkflowId)).unwrap();
+     await dispatch(fetchWorkflowSteps(currentWorkflowId)).unwrap();
+    await dispatch(fetchWorkflowTransitions(currentWorkflowId)).unwrap();
     message.success("Đã xoá tất cả luồng thành công.");
     resetTransitionForm();
   } catch (error) {
@@ -575,42 +616,20 @@ const ROLES_REVERSE = Object.fromEntries(
             <div className="flex w-full h-full overflow-hidden p-3">
               <div className="flex w-full border border-black rounded-2xl">
                 <div className="w-[30%] border-r pr-4 pt-4 overflow-y-auto">
-                  {/* <button
-                    onClick={async () => {
-                      if (!projectId) {
-                        message.error("Không có projectId hoặc managerId");
-                        return;
-                      }
-                      try {
-                        const actionResult = await dispatch(
-                          creatworkflow(projectId)
-                        );
-                        if (creatworkflow.fulfilled.match(actionResult)) {
-                          message.success("Tạo workflow thành công");
-                          // workflowId và currentWorkflow đã được cập nhật trong slice (theo extraReducers)
-                        } else {
-                          message.error(
-                            "Hiện tại đã có workflow trong dự án này"
-                          );
-                        }
-                      } catch (error) {
-                        message.error("Tạo workflow thất bại");
-                      }
-                    }}
-                  >
-                    add workflow
-                  </button> */}
+                
 
                   <h3
                     className={`mb-4 text-center ${styles.projectSetting__statusHeader}`}
                   >
                     TRẠNG THÁI
                   </h3>
-                  <ul className="list-disc pl-4 text-sm">
+               <div className="flex justify-center">
+                  <ul className="w-full max-w-xl list-none text-sm ">
                     {Array.isArray(steps) &&
                       steps.map((item, index) => (
                         <li
                           key={item._id}
+
                           className="flex items-center justify-between mb-2"
                         >
                           {editingLabel === item._id ? (
@@ -624,7 +643,7 @@ const ROLES_REVERSE = Object.fromEntries(
                               className="flex-1 px-2 py-1 text-sm border rounded"
                               style={{
                                 height: "35px",
-                                marginLeft: "-15px",
+                                marginLeft: "-5px",
                                 marginRight: "10px",
                               }}
                             />
@@ -637,19 +656,17 @@ const ROLES_REVERSE = Object.fromEntries(
                                 height: "35px",
                                 display: "flex",
                                 alignItems: "center",
-                                textOverflow: "ellipsis",
-                                overflow: "hidden",
-                                whiteSpace: "nowrap",
-                                fontSize: "0.6rem",
+                              
+                                fontSize: "0.7rem",
                                 fontWeight: "600",
-                                marginLeft: "-15px",
-                                marginRight: "10px",
+                                marginLeft: "-25px",
+                                marginRight: "5px",
                               }}
                             >
                               {item.nameStep}
                             </span>
                           )}
-                          <div className="flex gap-2">
+                          <div className="flex gap-1" style={{ marginRight: "3px" }}>
                             <Popconfirm
                               title="Bạn có chắc xóa?"
                               okText="Xóa"
@@ -674,38 +691,46 @@ const ROLES_REVERSE = Object.fromEntries(
                         
                       ))}
                         {steps.length > 0 && (
-    <li className="flex justify-end mt-4">
+    <li className="flex justify-center mt-3 ">
       <Popconfirm
         title="Bạn có chắc chắn muốn xoá tất cả trạng thái?"
         okText="Xóa tất cả"
         cancelText="Hủy"
         onConfirm={handleDeleteAllSteps}
       >
-          <button className="text-red-500 hover:underline text-sm">
+          <button className="text-red-500 hover:underline text-sm "style={{ marginLeft: "60px" }}>
                             🧹 Xóa tất cả
                           </button>
       </Popconfirm>
     </li>
   )}
-                    <li className="flex items-center justify-center mt-4 space-x-2">
+                    <li className="flex items-center justify-center mt-3 space-x-2">
                       <input
                         value={addStatusValue}
                         onChange={(e) => setAddStatusValue(e.target.value)}
                         placeholder="Nhập trạng thái mới"
                         className="flex-1 px-1 py-1 text-sm border rounded"
-                        style={{ marginLeft: "-15px" }}
+                        style={{ marginRight: "30px" }}
                       />
                     </li>
                   </ul>
-
-                  <div className="flex justify-center mt-4">
+</div>
+                  <div className="flex justify-center mt-2">
                     <button
-                      type="button"
-                      onClick={handleAddStatus}
-                      className="flex items-center gap-1 border border-gray-400 rounded px-3 py-1 hover:text-white  hover:bg-[#5F646A] transition"
-                    >
-                      <PlusOutlined /> Thêm trạng thái
-                    </button>
+    type="button"
+    onClick={() => {
+      if (!addStatusValue.trim()) {
+        message.warning("Vui lòng nhập trạng thái mới");
+        return;
+      }
+      handleAddStatus();
+    }}
+    disabled={!addStatusValue.trim()}
+    className={`flex items-center gap-1 border rounded px-3 py-1 transition
+      ${addStatusValue.trim() ? 'border-gray-400 hover:text-white hover:bg-green-400 cursor-pointer' : 'border-gray-200 text-gray-400 cursor-not-allowed'}`}
+  >
+    <PlusOutlined /> Thêm trạng thái
+  </button>
                   </div>
                 </div>
 
@@ -828,7 +853,7 @@ const ROLES_REVERSE = Object.fromEntries(
                     ) : (
                       <>
                         <ul className="list-disc pl-3 space-y-1">
-                          {paginatedFlows.map((flow, index) => {
+                          {paginatedFlows.map((flow) => {
                             const fromStep = steps.find(
                               (s) => s._id === flow.fromStep
                             );
@@ -838,9 +863,7 @@ const ROLES_REVERSE = Object.fromEntries(
 
                             return (
                               <li
-                                key={`${flow.fromStep}-${flow.toStep}-${(
-                                  flow.allowedRoles || []
-                                ).join("-")}`}
+                        key={flow._id}
                                 className="flex justify-between items-center border p-2 rounded gap-3"
                               >
                                 <span className="flex-1">
@@ -855,7 +878,7 @@ const ROLES_REVERSE = Object.fromEntries(
 )}
                                 </span>
                                 <button
-                                  onClick={() => handleEdit(index)}
+                                  onClick={() => handleEdit(flow._id)}
                                   className="text-blue-500 hover:underline"
                                 >
                                   ✏️ Chỉnh sửa
@@ -864,7 +887,7 @@ const ROLES_REVERSE = Object.fromEntries(
                                   title="Bạn có chắc chắn xóa luồng này không?"
                                   cancelText="Hủy"
                                   okText="Xóa"
-                                  onConfirm={() => handleDelete(index)}
+                                  onConfirm={() => handleDelete(flow._id)}
                                 >
                                   <button className="text-red-500 hover:underline ml-4">
                                     🗑 Xóa
@@ -927,7 +950,7 @@ const ROLES_REVERSE = Object.fromEntries(
                   />
                   <button
                     onClick={() => setOpenFunction(true)}
-                    className="bg-yellow-500 text-white px-2 py-1 rounded hover:bg-[#5F646A]"
+                    className="bg-yellow-500 text-white px-2 py-1 rounded hover:bg-blue-600"
                   >
                     chức năng
                   </button>

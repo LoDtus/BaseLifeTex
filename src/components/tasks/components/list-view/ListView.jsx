@@ -172,6 +172,8 @@ export default function ListHome({ selectedTasks = [], setSelectedTasks }) {
     const allSelected = allTaskIds.every((id) => selectedTasks.includes(id));
     setIsCheckAll(allSelected);
   }, [selectedTasks, taskList]);
+
+  const workflowSteps = useSelector((state) => state.status.steps);
   return (
     <div className="list-home-wrapper">
       <div
@@ -319,21 +321,19 @@ export default function ListHome({ selectedTasks = [], setSelectedTasks }) {
                   {convertDateYMD(task.endDate)}
                 </div>
                 <div className="basis-[15%] flex justify-center">
-                  <select
-                    value={task.status}
-                    onChange={(e) =>
-                      handleStatusChange(task._id, task.status, e.target.value)
-                    }
-                    className="status-select"
-                  >
-                    <option value={1}>Công việc mới</option>
-                    <option value={2}>Đang thực hiện</option>
-                    <option value={3}>Kiểm thử</option>
-                    <option value={4}>Hoàn thành</option>
-                    <option value={5}>Đóng công việc</option>
-                    <option value={6}>Tạm dừng</option>
-                    <option value={7}>Khóa công việc</option>
-                  </select>
+                 <select
+  value={task.status} // status là ObjectId (chuỗi)
+  onChange={(e) =>
+    handleStatusChange(task._id, task.status, e.target.value)
+  }
+  className="status-select"
+>
+  {workflowSteps.map((step) => (
+    <option key={step._id} value={step._id}>
+      {step.nameStep}
+    </option>
+  ))}
+</select>
                 </div>
                 <div className="basis-[18%] line-clamp-1">
                   <a
