@@ -702,7 +702,7 @@ const ROLES_REVERSE = Object.fromEntries(
                     <button
                       type="button"
                       onClick={handleAddStatus}
-                      className="flex items-center gap-1 border border-gray-400 rounded px-3 py-1 hover:text-white hover:bg-green-400 transition"
+                      className="flex items-center gap-1 border border-gray-400 rounded px-3 py-1 hover:text-white  hover:bg-[#5F646A] transition"
                     >
                       <PlusOutlined /> Thêm trạng thái
                     </button>
@@ -927,7 +927,7 @@ const ROLES_REVERSE = Object.fromEntries(
                   />
                   <button
                     onClick={() => setOpenFunction(true)}
-                    className="bg-yellow-500 text-white px-2 py-1 rounded hover:bg-blue-600"
+                    className="bg-yellow-500 text-white px-2 py-1 rounded hover:bg-[#5F646A]"
                   >
                     chức năng
                   </button>
