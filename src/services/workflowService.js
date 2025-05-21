@@ -9,7 +9,7 @@ const baseUrl = import.meta.env.VITE_BACKEND_URL;
 export const getworkflowbyid = async (id) => {
   try {
     const respoonse = await axiosInstance.get(`/work-flow/${id}`);
-    message.success("lấy workflow thành công");
+  
     return respoonse?.data;
   } catch (error) {
     console.log(error);
@@ -110,7 +110,19 @@ export const deleteWorkflowStep = async (workflowStepId) => {
     throw error.response?.data || error.message;
   }
 };
+export const deleteAllWorkflowSteps = async (workflowId) => {
+  try {
+    const res = await axiosInstance.delete(
+      `${baseUrl}/work-flow/delete-all/workflow-step/${workflowId}`
+    );
 
+    return res.data;
+  } catch (error) {
+    console.error("Lỗi xoá tất cả transitions:", error);
+    message.error(error.response?.data?.message || "Xoá thất bại");
+    throw error.response?.data || error.message;
+  }
+};
 // export const getWorkflowTransitions = async (workflowId) => {
 //   try {
 //     const response = await axiosInstance.get(

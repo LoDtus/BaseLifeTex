@@ -9,7 +9,7 @@ import {
   DragOverlay,
   KeyboardSensor,
 } from "@dnd-kit/core";
-import { sortableKeyboardCoordinates } from "@dnd-kit/sortable";
+import { sortableKeyboardCoordinates,arrayMove } from "@dnd-kit/sortable";
 import React, { useEffect, useState } from "react";
 import KanbanColumn from "./KanbanColumn";
 import { updateTaskStatus } from "@/services/taskService";
@@ -17,12 +17,19 @@ import { useSearchParams } from "react-router-dom";
 import { getListTaskByProjectId } from "@/redux/taskSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
-import { fetchWorkflowSteps } from "@/redux/statusSlice";
+import { fetchWorkflowSteps,clearWorkflowSteps } from "@/redux/statusSlice";
+import {
+  fetchWorkflowTransitions,
 
-function KanbanBoard({ selectedTasks, setSelectedTasks }) {
+
+} from "@/redux/workflowSlice";
+function KanbanBoard({projectId ,selectedTasks, setSelectedTasks }) {
   const dispatch = useDispatch();
+    const workflowId = useSelector((state) => state.status.workflowId);
+const userRole = useSelector((state) => state.auth.user?.role);
   const listTask = useSelector((state) => state.task.listTask);
   const workflowSteps = useSelector((state) => state.status.steps);
+   const workflowTransitions = useSelector((state) => state.workflow.transitions);
   const [columns, setColumns] = useState({});
   const [searchParams] = useSearchParams();
   const idProject = searchParams.get("idProject");
@@ -39,13 +46,21 @@ function KanbanBoard({ selectedTasks, setSelectedTasks }) {
   "#eafff5", // xanh bạc hà pha trắng
   "#f7f7ff", 
   ];
-  useEffect(() => {
-    if (idProject) {
-      dispatch(fetchWorkflowSteps({ projectId: idProject }));
-      dispatch(getListTaskByProjectId({ projectId: idProject }));
+    useEffect(() => {
+    if (workflowId) {
+      dispatch(fetchWorkflowSteps(workflowId));
+      dispatch(fetchWorkflowTransitions(workflowId));
     }
-  }, [idProject, dispatch]);
-
+  }, [dispatch, workflowId]);
+  console.log("checkworkflowId", workflowId);
+  useEffect(() => {
+  if (idProject) {
+    dispatch(clearWorkflowSteps()); // 👈 reset steps trước khi fetch mới
+    dispatch(fetchWorkflowSteps(idProject));
+    dispatch(getListTaskByProjectId({ projectId: idProject }));
+  }
+}, [idProject, dispatch]);
+console.log("checkidproject", idProject)
   useEffect(() => {
     if (workflowSteps.length > 0) {
       const initialColumns = {};
@@ -88,7 +103,7 @@ function KanbanBoard({ selectedTasks, setSelectedTasks }) {
   };
 
   const onDragOver = (event) => {
-    const { active, over } = event;
+ const { active, over } = event;
     if (!over) return;
 
     const sourceKey = Object.keys(columns).find((key) =>
@@ -96,6 +111,18 @@ function KanbanBoard({ selectedTasks, setSelectedTasks }) {
     );
     const destKey = Object.keys(columns).find((key) => key === over.id);
     if (!sourceKey || !destKey || sourceKey === destKey) return;
+
+    // Kiểm tra quyền: có luồng chuyển cho role user không?
+    const allowedTransition = workflowTransitions.find(
+      (t) =>
+        t.fromStep === sourceKey &&
+        t.toStep === destKey &&
+        t.allowedRoles.includes(userRole)
+    );
+    if (!allowedTransition) {
+      // Nếu không có quyền thì không cho hover chuyển sang cột khác
+      return;
+    }
 
     const sourceTasks = [...columns[sourceKey].tasks];
     const movedTaskIndex = sourceTasks.findIndex((t) => t.id === active.id);
@@ -112,7 +139,7 @@ function KanbanBoard({ selectedTasks, setSelectedTasks }) {
   };
 
   const onDragEnd = async (event) => {
-    const { active, over } = event;
+     const { active, over } = event;
     setActiveId(null);
     if (!over) return;
 
@@ -122,9 +149,26 @@ function KanbanBoard({ selectedTasks, setSelectedTasks }) {
     const destKey = over.id;
     if (!sourceKey || !destKey || sourceKey === destKey) return;
 
+    // Kiểm tra quyền chuyển trạng thái
+    const allowedTransition = workflowTransitions.find(
+      (t) =>
+        t.fromStep === sourceKey &&
+        t.toStep === destKey &&
+        t.allowedRoles.includes(userRole)
+    );
+
+    if (!allowedTransition) {
+      toast.error("Bạn không có quyền chuyển task sang trạng thái này");
+      // Reset lại columns để task trở về vị trí cũ
+      setColumns((prevColumns) => {
+        // Có thể reload lại tasks hoặc giữ nguyên prevColumns nếu onDragOver đã cản
+        return prevColumns;
+      });
+      return;
+    }
+
     const movedTask = columns[sourceKey].tasks.find((t) => t.id === active.id);
     if (!movedTask) return;
-
     try {
       await updateTaskStatus(movedTask.id, sourceKey, destKey);
       toast.success("Cập nhật trạng thái thành công");

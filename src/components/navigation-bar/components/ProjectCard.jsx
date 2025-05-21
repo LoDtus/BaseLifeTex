@@ -17,6 +17,9 @@ import ConfirmDialog from "../../ConfirmDialog";
 import { IconButton } from "@mui/material";
 import SettingsIcon from "@mui/icons-material/Settings";
 import ProjectSettingPopover from "./ProjectSettingPopover";
+import { fetchWorkflowSteps,clearWorkflowSteps } from "@/redux/statusSlice";
+import { getListTaskByProjectId } from "@/redux/taskSlice";
+import KanbanBoard from "../../tasks/components/kanban-view/KanbanBoard";
 
 const ProjectCard = ({ project, isSelected, avatarManger }) => {
   const dispatch = useDispatch();
@@ -34,6 +37,13 @@ const ProjectCard = ({ project, isSelected, avatarManger }) => {
   useEffect(() => {
     setProjectModal(false);
   }, [project]);
+  // useEffect(() => {
+  //   if (isSelected) {
+  //     dispatch(clearWorkflowSteps());
+  //     dispatch(fetchWorkflowSteps({ projectId: project._id }));
+  //     dispatch(getListTaskByProjectId({ projectId: project._id }));
+  //   }
+  // }, [isSelected, project._id, dispatch]);
   const getStatusButtonClass = () => {
     switch (convertStatus(project.status)) {
       case "Đang thực hiện":
@@ -111,6 +121,7 @@ const ProjectCard = ({ project, isSelected, avatarManger }) => {
         className={`${styles.projectCard} ${
           styles[getStatusBackgroundClass(project.status)]
         } ${isSelected ? styles.selected : ""}`}
+
       >
         <div className={styles.projectHeader}>
           <div className={styles.right}>
@@ -233,7 +244,15 @@ const ProjectCard = ({ project, isSelected, avatarManger }) => {
                 <SettingsIcon sx={{ fontSize: 25 }} />
               </IconButton>
             )}
+            
+      {/* {isSelected && (
+        <div className="mt-4">
+          <KanbanBoard projectId={project._id} />
         </div>
+      )} */}
+        </div>
+        
+     
         <Popover
           id={id}
           open={open}

@@ -21,7 +21,7 @@ export const fetchWorkflowTransitions = createAsyncThunk(
   async (workflowId, thunkAPI) => {
     try {
       const transitions = await getWorkflowTransitionsByWorkflowId(workflowId);
-      return transitions;
+      return transitions.data;
     } catch (err) {
       return thunkAPI.rejectWithValue(err);
     }
@@ -109,7 +109,7 @@ const workflowSlice = createSlice({
         state.errorTransitions = null;
       })
       .addCase(fetchWorkflowTransitions.fulfilled, (state, action) => {
-         state.transitions = action.payload.data || []; // lấy mảng data
+         state.transitions = action.payload || []; // lấy mảng data
   state.loadingTransitions = false;
       })
       .addCase(fetchWorkflowTransitions.rejected, (state, action) => {

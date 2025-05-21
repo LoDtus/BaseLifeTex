@@ -4,7 +4,7 @@ import CloseIcon from "@mui/icons-material/Close";
 
 import { getMembers } from "../../../services/projectService";
 
-import { createRole } from "../../../services/projectRoleService";
+import { createRole, getById } from "../../../services/projectRoleService";
 
 import { message } from "antd";
 
@@ -19,15 +19,19 @@ const AssignRoleModal = ({ onClose, id, role, selectedRolea, onSuccess }) => {
 
   const [filterUser, setfilterUser] = useState([]);
 
-  useEffect(() => {
+ useEffect(() => {
     (async () => {
       if (id) {
         const response = await getMembers(id);
 
         const existingUserIds = role?.map((r) => r.userId?._id) || [];
 
+        const getRole = await getById(id);
+        const filterRole = getRole?.map((item) => item.userId?._id) || [];
         const filteredUsers = response.filter(
-          (user) => !existingUserIds.includes(user._id)
+          (user) =>
+            !existingUserIds.includes(user._id) &&
+            !filterRole.includes(user._id)
         );
 
         setUsers(filteredUsers);
