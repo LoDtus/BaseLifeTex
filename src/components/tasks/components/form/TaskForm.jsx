@@ -82,7 +82,10 @@ export default function TaskForm() {
       dispatch(fetchWorkflowSteps(selectedProject.workflowId));
     }
   }, [selectedProject, dispatch]);
-      const firstStepId = workflowSteps[0]._id;
+  const firstStepId = Array.isArray(workflowSteps) && workflowSteps.length > 0
+  ? [...workflowSteps].sort((a, b) => a.stepOrder - b.stepOrder)[0]._id
+  : null;
+      // const firstStepId = workflowSteps[0]._id;
   useEffect(() => {
     if (taskState.slice(0, 7).includes("UPDATE")) {
       const taskId = taskState.slice(7);

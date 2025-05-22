@@ -7,6 +7,7 @@ import { PersistGate } from "redux-persist/integration/react";
 import FullPageLoader from "@/components/common/FullPageLoader.jsx";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { unstableSetRender } from 'antd'
+import Context from "./redux/Context.jsx";
 
 unstableSetRender((node, container) => {
   container._reactRoot ||= createRoot(container);
@@ -21,9 +22,11 @@ unstableSetRender((node, container) => {
 
 createRoot(document.getElementById("root")).render(
   <Provider store={store}>
-    <PersistGate loading={null} persistor={persistor}>
+    <Context>
+      <PersistGate loading={null} persistor={persistor}>
       <App />
       <FullPageLoader />
     </PersistGate>
+    </Context>
   </Provider>
 );

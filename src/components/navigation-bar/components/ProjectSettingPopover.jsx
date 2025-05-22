@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useContext, useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 
 import {
@@ -21,6 +21,7 @@ import {
   SyncOutlined,
   ReadOutlined,
   SearchOutlined,
+  RollbackOutlined,
 } from "@ant-design/icons";
 
 import { useDispatch, useSelector } from "react-redux";
@@ -28,7 +29,7 @@ import {
   addWorkflowStep,
   removeWorkflowStep,
   editWorkflowStep,
-deleteAllWorkflowStepsThunk,
+  deleteAllWorkflowStepsThunk,
   fetchWorkflowSteps,
   creatworkflow,
 } from "@/redux/statusSlice";
@@ -37,15 +38,21 @@ import {
   addWorkflowTransition,
   editWorkflowTransition,
   removeWorkflowTransition,
-
   deleteAllWorkflowTransitionsThunk,
   // setWorkflowId,
 } from "@/redux/workflowSlice";
 import { getworkflowbyid } from "../../../services/workflowService.js";
 
 import { useLocation } from "react-router-dom";
-import { deleteRoles, getById } from "../../../services/projectRoleService.js";
+import {
+  deleteRoles,
+  getById,
+  getRoleIdProject,
+  removeuserRole,
+} from "../../../services/projectRoleService.js";
 import AssignRoleModal from "./AssignRoleModal.jsx";
+import RoleManagement from "./RoleManagement.jsx";
+import { mya } from "../../../redux/Context.jsx";
 const ProjectSettingPopover = ({ onClose }) => {
   const popoverRef = useRef(null);
   const dispatch = useDispatch();
@@ -75,9 +82,9 @@ const ProjectSettingPopover = ({ onClose }) => {
   const query = useQuery();
   const managerId = user?._id; // hoặc lấy managerId từ dự án
   const projectId = query.get("idProject");
-const findRoleOptionByValue = (value) => {
-  return roleOptions.find((option) => option.value === value);
-};
+  const findRoleOptionByValue = (value) => {
+    return roleOptions.find((option) => option.value === value);
+  };
   // phan trang
   const itemsPerPage = 2;
   const [currentPage, setCurrentPage] = useState(1);
@@ -100,65 +107,68 @@ const findRoleOptionByValue = (value) => {
     "#e0ffe7", // xanh bạc hà nhạt
     "#f0f0ff", // xanh tím nhạt (lavender nhạt)
   ];
- const currentWorkflowId = workflows?.[0]?._id ?? null;
-useEffect(() => {
-  if (currentWorkflowId) {
-    dispatch(fetchWorkflowSteps(currentWorkflowId));
-    dispatch(fetchWorkflowTransitions(currentWorkflowId));
-  }
-}, [currentWorkflowId, dispatch]);
-//hàm để ttheme xoá stepsỏrder
-const normalizeStepOrder = async (workflowId, steps, dispatch) => {
-  const sortedSteps = [...steps].sort((a, b) => a.stepOrder - b.stepOrder);
-  
-  for (let i = 0; i < sortedSteps.length; i++) {
-    const step = sortedSteps[i];
-    if (step.stepOrder !== i + 1) {
-      await dispatch(editWorkflowStep({ 
-        workflowStepId: step._id, 
-        data: { stepOrder: i + 1 } 
-      }));
+  const currentWorkflowId = workflows?.[0]?._id ?? null;
+  useEffect(() => {
+    if (currentWorkflowId) {
+      dispatch(fetchWorkflowSteps(currentWorkflowId));
+      dispatch(fetchWorkflowTransitions(currentWorkflowId));
     }
-  }
+  }, [currentWorkflowId, dispatch]);
+  //hàm để ttheme xoá stepsỏrder
+  const normalizeStepOrder = async (workflowId, steps, dispatch) => {
+    const sortedSteps = [...steps].sort((a, b) => a.stepOrder - b.stepOrder);
 
-  await dispatch(fetchWorkflowSteps(workflowId)); // làm mới lại danh sách sau khi cập nhật
-};
-  const handleDeleteAllSteps = async () => {
-  if (!currentWorkflowId) {
-    message.error("Vui lòng tạo workflow trước khi xoá các trạng thái.");
-    return;
-  }
-
-  try {
-    await dispatch(deleteAllWorkflowStepsThunk(currentWorkflowId)).unwrap();
-    // await dispatch(fetchWorkflowTransitions(currentWorkflowId)).unwrap();
-    message.success("Đã xoá tất cả trạng thái.");
-
-  } catch (error) {
-    console.error("Lỗi xoá tất cả trạng thái:", error);
-    message.error("Xoá tất cả trạng thái thất bại.");
-  }
-};
- const handleDeleteLabel = async (workflowStepId) => {
-  try {
-    const res = await dispatch(removeWorkflowStep(workflowStepId));
-
-    if (res.meta.requestStatus === "fulfilled") {
-      message.success("Đã xóa trạng thái");
-
-      if (currentWorkflowId) {
-        // ✅ Lấy lại steps sau khi xóa
-        const updatedSteps = steps.filter((step) => step._id !== workflowStepId);
-        await normalizeStepOrder(currentWorkflowId, updatedSteps, dispatch);
+    for (let i = 0; i < sortedSteps.length; i++) {
+      const step = sortedSteps[i];
+      if (step.stepOrder !== i + 1) {
+        await dispatch(
+          editWorkflowStep({
+            workflowStepId: step._id,
+            data: { stepOrder: i + 1 },
+          })
+        );
       }
-    } else {
-      message.error("Xóa trạng thái thất bại");
     }
-  } catch (error) {
-    message.error("Xóa trạng thái thất bại");
-    console.error("❌ Lỗi khi xóa step:", error);
-  }
-};
+
+    await dispatch(fetchWorkflowSteps(workflowId)); // làm mới lại danh sách sau khi cập nhật
+  };
+  const handleDeleteAllSteps = async () => {
+    if (!currentWorkflowId) {
+      message.error("Vui lòng tạo workflow trước khi xoá các trạng thái.");
+      return;
+    }
+
+    try {
+      await dispatch(deleteAllWorkflowStepsThunk(currentWorkflowId)).unwrap();
+      // await dispatch(fetchWorkflowTransitions(currentWorkflowId)).unwrap();
+      message.success("Đã xoá tất cả trạng thái.");
+    } catch (error) {
+      console.error("Lỗi xoá tất cả trạng thái:", error);
+      message.error("Xoá tất cả trạng thái thất bại.");
+    }
+  };
+  const handleDeleteLabel = async (workflowStepId) => {
+    try {
+      const res = await dispatch(removeWorkflowStep(workflowStepId));
+
+      if (res.meta.requestStatus === "fulfilled") {
+        message.success("Đã xóa trạng thái");
+
+        if (currentWorkflowId) {
+          // ✅ Lấy lại steps sau khi xóa
+          const updatedSteps = steps.filter(
+            (step) => step._id !== workflowStepId
+          );
+          await normalizeStepOrder(currentWorkflowId, updatedSteps, dispatch);
+        }
+      } else {
+        message.error("Xóa trạng thái thất bại");
+      }
+    } catch (error) {
+      message.error("Xóa trạng thái thất bại");
+      console.error("❌ Lỗi khi xóa step:", error);
+    }
+  };
   const handleEditLabel = (id, currentName) => {
     setEditingLabel(id);
     setNewStatusLabel(currentName);
@@ -189,20 +199,19 @@ const normalizeStepOrder = async (workflowId, steps, dispatch) => {
   const handleAddStatus = async () => {
     if (!addStatusValue.trim()) return;
 
-   const idWorflow = await getworkflowbyid(idProject);
+    const idWorflow = await getworkflowbyid(idProject);
     const currentWorkflowId = idWorflow?.data[0]?._id ?? null;
 
     if (!currentWorkflowId) {
       message.error("Vui lòng tạo workflow trước khi thêm trạng thái.");
       return;
     }
-  const maxOrder = steps.length > 0
-    ? Math.max(...steps.map((s) => s.stepOrder || 0))
-    : 0;
+    const maxOrder =
+      steps.length > 0 ? Math.max(...steps.map((s) => s.stepOrder || 0)) : 0;
     const payload = {
       workflowId: currentWorkflowId,
       nameStep: addStatusValue.trim(),
-      stepOrder:maxOrder + 1,
+      stepOrder: maxOrder + 1,
       isFinal: false,
     };
 
@@ -221,10 +230,9 @@ const normalizeStepOrder = async (workflowId, steps, dispatch) => {
       message.error("Thêm trạng thái thất bại");
     }
   };
-  
+
   const fromStep = fromState;
   const toStep = toState;
- 
 
   const resetTransitionForm = () => {
     setFromState(null);
@@ -233,73 +241,73 @@ const normalizeStepOrder = async (workflowId, steps, dispatch) => {
     setIsEditing(false);
     setEditingIndex(null);
   };
-  
 
- const handleAddFlow = async () => {
-  if (!fromState || !toState || !selectedRole?.length) {
-    message.warning("Vui lòng nhập đầy đủ trạng thái và vai trò");
-    return;
-  }
-
-  if (fromState === toState) {
-    message.warning("Trạng thái bắt đầu và kết thúc không được giống nhau");
-    return;
-  }
-
-  const allowedRoles = selectedRole.map((role) => role.value);
-
-  if (!currentWorkflowId) {
-    message.error("Vui lòng tạo workflow trước khi thêm trạng thái.");
-    return;
-  }
-
-  // ✅ Kiểm tra trùng luồng
-  const exists = transitions?.some(
-    (t) => t.from === fromStep && t.to === toStep
-  );
-
-  if (exists) {
-    message.warning("Luồng đã tồn tại.");
-    return;
-  }
-
-  try {
-    await dispatch(
-      addWorkflowTransition({
-        workflowId: currentWorkflowId,
-        fromStep,
-        toStep,
-        allowedRoles,
-      })
-    ).unwrap();
-
-    message.success("Thêm luồng thành công");
-    resetTransitionForm();
-  } catch (err) {
-    console.error("Lỗi thêm luồng:", err);
-
-    if (err?.message?.includes("đã tồn tại")) {
-      message.error("Luồng đã tồn tại, vui lòng kiểm tra lại.");
-    } else {
-      message.error("Đã có lỗi xảy ra khi thêm luồng.");
+  const handleAddFlow = async () => {
+    if (!fromState || !toState || !selectedRole?.length) {
+      message.warning("Vui lòng nhập đầy đủ trạng thái và vai trò");
+      return;
     }
-  }
-};
 
+    if (fromState === toState) {
+      message.warning("Trạng thái bắt đầu và kết thúc không được giống nhau");
+      return;
+    }
+
+    const allowedRoles = selectedRole.map((role) => role.value);
+
+    if (!currentWorkflowId) {
+      message.error("Vui lòng tạo workflow trước khi thêm trạng thái.");
+      return;
+    }
+
+    // ✅ Kiểm tra trùng luồng
+    const exists = transitions?.some(
+      (t) => t.from === fromStep && t.to === toStep
+    );
+
+    if (exists) {
+      message.warning("Luồng đã tồn tại.");
+      return;
+    }
+
+    try {
+      await dispatch(
+        addWorkflowTransition({
+          workflowId: currentWorkflowId,
+          fromStep,
+          toStep,
+          allowedRoles,
+        })
+      ).unwrap();
+
+      message.success("Thêm luồng thành công");
+      resetTransitionForm();
+    } catch (err) {
+      console.error("Lỗi thêm luồng:", err);
+
+      if (err?.message?.includes("đã tồn tại")) {
+        message.error("Luồng đã tồn tại, vui lòng kiểm tra lại.");
+      } else {
+        message.error("Đã có lỗi xảy ra khi thêm luồng.");
+      }
+    }
+  };
 
   const handleEdit = (id) => {
     const trans = transitions.find((t) => t._id === id);
-  if (!trans) return;
+    if (!trans) return;
 
-  setFromState(trans.fromStep);
-  setToState(trans.toStep);
-  setSelectedRole(
-    Array.isArray(trans.allowedRoles)
-      ? trans.allowedRoles.map((r) => findRoleOptionByValue(r)).filter(Boolean)
-      : []
-  );
-  setEditingIndex(id); 
-  setIsEditing(true);
+    setFromState(trans.fromStep);
+    setToState(trans.toStep);
+    setSelectedRole(
+      Array.isArray(trans.allowedRoles)
+        ? trans.allowedRoles
+            .map((r) => findRoleOptionByValue(r))
+            .filter(Boolean)
+        : []
+    );
+    setEditingIndex(id);
+    setIsEditing(true);
   };
 
   const handleSaveEdit = async () => {
@@ -309,11 +317,11 @@ const normalizeStepOrder = async (workflowId, steps, dispatch) => {
     }
     const allowedRoles = selectedRole.map((role) => role.value);
     if (fromState === toState) {
-      message.warning("Trạng thái bắt đầu và kết thúc không được giống nhau")
+      message.warning("Trạng thái bắt đầu và kết thúc không được giống nhau");
       return;
     }
     try {
-     const editingTransition = transitions.find((t) => t._id === editingIndex);
+      const editingTransition = transitions.find((t) => t._id === editingIndex);
       if (!editingTransition) return;
 
       const updatedTransition = {
@@ -338,43 +346,47 @@ const normalizeStepOrder = async (workflowId, steps, dispatch) => {
     }
   };
   const handleDelete = async (id) => {
-  try {
-    const transitionToDelete = transitions.find((t) => t._id === id);
-    if (!transitionToDelete) {
-      console.warn("Không tìm thấy transition cần xoá");
+    try {
+      const transitionToDelete = transitions.find((t) => t._id === id);
+      if (!transitionToDelete) {
+        console.warn("Không tìm thấy transition cần xoá");
+        return;
+      }
+
+      await dispatch(removeWorkflowTransition(transitionToDelete._id)).unwrap();
+      message.success("Xóa luồng thành công");
+    } catch (error) {
+      console.error("Lỗi xóa luồng:", error);
+      message.error("Xóa luồng thất bại");
+    }
+  };
+
+  const handleDeleteAllTransitions = async () => {
+    if (!currentWorkflowId) {
+      message.error("Vui lòng tạo workflow trước khi xoá các luồng.");
       return;
     }
 
-    await dispatch(removeWorkflowTransition(transitionToDelete._id)).unwrap();
-    message.success("Xóa luồng thành công");
-  } catch (error) {
-    console.error("Lỗi xóa luồng:", error);
-    message.error("Xóa luồng thất bại");
-  }
-};
+    const confirm = window.confirm(
+      "Bạn có chắc chắn muốn xoá tất cả các luồng?"
+    );
+    if (!confirm) return;
 
-  const handleDeleteAllTransitions = async () => {
-  if (!currentWorkflowId) {
-    message.error("Vui lòng tạo workflow trước khi xoá các luồng.");
-    return;
-  }
+    try {
+      await dispatch(
+        deleteAllWorkflowTransitionsThunk(currentWorkflowId)
+      ).unwrap();
+      await dispatch(fetchWorkflowSteps(currentWorkflowId)).unwrap();
+      await dispatch(fetchWorkflowTransitions(currentWorkflowId)).unwrap();
+      message.success("Đã xoá tất cả luồng thành công.");
+      resetTransitionForm();
+    } catch (error) {
+      console.error("Lỗi xoá tất cả luồng:", error);
+      message.error("Xoá tất cả luồng thất bại.");
+    }
+  };
 
-  const confirm = window.confirm("Bạn có chắc chắn muốn xoá tất cả các luồng?");
-  if (!confirm) return;
-
-  try {
-    await dispatch(deleteAllWorkflowTransitionsThunk(currentWorkflowId)).unwrap();
-     await dispatch(fetchWorkflowSteps(currentWorkflowId)).unwrap();
-    await dispatch(fetchWorkflowTransitions(currentWorkflowId)).unwrap();
-    message.success("Đã xoá tất cả luồng thành công.");
-    resetTransitionForm();
-  } catch (error) {
-    console.error("Lỗi xoá tất cả luồng:", error);
-    message.error("Xoá tất cả luồng thất bại.");
-  }
-};
-
-  const permissions = ["View", "Add", "Edit", "Delete", "Comment", "Drag"];
+  // const permissions = ["View", "Add", "Edit", "Delete", "Comment", "Drag"];
 
   useEffect(() => {
     if (!projectId) return;
@@ -393,14 +405,7 @@ const normalizeStepOrder = async (workflowId, steps, dispatch) => {
     })();
   }, [projectId]);
 
-  const roles = [
-    { role: "PM", rights: [1, 1, 1, 1, 0, 1] },
-    { role: "Dev", rights: [1, 0, 0, 0, 1, 1] },
-    { role: "Test", rights: [1, 0, 0, 0, 1, 1] },
-    { role: "BA", rights: [1, 0, 0, 0, 1, 1] },
-    { role: "User", rights: [1, 0, 0, 0, 1, 1] },
-  ];
-  const [selectedRolea, setSelectedRolea] = useState(0);
+  
   const { Option } = Select;
   const location = useLocation(); // lấy URL hiện tại
   const queryParams = new URLSearchParams(location.search); // phân tích chuỗi query
@@ -409,28 +414,31 @@ const normalizeStepOrder = async (workflowId, steps, dispatch) => {
   const [search, setSearch] = useState("");
   const [filterUser, setfilterUser] = useState([]);
   const [isAssignRoleModalOpen, setIsAssignRoleModalOpen] = useState(false);
-
+  const [role, setRole] = useState([]);
+  const [selectedRolea, setSelectedRolea] = useState(role?.length ? role[0]._id : null);
+  // useEffect(() => {
+  //   if (role?.length) {
+  //     setSelectedRolea(role[0]._id)|| null;
+  //   }
+  // }, [role]);
+   const {state, setState} = useContext(mya);
   useEffect(() => {
     (async () => {
-      const data = await getById(idProject);
-      setUsers(data);
+      if (idProject) {
+        const data = await getRoleIdProject(idProject);
+        setRole(data);
+        setUsers(data);
+      }
     })();
-  }, [check]);
+  }, [check, idProject,state]);
 
-  const ROLES = {
-    PM: 0,
-    DEV: 1,
-    TEST: 2,
-    BA: 3,
-    USER: 4,
-  };
-  const roleOptions = Object.keys(ROLES).map((key) => ({
-    label: key, // Hiển thị trên dropdown
-    value: ROLES[key], // Giá trị thực được lưu
-  }));
-const ROLES_REVERSE = Object.fromEntries(
-  Object.entries(ROLES).map(([key, val]) => [val, key])
-);
+
+  const roleOptions = role
+    ? role.map((item) => ({
+        label: item.roleName, // Hiển thị tên vai trò
+        value: item._id, // Giá trị lưu (id)
+      }))
+    : [];
   const onSelectChange = (newSelectedRowKeys) => {
     setSelectedRowKeys(newSelectedRowKeys);
   };
@@ -439,7 +447,48 @@ const ROLES_REVERSE = Object.fromEntries(
     onChange: onSelectChange,
     preserveSelectedRowKeys: false,
   };
+  // ✅ Flatten users từ danh sách role
+  const flattenedUsers = useMemo(() => {
+    return (users || [])
+      .filter((item) => item._id === selectedRolea)
+      .flatMap((role) =>
+        role.userIds.map((user) => ({
+          ...user,
+          projectId: role.projectId,
+          roleId: role._id,
+          roleName: role.roleName,
+        }))
+      );
+  }, [users, selectedRolea]);
+  // ✅ Tìm kiếm user
+  const ROLES_REVERSE = roleOptions.reduce((acc, role) => {
+  acc[role.value] = role.label;
+  return acc;
+}, {});
+  useEffect(() => {
+    const normalizeString = (str) =>
+      str
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "") // loại dấu tiếng Việt
+        .replace(/\s+/g, " ") // xóa khoảng trắng thừa
+        .trim();
 
+    const keyword = normalizeString(search);
+
+    if (keyword) {
+      const filtered = flattenedUsers.filter((user) => {
+        const normalizedUsername = normalizeString(user?.userName || "");
+        return normalizedUsername.includes(keyword);
+      });
+      setfilterUser(filtered);
+    } else {
+      setfilterUser(flattenedUsers);
+    }
+  }, [search, flattenedUsers]);
+
+  const userRoles = search.trim() !== "" ? filterUser : flattenedUsers;
+  // ✅ Cột bảng
   const userColumns = [
     {
       title: "STT",
@@ -450,21 +499,21 @@ const ROLES_REVERSE = Object.fromEntries(
     },
     {
       title: "Username",
-      dataIndex: ["userId", "userName"],
+      dataIndex: "userName",
+      key: "userName",
     },
     {
       title: "Email",
-      dataIndex: ["userId", "email"],
+      dataIndex: "email",
+      key: "email",
     },
     {
-      title: "Xóa",
+      title: "Delete",
       key: "action",
       render: (_, record) => (
         <Popconfirm
           title="Bạn có chắc muốn xóa?"
-          onConfirm={() =>
-            handleDeleteUser(record?.projectId, [record?.userId?._id])
-          }
+          onConfirm={() => handleDeleteUser(record.roleId, [record._id])}
           okText="Xóa"
           cancelText="Hủy"
         >
@@ -502,9 +551,9 @@ const ROLES_REVERSE = Object.fromEntries(
   }, [onClose]);
 
   // Xóa người
-  const handleDeleteUser = async (projectId, userId) => {
+  const handleDeleteUser = async (Id, userId) => {
     try {
-      const remove = await deleteRoles(projectId, userId, selectedRolea);
+      const remove = await removeuserRole(Id, userId);
       setcheck((prev) => !prev); // chỉ rely on API
       setSelectedRolea((prev) => prev); // ép render lại filter
       if (remove) {
@@ -518,11 +567,7 @@ const ROLES_REVERSE = Object.fromEntries(
   // xóa tất cả người dùng
   const handleDeleteMultipleUsers = async () => {
     try {
-      const promises = await deleteRoles(
-        idProject,
-        selectedRowKeys,
-        selectedRolea
-      );
+      const promises = await removeuserRole(selectedRolea, selectedRowKeys);
       setSelectedRowKeys([]);
       setcheck((prev) => !prev); // Gọi lại API để cập nhật danh sách
       if (promises) {
@@ -533,33 +578,7 @@ const ROLES_REVERSE = Object.fromEntries(
       message.error("Xóa người dùng thất bại.");
     }
   };
-  const filteredData =
-    selectedRolea === null
-      ? []
-      : (users || []).filter((item) => item.role === selectedRolea);
-  useEffect(() => {
-    if (search.trim() !== "") {
-      const normalizeString = (str) =>
-        str
-          .toLowerCase()
-          .normalize("NFD") // chuẩn hóa Unicode
-          .replace(/[\u0300-\u036f]/g, "") // loại dấu
-          .replace(/\s+/g, " ") // xóa khoảng trắng thừa
-          .trim();
 
-      const keyword = normalizeString(search);
-
-      const filtered = filteredData.filter((note) => {
-        const title = normalizeString(note.userId.userName);
-        return title.includes(keyword);
-      });
-
-      setfilterUser(filtered);
-    } else {
-      setfilterUser([]);
-    }
-  }, [users, search, check]);
-  const userRoles = search.trim() !== "" ? filterUser : filteredData;
   useEffect(() => {
     (async () => {
       try {
@@ -616,121 +635,128 @@ const ROLES_REVERSE = Object.fromEntries(
             <div className="flex w-full h-full overflow-hidden p-3">
               <div className="flex w-full border border-black rounded-2xl">
                 <div className="w-[30%] border-r pr-4 pt-4 overflow-y-auto">
-                
-
                   <h3
                     className={`mb-4 text-center ${styles.projectSetting__statusHeader}`}
                   >
                     TRẠNG THÁI
                   </h3>
-               <div className="flex justify-center">
-                  <ul className="w-full max-w-xl list-none text-sm ">
-                    {Array.isArray(steps) &&
-                      steps.map((item, index) => (
-                        <li
-                          key={item._id}
-
-                          className="flex items-center justify-between mb-2"
-                        >
-                          {editingLabel === item._id ? (
-                            <input
-                              value={newStatusLabel}
-                              onChange={(e) =>
-                                setNewStatusLabel(e.target.value)
-                              }
-                              onBlur={() => handleSaveEditLabel(item._id)}
-                              autoFocus
-                              className="flex-1 px-2 py-1 text-sm border rounded"
-                              style={{
-                                height: "35px",
-                                marginLeft: "-5px",
-                                marginRight: "10px",
-                              }}
-                            />
-                          ) : (
-                            <span
-                              className={` ${item.text} px-3 rounded`}
-                              style={{
-                                backgroundColor: colors[index % colors.length],
-                                flex: 1,
-                                height: "35px",
-                                display: "flex",
-                                alignItems: "center",
-                              
-                                fontSize: "0.7rem",
-                                fontWeight: "600",
-                                marginLeft: "-25px",
-                                marginRight: "5px",
-                              }}
-                            >
-                              {item.nameStep}
-                            </span>
-                          )}
-                          <div className="flex gap-1" style={{ marginRight: "3px" }}>
-                            <Popconfirm
-                              title="Bạn có chắc xóa?"
-                              okText="Xóa"
-                              cancelText="Hủy"
-                              onConfirm={() => handleDeleteLabel(item._id)}
-                            >
-                              <Button
-                                icon={<DeleteOutlined />}
-                                type="primary"
-                                danger
+                  <div className="flex justify-center">
+                    <ul className="w-full max-w-xl list-none text-sm ">
+                      {Array.isArray(steps) &&
+                        steps.map((item, index) => (
+                          <li
+                            key={item._id}
+                            className="flex items-center justify-between mb-2"
+                          >
+                            {editingLabel === item._id ? (
+                              <input
+                                value={newStatusLabel}
+                                onChange={(e) =>
+                                  setNewStatusLabel(e.target.value)
+                                }
+                                onBlur={() => handleSaveEditLabel(item._id)}
+                                autoFocus
+                                className="flex-1 px-2 py-1 text-sm border rounded"
+                                style={{
+                                  height: "35px",
+                                  marginLeft: "-5px",
+                                  marginRight: "10px",
+                                }}
                               />
-                            </Popconfirm>
-                            <Button
-                              icon={<EditOutlined />}
-                              type="primary"
-                              onClick={() =>
-                                handleEditLabel(item._id, item.nameStep)
-                              }
-                            />
-                          </div>
+                            ) : (
+                              <span
+                                className={` ${item.text} px-3 rounded`}
+                                style={{
+                                  backgroundColor:
+                                    colors[index % colors.length],
+                                  flex: 1,
+                                  height: "35px",
+                                  display: "flex",
+                                  alignItems: "center",
+
+                                  fontSize: "0.7rem",
+                                  fontWeight: "600",
+                                  marginLeft: "-25px",
+                                  marginRight: "5px",
+                                }}
+                              >
+                                {item.nameStep}
+                              </span>
+                            )}
+                            <div
+                              className="flex gap-1"
+                              style={{ marginRight: "3px" }}
+                            >
+                              <Popconfirm
+                                title="Bạn có chắc xóa?"
+                                okText="Xóa"
+                                cancelText="Hủy"
+                                onConfirm={() => handleDeleteLabel(item._id)}
+                              >
+                                <Button
+                                  icon={<DeleteOutlined />}
+                                  type="primary"
+                                  danger
+                                />
+                              </Popconfirm>
+                              <Button
+                                icon={<EditOutlined />}
+                                type="primary"
+                                onClick={() =>
+                                  handleEditLabel(item._id, item.nameStep)
+                                }
+                              />
+                            </div>
+                          </li>
+                        ))}
+                      {steps.length > 0 && (
+                        <li className="flex justify-center mt-3 ">
+                          <Popconfirm
+                            title="Bạn có chắc chắn muốn xoá tất cả trạng thái?"
+                            okText="Xóa tất cả"
+                            cancelText="Hủy"
+                            onConfirm={handleDeleteAllSteps}
+                          >
+                            <button
+                              className="text-red-500 hover:underline text-sm "
+                              style={{ marginLeft: "60px" }}
+                            >
+                              🧹 Xóa tất cả
+                            </button>
+                          </Popconfirm>
                         </li>
-                        
-                      ))}
-                        {steps.length > 0 && (
-    <li className="flex justify-center mt-3 ">
-      <Popconfirm
-        title="Bạn có chắc chắn muốn xoá tất cả trạng thái?"
-        okText="Xóa tất cả"
-        cancelText="Hủy"
-        onConfirm={handleDeleteAllSteps}
-      >
-          <button className="text-red-500 hover:underline text-sm "style={{ marginLeft: "60px" }}>
-                            🧹 Xóa tất cả
-                          </button>
-      </Popconfirm>
-    </li>
-  )}
-                    <li className="flex items-center justify-center mt-3 space-x-2">
-                      <input
-                        value={addStatusValue}
-                        onChange={(e) => setAddStatusValue(e.target.value)}
-                        placeholder="Nhập trạng thái mới"
-                        className="flex-1 px-1 py-1 text-sm border rounded"
-                        style={{ marginRight: "30px" }}
-                      />
-                    </li>
-                  </ul>
-</div>
+                      )}
+                      <li className="flex items-center justify-center mt-3 space-x-2">
+                        <input
+                          value={addStatusValue}
+                          onChange={(e) => setAddStatusValue(e.target.value)}
+                          placeholder="Nhập trạng thái mới"
+                          className="flex-1 px-1 py-1 text-sm border rounded"
+                          style={{ marginRight: "30px" }}
+                        />
+                      </li>
+                    </ul>
+                  </div>
                   <div className="flex justify-center mt-2">
                     <button
-    type="button"
-    onClick={() => {
-      if (!addStatusValue.trim()) {
-        message.warning("Vui lòng nhập trạng thái mới");
-        return;
-      }
-      handleAddStatus();
-    }}
-    disabled={!addStatusValue.trim()}
-    className={`flex items-center gap-1 border rounded px-3 py-1 transition
-      ${addStatusValue.trim() ? 'border-gray-400 hover:text-white hover:bg-green-400 cursor-pointer' : 'border-gray-200 text-gray-400 cursor-not-allowed'}`}
-  >
-    <PlusOutlined /> Thêm trạng thái
-  </button>
+                      type="button"
+                      onClick={() => {
+                        if (!addStatusValue.trim()) {
+                          message.warning("Vui lòng nhập trạng thái mới");
+                          return;
+                        }
+                        handleAddStatus();
+                      }}
+                      disabled={!addStatusValue.trim()}
+                      className={`flex items-center gap-1 border rounded px-3 py-1 transition
+      ${
+        addStatusValue.trim()
+          ? "border-gray-400 hover:text-white hover:bg-green-400 cursor-pointer"
+          : "border-gray-200 text-gray-400 cursor-not-allowed"
+      }`}
+                    >
+                      <PlusOutlined /> Thêm trạng thái
+                    </button>
                   </div>
                 </div>
 
@@ -739,26 +765,33 @@ const ROLES_REVERSE = Object.fromEntries(
                     ROLES
                   </h3>
                   <div className="flex justify-center gap-6 flex-wrap text-sm">
-                    {[ "PM", "DEV", "TEST", "BA", "USER"].map(
-                      (role) => (
-                        <label key={role} className="flex items-center gap-2">
-                          <input
-                            type="checkbox"
-                            value={role}
-                            className="accent-blue-500"
-                            checked={selectedRole.some(r => r.value === ROLES[role])}
-                            onChange={(e) => {
-                               if (e.target.checked) {
-    setSelectedRole([...selectedRole, { label: role, value: ROLES[role] }]);
-  } else {
-    setSelectedRole(selectedRole.filter(r => r.value !== ROLES[role]));
-  }
-                            }}
-                          />
-                          <span>{role}</span>
-                        </label>
-                      )
-                    )}
+                   {roleOptions.map((role,index) => (
+                      <label key={index} className="flex items-center gap-5">
+                        <input
+                          type="checkbox"
+                          value={role.label}
+                          className="accent-blue-500"
+                          checked={selectedRole.some(
+                            (r) => r.value === role.value
+                          )}
+                          onChange={(e) => {
+                            if (e.target.checked) {
+                              setSelectedRole([
+                                ...selectedRole,
+                                { label: role.label, value: role.value },
+                              ]);
+                            } else {
+                              setSelectedRole(
+                                selectedRole.filter(
+                                  (r) => r.value !== role.value
+                                )
+                              );
+                            }
+                          }}
+                        />
+                        <span className="text-base" style={{marginLeft: "2px"}}>{role.label}</span>
+                      </label>
+                    ))}
                   </div>
 
                   <div className="flex flex-col gap-4 pt-4">
@@ -837,7 +870,7 @@ const ROLES_REVERSE = Object.fromEntries(
                           title="Bạn có chắc muốn xóa tất cả các luồng không?"
                           okText="Xóa"
                           cancelText="Hủy"
-                         onClick={handleDeleteAllTransitions}
+                          onClick={handleDeleteAllTransitions}
                         >
                           <button className="text-red-500 hover:underline text-sm">
                             🧹 Xóa tất cả
@@ -863,19 +896,24 @@ const ROLES_REVERSE = Object.fromEntries(
 
                             return (
                               <li
-                        key={flow._id}
+                                key={flow._id}
                                 className="flex justify-between items-center border p-2 rounded gap-3"
                               >
                                 <span className="flex-1">
-                                  {fromStep?.nameStep || "Không xác định"} ➝ {" "}
-                                  {toStep?.nameStep || "Không xác định"}  
-    { flow.allowedRoles?.length > 0 && (
-  <strong className="ml-2 text-sm text-gray-600">
-    (
-    { flow.allowedRoles.map((roleValue) => ROLES_REVERSE[roleValue] || "?").join(", ")}
-    )
-  </strong>
-)}
+                                  {fromStep?.nameStep || "Không xác định"} ➝{" "}
+                                  {toStep?.nameStep || "Không xác định"}
+                                  {flow.allowedRoles?.length > 0 && (
+                                    <strong className="ml-2 text-base text-gray-600" style={{marginLeft: "3px"}}>
+                                      (
+                                      {flow.allowedRoles
+                                        .map(
+                                          (roleValue) =>
+                                            ROLES_REVERSE[roleValue] || "?"
+                                        )
+                                        .join(", ")}
+                                      )
+                                    </strong>
+                                  )}
                                 </span>
                                 <button
                                   onClick={() => handleEdit(flow._id)}
@@ -916,12 +954,12 @@ const ROLES_REVERSE = Object.fromEntries(
               </div>
             </div>
           )}
-          {activeTab === "roles" && (
+          {activeTab === "usserRoles" && (
             <div className="w-full px-4">
               <h2
                 className={`text-lg font-semibold pt-4 mb-4 text-center ${styles.projectSetting__roleTitle}`}
               >
-                QUẢN LÝ VAI TRÒ
+                QUẢN LÝ USER ROLE
               </h2>
 
               <div className="flex justify-center items-center gap-4">
@@ -948,17 +986,14 @@ const ROLES_REVERSE = Object.fromEntries(
                     allowClear
                     onChange={(e) => setSearch(e.target.value)}
                   />
-                  <button
-                    onClick={() => setOpenFunction(true)}
-                    className="bg-yellow-500 text-white px-2 py-1 rounded hover:bg-blue-600"
-                  >
-                    chức năng
-                  </button>
+                  <Button type="primary" onClick={() => setActiveTab("roles")}>
+                    <RollbackOutlined /> Quay lại
+                  </Button>
                 </div>
 
                 <div className="mt-4 flex items-center justify-between">
                   <button
-                    onClick={() => setIsAssignRoleModalOpen(true)}
+                    onClick={() => selectedRolea !== null ? setIsAssignRoleModalOpen(true) : message.warning("vui lòng chọn vai trò")}
                     className="flex items-center gap-1 border border-gray-400 rounded px-3 py-1 hover:bg-[#5f646a] hover:text-white  transition"
                   >
                     <PlusOutlined />
@@ -982,11 +1017,11 @@ const ROLES_REVERSE = Object.fromEntries(
                 </div>
                 <div className="text-left font-bold  mt-4">
                   <ReadOutlined style={{ marginRight: "4px" }} />
-                  DANH SÁCH TEST
+                  DANH SÁCH 
                 </div>
                 <div className="mt-2">
                   <Table
-                    rowKey={(record) => record?.userId?._id}
+                    rowKey={(record) => record?._id}
                     rowSelection={rowSelection}
                     dataSource={userRoles}
                     columns={userColumns}
@@ -998,52 +1033,10 @@ const ROLES_REVERSE = Object.fromEntries(
               </div>
             </div>
           )}
-
-          <Modal
-            title="Ma trận phân quyền theo vai trò"
-            open={openFunction}
-            onCancel={() => setOpenFunction(false)}
-            footer={null}
-            width={800}
-          >
-            <div className="overflow-auto">
-              <table className="table-auto border-collapse w-full text-center">
-                <thead>
-                  <tr>
-                    <th className="border px-4 py-2 bg-gray-100">
-                      Quyền / Vai trò
-                    </th>
-                    {roles.map((role) => (
-                      <th
-                        key={role.role}
-                        className="border px-4 py-2 bg-gray-100"
-                      >
-                        {role.role}
-                      </th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {permissions.map((permission, rowIdx) => (
-                    <tr key={permission}>
-                      <td className="border px-4 py-2 font-medium">
-                        {permission}
-                      </td>
-                      {roles.map((role) => (
-                        <td key={role.role} className="border px-4 py-2">
-                          {role.rights[rowIdx] ? (
-                            <CheckCircleTwoTone twoToneColor="#52c41a" />
-                          ) : (
-                            <CloseCircleTwoTone twoToneColor="#ff4d4f" />
-                          )}
-                        </td>
-                      ))}
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </Modal>
+          {activeTab === "roles" && (
+                      <RoleManagement onSuccess={() => setActiveTab("usserRoles")} />
+                    )}
+        
         </div>
         {isAssignRoleModalOpen && (
           <AssignRoleModal

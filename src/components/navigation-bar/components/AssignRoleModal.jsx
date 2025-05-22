@@ -1,10 +1,10 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 
 import CloseIcon from "@mui/icons-material/Close";
 
 import { getMembers } from "../../../services/projectService";
 
-import { createRole, getById } from "../../../services/projectRoleService";
+import { adduserRole, createRole, getById, getRoleIdProject } from "../../../services/projectRoleService";
 
 import { message } from "antd";
 
@@ -18,26 +18,32 @@ const AssignRoleModal = ({ onClose, id, role, selectedRolea, onSuccess }) => {
   const [search, setSearch] = useState("");
 
   const [filterUser, setfilterUser] = useState([]);
-
+  
  useEffect(() => {
-    (async () => {
-      if (id) {
-        const response = await getMembers(id);
+  (async () => {
+    if (id) {
+      const response = await getMembers(id); // Tất cả user trong project
 
-        const existingUserIds = role?.map((r) => r.userId?._id) || [];
+      const allRoles = await getRoleIdProject(id); // Tất cả vai trò trong project
+      console.log("All Roles:", allRoles);
 
-        const getRole = await getById(id);
-        const filterRole = getRole?.map((item) => item.userId?._id) || [];
-        const filteredUsers = response.filter(
-          (user) =>
-            !existingUserIds.includes(user._id) &&
-            !filterRole.includes(user._id)
-        );
+      // 👉 Lấy tất cả userId từ tất cả role (bất kể role nào)
+      const assignedUserIds = allRoles.flatMap(role =>
+        role.userIds?.map(user => user._id) || []
+      );
 
-        setUsers(filteredUsers);
-      }
-    })();
-  }, [id, role]);
+      console.log("All assigned userIds:", assignedUserIds);
+
+      // 👉 Lọc: chỉ hiện user chưa có trong bất kỳ vai trò nào
+      const unassignedUsers = response.filter(
+        user => !assignedUserIds.includes(user._id)
+      );
+
+      setUsers(unassignedUsers); // danh sách user chưa phân vai trò
+    }
+  })();
+}, [id, selectedRolea]); // lắng nghe cả khi chọn lại role
+
 
   const handleSelect = (userId) => {
     setSelectedUserIds((prev) =>
@@ -46,7 +52,6 @@ const AssignRoleModal = ({ onClose, id, role, selectedRolea, onSuccess }) => {
         : [...prev, userId]
     );
   };
-
   const handleSelectAll = () => {
     if (selectAll) {
       setSelectedUserIds([]);
@@ -63,22 +68,14 @@ const AssignRoleModal = ({ onClose, id, role, selectedRolea, onSuccess }) => {
 
     setSelectAll(!selectAll);
   };
-
   const handleSubmit = async () => {
     if (selectedUserIds.length === 0) {
       return message.warning("Vui lòng chọn ít nhất một thành viên.");
     }
 
     try {
-      const payload = {
-        projectId: id,
 
-        userIds: selectedUserIds,
-
-        role: selectedRolea,
-      };
-
-      const res = await createRole(payload);
+      const res = await adduserRole(selectedRolea,{userIds:selectedUserIds});
 
       if (res) {
         message.success("Thêm thành viên thành công!");
@@ -93,7 +90,6 @@ const AssignRoleModal = ({ onClose, id, role, selectedRolea, onSuccess }) => {
       message.error("Thêm thất bại!");
     }
   };
-
   // useEffect để lọc theo từ khoá search
 
   useEffect(() => {

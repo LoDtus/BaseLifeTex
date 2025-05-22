@@ -30,7 +30,7 @@ export default function ListHome({ selectedTasks = [], setSelectedTasks }) {
   let Page = useSelector((state) => state.task.page);
   let limit = useSelector((state) => state.task.limit);
   let Total = useSelector((state) => state.task.total);
-
+ const steps = useSelector((state) => state.status.steps);
   const [loading, setLoading] = useState(false);
 
   const debouncedGetList = useCallback(async () => {
@@ -84,35 +84,27 @@ export default function ListHome({ selectedTasks = [], setSelectedTasks }) {
     dispatch(changeRowPerPage(newLimit)); // Cập nhật Redux state
   };
 
-  const handleStatusChange = async (taskId, oldStatus, newStatus) => {
-    const newStatusNumber = Number(newStatus);
-    try {
-      const response = await updateIssueDataStatus(taskId, {
-        oldStatus,
-        newStatus: newStatusNumber,
-      });
+const handleStatusChange = async (taskId, oldStatusObj, newStatusId) => {
+  const oldStatus = typeof oldStatusObj === "object" ? oldStatusObj._id : oldStatusObj;
 
-      if (response.success) {
-        debouncedGetList();
-        toast.success(response.message);
-      } else {
-        toast.error(response.message);
-      }
-    } catch (e) {
-      toast.error("Cập nhật trạng thái thất bại");
-      throw new Error(e);
+  try {
+    const response = await updateIssueDataStatus(taskId, {
+      oldStatus,
+      newStatus: newStatusId,
+    });
+
+    if (response.success) {
+      debouncedGetList();
+      toast.success(response.message);
+    } else {
+      toast.error(response.message);
     }
-  };
+  } catch (e) {
+    toast.error("Cập nhật trạng thái thất bại");
+    throw new Error(e);
+  }
+};
 
-  // const onOpenDetail = (taskId) => {
-  //     setIdOpenDetail(taskId);
-  //     setOpenDetail(true);
-  // };
-
-  // const closeDetail = () => {
-  //     setIdOpenDetail(null);
-  //     setOpenDetail(false);
-  // };
 
   const handleClickMemberTask = (event, taskId) => {
     event.stopPropagation();
@@ -321,8 +313,8 @@ export default function ListHome({ selectedTasks = [], setSelectedTasks }) {
                   {convertDateYMD(task.endDate)}
                 </div>
                 <div className="basis-[15%] flex justify-center">
-                 <select
-  value={task.status} // status là ObjectId (chuỗi)
+<select
+  value={task.status?._id || task.status} // nếu task.status là object
   onChange={(e) =>
     handleStatusChange(task._id, task.status, e.target.value)
   }
@@ -333,8 +325,8 @@ export default function ListHome({ selectedTasks = [], setSelectedTasks }) {
       {step.nameStep}
     </option>
   ))}
-</select>
-                </div>
+</select>     
+ </div>
                 <div className="basis-[18%] line-clamp-1">
                   <a
                     href={`task.link`}

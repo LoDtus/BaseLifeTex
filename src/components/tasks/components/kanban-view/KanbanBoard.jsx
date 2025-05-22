@@ -28,6 +28,7 @@ function KanbanBoard({projectId ,selectedTasks, setSelectedTasks }) {
     const workflowId = useSelector((state) => state.status.workflowId);
 const userRole = useSelector((state) => state.auth.user?.role);
   const listTask = useSelector((state) => state.task.listTask);
+console.log("chekclistTask", listTask);
   const workflowSteps = useSelector((state) => state.status.steps);
    const workflowTransitions = useSelector((state) => state.workflow.transitions);
   const [columns, setColumns] = useState({});
@@ -52,7 +53,7 @@ const userRole = useSelector((state) => state.auth.user?.role);
       dispatch(fetchWorkflowTransitions(workflowId));
     }
   }, [dispatch, workflowId]);
-  console.log("checkworkflowId", workflowId);
+  // console.log("checkworkflowId", workflowId);
   useEffect(() => {
   if (idProject) {
     dispatch(clearWorkflowSteps()); // 👈 reset steps trước khi fetch mới
@@ -60,36 +61,38 @@ const userRole = useSelector((state) => state.auth.user?.role);
     dispatch(getListTaskByProjectId({ projectId: idProject }));
   }
 }, [idProject, dispatch]);
-console.log("checkidproject", idProject)
-  useEffect(() => {
-    if (workflowSteps.length > 0) {
-      const initialColumns = {};
-      workflowSteps.forEach((step, index) => {
-        initialColumns[step._id] = {
-          id: step._id,
-          title: step.nameStep,
-          color: colors[index % colors.length],
-          tasks: listTask.filter(task => task.status === step._id),
-        };
-      });
+// console.log("checkidproject", idProject)
+ useEffect(() => {
+  if (workflowSteps.length > 0 ) {
+    const initialColumns = {};
 
-      listTask.forEach((task) => {
-        const stepId = task.status || workflowSteps[0]._id;
-        if (initialColumns[stepId]) {
-          initialColumns[stepId].tasks.push({
-            ...task,
-            id: task._id,
-            nameStep:
-              Array.isArray(task.assigneeId) && task.assigneeId[0]?.nameStep
-                ? task.assigneeId[0].nameStep
-                : "Chưa giao",
-          });
-        }
-      });
+    workflowSteps.forEach((step, index) => {
+      initialColumns[step._id] = {
+        id: step._id,
+        title: step.nameStep,
+        color: colors[index % colors.length],
+        tasks: [],
+      };
+    });
 
-      setColumns(initialColumns);
-    }
-  }, [workflowSteps, listTask]);
+listTask.forEach((task) => {
+  const stepId = typeof task.status === "object" ? task.status?._id : task.status || workflowSteps[0]._id;
+  if (initialColumns[stepId]) {
+    initialColumns[stepId].tasks.push({
+      ...task,
+      id: task._id,
+      nameStep:
+        Array.isArray(task.assigneeId) && task.assigneeId[0]?.nameStep
+          ? task.assigneeId[0].nameStep
+          : "Chưa giao",
+    });
+  }
+});
+
+    setColumns(initialColumns);
+  }
+}, [workflowSteps, listTask]);
+
 
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -188,15 +191,18 @@ console.log("checkidproject", idProject)
         onDragEnd={onDragEnd}
       >
         <div className="flex h-full">
-          {Object.entries(columns).map(([key, column]) => (
-            <KanbanColumn
-              key={key}
-              columnId={key}
-              column={column}
-              selectedTasks={selectedTasks}
-              setSelectedTasks={setSelectedTasks}
-            />
-          ))}
+    {Object.entries(columns).map(([key, column]) => {
+  {/* console.log(`Column ${column.title} has tasks:`, column.tasks); */}
+  return (
+    <KanbanColumn
+      key={key}
+      columnId={key}
+      column={column}
+      selectedTasks={selectedTasks}
+      setSelectedTasks={setSelectedTasks}
+    />
+  );
+})}
         </div>
         <DragOverlay>
           {activeId &&
