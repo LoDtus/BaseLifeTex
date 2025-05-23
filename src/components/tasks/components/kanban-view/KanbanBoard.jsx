@@ -23,12 +23,16 @@ import {
 
 
 } from "@/redux/workflowSlice";
+import { updateTaskStatusLocal } from "../../../../redux/taskSlice";
+import { getRoleIdProject } from "../../../../services/projectRoleService";
 function KanbanBoard({projectId ,selectedTasks, setSelectedTasks }) {
   const dispatch = useDispatch();
     const workflowId = useSelector((state) => state.status.workflowId);
-const userRole = useSelector((state) => state.auth.user?.role);
+const [userRole, setUserRole] = useState();
   const listTask = useSelector((state) => state.task.listTask);
-console.log("chekclistTask", listTask);
+// console.log("chekclistTask", listTask);
+const currentUserId = useSelector((state) => state.auth.login.currentUser.data.user._id);
+const [userRoleIds, setUserRoleIds] = useState([]);
   const workflowSteps = useSelector((state) => state.status.steps);
    const workflowTransitions = useSelector((state) => state.workflow.transitions);
   const [columns, setColumns] = useState({});
@@ -62,6 +66,19 @@ console.log("chekclistTask", listTask);
   }
 }, [idProject, dispatch]);
 // console.log("checkidproject", idProject)
+useEffect(() => {
+  (async () => {
+    if (idProject && currentUserId) {
+      const data = await getRoleIdProject(idProject);
+      console.log("Project roles", data);
+      const rolesOfUser = data.filter(role =>
+        role.userIds.some(user => user._id === currentUserId)
+      );
+      setUserRoleIds(rolesOfUser.map(role => role._id)); // -> danh sách roleId của user
+    }
+  })();
+}, [idProject, currentUserId]);
+ 
  useEffect(() => {
   if (workflowSteps.length > 0 ) {
     const initialColumns = {};
@@ -105,81 +122,83 @@ listTask.forEach((task) => {
     setActiveId(event.active.id);
   };
 
-  const onDragOver = (event) => {
- const { active, over } = event;
-    if (!over) return;
+const onDragOver = (event) => {
+  const { active, over } = event;
+  if ( !over || userRoleIds.length === 0) return; 
 
-    const sourceKey = Object.keys(columns).find((key) =>
-      columns[key].tasks.some((task) => task.id === active.id)
-    );
-    const destKey = Object.keys(columns).find((key) => key === over.id);
-    if (!sourceKey || !destKey || sourceKey === destKey) return;
+  const sourceKey = Object.keys(columns).find((key) =>
+    columns[key].tasks.some((task) => task.id === active.id)
+  );
+  const destKey = over.id;
 
-    // Kiểm tra quyền: có luồng chuyển cho role user không?
-    const allowedTransition = workflowTransitions.find(
-      (t) =>
-        t.fromStep === sourceKey &&
-        t.toStep === destKey &&
-        t.allowedRoles.includes(userRole)
-    );
-    if (!allowedTransition) {
-      // Nếu không có quyền thì không cho hover chuyển sang cột khác
-      return;
-    }
+  if (!sourceKey || !destKey || sourceKey === destKey) return;
 
-    const sourceTasks = [...columns[sourceKey].tasks];
-    const movedTaskIndex = sourceTasks.findIndex((t) => t.id === active.id);
-    const [movedTask] = sourceTasks.splice(movedTaskIndex, 1);
+  const allowedTransition = workflowTransitions.find(
+    (t) =>
+      t.fromStep === sourceKey &&
+      t.toStep === destKey &&
+       t.allowedRoles.some((roleId) => userRoleIds.includes(roleId))
+  );
 
-    const destTasks = [...columns[destKey].tasks];
-    destTasks.unshift(movedTask);
+  if (!allowedTransition) {
+    // toast.error("Bạn không có quyền chuyển task sang trạng thái này");
+    setColumns((prev) => ({ ...prev }));
+    return;
+  }
 
-    setColumns({
-      ...columns,
-      [sourceKey]: { ...columns[sourceKey], tasks: sourceTasks },
-      [destKey]: { ...columns[destKey], tasks: destTasks },
-    });
-  };
+  // ✅ Nếu hợp lệ, cập nhật local drag UI
+  const sourceTasks = [...columns[sourceKey].tasks];
+  const movedTaskIndex = sourceTasks.findIndex((t) => t.id === active.id);
+  const [movedTask] = sourceTasks.splice(movedTaskIndex, 1);
+  const destTasks = [...columns[destKey].tasks];
+  destTasks.unshift(movedTask);
 
-  const onDragEnd = async (event) => {
-     const { active, over } = event;
-    setActiveId(null);
-    if (!over) return;
+  setColumns({
+    ...columns,
+    [sourceKey]: { ...columns[sourceKey], tasks: sourceTasks },
+    [destKey]: { ...columns[destKey], tasks: destTasks },
+  });
+};
 
-    const sourceKey = Object.keys(columns).find((key) =>
-      columns[key].tasks.some((task) => task.id === active.id)
-    );
-    const destKey = over.id;
-    if (!sourceKey || !destKey || sourceKey === destKey) return;
 
-    // Kiểm tra quyền chuyển trạng thái
-    const allowedTransition = workflowTransitions.find(
-      (t) =>
-        t.fromStep === sourceKey &&
-        t.toStep === destKey &&
-        t.allowedRoles.includes(userRole)
-    );
+const onDragEnd = async (event) => {
+  const { active, over } = event;
+  setActiveId(null);
+  if (!over || userRoleIds.length === 0) return;
 
-    if (!allowedTransition) {
-      toast.error("Bạn không có quyền chuyển task sang trạng thái này");
-      // Reset lại columns để task trở về vị trí cũ
-      setColumns((prevColumns) => {
-        // Có thể reload lại tasks hoặc giữ nguyên prevColumns nếu onDragOver đã cản
-        return prevColumns;
-      });
-      return;
-    }
+  const sourceKey = Object.keys(columns).find((key) =>
+    columns[key].tasks.some((task) => task.id === active.id)
+  );
+  const destKey = over.id;
+  if (!sourceKey || !destKey || sourceKey === destKey) return;
 
-    const movedTask = columns[sourceKey].tasks.find((t) => t.id === active.id);
-    if (!movedTask) return;
-    try {
-      await updateTaskStatus(movedTask.id, sourceKey, destKey);
-      toast.success("Cập nhật trạng thái thành công");
-      dispatch(getListTaskByProjectId({ projectId: idProject }));
-    } catch (error) {
-      toast.error("Lỗi cập nhật trạng thái");
-    }
-  };
+  const allowedTransition = workflowTransitions.find(
+    (t) =>
+      t.fromStep === sourceKey &&
+      t.toStep === destKey &&
+      t.allowedRoles.some((roleId) => userRoleIds.includes(roleId))
+  );
+
+  if (!allowedTransition) {
+    toast.error("Bạn không có quyền chuyển task sang trạng thái này");
+    return;
+  }
+
+  const movedTask = columns[sourceKey].tasks.find((t) => t.id === active.id);
+  if (!movedTask) return;
+
+  // Cập nhật local
+  dispatch(updateTaskStatusLocal({ taskId: movedTask.id, newStatus: destKey }));
+
+  try {
+    await updateTaskStatus(movedTask.id, sourceKey, destKey);
+    toast.success("Cập nhật trạng thái thành công");
+  } catch (error) {
+    toast.error("Lỗi cập nhật trạng thái");
+    dispatch(getListTaskByProjectId({ projectId: idProject }));
+  }
+};
+
 
   return (
     <div className="mt-1">
@@ -205,21 +224,28 @@ listTask.forEach((task) => {
 })}
         </div>
         <DragOverlay>
-          {activeId &&
-            (() => {
-              const task = Object.values(columns)
-                .flatMap((col) => col.tasks)
-                .find((t) => t.id === activeId);
-              return task ? (
-                <div className="p-4 bg-white shadow rounded w-[160px]">
-                  <p className="font-medium">{task.name}</p>
-                  <p className="text-xs text-gray-500 text-center">
-                    {task.userName}
-                  </p>
-                </div>
-              ) : null;
-            })()}
-        </DragOverlay>
+  {activeId &&
+    (() => {
+      const task = Object.values(columns)
+        .flatMap((col) => col.tasks)
+        .find((t) => t.id === activeId);
+
+      const currentColumnId = Object.keys(columns).find((key) =>
+        columns[key].tasks.some((t) => t.id === activeId)
+      );
+
+      if (!task || !currentColumnId) return null;
+
+      return (
+        <div className="p-4 bg-white shadow rounded w-[160px]">
+          <p className="font-medium">{task.name}</p>
+          <p className="text-xs text-gray-500 text-center">
+            {task.userName}
+          </p>
+        </div>
+      );
+    })()}
+</DragOverlay>
       </DndContext>
     </div>
   );

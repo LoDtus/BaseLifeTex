@@ -8,14 +8,27 @@ import {
   addworkflow,
   deleteAllWorkflowSteps
 } from "@/services/workflowService";
+import { getworkflowbyid } from "../services/workflowService";
 
 const initialState = {
   currentWorkflow: null,
   workflowId: null,
   steps: [],
+   transitions: [],  
   loading: false,
   error: null,
 };
+export const fetchWorkflowDetail = createAsyncThunk(
+  "workflow/fetchWorkflowDetail",
+  async (workflowId, thunkAPI) => {
+    try {
+      const response = await getworkflowbyid(workflowId); // <- gọi theo ID
+      return response; // { workFlowData, steps, transitions }
+    } catch (err) {
+      return thunkAPI.rejectWithValue(err?.response?.data || err.message);
+    }
+  }
+);
 export const creatworkflow = createAsyncThunk(
   "workflow/addworkflow",
   async (projectId, thunkAPI) => {
@@ -111,10 +124,28 @@ const workflowSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
+    .addCase(fetchWorkflowDetail.pending, (state) => {
+  state.loading = true;
+  state.error = null;
+})
+.addCase(fetchWorkflowDetail.fulfilled, (state, action) => {
+  const { workFlowData, steps, transitions } = action.payload || {};
+  state.currentWorkflow = workFlowData;
+  state.workflowId = workFlowData?._id || null;
+  state.steps = steps || [];
+  state.transitions = transitions || [];
+  state.loading = false;
+})
+.addCase(fetchWorkflowDetail.rejected, (state, action) => {
+  state.loading = false;
+  state.error = action.payload;
+})
+
       .addCase(creatworkflow.fulfilled, (state, action) => {
         state.workflowId = action.payload._id;
         state.currentWorkflow = action.payload;
         state.steps = []; // reset steps nếu cần
+         state.transitions = [];
       })
            .addCase(deleteAllWorkflowStepsThunk.pending, (state) => {
         state.loading = true;

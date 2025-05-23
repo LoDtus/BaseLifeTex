@@ -21,12 +21,11 @@ const AddRoleModal = ({
   const {state, setState} = useContext(mya);
 
   const PROJECT_ROLE_PERMISSIONS = [
-    "View",
+ 
     "Add",
     "Edit",
     "Delete",
-    "Comment",
-    "Drag",
+   
   ];
   // Populate form when editing
   useEffect(() => {

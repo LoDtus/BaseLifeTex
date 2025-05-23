@@ -8,13 +8,24 @@ const baseUrl = import.meta.env.VITE_BACKEND_URL;
 // Lấy chi tiết workflow theo projectId
 export const getworkflowbyid = async (id) => {
   try {
-    const respoonse = await axiosInstance.get(`/work-flow/${id}`);
-  
-    return respoonse?.data;
+    const response = await axiosInstance.get(`/work-flow/${id}`);
+    // console.log("Response từ API getworkflowbyid:", response.data);
+    const data = response?.data?.data;
+
+    if (!data?.workFlowData) {
+      message.warning('Không tìm thấy workflow cho project này');
+      return null;
+    }
+
+    return data;
   } catch (error) {
-    console.log(error);
+
+ 
+    return null;
   }
 };
+
+
 export const addworkflow = async (data) => {
   try {
     const response = await axiosInstance.post(`/work-flow`, data);

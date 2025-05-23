@@ -20,6 +20,7 @@ import ProjectSettingPopover from "./ProjectSettingPopover";
 import { fetchWorkflowSteps,clearWorkflowSteps } from "@/redux/statusSlice";
 import { getListTaskByProjectId } from "@/redux/taskSlice";
 import KanbanBoard from "../../tasks/components/kanban-view/KanbanBoard";
+import { fetchWorkflowDetail } from "../../../redux/statusSlice";
 
 const ProjectCard = ({ project, isSelected, avatarManger }) => {
   const dispatch = useDispatch();
@@ -33,17 +34,18 @@ const ProjectCard = ({ project, isSelected, avatarManger }) => {
   const [projectModal, setProjectModal] = useState(false);
   const [editingProject, setEditingProject] = useState(null);
   const [openConfirmDialog, setOpenConfirmDialog] = useState(false); // New state for ConfirmDialog
-
+const [selectedProjectId, setSelectedProjectId] = useState(null);
   useEffect(() => {
     setProjectModal(false);
   }, [project]);
-  // useEffect(() => {
-  //   if (isSelected) {
-  //     dispatch(clearWorkflowSteps());
-  //     dispatch(fetchWorkflowSteps({ projectId: project._id }));
-  //     dispatch(getListTaskByProjectId({ projectId: project._id }));
-  //   }
-  // }, [isSelected, project._id, dispatch]);
+
+const handleSelectProject = (projectId) => {
+  setSelectedProjectId(projectId);
+  dispatch(clearWorkflowSteps());
+  dispatch(fetchWorkflowSteps({ projectId }));
+  dispatch(getListTaskByProjectId({ projectId }));
+};
+
   const getStatusButtonClass = () => {
     switch (convertStatus(project.status)) {
       case "Đang thực hiện":
@@ -120,8 +122,9 @@ const ProjectCard = ({ project, isSelected, avatarManger }) => {
       <div
         className={`${styles.projectCard} ${
           styles[getStatusBackgroundClass(project.status)]
-        } ${isSelected ? styles.selected : ""}`}
-
+        } ${isSelected ? styles.selected : ""}`
+        }
+  onClick={() => handleSelectProject(project._id)}
       >
         <div className={styles.projectHeader}>
           <div className={styles.right}>

@@ -195,7 +195,7 @@ const RoleManagement = ({ onSuccess }) => {
         permissions: item?.permissions,
       }))
     : [];
-  const permissions = ["View", "Add", "Edit", "Delete", "Comment", "Drag"];
+  const permissions = [ "Add", "Edit", "Delete",];
   //   /////////////////////////////////////////////////////////////////////////////\
 
   return (
@@ -252,7 +252,7 @@ const RoleManagement = ({ onSuccess }) => {
         <div className="text-left font-bold flex justify-content-between items-center  mt-4">
           <div className="">
             <ReadOutlined style={{ marginRight: "4px" }} />
-            DANH SÁCH 
+            DANH SÁCH VAI TRÒ
           </div>
           <Button
             icon={<UsergroupAddOutlined />}

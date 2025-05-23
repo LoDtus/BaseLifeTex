@@ -428,7 +428,6 @@ export default function TaskForm() {
           description: description,
           startDate: startDate.format("YYYY-MM-DD"),
           endDate: endDate.format("YYYY-MM-DD"),
-          status: status,
           projectId: projectId,
           assignerId: user._id,
           priority: priority,

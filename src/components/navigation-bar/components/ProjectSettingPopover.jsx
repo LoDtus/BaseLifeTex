@@ -53,6 +53,7 @@ import {
 import AssignRoleModal from "./AssignRoleModal.jsx";
 import RoleManagement from "./RoleManagement.jsx";
 import { mya } from "../../../redux/Context.jsx";
+import { get } from "react-hook-form";
 const ProjectSettingPopover = ({ onClose }) => {
   const popoverRef = useRef(null);
   const dispatch = useDispatch();
@@ -61,7 +62,7 @@ const ProjectSettingPopover = ({ onClose }) => {
   const [workflows, setWorkflows] = useState([]);
   const [fromState, setFromState] = useState(null);
   const [toState, setToState] = useState(null);
-
+// const workflowId = workflows?.workFlowData?._id;
   const transitions = useSelector((state) => state.workflow.transitions);
   const safeTransitions = Array.isArray(transitions) ? transitions : [];
 
@@ -107,7 +108,8 @@ const ProjectSettingPopover = ({ onClose }) => {
     "#e0ffe7", // xanh bạc hà nhạt
     "#f0f0ff", // xanh tím nhạt (lavender nhạt)
   ];
-  const currentWorkflowId = workflows?.[0]?._id ?? null;
+const currentWorkflowId = workflows?.workFlowData?._id ?? null;
+
   useEffect(() => {
     if (currentWorkflowId) {
       dispatch(fetchWorkflowSteps(currentWorkflowId));
@@ -199,8 +201,8 @@ const ProjectSettingPopover = ({ onClose }) => {
   const handleAddStatus = async () => {
     if (!addStatusValue.trim()) return;
 
-    const idWorflow = await getworkflowbyid(idProject);
-    const currentWorkflowId = idWorflow?.data[0]?._id ?? null;
+    const res = await getworkflowbyid(idProject);
+   const currentWorkflowId = res?.workFlowData?._id ?? null;
 
     if (!currentWorkflowId) {
       message.error("Vui lòng tạo workflow trước khi thêm trạng thái.");
@@ -388,22 +390,28 @@ const ProjectSettingPopover = ({ onClose }) => {
 
   // const permissions = ["View", "Add", "Edit", "Delete", "Comment", "Drag"];
 
-  useEffect(() => {
-    if (!projectId) return;
+useEffect(() => {
+  if (!projectId) return;
 
-    (async () => {
-      try {
-        const res = await getworkflowbyid(projectId);
-        if (Array.isArray(res?.data)) {
-          setWorkflows(res.data);
-        } else {
-          setWorkflows([]);
-        }
-      } catch (err) {
-        console.error("❌ Không lấy được workflow:", err);
+  (async () => {
+    try {
+      const res = await getworkflowbyid(projectId);
+
+
+      if (res?.workFlowData) {
+        setWorkflows(res); // res = { workFlowData, steps, transitions }
+      } else {
+        setWorkflows(null);
       }
-    })();
-  }, [projectId]);
+    } catch (error) {
+      console.error("❌ Lỗi khi lấy workflow:", error);
+      message.error("Không thể lấy workflow");
+      setWorkflows(null);
+    }
+  })();
+}, [projectId]);
+
+
 
   
   const { Option } = Select;
@@ -579,27 +587,33 @@ const ProjectSettingPopover = ({ onClose }) => {
     }
   };
 
-  useEffect(() => {
-    (async () => {
-      try {
-        if (!idProject) {
-          return;
+useEffect(() => {
+  if (!projectId) return;
+
+  (async () => {
+    try {
+      const res = await getworkflowbyid(projectId);
+
+      // Chỉ check workFlowData có tồn tại
+      if (!res?.workFlowData) {
+        const actionResult = await dispatch(creatworkflow(projectId));
+        if (creatworkflow.fulfilled.match(actionResult)) {
+          message.success("Tạo workflow thành công");
+          setWorkflows([actionResult.payload]); // cập nhật workflow mới
+        } else {
+          message.error("Hiện tại đã có workflow trong dự án này");
         }
-        const idWorflow = await getworkflowbyid(idProject);
-        if (!idWorflow?.data[0]?._id) {
-          const actionResult = await dispatch(creatworkflow(projectId));
-          if (creatworkflow.fulfilled.match(actionResult)) {
-            message.success("Tạo workflow thành công");
-            // workflowId và currentWorkflow đã được cập nhật trong slice (theo extraReducers)
-          } else {
-            message.error("Hiện tại đã có workflow trong dự án này");
-          }
-        }
-      } catch (error) {
-        console.log(error);
+      } else {
+        setWorkflows(res);
       }
-    })();
-  }, [idProject]);
+    } catch (error) {
+      console.error("❌ Lỗi khi lấy workflow:", error);
+      message.error("Không thể lấy workflow");
+    }
+  })();
+}, [projectId, dispatch]);
+
+
   return createPortal(
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[1000]">
       <div
@@ -1017,7 +1031,7 @@ const ProjectSettingPopover = ({ onClose }) => {
                 </div>
                 <div className="text-left font-bold  mt-4">
                   <ReadOutlined style={{ marginRight: "4px" }} />
-                  DANH SÁCH 
+                  DANH SÁCH THÀNH VIÊN
                 </div>
                 <div className="mt-2">
                   <Table

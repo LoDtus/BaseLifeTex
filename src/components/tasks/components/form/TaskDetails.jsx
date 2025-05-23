@@ -2,7 +2,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { setTaskForm } from "@/redux/propertiesSlice";
 import { getTaskDetailById } from "@/services/taskService";
 import { Button, Image, Input, Popover, Pagination, message } from "antd";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
 import { convertDateYMD } from "@/utils/convertUtils";
 import {
   getPaginateCommentByTask,
@@ -15,6 +15,7 @@ import {
 import dayjs from "dayjs";
 import { deleteTaskById } from "../../../../services/taskService";
 import ConfirmDialog from "../../../ConfirmDialog";
+import { mya } from "../../../../redux/Context";
 
 export default function TaskDetails() {
   const dispatch = useDispatch();
@@ -189,7 +190,7 @@ export default function TaskDetails() {
     dispatch(setTaskForm("CLOSE"));
   }
   console.log(task);
-
+const { userPermissions } = useContext(mya);
   return (
     <div className="z-100 fixed top-0 left-0 w-[100vw] h-[100vh] flex justify-center items-center">
       <div
@@ -372,8 +373,8 @@ export default function TaskDetails() {
               </a>
             </div>
             <p className="py-2 px-3 border rounded-md">{task?.description}</p>
-            {user?.role === 0 && (
-              <div className="w-full flex justify-end">
+          <div className="w-full flex justify-end">
+              {userPermissions.includes("Edit") && (
                 <Button
                   className="!font-semibold w-[100px] !mr-1"
                   type="primary"
@@ -381,6 +382,8 @@ export default function TaskDetails() {
                 >
                   Cập nhật
                 </Button>
+              )}
+              {userPermissions.includes("Delete") && (
                 <Button
                   className="!font-semibold w-[100px]"
                   variant="solid"
@@ -389,8 +392,8 @@ export default function TaskDetails() {
                 >
                   Xóa
                 </Button>
-              </div>
-            )}
+              )}
+            </div>
           </div>
 
           <div

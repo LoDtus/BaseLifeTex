@@ -120,7 +120,6 @@ export const updateTask = async (id, data) => {
   formData.append("description", data.description);
   formData.append("startDate", data.startDate);
   formData.append("endDate", data.endDate);
-  formData.append("status", data.status);
   formData.append("projectId", data.projectId);
   formData.append("assignerId", data.assignerId);
   formData.append("priority", data.priority);

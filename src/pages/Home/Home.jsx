@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useContext, useEffect, useState } from "react";
 import "./Home.scss";
 import { useSearchParams } from "react-router-dom";
 import { Avatar, Popover } from "@mui/material";
@@ -18,6 +18,8 @@ import { toast } from "react-toastify";
 import { setOpenProjectMenu } from "@/redux/propertiesSlice";
 import { setViewMode } from "../../redux/viewModeSlice";
 import ConfirmDialog from "../../components/ConfirmDialog";
+import { mya } from "../../redux/Context";
+import { message } from "antd";
 
 export default function Home() {
   const dispatch = useDispatch();
@@ -125,7 +127,7 @@ export default function Home() {
   const openMember = Boolean(anchorEl);
   const filterId = openFilter ? "filter-popover" : undefined;
   const memberId = openMember ? "member-popover" : undefined;
-
+const {userPermissions} = useContext(mya)
   return (
     <div className="home-container">
       {/* Header Section */}
@@ -241,7 +243,7 @@ export default function Home() {
               src="/icons/trash-icon.png"
               alt="Delete"
               className="tool-icon"
-              onClick={handleDeleteSelected}
+             onClick={()=>userPermissions.includes("Delete") ? handleDeleteSelected() : message.warning("bạn không có quyền xoá")}
             />
             <img
               src="/icons/filter-icon.png"

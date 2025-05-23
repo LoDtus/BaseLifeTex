@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useContext } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { useSearchParams } from "react-router-dom";
 import { updateIssueDataStatus } from "@/services/issueService";
@@ -17,6 +17,7 @@ import { changeRowPerPage } from "@/redux/taskSlice";
 import { convertDateYMD } from "@/utils/convertUtils";
 import EditFormv2 from "@/components/tasks/components/form/EditFormv2";
 import { setTaskForm } from "@/redux/propertiesSlice";
+import { mya } from "../../../../redux/Context";
 
 export default function ListHome({ selectedTasks = [], setSelectedTasks }) {
   const DEFAULT_AVATAR =
@@ -166,9 +167,11 @@ const handleStatusChange = async (taskId, oldStatusObj, newStatusId) => {
   }, [selectedTasks, taskList]);
 
   const workflowSteps = useSelector((state) => state.status.steps);
+  const {userPermissions} = useContext(mya)
   return (
     <div className="list-home-wrapper">
-      <div
+    {userPermissions.includes("Add") && (
+        <div
         className="w-fit py-1 px-5 mb-1 flex items-center border rounded-md font-semibold
                 cursor-pointer duration-200 hover:bg-light-gray active:scale-90"
         onClick={() => dispatch(setTaskForm("ADD"))}
@@ -182,6 +185,7 @@ const handleStatusChange = async (taskId, oldStatusObj, newStatusId) => {
         </svg>
         <span>Thêm công việc</span>
       </div>
+      )}
       {loading ? (
         <Loading />
       ) : (
