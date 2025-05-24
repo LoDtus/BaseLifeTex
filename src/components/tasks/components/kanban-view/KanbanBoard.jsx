@@ -1,5 +1,3 @@
-
-
 import {
   closestCorners,
   DndContext,
@@ -9,7 +7,7 @@ import {
   DragOverlay,
   KeyboardSensor,
 } from "@dnd-kit/core";
-import { sortableKeyboardCoordinates,arrayMove } from "@dnd-kit/sortable";
+import { sortableKeyboardCoordinates, arrayMove } from "@dnd-kit/sortable";
 import React, { useEffect, useState } from "react";
 import KanbanColumn from "./KanbanColumn";
 import { updateTaskStatus } from "@/services/taskService";
@@ -17,41 +15,41 @@ import { useSearchParams } from "react-router-dom";
 import { getListTaskByProjectId } from "@/redux/taskSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
-import { fetchWorkflowSteps,clearWorkflowSteps } from "@/redux/statusSlice";
-import {
-  fetchWorkflowTransitions,
-
-
-} from "@/redux/workflowSlice";
+import { fetchWorkflowSteps, clearWorkflowSteps } from "@/redux/statusSlice";
+import { fetchWorkflowTransitions } from "@/redux/workflowSlice";
 import { updateTaskStatusLocal } from "../../../../redux/taskSlice";
 import { getRoleIdProject } from "../../../../services/projectRoleService";
-function KanbanBoard({projectId ,selectedTasks, setSelectedTasks }) {
+function KanbanBoard({ projectId, selectedTasks, setSelectedTasks }) {
   const dispatch = useDispatch();
-    const workflowId = useSelector((state) => state.status.workflowId);
-const [userRole, setUserRole] = useState();
+  const workflowId = useSelector((state) => state.status.workflowId);
+
   const listTask = useSelector((state) => state.task.listTask);
-// console.log("chekclistTask", listTask);
-const currentUserId = useSelector((state) => state.auth.login.currentUser.data.user._id);
-const [userRoleIds, setUserRoleIds] = useState([]);
+  // console.log("chekclistTask", listTask);
+  const currentUserId = useSelector(
+    (state) => state.auth.login.currentUser.data.user._id
+  );
+  const [userRoleIds, setUserRoleIds] = useState([]);
   const workflowSteps = useSelector((state) => state.status.steps);
-   const workflowTransitions = useSelector((state) => state.workflow.transitions);
+  const workflowTransitions = useSelector(
+    (state) => state.workflow.transitions
+  );
   const [columns, setColumns] = useState({});
   const [searchParams] = useSearchParams();
   const idProject = searchParams.get("idProject");
   const [activeId, setActiveId] = useState(null);
   const colors = [
- "#ffe5e5", // đỏ rất nhạt
-  "#ffefd6", // cam rất nhạt
-  "#ffffe0", // vàng rất nhạt
-  "#e6fff2", // xanh nhạt pha trắng
-  "#e0faff", // xanh da trời nhạt hơn
-  "#e6eeff", // xanh dương pha trắng
-  "#eeeaff", // tím rất nhạt
-  "#fff0f5", // hồng pastel
-  "#eafff5", // xanh bạc hà pha trắng
-  "#f7f7ff", 
+    "#ffe5e5", // đỏ rất nhạt
+    "#ffefd6", // cam rất nhạt
+    "#ffffe0", // vàng rất nhạt
+    "#e6fff2", // xanh nhạt pha trắng
+    "#e0faff", // xanh da trời nhạt hơn
+    "#e6eeff", // xanh dương pha trắng
+    "#eeeaff", // tím rất nhạt
+    "#fff0f5", // hồng pastel
+    "#eafff5", // xanh bạc hà pha trắng
+    "#f7f7ff",
   ];
-    useEffect(() => {
+  useEffect(() => {
     if (workflowId) {
       dispatch(fetchWorkflowSteps(workflowId));
       dispatch(fetchWorkflowTransitions(workflowId));
@@ -59,57 +57,60 @@ const [userRoleIds, setUserRoleIds] = useState([]);
   }, [dispatch, workflowId]);
   // console.log("checkworkflowId", workflowId);
   useEffect(() => {
-  if (idProject) {
-    dispatch(clearWorkflowSteps()); // 👈 reset steps trước khi fetch mới
-    dispatch(fetchWorkflowSteps(idProject));
-    dispatch(getListTaskByProjectId({ projectId: idProject }));
-  }
-}, [idProject, dispatch]);
-// console.log("checkidproject", idProject)
-useEffect(() => {
-  (async () => {
-    if (idProject && currentUserId) {
-      const data = await getRoleIdProject(idProject);
-      console.log("Project roles", data);
-      const rolesOfUser = data.filter(role =>
-        role.userIds.some(user => user._id === currentUserId)
-      );
-      setUserRoleIds(rolesOfUser.map(role => role._id)); // -> danh sách roleId của user
+    if (idProject) {
+      dispatch(clearWorkflowSteps()); // 👈 reset steps trước khi fetch mới
+      dispatch(fetchWorkflowSteps(idProject));
+      dispatch(getListTaskByProjectId({ projectId: idProject }));
     }
-  })();
-}, [idProject, currentUserId]);
- 
- useEffect(() => {
-  if (workflowSteps.length > 0 ) {
-    const initialColumns = {};
+  }, [idProject, dispatch]);
+  // console.log("checkidproject", idProject)
+  useEffect(() => {
+    (async () => {
+      if (idProject && currentUserId) {
+        const allRoles = await getRoleIdProject(idProject);
+        // Filter roles where user is member
+        const rolesOfUser = allRoles.filter((role) =>
+          role.userIds.some((user) => user._id === currentUserId)
+        );
+        // Save array of role _id that user has
+        setUserRoleIds(rolesOfUser.map((role) => role._id));
+      }
+    })();
+  }, [idProject, currentUserId]);
 
-    workflowSteps.forEach((step, index) => {
-      initialColumns[step._id] = {
-        id: step._id,
-        title: step.nameStep,
-        color: colors[index % colors.length],
-        tasks: [],
-      };
-    });
+  useEffect(() => {
+    if (workflowSteps.length > 0) {
+      const initialColumns = {};
 
-listTask.forEach((task) => {
-  const stepId = typeof task.status === "object" ? task.status?._id : task.status || workflowSteps[0]._id;
-  if (initialColumns[stepId]) {
-    initialColumns[stepId].tasks.push({
-      ...task,
-      id: task._id,
-      nameStep:
-        Array.isArray(task.assigneeId) && task.assigneeId[0]?.nameStep
-          ? task.assigneeId[0].nameStep
-          : "Chưa giao",
-    });
-  }
-});
+      workflowSteps.forEach((step, index) => {
+        initialColumns[step._id] = {
+          id: step._id,
+          title: step.nameStep,
+          color: colors[index % colors.length],
+          tasks: [],
+        };
+      });
 
-    setColumns(initialColumns);
-  }
-}, [workflowSteps, listTask]);
+      listTask.forEach((task) => {
+        const stepId =
+          typeof task.status === "object"
+            ? task.status?._id
+            : task.status || workflowSteps[0]._id;
+        if (initialColumns[stepId]) {
+          initialColumns[stepId].tasks.push({
+            ...task,
+            id: task._id,
+            nameStep:
+              Array.isArray(task.assigneeId) && task.assigneeId[0]?.nameStep
+                ? task.assigneeId[0].nameStep
+                : "Chưa giao",
+          });
+        }
+      });
 
+      setColumns(initialColumns);
+    }
+  }, [workflowSteps, listTask]);
 
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -122,83 +123,87 @@ listTask.forEach((task) => {
     setActiveId(event.active.id);
   };
 
-const onDragOver = (event) => {
-  const { active, over } = event;
-  if ( !over || userRoleIds.length === 0) return; 
+  const onDragOver = (event) => {
+    const { active, over } = event;
+    if (!over || userRoleIds.length === 0) return;
 
-  const sourceKey = Object.keys(columns).find((key) =>
-    columns[key].tasks.some((task) => task.id === active.id)
-  );
-  const destKey = over.id;
+    const sourceKey = Object.keys(columns).find((key) =>
+      columns[key].tasks.some((task) => task.id === active.id)
+    );
+    const destKey = over.id;
+    // console.log("📦 DragOver: ", sourceKey, "->", destKey);
+    // console.log("👤 Current Role IDs: ", userRoleIds);
+    if (!sourceKey || !destKey || sourceKey === destKey) return;
 
-  if (!sourceKey || !destKey || sourceKey === destKey) return;
+    const allowedTransition = workflowTransitions.find(
+      (t) =>
+        t.fromStep === sourceKey &&
+        t.toStep === destKey &&
+        t.allowedRoles.some((roleId) => userRoleIds.includes(roleId))
+    );
+    // console.log("🔁 Found Transition: ", allowedTransition);
+    if (!allowedTransition) {
+      // toast.error("Bạn không có quyền chuyển task sang trạng thái này");
+      setColumns((prev) => ({ ...prev }));
+      return;
+    }
 
-  const allowedTransition = workflowTransitions.find(
-    (t) =>
-      t.fromStep === sourceKey &&
-      t.toStep === destKey &&
-       t.allowedRoles.some((roleId) => userRoleIds.includes(roleId))
-  );
+    const sourceTasks = [...columns[sourceKey].tasks];
+    const movedTaskIndex = sourceTasks.findIndex((t) => t.id === active.id);
+    const [movedTask] = sourceTasks.splice(movedTaskIndex, 1);
+    const destTasks = [...columns[destKey].tasks];
+    destTasks.unshift(movedTask);
 
-  if (!allowedTransition) {
-    // toast.error("Bạn không có quyền chuyển task sang trạng thái này");
-    setColumns((prev) => ({ ...prev }));
-    return;
-  }
+    setColumns({
+      ...columns,
+      [sourceKey]: { ...columns[sourceKey], tasks: sourceTasks },
+      [destKey]: { ...columns[destKey], tasks: destTasks },
+    });
+  };
 
-  // ✅ Nếu hợp lệ, cập nhật local drag UI
-  const sourceTasks = [...columns[sourceKey].tasks];
-  const movedTaskIndex = sourceTasks.findIndex((t) => t.id === active.id);
-  const [movedTask] = sourceTasks.splice(movedTaskIndex, 1);
-  const destTasks = [...columns[destKey].tasks];
-  destTasks.unshift(movedTask);
+  const onDragEnd = async (event) => {
+    const { active, over } = event;
+    setActiveId(null);
+    if (!over || userRoleIds.length === 0) return;
 
-  setColumns({
-    ...columns,
-    [sourceKey]: { ...columns[sourceKey], tasks: sourceTasks },
-    [destKey]: { ...columns[destKey], tasks: destTasks },
-  });
-};
+    const sourceKey = Object.keys(columns).find((key) =>
+      columns[key].tasks.some((task) => task.id === active.id)
+    );
+    const destKey = over.id;
+    if (!sourceKey || !destKey || sourceKey === destKey) return;
 
+    const allowedTransition = workflowTransitions.find(
+      (t) =>
+        t.fromStep === sourceKey &&
+        t.toStep === destKey &&
+        t.allowedRoles.some((roleId) => userRoleIds.includes(roleId))
+    );
 
-const onDragEnd = async (event) => {
-  const { active, over } = event;
-  setActiveId(null);
-  if (!over || userRoleIds.length === 0) return;
+    if (!allowedTransition) {
+      toast.error("Bạn không có quyền chuyển task sang trạng thái này");
+      return;
+    }
 
-  const sourceKey = Object.keys(columns).find((key) =>
-    columns[key].tasks.some((task) => task.id === active.id)
-  );
-  const destKey = over.id;
-  if (!sourceKey || !destKey || sourceKey === destKey) return;
+    const movedTask = columns[sourceKey].tasks.find((t) => t.id === active.id);
+    if (!movedTask) return;
 
-  const allowedTransition = workflowTransitions.find(
-    (t) =>
-      t.fromStep === sourceKey &&
-      t.toStep === destKey &&
-      t.allowedRoles.some((roleId) => userRoleIds.includes(roleId))
-  );
+    try {
+      // Gọi API trước
+      console.log("updat", updateTaskStatus);
+      await updateTaskStatus(movedTask.id, sourceKey, destKey);
+      toast.success("✅ Cập nhật trạng thái thành công");
 
-  if (!allowedTransition) {
-    toast.error("Bạn không có quyền chuyển task sang trạng thái này");
-    return;
-  }
+      // Nếu thành công mới cập nhật local Redux
+      dispatch(
+        updateTaskStatusLocal({ taskId: movedTask.id, newStatus: destKey })
+      );
+    } catch (error) {
+      toast.error(error.message || "❌ Lỗi cập nhật trạng thái");
 
-  const movedTask = columns[sourceKey].tasks.find((t) => t.id === active.id);
-  if (!movedTask) return;
-
-  // Cập nhật local
-  dispatch(updateTaskStatusLocal({ taskId: movedTask.id, newStatus: destKey }));
-
-  try {
-    await updateTaskStatus(movedTask.id, sourceKey, destKey);
-    toast.success("Cập nhật trạng thái thành công");
-  } catch (error) {
-    toast.error("Lỗi cập nhật trạng thái");
-    dispatch(getListTaskByProjectId({ projectId: idProject }));
-  }
-};
-
+      // Optional: gọi lại toàn bộ task nếu bạn lo local lệch
+      dispatch(getListTaskByProjectId({ projectId: idProject }));
+    }
+  };
 
   return (
     <div className="mt-1">
@@ -210,47 +215,47 @@ const onDragEnd = async (event) => {
         onDragEnd={onDragEnd}
       >
         <div className="flex h-full">
-    {Object.entries(columns).map(([key, column]) => {
-  {/* console.log(`Column ${column.title} has tasks:`, column.tasks); */}
-  return (
-    <KanbanColumn
-      key={key}
-      columnId={key}
-      column={column}
-      selectedTasks={selectedTasks}
-      setSelectedTasks={setSelectedTasks}
-    />
-  );
-})}
+          {Object.entries(columns).map(([key, column]) => {
+            {
+              /* console.log(`Column ${column.title} has tasks:`, column.tasks); */
+            }
+            return (
+              <KanbanColumn
+                key={key}
+                columnId={key}
+                column={column}
+                selectedTasks={selectedTasks}
+                setSelectedTasks={setSelectedTasks}
+              />
+            );
+          })}
         </div>
         <DragOverlay>
-  {activeId &&
-    (() => {
-      const task = Object.values(columns)
-        .flatMap((col) => col.tasks)
-        .find((t) => t.id === activeId);
+          {activeId &&
+            (() => {
+              const task = Object.values(columns)
+                .flatMap((col) => col.tasks)
+                .find((t) => t.id === activeId);
 
-      const currentColumnId = Object.keys(columns).find((key) =>
-        columns[key].tasks.some((t) => t.id === activeId)
-      );
+              const currentColumnId = Object.keys(columns).find((key) =>
+                columns[key].tasks.some((t) => t.id === activeId)
+              );
 
-      if (!task || !currentColumnId) return null;
+              if (!task || !currentColumnId) return null;
 
-      return (
-        <div className="p-4 bg-white shadow rounded w-[160px]">
-          <p className="font-medium">{task.name}</p>
-          <p className="text-xs text-gray-500 text-center">
-            {task.userName}
-          </p>
-        </div>
-      );
-    })()}
-</DragOverlay>
+              return (
+                <div className="p-4 bg-white shadow rounded w-[160px]">
+                  <p className="font-medium">{task.name}</p>
+                  <p className="text-xs text-gray-500 text-center">
+                    {task.userName}
+                  </p>
+                </div>
+              );
+            })()}
+        </DragOverlay>
       </DndContext>
     </div>
   );
 }
 
 export default KanbanBoard;
-
-

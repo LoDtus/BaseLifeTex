@@ -62,7 +62,7 @@ const ProjectSettingPopover = ({ onClose }) => {
   const [workflows, setWorkflows] = useState([]);
   const [fromState, setFromState] = useState(null);
   const [toState, setToState] = useState(null);
-// const workflowId = workflows?.workFlowData?._id;
+  // const workflowId = workflows?.workFlowData?._id;
   const transitions = useSelector((state) => state.workflow.transitions);
   const safeTransitions = Array.isArray(transitions) ? transitions : [];
 
@@ -108,8 +108,11 @@ const ProjectSettingPopover = ({ onClose }) => {
     "#e0ffe7", // xanh bạc hà nhạt
     "#f0f0ff", // xanh tím nhạt (lavender nhạt)
   ];
-const currentWorkflowId = workflows?.workFlowData?._id ?? null;
+  const currentWorkflowId = workflows?.workFlowData?._id ?? null;
+  // ("npm run dev");
 
+  // const currentWorkflowId = workflows?.workFlowData?.[0]?._id ?? null;
+  // npm start
   useEffect(() => {
     if (currentWorkflowId) {
       dispatch(fetchWorkflowSteps(currentWorkflowId));
@@ -202,7 +205,8 @@ const currentWorkflowId = workflows?.workFlowData?._id ?? null;
     if (!addStatusValue.trim()) return;
 
     const res = await getworkflowbyid(idProject);
-   const currentWorkflowId = res?.workFlowData?._id ?? null;
+    const currentWorkflowId = res?.workFlowData?._id ?? null;
+    // const currentWorkflowId = res?.workFlowData?.[0]?._id ?? null;
 
     if (!currentWorkflowId) {
       message.error("Vui lòng tạo workflow trước khi thêm trạng thái.");
@@ -216,7 +220,7 @@ const currentWorkflowId = workflows?.workFlowData?._id ?? null;
       stepOrder: maxOrder + 1,
       isFinal: false,
     };
-
+    console.log("checkpayload", payload);
     try {
       const res = await dispatch(addWorkflowStep(payload));
 
@@ -390,30 +394,26 @@ const currentWorkflowId = workflows?.workFlowData?._id ?? null;
 
   // const permissions = ["View", "Add", "Edit", "Delete", "Comment", "Drag"];
 
-useEffect(() => {
-  if (!projectId) return;
+  useEffect(() => {
+    if (!projectId) return;
 
-  (async () => {
-    try {
-      const res = await getworkflowbyid(projectId);
-
-
-      if (res?.workFlowData) {
-        setWorkflows(res); // res = { workFlowData, steps, transitions }
-      } else {
+    (async () => {
+      try {
+        const res = await getworkflowbyid(projectId);
+        // console.log("getwork", res);
+        if (res?.workFlowData) {
+          setWorkflows(res); // res = { workFlowData, steps, transitions }
+        } else {
+          setWorkflows(null);
+        }
+      } catch (error) {
+        console.error("❌ Lỗi khi lấy workflow:", error);
+        message.error("Không thể lấy workflow");
         setWorkflows(null);
       }
-    } catch (error) {
-      console.error("❌ Lỗi khi lấy workflow:", error);
-      message.error("Không thể lấy workflow");
-      setWorkflows(null);
-    }
-  })();
-}, [projectId]);
+    })();
+  }, [projectId]);
 
-
-
-  
   const { Option } = Select;
   const location = useLocation(); // lấy URL hiện tại
   const queryParams = new URLSearchParams(location.search); // phân tích chuỗi query
@@ -423,13 +423,15 @@ useEffect(() => {
   const [filterUser, setfilterUser] = useState([]);
   const [isAssignRoleModalOpen, setIsAssignRoleModalOpen] = useState(false);
   const [role, setRole] = useState([]);
-  const [selectedRolea, setSelectedRolea] = useState(role?.length ? role[0]._id : null);
+  const [selectedRolea, setSelectedRolea] = useState(
+    role?.length ? role[0]._id : null
+  );
   // useEffect(() => {
   //   if (role?.length) {
   //     setSelectedRolea(role[0]._id)|| null;
   //   }
   // }, [role]);
-   const {state, setState} = useContext(mya);
+  const { state, setState } = useContext(mya);
   useEffect(() => {
     (async () => {
       if (idProject) {
@@ -438,8 +440,7 @@ useEffect(() => {
         setUsers(data);
       }
     })();
-  }, [check, idProject,state]);
-
+  }, [check, idProject, state]);
 
   const roleOptions = role
     ? role.map((item) => ({
@@ -470,9 +471,9 @@ useEffect(() => {
   }, [users, selectedRolea]);
   // ✅ Tìm kiếm user
   const ROLES_REVERSE = roleOptions.reduce((acc, role) => {
-  acc[role.value] = role.label;
-  return acc;
-}, {});
+    acc[role.value] = role.label;
+    return acc;
+  }, {});
   useEffect(() => {
     const normalizeString = (str) =>
       str
@@ -587,32 +588,31 @@ useEffect(() => {
     }
   };
 
-useEffect(() => {
-  if (!projectId) return;
+  useEffect(() => {
+    if (!projectId) return;
 
-  (async () => {
-    try {
-      const res = await getworkflowbyid(projectId);
+    (async () => {
+      try {
+        const res = await getworkflowbyid(projectId);
 
-      // Chỉ check workFlowData có tồn tại
-      if (!res?.workFlowData) {
-        const actionResult = await dispatch(creatworkflow(projectId));
-        if (creatworkflow.fulfilled.match(actionResult)) {
-          message.success("Tạo workflow thành công");
-          setWorkflows([actionResult.payload]); // cập nhật workflow mới
+        // Chỉ check workFlowData có tồn tại
+        if (!res?.workFlowData) {
+          const actionResult = await dispatch(creatworkflow(projectId));
+          if (creatworkflow.fulfilled.match(actionResult)) {
+            message.success("Tạo workflow thành công");
+            setWorkflows([actionResult.payload]); // cập nhật workflow mới
+          } else {
+            message.error("Hiện tại đã có workflow trong dự án này");
+          }
         } else {
-          message.error("Hiện tại đã có workflow trong dự án này");
+          setWorkflows(res);
         }
-      } else {
-        setWorkflows(res);
+      } catch (error) {
+        console.error("❌ Lỗi khi lấy workflow:", error);
+        message.error("Không thể lấy workflow");
       }
-    } catch (error) {
-      console.error("❌ Lỗi khi lấy workflow:", error);
-      message.error("Không thể lấy workflow");
-    }
-  })();
-}, [projectId, dispatch]);
-
+    })();
+  }, [projectId, dispatch]);
 
   return createPortal(
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[1000]">
@@ -779,7 +779,7 @@ useEffect(() => {
                     ROLES
                   </h3>
                   <div className="flex justify-center gap-6 flex-wrap text-sm">
-                   {roleOptions.map((role,index) => (
+                    {roleOptions.map((role, index) => (
                       <label key={index} className="flex items-center gap-5">
                         <input
                           type="checkbox"
@@ -803,7 +803,12 @@ useEffect(() => {
                             }
                           }}
                         />
-                        <span className="text-base" style={{marginLeft: "2px"}}>{role.label}</span>
+                        <span
+                          className="text-base"
+                          style={{ marginLeft: "2px" }}
+                        >
+                          {role.label}
+                        </span>
                       </label>
                     ))}
                   </div>
@@ -917,7 +922,10 @@ useEffect(() => {
                                   {fromStep?.nameStep || "Không xác định"} ➝{" "}
                                   {toStep?.nameStep || "Không xác định"}
                                   {flow.allowedRoles?.length > 0 && (
-                                    <strong className="ml-2 text-base text-gray-600" style={{marginLeft: "3px"}}>
+                                    <strong
+                                      className="ml-2 text-base text-gray-600"
+                                      style={{ marginLeft: "3px" }}
+                                    >
                                       (
                                       {flow.allowedRoles
                                         .map(
@@ -1007,7 +1015,11 @@ useEffect(() => {
 
                 <div className="mt-4 flex items-center justify-between">
                   <button
-                    onClick={() => selectedRolea !== null ? setIsAssignRoleModalOpen(true) : message.warning("vui lòng chọn vai trò")}
+                    onClick={() =>
+                      selectedRolea !== null
+                        ? setIsAssignRoleModalOpen(true)
+                        : message.warning("vui lòng chọn vai trò")
+                    }
                     className="flex items-center gap-1 border border-gray-400 rounded px-3 py-1 hover:bg-[#5f646a] hover:text-white  transition"
                   >
                     <PlusOutlined />
@@ -1048,9 +1060,8 @@ useEffect(() => {
             </div>
           )}
           {activeTab === "roles" && (
-                      <RoleManagement onSuccess={() => setActiveTab("usserRoles")} />
-                    )}
-        
+            <RoleManagement onSuccess={() => setActiveTab("usserRoles")} />
+          )}
         </div>
         {isAssignRoleModalOpen && (
           <AssignRoleModal

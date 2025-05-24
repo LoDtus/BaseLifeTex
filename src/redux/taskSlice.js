@@ -103,13 +103,13 @@ const taskSlice = createSlice({
     closeTaskForm: (state) => {
       state.isTaskFormOpen = false;
     },
-      updateTaskStatusLocal: (state, action) => {
-    const { taskId, newStatus } = action.payload;
-    const task = state.listTask.find((t) => t._id === taskId);
-    if (task) {
-      task.status = newStatus;
-    }
-  },
+    updateTaskStatusLocal: (state, action) => {
+      const { taskId, newStatus } = action.payload;
+      const task = state.listTask.find((t) => t._id === taskId);
+      if (task) {
+        task.status = newStatus;
+      }
+    },
   },
 
   extraReducers: (builder) => {
@@ -177,6 +177,11 @@ const taskSlice = createSlice({
   },
 });
 
-export const { changePage, changeRowPerPage,updateTaskStatusLocal, openTaskForm, closeTaskForm } =
-  taskSlice.actions;
+export const {
+  changePage,
+  changeRowPerPage,
+  updateTaskStatusLocal,
+  openTaskForm,
+  closeTaskForm,
+} = taskSlice.actions;
 export default taskSlice.reducer;

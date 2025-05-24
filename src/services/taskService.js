@@ -13,17 +13,16 @@ export const getTasksByProject = async (projectId) => {
 export const updateTaskStatus = async (taskId, oldStatus, newStatus) => {
   try {
     const response = await axiosInstance.put(`/tasks/${taskId}/status`, {
-      oldStatus: oldStatus,
-      newStatus: newStatus,
+      oldStatus,
+      newStatus,
     });
     return response.data;
   } catch (error) {
-    // eslint-disable-next-line no-console
-    console.log(
-      "Cập nhật trạng thái công việc thất bại",
-      error.response?.data || error
-    );
-    throw error;
+    const message =
+      error?.response?.data?.message ||
+      "Cập nhật trạng thái công việc thất bại";
+    console.error("❌ Lỗi cập nhật trạng thái:", message);
+    throw new Error(message); // để catch ở nơi gọi có thể hiển thị thông báo cụ thể
   }
 };
 
@@ -85,7 +84,7 @@ export const getTaskByPagination = async (projectId, page, limit) => {
 };
 
 export const addTask = async (data) => {
-   console.log("🎯 Payload tạo task:", data);
+  console.log("🎯 Payload tạo task:", data);
   const formData = new FormData();
   formData.append("image", data.image);
   formData.append("assigneeId", data.assigneeId);

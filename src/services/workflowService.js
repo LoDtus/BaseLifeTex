@@ -13,18 +13,15 @@ export const getworkflowbyid = async (id) => {
     const data = response?.data?.data;
 
     if (!data?.workFlowData) {
-      message.warning('Không tìm thấy workflow cho project này');
+      message.warning("Không tìm thấy workflow cho project này");
       return null;
     }
 
     return data;
   } catch (error) {
-
- 
     return null;
   }
 };
-
 
 export const addworkflow = async (data) => {
   try {
@@ -177,7 +174,7 @@ export const deleteWorkflowTransition = async (id) => {
     await axiosInstance.delete(
       `${baseUrl}/work-flow/workflow-transition/${id}`
     );
-     return id;
+    return id;
   } catch (error) {
     throw error.response?.data || error.message;
   }
